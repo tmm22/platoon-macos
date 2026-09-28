@@ -1,0 +1,9 @@
+.DS_Store
+*.o
+tools/amiga/emu
+tools/Musashi/m68kmake
+tools/Musashi/m68kops.*
+port/.build/
+build/
+*.state
+re/dumps/

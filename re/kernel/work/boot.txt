@@ -1,0 +1,8 @@
+250 dump title.bin
+300 fire 1
+305 fire 0
+600 fire 1
+605 fire 0
+900 fire 1
+905 fire 0
+1100 dump play0.bin

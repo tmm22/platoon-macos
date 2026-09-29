@@ -1,0 +1,57 @@
+import Foundation
+import QuartzCore
+import PlatoonCore
+
+/// Owns the running game and paces it at 50 Hz (PAL) independent of the display refresh rate.
+final class GameHost {
+    let disk: Disk
+    private(set) var machine: Machine
+    let audio = AudioOutput()
+    let inputManager = InputManager()
+    var paused = false { didSet { if paused { inputManager.releaseAll() }; last = 0 } }
+    private var last: CFTimeInterval = 0
+    private var acc: Double = 0
+    static let frameTime = 1.0 / 50.0
+
+    init(disk: Disk) {
+        self.disk = disk
+        machine = Machine(disk: disk)
+        wire()
+        machine.start(PlatoonGame.main)
+    }
+
+    private func wire() {
+        machine.chip.paula.output = { [audio] in audio.push($0) }
+        inputManager.input = machine.input
+        applyAudioSettings()
+    }
+
+    func applyAudioSettings() {
+        let s = Settings.shared, p = machine.chip.paula
+        p.interpolate = s.interpolate; p.filterEnabled = s.a500Filter
+        p.stereoSeparation = Float(s.separation); p.volume = Float(s.volume)
+    }
+
+    func reset() {
+        machine.stop()
+        machine = Machine(disk: disk)
+        wire()
+        audio.flush()
+        machine.start(PlatoonGame.main)
+        acc = 0; last = 0
+    }
+
+    /// Runs as many emulated frames as are due. Returns true if a new frame was produced.
+    @discardableResult func tick() -> Bool {
+        let now = CACurrentMediaTime()
+        defer { last = now }
+        guard !paused, last > 0 else { return false }
+        acc += min(0.25, now - last)
+        var ran = false, n = 0
+        while acc >= GameHost.frameTime && n < 5 {
+            machine.runFrame(); acc -= GameHost.frameTime; ran = true; n += 1
+        }
+        if n == 5 { acc = 0 }
+        return ran
+    }
+}

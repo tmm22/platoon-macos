@@ -1,0 +1,26 @@
+177ca ps0_walk player state 0: normal walking/standing
+17918 ps1 player state 1
+17986 ps2 player state 2
+179e6 ps3 player state 3
+17abc ps4 player state 4
+17bc4 ps5 player state 5
+17e72 ps6 player state 6
+17ee8 ps7 player state 7
+17f56 ps8 player state 8
+18050 ps9 player state 9
+18076 ps10 player state 10
+180da es0 enemy state 0
+182c0 es1 enemy state 1
+182f2 es2 enemy state 2
+1856e es3 enemy state 3
+1864c es4 enemy state 4
+18696 es5 enemy state 5
+18706 es6 enemy state 6
+18722 es7 enemy state 7
+187c6 es8 enemy state 8
+1768e cb_bullet_hits_enemy bullet-vs-enemy callback (a2)
+1770e cb_grenade_hits_enemy grenade-vs-enemy callback
+1772a cb_enemybullet_hits_player enemy-bullet-vs-player callback
+19002 unused_19002 unreferenced code fragment
+19b1a unused_19b1a unreferenced code fragment
+19f88 unused_19f88 unreferenced stubs

@@ -1,0 +1,4 @@
+1 poke 12e4f 2 1
+2 breaksave 18b0e /Users/deborahmangan/Projects/Platoon/re/states/flare_start.state
+5 key 0x5f 1
+10 key 0x5f 0

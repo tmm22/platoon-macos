@@ -1,0 +1,13 @@
+300 fire 1
+305 fire 0
+350 poke 12e4c 1 2
+600 fire 1
+605 fire 0
+640 shot b640
+700 shot b700
+800 shot b800
+890 shot b890
+900 fire 1
+905 fire 0
+920 shot b920
+950 shot b950

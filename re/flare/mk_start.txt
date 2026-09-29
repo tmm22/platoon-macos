@@ -1,0 +1,6 @@
+1 poke 12e4f 2 1
+5 key 0x5f 1
+10 key 0x5f 0
+20 poke 12e0a 8 2
+20 poke 12e4f 0 1
+21 save /Users/deborahmangan/Projects/Platoon/re/states/flare_start.state

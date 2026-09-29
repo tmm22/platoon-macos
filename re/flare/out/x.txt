@@ -1,0 +1,6 @@
+[f1028 v010] AUD1 start ptr=008834 len=32 per=794 vol=64
+[f1028 v014] AUD3 start ptr=0055dc len=2750 per=189 vol=40
+[f1042 v011] AUD2 start ptr=0089c0 len=32 per=559 vol=1
+[f1044 v006] AUD1 start ptr=008834 len=32 per=794 vol=64
+[f1052 v004] AUD0 start ptr=008834 len=32 per=397 vol=32
+[f1062 v313] done: 1062 frames, 0 blits, pc=010ada

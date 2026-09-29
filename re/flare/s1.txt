@@ -1,0 +1,9 @@
+1 poke 12e4f 2 1
+5 key 0x5f 1
+10 key 0x5f 0
+20 shot c20
+100 shot c100
+200 shot c200
+300 shot c300
+400 shot c400
+600 shot c600

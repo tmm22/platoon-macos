@@ -1,0 +1,31 @@
+17000 start section 0 entry
+177ca pl_st0_walk player state 0
+17918 pl_st1 player state 1
+17986 pl_st2 player state 2
+179e6 pl_st3 player state 3
+17abc pl_st4 player state 4
+17bc4 pl_st5 player state 5
+17e72 pl_st6 player state 6
+17ee8 pl_st7 player state 7
+17f56 pl_st8 player state 8
+18050 pl_st9 player state 9
+18076 pl_st10 player state 10
+180da en_st0 enemy state 0
+182c0 en_st1 enemy state 1
+182f2 en_st2 enemy state 2
+1856e en_st3 enemy state 3
+1864c en_st4 enemy state 4
+18696 en_st5 enemy state 5
+18706 en_st6 enemy state 6
+18722 en_st7 enemy state 7
+187c6 en_st8 enemy state 8
+1768e hit_a2_1768e
+1770e hit_a2_1770e
+1772a hit_a2_1772a
+19f88 misc_19f88
+19002 dead_19002 unreachable code after bra
+19b1a unused_19b1a unreferenced routine
+19f92 misc_19f92
+19f9c misc_19f9c
+19fa6 misc_19fa6
+19fba misc_19fba

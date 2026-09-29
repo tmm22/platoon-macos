@@ -856,6 +856,14 @@ static void do_event(Ev *e) {
     else if (!strcmp(e->cmd, "dumpr")) { unsigned a, l; char fn[256]; if (sscanf(e->arg, "%x %x %255s", &a, &l, fn) == 3) { snprintf(path, sizeof path, "%s/%s", outdir, fn); FILE *df = fopen(path, "wb"); for (unsigned i = 0; i < l; i++) fputc(m68k_read_memory_8(a + i), df); fclose(df); elog("dumped %06x+%x to %s\n", a, l, path); } }
     else if (!strcmp(e->cmd, "breaksave")) { unsigned a; char fn[256]; if (sscanf(e->arg, "%x %255s", &a, fn) == 2) { breaksave_pc = a; snprintf(breaksave_path, sizeof breaksave_path, "%s", fn); } }
     else if (!strcmp(e->cmd, "tracer")) { trace_regs = 1; trace_count = atoi(e->arg); if (!pclog) { snprintf(path, sizeof path, "%s/trace.txt", outdir); pclog = fopen(path, "w"); } }
+    else if (!strcmp(e->cmd, "chipdump")) {
+        snprintf(path, sizeof path, "%s/%s", outdir, e->arg); FILE *cf = fopen(path, "wb");
+        fwrite(S.chip, 1, CHIP_SIZE, cf);
+        for (int i = 0; i < 0x100; i++) { uint16_t r = S.regs[i]; if (i == 1) r = S.dmacon; fputc(r >> 8, cf); fputc(r & 0xff, cf); }
+        uint16_t x[4] = { S.dmacon, S.intena, S.intreq, S.adkcon };
+        for (int i = 0; i < 4; i++) { fputc(x[i] >> 8, cf); fputc(x[i] & 0xff, cf); }
+        fclose(cf); elog("chipdump %s\n", path);
+    }
     else if (!strcmp(e->cmd, "quit")) stop_emulation = 1;
     update_joy();
 }
@@ -909,7 +917,7 @@ static void usage(void) {
         "  --pchist LO HI FILE   pc histogram over range\n"
         "  --slowram             enable 512K slow RAM at $C00000\n"
         "script cmds: up/down/left/right/fire/fire0 0|1, key CODE 0|1, shot NAME, save PATH, dump FILE,\n"
-        "  dumpr HEXADDR HEXLEN FILE, poke HEXADDR HEXVAL SIZE, trace N, tracer N (with regs), regs,\n"
+        "  chipdump FILE (chip RAM + custom regs for platoon-headless --chipdump),\n  dumpr HEXADDR HEXLEN FILE, poke HEXADDR HEXVAL SIZE, trace N, tracer N (with regs), regs,\n"
         "  breaksave HEXPC PATH (save state+stop when pc hit; note: saved mid-line), quit\n");
 }
 

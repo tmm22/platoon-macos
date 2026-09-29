@@ -1,0 +1,185 @@
+[f13 v106] DISK DMA read track 18 (cyl 9 side 0) -> 068000 words 8000
+[f14 v212] DISK DMA read track 19 (cyl 9 side 1) -> 068000 words 8000
+[f17 v117] DISK DMA read track 20 (cyl 10 side 0) -> 068000 words 8000
+[f53 v220] DISK DMA read track 1 (cyl 0 side 1) -> 068000 words 8000
+[f56 v125] DISK DMA read track 2 (cyl 1 side 0) -> 068000 words 8000
+[f57 v251] DISK DMA read track 3 (cyl 1 side 1) -> 068000 words 8000
+[f60 v156] DISK DMA read track 4 (cyl 2 side 0) -> 068000 words 8000
+[f61 v282] DISK DMA read track 5 (cyl 2 side 1) -> 068000 words 8000
+[f64 v213] DISK DMA read track 6 (cyl 3 side 0) -> 068000 words 8000
+[f66 v026] DISK DMA read track 7 (cyl 3 side 1) -> 068000 words 8000
+[f68 v244] DISK DMA read track 8 (cyl 4 side 0) -> 068000 words 8000
+[f70 v057] DISK DMA read track 9 (cyl 4 side 1) -> 068000 words 8000
+[f72 v275] DISK DMA read track 10 (cyl 5 side 0) -> 068000 words 8000
+[f74 v068] DISK DMA read track 11 (cyl 5 side 1) -> 068000 words 8000
+[f76 v286] DISK DMA read track 12 (cyl 6 side 0) -> 068000 words 8000
+[f78 v099] DISK DMA read track 13 (cyl 6 side 1) -> 068000 words 8000
+[f81 v004] DISK DMA read track 14 (cyl 7 side 0) -> 068000 words 8000
+[f82 v130] DISK DMA read track 15 (cyl 7 side 1) -> 068000 words 8000
+[f85 v035] DISK DMA read track 16 (cyl 8 side 0) -> 068000 words 8000
+[f86 v161] DISK DMA read track 17 (cyl 8 side 1) -> 068000 words 8000
+[f126 v005] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f126 v009] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f126 v013] AUD2 start ptr=008834 len=32 per=421 vol=24
+[f126 v016] AUD3 start ptr=0055dc len=2750 per=189 vol=60
+[f134 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f134 v005] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f134 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f142 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f142 v006] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f142 v009] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f150 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f150 v006] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f150 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f158 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f158 v006] AUD1 start ptr=008834 len=32 per=421 vol=64
+[f158 v010] AUD3 start ptr=006b5e len=2650 per=265 vol=60
+[f166 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f174 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f174 v006] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f174 v011] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f182 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f182 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f188 v070] DISK DMA read track 77 (cyl 38 side 1) -> 068000 words 8000
+[f190 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f190 v006] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f190 v011] AUD3 start ptr=0055dc len=2750 per=189 vol=60
+[f198 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f198 v006] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f198 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f206 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f206 v005] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f206 v009] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f214 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f214 v006] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f214 v009] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f222 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f222 v006] AUD1 start ptr=008940 len=64 per=210 vol=32
+[f222 v011] AUD3 start ptr=006b5e len=2650 per=265 vol=60
+[f230 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f238 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f238 v006] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f238 v011] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f246 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f246 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f254 v006] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f254 v008] AUD1 start ptr=008834 len=32 per=630 vol=64
+[f254 v013] AUD3 start ptr=0055dc len=2750 per=189 vol=60
+[f262 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f262 v006] AUD1 start ptr=008834 len=32 per=630 vol=64
+[f262 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f270 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f270 v006] AUD1 start ptr=008834 len=32 per=630 vol=64
+[f270 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f278 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f278 v005] AUD1 start ptr=008834 len=32 per=630 vol=64
+[f278 v009] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f286 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f286 v006] AUD1 start ptr=008834 len=32 per=630 vol=64
+[f286 v010] AUD3 start ptr=006b5e len=2650 per=265 vol=60
+[f294 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f302 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f302 v005] AUD1 start ptr=008834 len=32 per=630 vol=64
+[f302 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f306 v008] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f314 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f322 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f330 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f338 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f346 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f354 v005] AUD1 start ptr=004310 len=2403 per=790 vol=64
+[f378 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f402 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f434 v007] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f442 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f450 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f458 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f466 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f474 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f482 v005] AUD1 start ptr=004310 len=2403 per=790 vol=64
+[f506 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f515 v155] DISK DMA read track 84 (cyl 42 side 0) -> 068000 words 8000
+[f516 v292] DISK DMA read track 85 (cyl 42 side 1) -> 068000 words 8000
+[f519 v229] DISK DMA read track 86 (cyl 43 side 0) -> 068000 words 8000
+[f521 v063] DISK DMA read track 87 (cyl 43 side 1) -> 068000 words 8000
+[f523 v303] DISK DMA read track 88 (cyl 44 side 0) -> 068000 words 8000
+[f525 v138] DISK DMA read track 89 (cyl 44 side 1) -> 068000 words 8000
+[f528 v075] DISK DMA read track 90 (cyl 45 side 0) -> 068000 words 8000
+[f529 v212] DISK DMA read track 91 (cyl 45 side 1) -> 068000 words 8000
+[f530 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f532 v150] DISK DMA read track 92 (cyl 46 side 0) -> 068000 words 8000
+[f534 v010] DISK DMA read track 93 (cyl 46 side 1) -> 068000 words 8000
+[f536 v250] DISK DMA read track 94 (cyl 47 side 0) -> 068000 words 8000
+[f538 v084] DISK DMA read track 95 (cyl 47 side 1) -> 068000 words 8000
+[f541 v047] DISK DMA read track 96 (cyl 48 side 0) -> 068000 words 8000
+[f542 v211] DISK DMA read track 97 (cyl 48 side 1) -> 068000 words 8000
+[f545 v148] DISK DMA read track 98 (cyl 49 side 0) -> 068000 words 8000
+[f546 v285] DISK DMA read track 99 (cyl 49 side 1) -> 068000 words 8000
+[f549 v222] DISK DMA read track 100 (cyl 50 side 0) -> 068000 words 8000
+[f551 v056] DISK DMA read track 101 (cyl 50 side 1) -> 068000 words 8000
+[f553 v296] DISK DMA read track 102 (cyl 51 side 0) -> 068000 words 8000
+[f555 v131] DISK DMA read track 103 (cyl 51 side 1) -> 068000 words 8000
+[f558 v068] DISK DMA read track 104 (cyl 52 side 0) -> 068000 words 8000
+[f559 v232] DISK DMA read track 105 (cyl 52 side 1) -> 068000 words 8000
+[f562 v006] AUD0 start ptr=008834 len=32 per=794 vol=64
+[f562 v010] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f562 v014] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f562 v172] DISK DMA read track 106 (cyl 53 side 0) -> 068000 words 8000
+[f563 v310] DISK DMA read track 107 (cyl 53 side 1) -> 068000 words 8000
+[f566 v229] DISK DMA read track 108 (cyl 54 side 0) -> 068000 words 8000
+[f568 v064] DISK DMA read track 109 (cyl 54 side 1) -> 068000 words 8000
+[f570 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f570 v303] DISK DMA read track 110 (cyl 55 side 0) -> 068000 words 8000
+[f578 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f586 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f594 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f594 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f602 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f610 v006] AUD1 start ptr=004310 len=2403 per=790 vol=64
+[f626 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f634 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f640 v313] shot o3/b640.png
+[f658 v006] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f658 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f690 v004] AUD0 start ptr=008834 len=32 per=500 vol=64
+[f690 v008] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f690 v011] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f698 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f698 v291] BP 017000 d0=0000ffff d1=00000000 d2=00000000 d3=00000000 a0=00dff000 a1=00080000 a2=00078000 a6=00012dde sp=00000400
+[f700 v313] shot o3/b700.png
+[f706 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f714 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f722 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f722 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f730 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f738 v006] AUD1 start ptr=004310 len=2403 per=790 vol=64
+[f754 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f762 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f786 v006] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f786 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f800 v313] shot o3/b800.png
+[f818 v004] AUD0 start ptr=008834 len=32 per=595 vol=64
+[f818 v008] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f818 v011] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f826 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f834 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f842 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f850 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f850 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f858 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f866 v006] AUD1 start ptr=004310 len=2403 per=790 vol=64
+[f882 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f890 v313] shot o3/b890.png
+[f890 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f901 v006] AUD0 start ptr=008834 len=32 per=397 vol=32
+[f901 v009] AUD1 start ptr=008834 len=32 per=794 vol=64
+[f901 v015] AUD3 start ptr=0055dc len=2750 per=189 vol=40
+[f909 v004] AUD0 start ptr=008834 len=32 per=397 vol=32
+[f917 v006] AUD1 start ptr=008834 len=32 per=794 vol=64
+[f920 v313] shot o3/b920.png
+[f925 v004] AUD0 start ptr=008834 len=32 per=397 vol=32
+[f941 v004] AUD0 start ptr=008834 len=32 per=397 vol=32
+[f949 v004] AUD0 start ptr=008834 len=32 per=397 vol=32
+[f950 v313] shot o3/b950.png
+[f957 v004] AUD0 start ptr=008834 len=32 per=397 vol=32
+[f960 v313] done: 960 frames, 516 blits, pc=0175da

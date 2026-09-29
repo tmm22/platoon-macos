@@ -1,0 +1,2 @@
+1 shot s0
+100 shot s100

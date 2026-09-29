@@ -8,6 +8,7 @@ final class GameHost {
     private(set) var machine: Machine
     let audio = AudioOutput()
     let inputManager = InputManager()
+    var turbo = false
     var paused = false { didSet { if paused { inputManager.releaseAll() }; last = 0 } }
     private var last: CFTimeInterval = 0
     private var acc: Double = 0
@@ -42,6 +43,12 @@ final class GameHost {
         p.stereoSeparation = Float(s.separation); p.volume = Float(s.volume)
     }
 
+    /// Taps an Amiga key (press now, release a few frames later).
+    func tapKey(_ code: UInt8) {
+        machine.input.key(code, down: true)
+        machine.input.key(code, down: false)
+    }
+
     func reset() {
         machine.stop()
         machine = Machine(disk: disk)
@@ -58,8 +65,10 @@ final class GameHost {
         guard !paused, last > 0 else { return false }
         acc += min(0.25, now - last)
         var ran = false, n = 0
+        let perTick = turbo ? 4 : 1
         while acc >= GameHost.frameTime && n < 5 {
-            machine.runFrame(); acc -= GameHost.frameTime; ran = true; n += 1
+            for _ in 0..<perTick { machine.runFrame() }
+            acc -= GameHost.frameTime; ran = true; n += 1
         }
         if n == 5 { acc = 0 }
         return ran

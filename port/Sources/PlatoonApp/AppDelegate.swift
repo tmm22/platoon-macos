@@ -101,6 +101,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
         let game = NSMenu(title: "Game")
         game.addItem(item("Pause", #selector(togglePause(_:)), "p"))
         game.addItem(item("Reset", #selector(resetGame(_:)), "r"))
+        game.addItem(item("Turbo Speed", #selector(toggleTurbo(_:)), "t"))
+        game.addItem(.separator())
+        game.addItem(item("In-game Pause (TAB)", #selector(sendAmigaKey(_:)), tag: 0x42))
+        game.addItem(item("Cycle Music / Sound FX (F10)", #selector(sendAmigaKey(_:)), tag: 0x59))
+        game.addItem(item("Abort to Title (DEL)", #selector(sendAmigaKey(_:)), tag: 0x46))
+        game.addItem(.separator())
+        game.addItem(item("Save Screenshot", #selector(saveScreenshot(_:)), "s"))
+        game.addItem(.separator())
+        game.addItem(item("Controls…", #selector(showControls(_:)), "/"))
         gameItem.submenu = game
 
         let viewItem = NSMenuItem(); main.addItem(viewItem)
@@ -148,6 +157,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
 
     @objc func togglePause(_ s: Any?) { host?.paused.toggle(); window.title = host?.paused == true ? "Platoon — Paused" : "Platoon" }
     @objc func resetGame(_ s: Any?) { host?.reset() }
+    @objc func toggleTurbo(_ s: Any?) { host?.turbo.toggle() }
+    @objc func sendAmigaKey(_ s: NSMenuItem) { host?.tapKey(UInt8(s.tag)) }
+    @objc func saveScreenshot(_ s: Any?) {
+        guard let h = host else { return }
+        let png = ImageIO.canvasPNG(h.machine.chip)
+        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
+        let dir = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!
+        try? png.write(to: dir.appendingPathComponent("Platoon \(f.string(from: Date())).png"))
+    }
+    @objc func showControls(_ s: Any?) {
+        let a = NSAlert()
+        a.messageText = "Platoon Controls"
+        a.informativeText = """
+        Joystick: arrow keys (or a game controller's d-pad / left stick)
+        Fire: Space or Z (controller A / B / right trigger)
+
+        TAB — pause the game (press again to resume)
+        F10 — cycle music / sound effects
+        DEL — abort to the title screen
+        Letters/Return — name entry on the high-score table
+
+        ⌘P pause emulation · ⌘T turbo speed · ⌘R reset · ⌘S screenshot
+        ⌘1/⌘2/⌘3 sharp / smooth / CRT display · ⌃⌘F full screen
+        """
+        a.runModal()
+    }
     @objc func setFilter(_ s: NSMenuItem) { Settings.shared.filter = s.tag; applyVideoSettings() }
     @objc func toggleAspect(_ s: Any?) { Settings.shared.aspect.toggle(); applyVideoSettings() }
     @objc func toggleInteger(_ s: Any?) { Settings.shared.integerScale.toggle(); applyVideoSettings() }
@@ -171,6 +206,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
         case #selector(setSeparation(_:)): m.state = abs(s.separation - (m.representedObject as? Double ?? -1)) < 0.01 ? .on : .off
         case #selector(setVolume(_:)): m.state = abs(s.volume - (m.representedObject as? Double ?? -1)) < 0.01 ? .on : .off
         case #selector(togglePause(_:)): m.state = host?.paused == true ? .on : .off
+        case #selector(toggleTurbo(_:)): m.state = host?.turbo == true ? .on : .off
         default: break
         }
         return true

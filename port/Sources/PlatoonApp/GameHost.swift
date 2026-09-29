@@ -78,9 +78,17 @@ final class GameHost {
         let now = CACurrentMediaTime()
         defer { last = now }
         guard !paused, last > 0 else { return false }
-        acc += min(0.25, now - last)
-        var ran = false, n = 0
+        let dt = min(0.25, now - last)
         let perTick = turbo ? 4 : 1
+        // Display running at ~50 Hz (e.g. a variable-refresh display): one Amiga frame per display frame,
+        // so every frame is shown exactly once and scrolling stays perfectly smooth.
+        if abs(dt - GameHost.frameTime) < GameHost.frameTime * 0.15 {
+            for _ in 0..<perTick { machine.runFrame() }
+            acc = 0
+            return true
+        }
+        acc += dt
+        var ran = false, n = 0
         while acc >= GameHost.frameTime && n < 5 {
             for _ in 0..<perTick { machine.runFrame() }
             acc -= GameHost.frameTime; ran = true; n += 1
@@ -88,4 +96,5 @@ final class GameHost {
         if n == 5 { acc = 0 }
         return ran
     }
+
 }

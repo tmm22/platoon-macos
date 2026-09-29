@@ -18,7 +18,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
         window.collectionBehavior = [.fullScreenPrimary]
         window.contentMinSize = NSSize(width: 320, height: 256)
         view = GameView(frame: frame, device: MTLCreateSystemDefaultDevice())
-        view.preferredFramesPerSecond = 120
+        // The game runs at 50 Hz (PAL). On variable-refresh (ProMotion) displays ask for 50 Hz so every Amiga
+        // frame is shown exactly once (smooth scrolling); elsewhere present at the display rate.
+        let maxFPS = NSScreen.main?.maximumFramesPerSecond ?? 60
+        view.preferredFramesPerSecond = maxFPS >= 100 ? 50 : 120
         view.framebufferOnly = false
         guard let r = MetalRenderer(view: view) else { fatalError("Metal is required") }
         renderer = r
@@ -70,6 +73,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
         host = h
         view.onKeyDown = { [weak self] c, rep in self?.handleKey(c, rep) }
         view.onKeyUp = { [weak h] c in h?.inputManager.keyUp(c) }
+        view.onFlags = { [weak h] c, f in h?.inputManager.modifierChanged(c, flags: f) }
     }
 
     func handleKey(_ code: UInt16, _ rep: Bool) {
@@ -211,7 +215,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
         TAB — pause the game (press again to resume)
         F10 — cycle music / sound effects
         DEL — abort to the title screen
-        Letters/Return — name entry on the high-score table
+        Left Option (Alt) — change soldier (jungle) · Y / N — answer prompts
+        F11 = HELP · F12 = keypad minus (for laptops)
 
         ⌘P pause emulation · ⌘T turbo speed · ⌘R reset · ⌘S screenshot
         ⌘1/⌘2/⌘3 sharp / smooth / CRT display · ⌃⌘F full screen

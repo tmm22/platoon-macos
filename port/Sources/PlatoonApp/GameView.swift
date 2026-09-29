@@ -10,5 +10,6 @@ final class GameView: MTKView {
         onKeyDown?(e.keyCode, e.isARepeat)
     }
     override func keyUp(with e: NSEvent) { onKeyUp?(e.keyCode) }
-    override func flagsChanged(with e: NSEvent) {}
+    var onFlags: ((UInt16, NSEvent.ModifierFlags) -> Void)?
+    override func flagsChanged(with e: NSEvent) { onFlags?(e.keyCode, e.modifierFlags) }
 }

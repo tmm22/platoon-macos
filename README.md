@@ -24,7 +24,10 @@ original dump, which the Darc image has blank/corrupt). If the bundled disk is m
 | Pause (in-game) | TAB (controller Menu) |
 | Music / sound FX | F10 (controller Options) |
 | Abort to title | DEL |
+| Change soldier (jungle) | Left Option (Amiga Left-Alt) |
+| Answer prompts (trap door) | Y / N |
 | Name entry | joystick left/right + fire |
+| HELP / keypad − on laptops | F11 / F12 |
 
 Mac shortcuts: ⌘P pause emulation · ⌘T turbo · ⌘R reset · ⌘S screenshot (Desktop) · ⌘1/⌘2/⌘3 sharp / smooth / CRT ·
 ⌃⌘F full screen · ⌘/ controls.
@@ -34,9 +37,24 @@ Mac shortcuts: ⌘P pause emulation · ⌘T turbo · ⌘R reset · ⌘S screensh
   PAL aspect correction, optional integer scaling and overscan, full screen, Retina.
 - Audio: low-latency output, optional A500 low-pass filter, sample interpolation, adjustable stereo separation, volume.
 - Game controller support (GameController framework), turbo mode, pause, screenshots.
+- **Continue from Last Section** (⌘K): when you reach the Tunnels or the final Jungle, your platoon (score, morale,
+  men, ammo, items) is remembered, so you can resume there instead of replaying from the start.
+- **Start New Game At** any of the three disk sections (Jungle & Village, Tunnels & Flare, Jungle & Foxhole).
+- **Trainer** (Game menu): infinite ammo & grenades, infinite morale, no wounds. Off by default.
+- 50 Hz presentation on variable-refresh displays for perfectly smooth scrolling.
 - High scores are saved (Application Support/Platoon/hiscores.bin) instead of the crack's disabled disk save.
 - The original credits text is restored in place of the crack's credit line.
 - Instant loading.
+
+## Faithfulness
+Every section was verified against the original running in the reference emulator with identical inputs:
+game RAM compared tick by tick (with the RNG made deterministic in both), screenshots pixel by pixel and the audio
+driver's register stream write by write, including complete honest play-throughs of every section and all hand-overs
+(jungle → village → tunnels → flare → final jungle → foxhole → ending → high-score entry). Evidence: `port/verify/`.
+
+## Original cheats
+Type `HAMBURGER` on a title screen ("CHEAT!!!" appears in the credits), then `KEYPAD-` `H I L L` for "MEGA CHEAT".
+Then: jungle F1-F4 warps / F5-F6 debug overlay, tunnels HELP skips a sub-section, final jungle CAPS LOCK skips.
 
 ## Repository layout
 - `original/` — the supplied disk images.

@@ -23,7 +23,34 @@ final class InputManager {
         0x31: 0x40, 0x33: 0x41, 0x30: 0x42, 0x4c: 0x43, 0x24: 0x44, 0x35: 0x45, 0x75: 0x46,
         0x7e: 0x4c, 0x7d: 0x4d, 0x7c: 0x4e, 0x7b: 0x4f,
         0x7a: 0x50, 0x78: 0x51, 0x63: 0x52, 0x76: 0x53, 0x60: 0x54, 0x61: 0x55, 0x62: 0x56, 0x64: 0x57, 0x65: 0x58, 0x6d: 0x59, 0x72: 0x5f,
+        // keypad
+        0x52: 0x0f, 0x53: 0x1d, 0x54: 0x1e, 0x55: 0x1f, 0x56: 0x2d, 0x57: 0x2e, 0x58: 0x2f, 0x59: 0x3d, 0x5b: 0x3e, 0x5c: 0x3f,
+        0x41: 0x3c, 0x4e: 0x4a, 0x45: 0x5e, 0x43: 0x5d, 0x4b: 0x5c,
+        // laptop substitutes: F11 = HELP, F12 = keypad minus (needed for the MEGA CHEAT code)
+        0x67: 0x5f, 0x6f: 0x4a,
     ]
+    // modifier keys (arrive as flagsChanged): Mac keycode -> Amiga keycode
+    static let modifierKeys: [UInt16: UInt8] = [0x3a: 0x64, 0x3d: 0x65, 0x38: 0x60, 0x3c: 0x61, 0x3b: 0x63, 0x3e: 0x63]
+    static let capsLock: UInt16 = 0x39
+    private var modifiersDown = Set<UInt16>()
+
+    /// A modifier key changed state (NSEvent flagsChanged).
+    func modifierChanged(_ code: UInt16, flags: NSEvent.ModifierFlags) {
+        if code == InputManager.capsLock {           // Amiga CAPS LOCK is a normal key: send a tap per toggle
+            input?.key(0x62, down: true); input?.key(0x62, down: false); return
+        }
+        guard let k = InputManager.modifierKeys[code] else { return }
+        let isDown: Bool
+        switch code {
+        case 0x3a, 0x3d: isDown = flags.contains(.option)
+        case 0x38, 0x3c: isDown = flags.contains(.shift)
+        default: isDown = flags.contains(.control)
+        }
+        let wasDown = modifiersDown.contains(code)
+        if isDown == wasDown { return }
+        if isDown { modifiersDown.insert(code) } else { modifiersDown.remove(code) }
+        input?.key(k, down: isDown)
+    }
 
     init() {
         NotificationCenter.default.addObserver(forName: .GCControllerDidConnect, object: nil, queue: .main) { [weak self] n in
@@ -61,7 +88,13 @@ final class InputManager {
         if let k = InputManager.amigaKeys[code] { input?.key(k, down: false) }
         sync()
     }
-    func releaseAll() { for c in keysDown { keyUp(c) }; keysDown.removeAll(); sync() }
+    func releaseAll() {
+        for c in keysDown { keyUp(c) }
+        keysDown.removeAll()
+        for c in modifiersDown { if let k = InputManager.modifierKeys[c] { input?.key(k, down: false) } }
+        modifiersDown.removeAll()
+        sync()
+    }
 
     private func sync() {
         guard let i = input else { return }

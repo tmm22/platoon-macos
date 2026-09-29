@@ -27,9 +27,15 @@ public enum PlatoonGame {
 }
 
 extension Platoon {
+    /// Debug: PLATOON_TRACE=1 prints every tickPoint with frame/line (same format as the emulator's --bp log).
+    static let traceTicks = ProcessInfo.processInfo.environment["PLATOON_TRACE"] != nil
+
     /// Marks the point in a translated routine that corresponds to original code address `pc`
     /// (typically the head of a main loop). Used for tick-by-tick lockstep comparison with the emulator.
     func tickPoint(_ pc: UInt32) {
+        if Platoon.traceTicks {
+            print(String(format: "[f%d v%03d] BP %06x", m.frameCount, m.beamLine + cpuCycles / Platoon.cyclesPerLine, pc))
+        }
         for t in config.tickDumps where t.pc == pc {
             var d = Data(capacity: 4 + t.len)
             var fr = UInt32(truncatingIfNeeded: m.frameCount).littleEndian

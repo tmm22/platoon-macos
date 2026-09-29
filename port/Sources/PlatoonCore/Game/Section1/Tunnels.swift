@@ -124,6 +124,7 @@ extension Platoon {
             d7 = d6
         }
         // L_017548
+        cpu(S1Cyc.viewSetup)
         mem.w8(S1.viewCodeL, d6)
         s1_drawViewHalf(d6, column: mem.r32(S1.colLeft))
         mem.w8(S1.viewCodeR, d7)
@@ -135,6 +136,7 @@ extension Platoon {
     func s1_drawViewHalf(_ code: UInt8, column a4: UInt32) {
         var a2 = mem.r32(S1.viewMapTab + UInt32(code) * 4) &+ S1.viewMaps
         let a3 = S1.viewTiles
+        cpu(S1Cyc.viewHalfEntry + 18 * S1Cyc.viewRow + 180 * S1Cyc.viewTile)
         for d4 in 0..<18 {
             var a1 = s1_screenAddr(col: 0, row: UInt32(d4)) &+ a4
             for _ in 0..<10 {
@@ -176,7 +178,9 @@ extension Platoon {
         if d4 & 0x80 != 0 { d4 = 0 } else if Int8(bitPattern: d4) > 0x17 { d4 = 0x17 }
         var d5 = mem.r8(S1.posY) &- 9
         if d5 & 0x80 != 0 { d5 = 0 } else if Int8(bitPattern: d5) > 0x19 { d5 = 0x19 }
+        cpu(S1Cyc.mapFixed)
         if mem.r16(a6 + 0x24) != 0 {
+            cpu(18 * S1Cyc.mapRow + 360 * S1Cyc.mapCell)
             var a3 = S1.maze &+ UInt32(d4) &+ mem.r32(S1.mazeRowTab + UInt32(d5) * 4)
             let a2 = S1.mapTiles
             var a4 = mem.r32(S1.mapCachePtrs &+ UInt32(mem.r16(S1.mapCacheIdx)))
@@ -187,6 +191,7 @@ extension Platoon {
                     if d2 != mem.r8(a4) {
                         mem.w8(a4, d2)
                         s1_copyCell(from: a2 &+ UInt32(d2) << 5, to: a1)
+                        cpu(S1Cyc.mapCellCopy)
                     }
                     a4 &+= 1; a1 &+= 1
                 }
@@ -203,7 +208,9 @@ extension Platoon {
     func s1_objectsTunnel() {
         var a3 = S1.objs + 0x7e
         for _ in 0..<8 {
+            cpu(S1Cyc.objSlot)
             if mem.r8(a3) != 0 {
+                cpu(S1Cyc.objActive)
                 s1_objectHandler(mem.r32(a3 + 0xa), a3)
                 if mem.r8(a3) != 0 { s1_drawObject(a3, night: false) }
             }
@@ -224,7 +231,7 @@ extension Platoon {
 
     /// $178be h_crosshair (object 0): HELP cheat, input, walking sway.
     func s1_hCrosshair(_ a3: UInt32) {
-        if mem.r8(a6 + 0x71) & 2 != 0 && r_keytest(0x5f) { s1_flareCheatEntry(a3) }
+        if mem.r8(a6 + 0x71) & 2 != 0 && s1_keytest(0x5f) { s1_flareCheatEntry(a3) }
         if s1_inputTunnel(a3) { return }
         if mem.r8(S1.walked) == 0 && mem.r32(a3 + 2) == 0x440078 { return }
         mem.w8(S1.walked, 0)
@@ -281,7 +288,7 @@ extension Platoon {
         _ = s1_addW(a3 &- 0xe, 0xc)
         mem.w8(a3 + 1, mem.r8(a3 + 1) &+ 1)
         mem.w32(a3 + 0xa, 0x179e4)
-        k_fx(0x83)
+        s1_fx(0x83)
     }
 
     /// $179e4 h_enemy_fired: firing frame for 4 ticks, then back to frame 2 and just hit-testing.
@@ -359,7 +366,7 @@ extension Platoon {
         mem.w16(a3 &- 0x32, mem.r16(a3 + 4))
         _ = s1_subW(a3 &- 0x34, 5)
         _ = s1_addW(a3 &- 0x32, 0xc)
-        k_fx(0x83)
+        s1_fx(0x83)
         mem.w8(a3 + 1, 0)
         mem.w8(a3 + 0x10, 0xff)
         mem.w16(a3 + 0xe, 0)
@@ -396,7 +403,7 @@ extension Platoon {
         mem.w8(a3 + 1, 5)
         mem.w16(a3 + 0xe, 0)
         mem.w32(a3 + 0xa, 0x17a08)
-        k_fx(0x81)
+        s1_fx(0x81)
         mem.w8(S1.enemyHit, 0xff)
     }
 
@@ -409,7 +416,7 @@ extension Platoon {
         mem.w32(a3 + 6, 0x1e128)
         mem.w16(a3 + 2, 0x32)
         mem.w16(a3 + 4, 0x40)
-        k_fx(0x81)
+        s1_fx(0x81)
         mem.w8(S1.enemyHit, 0xff)
     }
 
@@ -419,7 +426,7 @@ extension Platoon {
         mem.w16(a3 + 0xe, 0)
         mem.w8(a3 + 1, 3)
         mem.w32(a3 + 0xa, 0x17b76)
-        k_fx(0x81)
+        s1_fx(0x81)
         mem.w8(S1.enemyHit, 0xff)
     }
 
@@ -428,7 +435,7 @@ extension Platoon {
     /// $18330 input_tunnel (a3 = crosshair). Returns true where the original pops the caller's return
     /// address (combat and room modes: return from h_crosshair without sway).
     func s1_inputTunnel(_ a3: UInt32) -> S1Popped {
-        let d0 = r_joystick()
+        let d0 = s1_joystick()
         if mem.r8(S1.obj2) != 0 || mem.r8(S1.obj3) != 0 || mem.r8(S1.obj1) != 0 {
             s1_inCombat(a3, d0); return true
         }
@@ -444,7 +451,7 @@ extension Platoon {
                 skipLatchClear = true
             } else if mem.r16(s1_a5 + 2) != 0 {
                 _ = s1_subW(s1_a5 + 2, 1)
-                k_fx(0x82)
+                s1_fx(0x82)
             }
         }
         if !skipLatchClear { mem.w8(S1.fireLatch, 0) }
@@ -534,6 +541,7 @@ extension Platoon {
         var d2 = wb >> 1; d2 = (d2 & ~0xff) | UInt32(UInt8(d2 & 0xff) &- 1)
         var d3 = hc << 3; d3 = (d3 & ~0xff) | UInt32(UInt8(d3 & 0xff) &- 1)
         let words = Int(d2 & 0xffff) + 1, lines = Int(d3 & 0xffff) + 1
+        cpu(S1Cyc.roomFixed + lines * (S1Cyc.roomLine + words * S1Cyc.roomWord))
         var a2 = a1
         for _ in 0..<lines {
             for _ in 0..<words {
@@ -631,7 +639,7 @@ extension Platoon {
         }
         let d7 = code
         let handler = mem.r32(S1.itemHandlers &+ UInt32(bitPattern: Int32(Int16(bitPattern: code << 2))))
-        k_fx(0)
+        s1_fx(0)
         s1_itemHandler(handler, d7: d7, a4: a4, a3: a3)
     }
 
@@ -654,13 +662,13 @@ extension Platoon {
             mem.w32(S1.colLeft, 0)
             mem.w32(S1.colRight, 0xa)
             mem.w16(a6 + 0x24, 1)
-            k_hud_icons()
+            s1_hudIcons()
             k_add_score(after: S1.score500End)        // L_018852
         case 0x18862:                       // box of flares
             var d0 = mem.r16(a6 + 0x2c) &+ 5
             if !(Int16(bitPattern: d0) < 8) { d0 = 8 }
             mem.w16(a6 + 0x2c, d0)
-            k_hud_icons()
+            s1_hudIcons()
             s1_itemScoreTaken(d7: d7, a4: a4)
         case 0x18880:                       // +500, taken
             s1_itemScoreTaken(d7: d7, a4: a4)
@@ -679,14 +687,14 @@ extension Platoon {
         case 0x188ce:                       // medical kit
             if mem.r16(s1_a5 + 4) == 0 { k_queue_text(d7); return }
             _ = s1_subW(s1_a5 + 4, 1)
-            k_hud_wounds()
+            s1_hudWounds()
             s1_itemScoreTaken(d7: d7, a4: a4)
         case 0x188e6:                       // exit blocked
             k_queue_text(d7)
             k_queue_text(0x1e)
         case 0x188fc:                       // compass
             mem.w16(a6 + 0x26, 1)
-            k_hud_icons()
+            s1_hudIcons()
             s1_itemScoreTaken(d7: d7, a4: a4)
         case 0x1890c:                       // roman empire
             k_queue_text(d7)
@@ -757,14 +765,14 @@ extension Platoon {
             mem.w32(S1.colLeft, c)
             if c == 0 { return }
             s1_drawRoomPic()
-            k_swap()
+            s1_swap()
         }
     }
 
     /// $18f3c shot_jitter_tunnel: ammo -1, gunshot, 4x random recoil (x 0..$8d, y 0..$7d).
     func s1_shotJitterTunnel(_ a3: UInt32) {
         _ = s1_subW(s1_a5 + 2, 1)
-        k_fx(0x83)
+        s1_fx(0x83)
         var r = UInt16(truncatingIfNeeded: k_random()) & 7
         if Int16(bitPattern: s1_addW(a3 + 2, r)) >= 0x8e { mem.w16(a3 + 2, 0x8d) }
         r = UInt16(truncatingIfNeeded: k_random()) & 7

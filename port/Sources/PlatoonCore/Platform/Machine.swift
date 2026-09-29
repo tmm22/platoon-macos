@@ -90,6 +90,8 @@ public final class Machine {
             }
             chip.endLine(v)
             chip.checkInterrupts()
+            // a jump requested by an interrupt handler (DEL warm restart) happens at once, not at the next wait
+            if pendingJump != nil, !gameFinished { resume() }
         }
         frameCount += 1
     }

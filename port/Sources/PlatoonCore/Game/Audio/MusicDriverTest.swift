@@ -31,10 +31,19 @@ public final class MusicDriverTestHarness {
         p.md_masterVolume = 0
     }
 
+    /// Kernel $10c00 with MUZAK off: `jsr $281c` (stop), master volume := $40.
+    public func stop() {
+        p.md_stop()
+        p.md_masterVolume = 0x40
+    }
+
     /// Kernel $fed6: fade the master volume one step.
     public func fade() {
         if p.md_masterVolume != 0 { p.md_masterVolume -= 1 }
     }
+
+    /// Driver entry $2838 called directly: d0.w = (channel << 8) | id.
+    public func rawSfx(_ d0: UInt16) { p.md_sfx(d0) }
 
     /// Kernel $10c50 channel routing with FX on: synth ids on channel 0 (channel 2 if a sfx is active on 0),
     /// samples $82-$85 on channels 0+2, $80/$81 on channels 1+3.

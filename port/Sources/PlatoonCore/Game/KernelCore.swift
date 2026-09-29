@@ -7,7 +7,9 @@ extension Platoon {
     /// $10eac level3_vblank: restart CIA-B TOD (raster counter), RNG update, TAB pause state machine, BCD timer,
     /// frame flag, music tick, logo colour cycle, F10 music/fx option cycling.
     func level3_vblank() {
+        irqDepth += 1; defer { irqDepth -= 1 }
         tickPoint(KA.level3)
+        irqCharge(vblankHandlerCycles)
         let b = chip.ciaB
         b.write(15, b.read(15) & ~0x80)                        // CRB bit7 = 0: TOD writes set the clock
         b.write(10, 0); b.write(9, 0); b.write(8, 0)
@@ -91,6 +93,8 @@ extension Platoon {
     /// $10faa level6_raster (CIA-B TOD alarm at the split line): latch the scheduled copper list, pause colour
     /// cycling of COLOR00, copy the game-window scroll $72(a6) into the copper list for the next frame.
     func level6_raster() {
+        irqDepth += 1; defer { irqDepth -= 1 }
+        irqCharge(Platoon.level6Cycles)
         _ = chip.ciaB.read(13)
         if mem.r8(KA.swapPending) != 0 {
             chip.writeL(0x080, mem.r32(KA.nextCop))
@@ -119,6 +123,7 @@ extension Platoon {
         settleCPU()
         mem.w8(a6 + KV.frameFlag, 0)
         while mem.r8(a6 + KV.frameFlag) == 0 { m.waitVBlank() }
+        irqCatchUp()
     }
 
     /// $10acc k_wait_frames (jt17): d0+1 vblanks (dbra).
@@ -131,15 +136,18 @@ extension Platoon {
     /// fires when CIA-B TOD (restarted at each vblank, counting lines) reaches the alarm $58(a6)+1.
     func k_wait_swap_impl() {
         settleCPU()
+        if mem.r8(KA.swapPending) == 0 { return }
         while mem.r8(KA.swapPending) != 0 {
             m.waitLine(Int(mem.r8(a6 + KV.splitPlus3c) &+ 1))
         }
+        irqCatchUp()
     }
 
     // MARK: - double buffering / display (jt19, jt24, jt32)
 
     /// $10ae2 k_swap (jt19): flip the draw buffer and schedule the copper list of the buffer just drawn.
     func k_swap_impl() {
+        settleCPU()                                                      // the level-6 handler latches the request
         mem.w32(a6 + KV.drawBuf, mem.r32(a6 + KV.drawBuf) ^ 0x8000)
         if mem.r32(KA.nextCop) == KA.copperA { mem.w32(KA.nextCop, KA.copperB) } else { mem.w32(KA.nextCop, KA.copperA) }
         mem.w8(KA.swapPending, 0xff)
@@ -147,6 +155,7 @@ extension Platoon {
 
     /// $10b1e k_display_init (jt24): 4-plane display with copper list B, window/HUD copper values reset.
     func k_display_init_impl() {
+        settleCPU()
         mem.w32(a6 + KV.drawBuf, 0x70000)
         mem.w32(KA.nextCop, 0x78000)
         mem.w8(KA.swapPending, 0)
@@ -172,6 +181,7 @@ extension Platoon {
     /// $fd4e k_set_split (jt32): HUD bitplane pointers = $78000 + (d0+1)*40, split WAIT line d0+$3d, CIA-B TOD
     /// alarm = d0+$3c+1 (raster interrupt), TOD restarted at 0.
     func k_set_split_impl(_ d0: UInt8) {
+        settleCPU()
         var p = (UInt32(d0) &+ 1 & 0xff) * 0x28 &+ 0x78000
         var a0 = KA.copHudBplpt
         for _ in 0..<4 {                                         // $fdd8 k_put_bplpt
@@ -223,12 +233,14 @@ extension Platoon {
 
     /// $11000 k_set_hud_pal (jt31): $5e(a6) := a0; 16 colours into the HUD part of the copper list.
     func k_set_hud_pal_impl(_ a0: UInt32) {
+        settleCPU()
         mem.w32(a6 + KV.hudPalPtr, a0)
         k_pal_to_copper(a0, KA.copHudPalette)
     }
 
     /// $11010 k_set_top_pal (jt30): $5a(a6) := a0; 16 colours into the game-window part of the copper list.
     func k_set_top_pal_impl(_ a0: UInt32) {
+        settleCPU()
         mem.w32(a6 + KV.topPalPtr, a0)
         k_pal_to_copper(a0, KA.copTopPalette)
     }
@@ -316,14 +328,15 @@ extension Platoon {
 
     /// $10c00 k_music (jt26): current tune := d0; start it if music is on ($66 bit0) else stop; volume := $40.
     func k_music_impl(_ d0: UInt16) {
+        cpu(2300)                                                        // movem + driver init_song (emu: ~5 lines)
         mem.w16(KA.curTune, d0)
-        if mem.r8(a6 + KV.soundFlags) & 1 != 0 { md_initSong(UInt8(truncatingIfNeeded: d0)) } else { md_stop() }
+        if mem.r8(a6 + KV.soundFlags) & 1 != 0 { md_initSong(UInt8(truncatingIfNeeded: d0)); musicPlaying = true } else { md_stop(); musicPlaying = false }
         mem.w16(KA.musVolume, 0x40)
     }
 
     /// $10c3a k_music_stop.
     func k_music_stop() {
-        md_stop()
+        md_stop(); musicPlaying = false
         mem.w16(KA.musVolume, 0)
     }
 

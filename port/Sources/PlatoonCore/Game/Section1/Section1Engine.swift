@@ -9,7 +9,7 @@ extension Platoon {
     /// wait for the message queue, morale -$c00, "GET GOING !". Runs inside the object loop.
     func s1_playerHit() {
         mem.w8(S1.enemyHit, 0)
-        k_fx(0x80)
+        s1_fx(0x80)
         k_queue_text(0x20)
         if mem.r8(S1.inRoom) != 0 {
             mem.w16(S1.posX, mem.r16(S1.posBeforeRoom))
@@ -18,7 +18,7 @@ extension Platoon {
             mem.w32(0x19d88, 0)
         }
         _ = s1_addW(s1_a5 + 4, 1)
-        k_hud_wounds()
+        s1_hudWounds()
         s1_redFade()
         if mem.r16(s1_a5 + 4) == 4 { s1_killedInAction() }
         s1_playerHitWaitMessages()
@@ -43,7 +43,7 @@ extension Platoon {
             k_hud_update()
             k_wait_vbl()
         } while mem.r16(a6 + 0x48) != 0
-        k_hud_wounds()
+        s1_hudWounds()
         s1_moraleSub(0xc00)
         k_hud_update()
         k_queue_text(0)
@@ -52,10 +52,10 @@ extension Platoon {
     /// $17dd0 player_hit_flare: flare variant (no room handling; red fade only on the 4th hit).
     func s1_playerHitFlare() {
         mem.w8(S1.enemyHit, 0)
-        k_fx(0x80)
+        s1_fx(0x80)
         k_queue_text(0x20)
         _ = s1_addW(s1_a5 + 4, 1)
-        k_hud_wounds()
+        s1_hudWounds()
         if mem.r16(s1_a5 + 4) == 4 {
             s1_redFade()
             s1_killedInAction()
@@ -78,13 +78,13 @@ extension Platoon {
                 if d1 & 0x00f != 0 { d7 = 0xff; d1 &-= 1 }
                 mem.w16(a, d1)
             }
-            k_set_top_pal(S1.palWork)
+            s1_setTopPal(S1.palWork)
         } while d7 != 0
         if mem.r16(s1_a5 + 4) == 4 { return }
         s1_drawView()
-        k_swap()
+        s1_swap()
         s1_drawView()
-        k_swap()
+        s1_swap()
         // L_017ee8 fade back to the tunnel palette $1a032
         repeat {
             k_wait_vbl()
@@ -98,7 +98,7 @@ extension Platoon {
                 if d1 & 0x00f != d2 & 0x00f { d7 = 0xff; d1 &+= 1 }
                 mem.w16(a1, d1)
             }
-            k_set_top_pal(S1.palWork)
+            s1_setTopPal(S1.palWork)
         } while d7 != 0
     }
 
@@ -115,6 +115,7 @@ extension Platoon {
     /// (D = B | ~A & C) into the draw buffer at byte column $3b3f8.
     func s1_blitBobNormal(_ d0in: UInt32, _ a1in: UInt32) {
         var a1 = a1in
+        cpu(S1Cyc.blitNormal)
         chip.write(0x040, 0x0100)
         chip.write(0x042, 0)
         chip.write(0x064, 0)
@@ -175,6 +176,7 @@ extension Platoon {
     /// No $3b3f8 column offset.
     func s1_blitBobNight(_ d0in: UInt32, _ a1in: UInt32) {
         var a1 = a1in
+        cpu(S1Cyc.blitNight)
         chip.write(0x040, 0x0100)
         chip.write(0x042, 0)
         chip.write(0x064, 0)

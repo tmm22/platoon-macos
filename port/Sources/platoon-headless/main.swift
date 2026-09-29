@@ -10,14 +10,16 @@ func usage() -> Never {
     platoon-headless [--adf FILE] [--frames N] [--script FILE] [--out DIR] [--shot-every N] [--wav FILE]
                      [--hash HEXLO HEXLEN] [--chipdump FILE] [--start-section N] [--deterministic]
                      [--tickdump HEXPC HEXLO HEXLEN FILE]
-                     [--music-test SONG] [--sfx-test ID] [--reglog FILE] [--wav-rate HZ] [--no-filter]
+                     [--music-test SONG] [--sfx-test ID] [--audio-test] [--reglog FILE] [--wav-rate HZ] [--no-filter]
       --hash      print an FNV hash of a RAM region after every frame (lockstep comparison)
       --start-section N  skip the title and start a new game in load section N (0,1,2)
       --deterministic    no 'interrupted d1' term in the vblank RNG (pair with emu --deterministic)
       --tickdump  append [u32 frame][LEN bytes at LO] whenever translated code calls tickPoint(PC)
       --music-test SONG  audio test mode: load the main program, run only the music driver (vblank md_play),
-                         start song SONG (0..6) before frame 0. Script cmds: music N, musicoff, fade, sfx ID (hex)
+                         start song SONG (0..6) before frame 0. Script cmds: music N, musicoff, stop, fade, sfx ID (hex, kernel routing),
+                         rawsfx D0 (hex, (channel<<8)|id straight to the driver $2838)
       --sfx-test ID      audio test mode (music off unless --music-test): trigger sfx ID (hex, e.g. 82) at frame 0
+      --audio-test       audio test mode without an initial song (drive it with script cmds music/musicoff/stop/sfx)
       --reglog FILE      log every custom register write of the music driver ("W f<frame> v<line> CPU reg=val")
       --wav-rate HZ      Paula output rate for --wav (default 48000); --no-filter: disable the A500 low-pass
       --chipdump  test mode: load an emulator chip snapshot (emu 'chipdump' cmd) and just run the copper/display
@@ -29,7 +31,7 @@ var args = Array(CommandLine.arguments.dropFirst())
 var adfPath = "../re/platoon_port.adf", frames = 500, scriptPath: String?, outDir = "out", shotEvery = 0
 var wavPath: String?, hashRange: (UInt32, Int)?, chipdump: String?
 var config = GameConfig()
-var musicTest: Int?, sfxTest: Int?, reglogPath: String?, wavRate = 48000, noFilter = false
+var musicTest: Int?, sfxTest: Int?, audioTestMode = false, reglogPath: String?, wavRate = 48000, noFilter = false
 while !args.isEmpty {
     let a = args.removeFirst()
     func next() -> String { guard !args.isEmpty else { usage() }; return args.removeFirst() }
@@ -50,6 +52,7 @@ while !args.isEmpty {
         if let h = FileHandle(forWritingAtPath: f) { config.tickDumps.append((pc, lo, len, h)) }
     case "--music-test": musicTest = Int(next())
     case "--sfx-test": sfxTest = Int(next(), radix: 16)
+    case "--audio-test": audioTestMode = true
     case "--reglog": reglogPath = next()
     case "--wav-rate": wavRate = Int(next()) ?? 48000
     case "--no-filter": noFilter = true
@@ -74,7 +77,7 @@ if let r = reglogPath {
         reglog?.write(String(format: "W f%d v%d CPU %03x=%04x pc=002800\n", m.frameCount, m.chip.vpos, reg, v).data(using: .utf8)!)
     }
 }
-let audioTest: MusicDriverTestHarness? = (musicTest != nil || sfxTest != nil) ? MusicDriverTestHarness(machine: m) : nil
+let audioTest: MusicDriverTestHarness? = (musicTest != nil || sfxTest != nil || audioTestMode) ? MusicDriverTestHarness(machine: m) : nil
 
 struct Ev { let frame: Int; let cmd: String; let arg: [String] }
 var events: [Ev] = []
@@ -133,6 +136,8 @@ for f in 0..<frames {
             }
         case "music": audioTest?.music(Int(e.arg.first ?? "0") ?? 0)
         case "musicoff": audioTest?.musicOff()
+        case "stop": audioTest?.stop()
+        case "rawsfx": audioTest?.rawSfx(UInt16(e.arg.first?.replacingOccurrences(of: "0x", with: "") ?? "0", radix: 16) ?? 0)
         case "fade": audioTest?.fade()
         case "sfx": audioTest?.sfx(Int(e.arg.first?.replacingOccurrences(of: "0x", with: "") ?? "0", radix: 16) ?? 0)
         case "quit": wav?.close(); exit(0)

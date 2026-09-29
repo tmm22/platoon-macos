@@ -254,8 +254,10 @@ extension Platoon {
         k_set_top_pal(S2.palText)
         r_print(a0)
         k_wait_frames(0x31)
+        tickPoint(0x1770e)
         // busy poll of res_joystick in the original; one poll per frame here (input changes only per frame)
-        while r_joystick() & 0x80 == 0 { m.waitVBlank() }
+        while r_joystick() & 0x80 == 0 { busyWaitYield() }
+        tickPoint(0x1771c)
     }
 
     /// $1771e game_screen_init: tune 5 (jungle), clear screens, game palette.
@@ -267,6 +269,7 @@ extension Platoon {
 
     /// $17676 clear_play_and_pal: clear rows 0..143 of the 4 planes of both buffers, game + HUD palettes.
     func s2_clear_play_and_pal() {
+        cpu(32 + 0x5a0 * 194 + 4)                   // CPU time: 6 x clr.l d16(An) (24) + 2 x clr.l (An)+ (20) + dbra
         var a0: UInt32 = 0x70000, a1: UInt32 = 0x78000
         for _ in 0...0x59f {
             mem.w32(a0 &+ 0x2000, 0); mem.w32(a0 &+ 0x4000, 0); mem.w32(a0 &+ 0x6000, 0); mem.w32(a0, 0); a0 &+= 4
@@ -289,6 +292,7 @@ extension Platoon {
     /// The RAM vector ($6c) and its saved copy ($172ac) are kept like the original; the translated handler is
     /// wrapped in chip.interruptHandlers[3] (the hook runs first, then chains to the previous handler).
     func s2_fade_out_start() {
+        settleCPU()                         // CPU time model: pending 68000 time elapses before the hook goes in
         s2_pal_copy_current()
         mem.w8(S2.vFadeActive, 0xff)                                // st.b (high byte of the word)
         // (A fade is always over and the hook removed one vblank later, long before the next fade starts, so
@@ -302,9 +306,12 @@ extension Platoon {
     /// $172c2 l3hook_fade (runs on every level-3 interrupt before the kernel's vblank handler): every nonzero
     /// component of $57f70 -1; removes itself one vblank after nothing changed.
     func s2_l3hook_fade(chain: (() -> Void)?) {
+        irqDepth += 1                                               // CPU-time model: interrupt context
         if mem.r16(S2.vFadeActive) == 0 {                           // l3hook_restore $172b0
             mem.w32(0x6c, mem.r32(S2.vOldL3Vector))
             chip.interruptHandlers[3] = chain
+            irqCharge(60)
+            irqDepth -= 1
             chain?()
             return
         }
@@ -319,7 +326,16 @@ extension Platoon {
             mem.w16(a0, d2 | d3 | d4); a0 &+= 2
         }
         mem.w16(S2.vFadeActive, d1)
+        // Interrupt context (host thread): the kernel's palette setter settles pending main-program CPU time,
+        // which must not happen here (it would wait for the beam from inside the interrupt). Park the main
+        // program's debt during the call; the handler's own cost is added to it (interrupt time is stolen from
+        // the interrupted program).
+        let parked = cpuCycles
+        cpuCycles = 0
         k_set_top_pal(S2.workPalette)
+        cpuCycles += parked
+        irqCharge(Platoon.s2FadeHookCycles)
+        irqDepth -= 1
         chain?()
     }
 

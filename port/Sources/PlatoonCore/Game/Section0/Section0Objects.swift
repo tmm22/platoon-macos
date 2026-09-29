@@ -64,6 +64,7 @@ extension Platoon {
 
     /// $17610 bullet_draw.
     func s0BulletDraw(_ a0: UInt32, bob d1: UInt16) {
+        cpu(Platoon.s0CyclesBulletDraw)
         if mem.r16(a0) == 0 { s0BulletKill(a0); return }
         if mem.r16(a0) >= 0x140 { s0BulletKill(a0); return }
         v0.probeY = mem.r16(a0 + 2)

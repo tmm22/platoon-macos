@@ -196,6 +196,7 @@ extension Platoon {
 
     /// $17fc2 ph_done: end of the hit animation.
     func s0PhDone() {
+        s0Dbg("017fc2")
         if v0.blastflag != 0 {                   // bridge-blast knock-back: no damage
             v0.pstate = 0
             v0.blastflag = 0
@@ -203,8 +204,8 @@ extension Platoon {
         }
         // ph_lose_man
         if v0.estate == 8 {
-            // all_dead uses the stale a5: the emulator shows a5 = a6 (= man 0, left by kernel jt13).
-            s0AllDead(a5: a6)
+            // all_dead uses the caller's a5 = $1e(a6), loaded by the kernel HUD update (read_input).
+            s0AllDead(a5: s0Man)
         }
         k_queue_text(0xe)                        // "YOU'RE HIT"
         let a5 = s0Man
@@ -212,8 +213,7 @@ extension Platoon {
         if mem.r16(a5 + 4) >= 5 { mem.w16(a5 + 4, 4) }
         s0MoraleSub(0x800)
         k_hud_wounds()
-        // a1/d4 at this dissolve_out as observed in the emulator (left by k_hud_wounds)
-        s0DissolveOut(a1: 0x797d0, d4: 0xff)
+        s0DissolveOut(a1: Platoon.s0DissolveA1AfterHudWounds, d4: Platoon.s0DissolveD4AfterHudWounds)
         if v0.morale == 0 { s0Exit() }
         v0.pstate = 5
         if v0.level != 5 { v0.pstate = 0 }
@@ -293,7 +293,9 @@ extension Platoon {
             v0.firetoggle ^= 1
             v0.pframe = v0.pframe &+ 1
         }
-        mem.w16(a5 + 2, mem.r16(a5 + 2) &- 1)
+        if !enhancements.infiniteAmmo {              // ENHANCEMENT hook (default off = original)
+            mem.w16(a5 + 2, mem.r16(a5 + 2) &- 1)
+        }
         s0NoiseAdd(8)
     }
 
@@ -346,6 +348,7 @@ extension Platoon {
 
     /// $189fe scroll_step (d0 = direction bits, d6 = pixels).
     func s0ScrollStep(_ d0: UInt8, _ d6: UInt16) {
+        cpu(Platoon.s0CyclesScrollStep)
         if d0 & 8 != 0 { s0ScrollLeftChk(d6); return }
         if v0.pfacing != 0 { s0ToggleFacing(); return }     // first press only turns round
         if v0.bridge == 2 && v0.level == 1 && v0.pworld == 0x238 {
@@ -369,6 +372,7 @@ extension Platoon {
         v0.c34 = 0
         v0.T = v0.T &+ 1
         // shift the attribute window left by one tile column (8 bytes), 18 rows of $38 bytes
+        cpu(Platoon.s0CyclesAttrShift)
         var src: UInt32 = 0x600bc, dst: UInt32 = 0x600b4
         for _ in 0...0x11 {
             for i in 0..<48 { mem.w8(dst &+ UInt32(i), mem.r8(src &+ UInt32(i))) }
@@ -403,6 +407,7 @@ extension Platoon {
         v0.c34 = 0
         v0.T = v0.T &- 1
         // shift the attribute window right by 8 bytes (backwards long copy, 18 rows)
+        cpu(Platoon.s0CyclesAttrShift)
         var src: UInt32 = 0x6049c, dst: UInt32 = 0x604a4
         for _ in 0...0x11 {
             for _ in 0..<48 { src &-= 1; dst &-= 1; mem.w8(dst, mem.r8(src)) }

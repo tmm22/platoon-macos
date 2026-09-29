@@ -1,3 +1,5 @@
+import Foundation
+
 // Kernel/resident support: RAM addresses, 68000 BCD arithmetic and the CPU-time model.
 // Spec: re/kernel/NOTES.md. Everything here is shared by Resident.swift and Kernel*.swift.
 
@@ -110,6 +112,7 @@ enum KA {
     static let fadeBufHud: UInt32 = 0x12cf0
     static let retryCount: UInt32 = 0x12d1e
     static let retryArgs: UInt32 = 0x12d20
+    static let junk: UInt32 = 0x12d60             // w  (d3 stored by k_save_hiscores)
     static let cache28: UInt32 = 0x12d62, cache24: UInt32 = 0x12d64, cache2c: UInt32 = 0x12d66
     static let cache26: UInt32 = 0x12d68, cache2a: UInt32 = 0x12d6a, cacheTime: UInt32 = 0x12d6c
     static let cacheOnOff: UInt32 = 0x12d6e, cacheSndIcons: UInt32 = 0x12d6f
@@ -169,45 +172,84 @@ extension Platoon {
     /// Adds `cycles` of 68000 execution time (paid at the next wait / settleCPU()).
     func cpu(_ cycles: Int) { cpuCycles += cycles }
 
-    /// Lets the beam advance by the accumulated CPU time (whole raster lines).
+    /// Lets the beam advance by the accumulated CPU time (whole raster lines). Interrupt handlers that run
+    /// meanwhile preempt the main program: their cost (irqCharge) extends the stretch.
     func settleCPU() {
-        let lines = cpuCycles / Platoon.cyclesPerLine
-        guard lines > 0 else { return }
-        cpuCycles -= lines * Platoon.cyclesPerLine
-        advanceBeam(lines)
-    }
-
-    /// Waits `lines` raster lines from the current beam position (crossing vblanks if needed).
-    func advanceBeam(_ lines: Int) {
-        var target = m.beamLine + lines
-        while target >= Chipset.linesPerFrame {
-            target -= Chipset.linesPerFrame
-            m.waitVBlank()
-            // the vblank interrupt (music driver etc.) preempts the main program
-            target += vblankHandlerLines
+        // Only the main program waits: inside an interrupt handler (which may run on the host thread, or on the
+        // game thread when a register write dispatches it synchronously) the time is kept as debt for later.
+        guard irqDepth == 0, Thread.current.name == "Platoon game" else { return }
+        let cpl = Platoon.cyclesPerLine
+        while cpuCycles >= cpl {
+            let lines = cpuCycles / cpl
+            let target = m.beamLine + lines
+            cpuBusy = true
+            if target < Chipset.linesPerFrame {
+                cpuCycles -= lines * cpl
+                m.waitLine(target)
+            } else {
+                cpuCycles -= (Chipset.linesPerFrame - m.beamLine) * cpl
+                m.waitVBlank()
+            }
+            cpuBusy = false
+            cpuCycles += irqPreempted
+            irqPreempted = 0
         }
-        if target > m.beamLine { m.waitLine(target) }
     }
 
-    /// Emulated duration of the level-3 handler that delays a CPU-bound main program (lines).
-    var vblankHandlerLines: Int { 0 }
+    /// Waits `lines` raster lines of CPU time from the current beam position (crossing vblanks if needed).
+    func advanceBeam(_ lines: Int) {
+        cpu(lines * Platoon.cyclesPerLine)
+        settleCPU()
+    }
+
+    /// Absolute CPU time (cycles since power-on) of the current beam position.
+    var beamCycles: Int { (Int(m.frameCount) * Chipset.linesPerFrame + chip.vpos) * Platoon.cyclesPerLine }
+
+    /// Called by the translated interrupt handlers with their 68000 cost: if the main program was executing
+    /// (a CPU-time stretch being settled) the handler delays it by the full cost; if it was waiting (vblank,
+    /// raster line) only the part of the handler that extends past the wake-up delays it (irqCatchUp).
+    func irqCharge(_ cycles: Int) {
+        if cpuBusy { irqPreempted += cycles; return }
+        irqBusyUntil = max(irqBusyUntil, beamCycles) + cycles
+    }
+
+    /// After a wait: the main program resumes only when the interrupt handlers running at that moment finished.
+    func irqCatchUp() {
+        let now = beamCycles
+        if irqBusyUntil > now { cpuCycles += irqBusyUntil - now }
+        irqBusyUntil = 0
+    }
+
+    /// Emulated duration of the level-3 handler in 68000 cycles, fitted to tools/amiga/emu over long CPU-bound
+    /// stretches (disk loads with the exact track model, the credits print): 3 lines without music, ~11 lines
+    /// with the title tune, ~10.2 with the loading tune (the per-frame variation of the music driver, +-2
+    /// lines, is not modelled).
+    var vblankHandlerCycles: Int {
+        guard musicPlaying else { return 3 * Platoon.cyclesPerLine }
+        return mem.r16(KA.curTune) == 3 ? 4_620 : 4_970                   // loading tune / title & others
+    }
+    /// Level-6 split handler (movem of 4 registers, swap, pause colour, scroll copy).
+    static let level6Cycles = 250
 
     /// Busy-wait iteration of a polling loop (`jsr $410; btst #7,d0; bne` etc.): the original spins on
     /// hardware; here the game thread yields until the next frame, when the input can have changed.
     func busyWaitYield() {
         settleCPU()
         m.waitVBlank()
+        irqCatchUp()
     }
 }
 
 // MARK: - 68000 cycle costs of the CPU-heavy original loops (Musashi timings, calibrated against the emulator)
 extension Platoon {
-    static let putcharCycles = 7_700          // $1e46 one glyph (8 rows x 8 pixel pairs, 2 buffers)
+    static let putcharCycles = 7_591          // $1e46 one glyph (emu: 16.88 lines per char incl. the print loop)
     static let printLoopCycles = 72           // $1a6e per string byte
     static let printColourCycles = 150        // $1aa2 colour code
     static let bootPutbyteCycles = 180        // $76224 + ByteRun1 loop per output byte
     static let diskLoadOverheadCycles = 300
     static let diskSeekCycles = 1_000
-    static let diskStepCycles = 184_500       // one head step incl. the $2800 dbra delay loop
-    static let diskTrackCycles = 198_400      // DMA read + sync search + MFM decode of 11 sectors
+    static let diskStepCycles = 183_900       // one head step incl. the $2800 dbra delay loop (emu: 405 lines)
+    static let diskReadRawCycles = 1_135      // disk_read_raw: DMA setup + wait for DSKBLK (2 lines in the emu)
+    static let diskDecodeCycles = 134_700     // 11 x header + 128-long MFM decode (emu, $d3c -> $d9a)
+    static let diskSyncScanCycles10 = 211     // one `cmpi.w #$4489,(a2)+ ; bne` iteration, x10
 }

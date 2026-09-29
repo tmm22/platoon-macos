@@ -1,3 +1,4 @@
+import Foundation
 // Section 2 engine: the final jungle ($17000-$18865). Spec: re/finaljungle/NOTES.md, listing finaljungle.s.
 // Bunker-room specifics, text screens, fades and all endings are in Foxhole.swift.
 
@@ -11,6 +12,7 @@ extension Platoon {
         k_display_init()
         var d0: UInt32 = 0
         var a0 = S2.rowTable
+        cpu(200 * 38)                               // CPU time of the loop (move.l 12 + addi.l 16 + dbra 10)
         for _ in 0...0xc7 {                         // $57b00[i] = i*40, 200 longs
             mem.w32(a0, d0); a0 &+= 4
             d0 &+= 0x28
@@ -56,6 +58,8 @@ extension Platoon {
     /// $170ae.. body of room_enter + room_enter_done ($170f4), then the main loop.
     func s2_room_enter_body(_ transition: UInt32) -> Never {
         var a0: UInt32 = 0x57e20                   // clear $57e20..$58f9f (slots, vars, buckets, blit buffer)
+        // CPU time of the three loops below (clr.l (a0)+ / move.l (a0)+,(a1)+ / st.b (a0,d0.w), each + dbra)
+        cpu(0x460 * 30 + 45 * 30 + 256 * 28 + 150)
         for _ in 0...0x45f { mem.w32(a0, 0); a0 &+= 4 }
         a0 = S2.slotInit                            // slot init table -> slots 0..9 (46 longs)
         var a1 = S2.slots
@@ -85,18 +89,30 @@ extension Platoon {
     func s2_main_loop() -> Never {
         while true {
             tickPoint(0x17118)
+            s2PaceIndex += 1                         // verification aid only (see s2_paceToReference)
+            s2_dbg("head")
             k_hud_update()
+            s2_settleCPU()                           // CPU-time model: the HUD's ~50 lines elapse here (the tick
+                                                     // head is at ~line 260, so the vblank normally falls inside)
+            s2_dbg("hud")
             if mem.r8(a6 &+ 0x71) & 0x02 != 0 {     // MEGA CHEAT: CAPS LOCK = instant win
                 if r_keytest(0x62) { s2_game_won() }
             }
             s2_idle_shot_tick()
             s2_soldier_spawn_tick()
             s2_hint_tick()
+            s2_dbg("hint")
+            s2_paceDiscard()
             k_wait_swap()                            // wait until the previous swap was latched
             if mem.r16(a6 &+ 0x2e) == 0 { s2_morale_zero() }
             let d0 = s2_bg_restore()
             s2_objects_update_draw(d0: d0)
+            s2_paceToReference()
             k_swap()
+            // CPU-time model: the tick's 68000 time elapses before the timer (changed by the vblank interrupt)
+            // is read, so a tick that overruns the frame sees the new value like on the A500.
+            cpu(Platoon.s2LoopCycles)
+            s2_settleCPU()
             let t = mem.r16(a6 &+ 0x6c)               // timer changed?
             if t == mem.r16(S2.vLastTime) { continue }
             mem.w16(S2.vLastTime, t)
@@ -656,45 +672,59 @@ extension Platoon {
     /// $17604 room_load_picture (d0 = 1..10): start the fade-out, RLE-decode the picture to $68000, wait for the
     /// fade, clear screens + palettes, spawn the room's static objects.
     func s2_room_load_picture(_ pic: UInt16) {
+        tickPoint(0x17604)
+        s2_dbg("loadpic")
         s2_fade_out_start()
+        s2_dbg("fadestarted")
         var a2 = S2.background
         var a1 = mem.r32(S2.picTable &+ UInt32(pic << 2) &- 4) &+ S2.pictures
+        var cyc = 60                                            // CPU time (68000 cycles) of the decoder
         for _ in 0...3 {                                        // 4 planes of $17c0 bytes
             var a0 = a2
             var d3: UInt16 = 0x17c0
             let esc = mem.r8(a1); a1 &+= 1
+            cyc += 32
             var full = false
             while !full {
                 let b = mem.r8(a1); a1 &+= 1
                 if b != esc {
                     mem.w8(a0, b); a0 &+= 1; d3 &-= 1           // pic_putbyte
                     full = d3 == 0
+                    cyc += full ? 78 : 76                       // move/cmp/beq/bsr/putbyte/rts/bne
                 } else {                                        // run: value, count (0 = 256)
                     let v = mem.r8(a1), c = mem.r8(a1 &+ 1); a1 &+= 2
+                    cyc += 46
                     var d1 = UInt16(c &- 1)                     // dbeq counter (word, high byte 0)
                     while true {
                         mem.w8(a0, v); a0 &+= 1; d3 &-= 1
-                        if d3 == 0 { full = true; break }       // dbeq: Z from subq -> stop (rest of run dropped)
-                        if d1 == 0 { break }
+                        cyc += 46                               // bsr + putbyte + rts
+                        if d3 == 0 { full = true; cyc += 12; break }  // dbeq: Z from subq -> stop (rest dropped)
+                        if d1 == 0 { cyc += 14; break }
                         d1 &-= 1
+                        cyc += 10
                     }
+                    cyc += full ? 22 : 20                       // bra + bne
                 }
             }
             a2 &+= 0x2000
+            cyc += 26
         }
-        s2_decode_delay(pic)
+        s2_decode_delay(cycles: cyc)
+        tickPoint(0x1764e)
+        s2_dbg("decoded")
         s2_fade_wait_loop()
+        s2_dbg("fadedone")
         s2_clear_play_and_pal()
         s2_room_spawn_objects()
     }
 
-    /// Timing of the RLE decode above on the A500: the decoder runs while the level-3 hook fades the palette and
-    /// takes several frames there; HUD updates (fade_wait_loop) only start after it. Reproduced by waiting the
-    /// measured number of vblanks (see s2_decodeFrames) so that the number of k_hud_update calls and the game
-    /// timing of the transition match the emulator.
-    func s2_decode_delay(_ pic: UInt16) {
-        let n = s2_decodeFrames(pic)
-        for _ in 0..<n { m.waitVBlank() }
+    /// Timing of the RLE decode above on the A500: the decoder runs for ~3850 raster lines (12.3 frames) while the
+    /// vblank interrupts (kernel handler + the fade hook, charged by them via irqCharge) preempt it; HUD updates
+    /// (fade_wait_loop) only start after it. `cycles` is the exact Musashi cycle count of the decoder for this
+    /// picture (emulator: 17604 -> 1764e = decoder lines + 184..198 interrupt lines for all 10 pictures).
+    func s2_decode_delay(cycles: Int) {
+        cpu(cycles)
+        settleCPU()
     }
 
     /// $1841a room_spawn_objects: static objects of the room type into slots 10..15.
@@ -741,22 +771,29 @@ extension Platoon {
     func s2_objects_update_draw(d0 d0Start: UInt16) {
         var d0 = d0Start
         var a3 = S2.slots &+ 0x10e                              // slot 15
+        cpu(24)
         for d7 in stride(from: 15, through: 0, by: -1) {
             if mem.r8(a3) != 0 {
-                s2_run_handler(mem.r32(a3 &+ 0xa), a3: a3, d0: &d0)
+                let h = mem.r32(a3 &+ 0xa)
+                cpu(76 + 36 + s2_handlerCycles(h))              // call sequence + handler (CPU-time model)
+                s2_run_handler(h, a3: a3, d0: &d0)
                 if mem.r8(a3) != 0 {
+                    cpu(110)
                     var k = mem.r16(a3 &+ 4)                    // key = y ...
                     if d7 != 0 && (d7 < 4 || (d7 >= 7 && d7 < 0xa)) { k &-= 0x14 }   // ... bullets $14 nearer
                     k &= 0xff
                     while Int8(bitPattern: mem.r8(S2.buckets &+ UInt32(bitPattern: Int32(Int16(bitPattern: k))))) >= 0 {
                         k &+= 1                                  // probe to the first empty ($ff) byte, no bound
+                        cpu(40)
                     }
                     mem.w8(S2.buckets &+ UInt32(bitPattern: Int32(Int16(bitPattern: k))), UInt8(d7))
                     d0 = k
                 }
             }
+            cpu(36)                                             // tst/beq, lea, dbra
             a3 &-= S2.slotSize
         }
+        cpu(12 + 256 * 74)                                      // objects_draw: 74 cycles per (empty) bucket
         // objects_draw $177a6: buckets $5808f down to $57f90 (far to near)
         var a0 = S2.bucketsLast
         while a0 != S2.buckets &- 1 {
@@ -772,10 +809,40 @@ extension Platoon {
                 mem.w8(obj &+ 1, anim)                          // anim &= 7 (stored back)
                 let e = (anim >> 1) &+ mem.r8(obj &+ 0x10)      // byte add
                 let a1 = mem.r32(dir &+ UInt32(e) << 3) &+ S2.bobData
+                cpu(274 + 1248)                                 // bucket fetch/address computation + draw_bob
                 s2_draw_bob(a1, pos & 0xffff0000 | UInt32(yw))
             }
             a0 &-= 1
         }
+    }
+
+    /// $1780a dead_project: unreferenced perspective helper (dead code in the original, translated for
+    /// completeness). Returns d0 = x' << 16 | ($66 + byte +$11 - y) with x' = ((138*(100-y)/100 + 72) * x / 200)
+    /// + $24 + $48*y/100 (divu quotients, word arithmetic).
+    func s2_dead_project(_ a3: UInt32) -> UInt32 {
+        let d0x = mem.r16(a3 &+ 2), d1 = mem.r16(a3 &+ 4)
+        var d2: UInt32 = 0x8a
+        let d3w = 0x64 &- d1
+        d2 = UInt32(UInt16(truncatingIfNeeded: d2)) &* UInt32(d3w)             // mulu.w d3,d2
+        d2 = s2_divu(d2, 0x64)
+        d2 = (d2 & 0xffff0000) | UInt32(UInt16(truncatingIfNeeded: d2) &+ 0x48)
+        d2 = UInt32(UInt16(truncatingIfNeeded: d2)) &* UInt32(d0x)             // mulu.w d0,d2
+        d2 = s2_divu(d2, 0xc8)
+        d2 = (d2 & 0xffff0000) | UInt32(UInt16(truncatingIfNeeded: d2) &+ 0x24)
+        var d3: UInt32 = 0x48 &* UInt32(d1)                                     // mulu.w d1,d3
+        d3 = s2_divu(d3, 0x64)
+        let xw = UInt16(truncatingIfNeeded: d2) &+ UInt16(truncatingIfNeeded: d3)
+        let lo = (mem.r16(a3 &+ 0x10) & 0xff) &+ 0x66 &- d1
+        return UInt32(xw) << 16 | UInt32(lo)
+    }
+
+    /// $179be dead_debug_frame: unreferenced debug routine (dead code, translated for completeness): prints ',',
+    /// keys $4d/$4b step the object's frame, prints it in hex.
+    func s2_dead_debug_frame(_ a3: UInt32) {
+        r_putchar(0x2c)
+        if r_keytest(0x4d) { mem.w8(a3 &+ 0x10, mem.r8(a3 &+ 0x10) &+ 1) }
+        if r_keytest(0x4b) { mem.w8(a3 &+ 0x10, mem.r8(a3 &+ 0x10) &- 1) }
+        k_hex8(mem.r8(a3 &+ 0x10))
     }
 
     /// $17850 draw_bob: a1 = bob header, d0 = x<<16 | screen row. Cookie-cut 4-plane blit into the back buffer
@@ -909,9 +976,79 @@ extension Platoon {
 }
 
 extension Platoon {
-    /// Vblanks spent by the original RLE decoder of picture `pic` on the A500. Measured in the emulator with
-    /// --bp 17604/1764e for all 10 pictures: room_load_picture starts at ~line 250-310 of frame F and the
-    /// decoder finishes inside frame F+13 for every picture (12.4..13.0 frames), so fade_wait_loop's first
-    /// k_wait_vbl returns at F+14 -> wait 13 vblanks here.
-    func s2_decodeFrames(_ pic: UInt16) -> Int { 13 }
+    /// l3hook_fade $172c2: 16 colours x ~64 cycles + k_set_top_pal + chaining.
+    static let s2FadeHookCycles = 1_500
+}
+
+extension Platoon {
+    func s2_dbg(_ t: String) {
+        if s2DebugTiming { FileHandle.standardError.write("DBG \(t) f\(m.frameCount) v\(m.beamLine) cyc \(cpuCycles)\n".data(using: .utf8)!) }
+    }
+}
+let s2DebugTiming = ProcessInfo.processInfo.environment["S2DBG"] != nil
+
+/// Verification aid (not game logic, off by default): S2PACE=<emu tickdump file of $17118 with record length
+/// S2PACELEN (hex)> makes main-loop tick n start no earlier than the frame in which the emulator started it, so
+/// that frame-based input scripts reach the same ticks in both even where the kernel/audio CPU-time model is not
+/// exact yet. Lets the section logic be compared tick by tick under arbitrary (random) input.
+let s2PaceFrames: [UInt32] = {
+    let env = ProcessInfo.processInfo.environment
+    guard let path = env["S2PACE"], let d = FileManager.default.contents(atPath: path) else { return [] }
+    let len = Int(env["S2PACELEN"] ?? "270", radix: 16) ?? 0x270
+    let b = [UInt8](d)
+    var r: [UInt32] = []
+    var i = 0
+    while i + 4 <= b.count {
+        var v = UInt32(b[i + 3]) << 24
+        v |= UInt32(b[i + 2]) << 16
+        v |= UInt32(b[i + 1]) << 8
+        v |= UInt32(b[i])
+        r.append(v)
+        i += 4 + len
+    }
+    return r
+}()
+var s2PaceIndex = 0
+
+extension Platoon {
+    /// settleCPU(), except in the S2PACE verification mode where the emulator's measured pacing replaces the
+    /// CPU-time model (pending cycles are dropped).
+    func s2_settleCPU() { if s2PaceFrames.isEmpty { settleCPU() } else { cpuCycles = 0 } }
+    func s2_paceDiscard() { if !s2PaceFrames.isEmpty { cpuCycles = 0 } }
+}
+
+extension Platoon {
+    /// Called before k_swap of tick n: waits until the emulator's head position of tick n+1 (the swap request
+    /// is what decides the pacing of the next tick).
+    func s2_paceToReference() {
+        guard !s2PaceFrames.isEmpty else { return }
+        cpuCycles = 0
+        if s2PaceIndex < s2PaceFrames.count {
+            // S2PACELEN=0: file of u32 (frame*313 + line) beam positions (from emu --bp $17118 events)
+            let t = UInt64(s2PaceFrames[s2PaceIndex])
+            let lineMode = ProcessInfo.processInfo.environment["S2PACELEN"] == "0"
+            let target = lineMode ? t / 313 : t
+            while m.frameCount < target { m.waitVBlank() }
+            if lineMode && m.frameCount == target && UInt64(m.beamLine) < t % 313 { m.waitLine(Int(t % 313)) }
+        }
+    }
+}
+
+// MARK: - CPU-time model of the section's own code (see KernelSupport.swift)
+extension Platoon {
+    /// Main-loop code outside the object system per tick (spawners, hint tick, tests, bg_restore setup, loop tail).
+    static let s2LoopCycles = 700
+
+    /// Approximate 68000 cycles of one call of an object handler (Musashi timings of the typical path).
+    func s2_handlerCycles(_ h: UInt32) -> Int {
+        switch h {
+        case S2.hPlayer: return 900
+        case S2.hSoldierL, S2.hSoldierR, S2.hSoldierT: return 450
+        case S2.hEnemyBullet, S2.hIdleShot1: return 260
+        case S2.hBarnes: return 250
+        case S2.hGrenade: return 150
+        case S2.hPlayerBullet, S2.hExplosion, S2.hIdleShot0, S2.hPlayerDying, S2.hPlayerDeadWait: return 60
+        default: return 190                                     // static room objects: box overlap test
+        }
+    }
 }

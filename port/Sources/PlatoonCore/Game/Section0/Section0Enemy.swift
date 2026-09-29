@@ -3,7 +3,10 @@
 
 extension Platoon {
     /// Rifle/enemy RNG helper: kernel random byte (d0.l = 0..255) truncated to a word.
-    @inline(__always) func s0Rand() -> UInt16 { UInt16(truncatingIfNeeded: k_random()) }
+    @inline(__always) func s0Rand() -> UInt16 {
+        cpu(Platoon.s0CyclesRand)
+        return UInt16(truncatingIfNeeded: k_random())
+    }
 
     /// $180da en_st0_spawn: no enemy; bridge runner or random spawn.
     func s0EnSt0Spawn() {

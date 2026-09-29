@@ -6,9 +6,12 @@
 //   instrument table $2f48, sfx structs $3ffa, shadow registers $4084 ... Song data, envelopes, arpeggios,
 //   samples and synth waveforms are read in place from the resident image loaded from the ADF.
 // - Paula is written through `chip.write` in exactly the original order (move.l to AUDxLC = two word writes,
-//   high word first). The virtual Paula restarts a voice on every DMA off->on transition and latches LC/LEN
-//   when DMA is switched on, so the original's busy-wait loops ($3d64, $3eaa: "let Paula see the DMA off") are
-//   dropped: a trigger is atomic and the restart still happens at the DMACON write.
+//   high word first). Like the real chip, the virtual Paula only notices DMA on/off at its next beam line
+//   (a DMA off immediately followed by DMA on does not restart a voice: sfx end -> music restore relies on
+//   that). The original's `dbra` busy-waits ($3d64, $3eaa dma_delay) exist to let Paula see a DMA off/on;
+//   they are translated as `chip.paula.settleDMA()` (Paula sees the state as after the wait) plus their
+//   68000 cycle cost in the CPU-time model (`cpuCycles`, paid by the kernel at the main program's next wait),
+//   so a trigger is otherwise atomic.
 // - The pattern command jump table at $2d80 is read from RAM and dispatched on the original handler address.
 // - Command $84 leaves `play` through `bra api_stop` (non-local return to play's caller): modelled by
 //   `md_channelTick` returning false.
@@ -511,7 +514,7 @@ extension Platoon {
         mem.w8(a2 &+ 0x19, 1)                             // envelope counter
         let e = UInt16(bitPattern: Int16(mem.s8(a2 &+ 0x14))) &* 2
         mem.w32(a2 &+ 0x1a, md_ix(MD.base, mem.r16(md_ix(MD.sfxEnvTable, e))))
-        // $3d64: dbra busy wait (dropped: the trigger is atomic, see the file header)
+        md_busy_wait()                                    // $3d64 move.w #$200,d0 ; dbra d0,*
         mem.w8(a2 &+ 0x18, 0xff)                          // active; DMA is started by the next sfx_update
     }
 
@@ -574,9 +577,17 @@ extension Platoon {
         md_hwL(a6, a2)
     }
 
-    /// $3eaa dma_delay: `dbra` busy wait of ~5100 cycles so that Paula sees the DMA off/on. Not needed with
-    /// the virtual Paula (it latches LC/LEN at the DMACON write and restarts on every off->on edge).
-    @inline(__always) private func md_dma_delay() {}
+    /// $3eaa dma_delay: `bsr` + `move.w #$200,d0 ; dbra d0,*` + `rts` so that Paula sees the DMA off/on.
+    private func md_dma_delay() {
+        md_busy_wait(extra: 18 + 16)                      // + bsr.b / rts
+    }
+
+    /// `move.w #$200,d0 ; dbra d0,*`: 8 + 512 * 10 + 14 = 5142 68000 cycles (~11 raster lines). Paula runs
+    /// meanwhile (settleDMA: voices see the current DMACON); the time is charged to the CPU-time model.
+    private func md_busy_wait(extra: Int = 0) {
+        chip.paula.settleDMA()
+        cpuCycles += 5142 + extra
+    }
 
     /// $3eb4 sfx_update: per-vblank processing of the active sfx on channels 0..3.
     private func md_sfx_update() {

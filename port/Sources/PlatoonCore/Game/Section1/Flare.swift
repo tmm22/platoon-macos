@@ -21,6 +21,7 @@ extension Platoon {
     }
 
     func s1_flareEnterBody(_ a3: UInt32) -> Never {
+        tickPoint(0x18b0e)
         s1_fadeOutAndClear()
         s1_recolourCrosshairC4()
         for k in 0..<8 { mem.w8(S1.spawnSlots + UInt32(4 * k), 0) }
@@ -34,17 +35,17 @@ extension Platoon {
             mem.w8(a3 + 0x91, 0)
             a0 &+= 0x12
         }
-        k_set_top_pal(mem.r32(S1.palSeq))
+        s1_setTopPal(mem.r32(S1.palSeq))
         // lea $400,a7
-        k_music(6)
+        s1_music(6)
         s1_decodeBackground()
         mem.w32(S1.colLeft, 0)
         mem.w16(S1.spawnCount, 0x24)
         mem.w16(S1.spawnBase, 0x90)
         s1_copyBackground()
-        k_swap()
+        s1_swap()
         s1_copyBackground()
-        k_swap()
+        s1_swap()
         mem.w16(S1.palIndex, 0)
         _ = s1_paletteStep()
         var d6: UInt16 = 0x25
@@ -61,16 +62,15 @@ extension Platoon {
     // MARK: main loop
 
     /// $18bd8 flare_main_loop. Not vblank-locked in the original: it waits for the previous buffer swap
-    /// ($f85c) and then spends ~1-2 frames of CPU on the background copy; the emulator measured 2 frames per
-    /// iteration (174x2, 22x1, 18x3 over 214 iterations). The port's copy is instant, so the loop waits 2
-    /// frames after the swap latch to keep the original 25 Hz game speed (swap then becomes visible on the
-    /// same frame as in the original's typical case).
+    /// ($f85c, latched by the level-6 split interrupt at line ~204) and then spends ~335 raster lines of CPU
+    /// on the background copy, so an iteration normally takes 2 frames (emulator: 174x2, 22x1, 18x3 over 214
+    /// iterations). The port reproduces this through the CPU-time model: copy_background, the object loop and
+    /// the blits charge their 68000 cycles, which are paid before the swap / palette writes and in f85c.
     func s1_flareMainLoop() -> Never {
         while true {
             tickPoint(0x18bd8)
-            if mem.r8(a6 + 0x71) & 2 != 0 && r_keytest(0x5f) { s1_flareWin() }
+            if mem.r8(a6 + 0x71) & 2 != 0 && s1_keytest(0x5f) { s1_flareWin() }
             k_wait_swap()
-            m.waitFrames(2)                                      // CPU time of the original iteration
             s1_copyBackground()
             if s1_subW(S1.spawnCount, 1) == 0 { s1_flareSpawn() }
             // flare_loop_objects
@@ -80,7 +80,7 @@ extension Platoon {
             if mem.r8(S1.destroyed) != 0 { s1_exitPlatoonDestroyed() }
             var countdown = true
             if mem.r8(S1.lightCycle) == 0 {
-                if r_keytest(0x40) { s1_fireFlare() } else { countdown = false }
+                if s1_keytest(0x40) { s1_fireFlare() } else { countdown = false }
             }
             if countdown && mem.r8(S1.list1) == 0 {
                 // flare_palette_countdown
@@ -93,7 +93,7 @@ extension Platoon {
             }
             // flare_loop_end
             k_hud_update()
-            k_swap()
+            s1_swap()
         }
     }
 
@@ -132,7 +132,9 @@ extension Platoon {
             let night = pass == 0
             var a3 = (night ? S1.list1 : S1.list2) + 0x7e
             for _ in 0..<8 {
+                cpu(S1Cyc.objSlot)
                 if mem.r8(a3) != 0 {
+                    cpu(S1Cyc.objActive)
                     s1_objectHandler(mem.r32(a3 + 0xa), a3)
                     if mem.r8(a3) != 0 { s1_drawObject(a3, night: night) }
                 }
@@ -148,7 +150,7 @@ extension Platoon {
         mem.w8(S1.list1, 0xff)
         mem.w8(0x19e0b, 0)
         mem.w16(0x19e0e, 0x6e)
-        k_fx(0x0a)
+        s1_fx(0x0a)
         mem.w8(S1.lightCycle, 0xff)
         mem.w8(S1.palCount, 1)
     }
@@ -160,13 +162,14 @@ extension Platoon {
             let o = UInt32(p * 0x2000)
             mem.copy(from: S1.bgClean + o, to: dst &+ o, count: 0x1680)
         }
+        cpu(144 * S1Cyc.bgRow + 40)
     }
 
     /// $18e3a palette_step: set the next palette of the light sequence; returns the new index (d0).
     /// At the end of the sequence the light cycle stops; with no flares left the night is survived.
     func s1_paletteStep() -> UInt16 {
         var d0 = mem.r16(S1.palIndex)
-        k_set_top_pal(mem.r32(S1.palSeq &+ s1_sx(d0)))
+        s1_setTopPal(mem.r32(S1.palSeq &+ s1_sx(d0)))
         d0 &+= 4
         if d0 == 0x1c {
             d0 = 0
@@ -192,14 +195,17 @@ extension Platoon {
         var d5: UInt32 = 0
         var d6: UInt8 = 0, d7: UInt8 = 0
         /// $18eda bg_put_byte; returns true when the 144th row is complete (addq.l #4,a7 ; rts).
+        var cycles = 0
         func put(_ d1: UInt8) -> Bool {
             mem.w8(a1, d1); a1 &+= 1
             let wasSet = d5 & 0x8000 != 0
             d5 ^= 0x8000
-            if !wasSet { return false }
+            if !wasSet { cycles += S1Cyc.bgByteEven; return false }
+            cycles += S1Cyc.bgByteOdd
             let b = UInt8(truncatingIfNeeded: d5) &+ 2
             d5 = (d5 & ~0xff) | UInt32(b)
             if b != 0x28 { return false }
+            cycles += S1Cyc.bgRowEnd
             d5 &= ~0xff
             a2 &+= 0x2000; a1 = a2
             d6 = (d6 &+ 1) & 3
@@ -208,15 +214,19 @@ extension Platoon {
             d7 &+= 1
             return d7 == 0x90
         }
+        defer { cpu(cycles) }
         while true {
             let d0 = mem.r8(a0); a0 &+= 1
             if d0 & 0x80 == 0 {
+                cycles += S1Cyc.bgCtrlLiteral
                 for _ in 0...Int(d0 & 0x7f) {
                     let d1 = mem.r8(a0); a0 &+= 1
+                    cycles += S1Cyc.bgLiteralExtra
                     if put(d1) { return }
                 }
             } else {
-                if d0 == 0x80 { continue }
+                if d0 == 0x80 { cycles += S1Cyc.bgCtrlNop; continue }
+                cycles += S1Cyc.bgCtrlRun
                 let n = (0 &- d0) & 0x7f
                 let d1 = mem.r8(a0); a0 &+= 1
                 for _ in 0...Int(n) { if put(d1) { return } }
@@ -258,7 +268,7 @@ extension Platoon {
     func s1_fadeCopyPalette() {
         let a0 = mem.r32(a6 + 0x5a)
         for i in 0..<8 { mem.w32(S1.fadePal + UInt32(4 * i), mem.r32(a0 &+ UInt32(4 * i))) }
-        k_set_top_pal(S1.fadePal)
+        s1_setTopPal(S1.fadePal)
     }
 
     /// $18a42 fade_step_down: every component of the 16 colours -1 toward 0; $18a40 = changed flag.
@@ -274,7 +284,7 @@ extension Platoon {
             mem.w16(a, d2 | d3 | d4)
         }
         mem.w16(S1.fadeActive, d1)
-        k_set_top_pal(S1.fadePal)
+        s1_setTopPal(S1.fadePal)
     }
 
     /// $18a98 fade_out_and_clear: fade to black (3 vblanks per step, also until the message queue is
@@ -291,13 +301,14 @@ extension Platoon {
             mem.fill(0x70000 + o, count: 0x1680)
             mem.fill(0x78000 + o, count: 0x1680)
         }
+        cpu(0x5a0 * S1Cyc.clearIter + 30)
     }
 
     // MARK: object handlers
 
     /// $19048 h_crosshair (list 2 [0]): accelerating cursor; fire shoots, or fires a flare on the flare box.
     func s1_hFlareCrosshair(_ a3: UInt32) {
-        let d0 = r_joystick()
+        let d0 = s1_joystick()
         var d1: UInt16 = 0
         if d0 & 0xf == 0 {
             mem.w16(S1.crossSpeed, 4)
@@ -341,7 +352,7 @@ extension Platoon {
     /// $18fba shot_jitter_flare: ammo -1, gunshot, 4x random recoil (x $1e..$10e, y $a..$78).
     func s1_shotJitterFlare(_ a3: UInt32) {
         _ = s1_subW(s1_a5 + 2, 1)
-        k_fx(0x83)
+        s1_fx(0x83)
         var r = UInt16(truncatingIfNeeded: k_random()) & 7
         if Int16(bitPattern: s1_addW(a3 + 2, r)) >= 0x10f { mem.w16(a3 + 2, 0x10e) }
         r = UInt16(truncatingIfNeeded: k_random()) & 7
@@ -380,7 +391,7 @@ extension Platoon {
         mem.w16(a3 + 0xe, e)
         if e != 0 { return }
         mem.w32(a3 + 0xa, 0x191cc)
-        k_fx(0x84)
+        s1_fx(0x84)
         s1_enemyMuzzleFlash(a3)
     }
 
@@ -394,7 +405,7 @@ extension Platoon {
         d0 = ((d0 &+ 1) << 4) &- 0xd
         if Int16(bitPattern: d0) < Int16(bitPattern: e) { s1_enemyHitsPlayer(a3); return }
         if mem.r16(a3 + 0xe) & 7 != 0 { return }
-        k_fx(0x83)
+        s1_fx(0x83)
         s1_enemyMuzzleFlash(a3)
     }
 
@@ -449,7 +460,7 @@ extension Platoon {
         mem.w8(a3 + 1, 5)
         mem.w16(a3 + 0xe, 0)
         mem.w32(a3 + 0xa, 0x1925a)
-        k_fx(0x80)
+        s1_fx(0x80)
         mem.w8(S1.enemyHit, 0xff)
     }
 }

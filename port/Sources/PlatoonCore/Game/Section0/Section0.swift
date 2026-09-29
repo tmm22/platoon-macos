@@ -5,19 +5,19 @@
 // the player/enemy state-table dispatch and the frame pacing that reproduces the A500 game speed.
 // Other routines live in Section0Player/Enemy/Objects/Render/Village/ManSelect.swift.
 //
-// Frame pacing (host-side, documented deviation from "no timing"): the original main loop is CPU-bound.
-// Measured in tools/amiga/emu (6000 frames of random play + idle): from the return of k_wait_swap (the
-// level-6 IRQ latched the previous swap at line $cc) to the k_swap call the 68000 needs 357..514 raster
-// lines, i.e. the swap always lands in the next frame after line $cc, so the loop runs at exactly one tick
-// per 2 frames (25 Hz). Here all logic runs instantly, and `s0Pace(from:lines:)` then waits until
-// origin + 362 lines (the typical idle value) before the swap, which gives the same 2-frame period and
-// samples the joystick at the same point of the frame. Same method for the trap-door prompt loop (360
-// lines), each dissolve step (1912 lines = 7 frames per step) and the section init (see §timing below).
+// Frame pacing: the original main loop is CPU-bound (no fixed-rate logic): from the return of k_wait_swap
+// (the level-6 IRQ latched the previous swap at line $cc) to the k_swap call the 68000 needs ~360-500
+// raster lines, so the swap lands in the next frame and the loop runs at one tick per 2 frames (25 Hz).
+// The port reproduces this with the kernel's CPU-time model (KernelSupport.swift): the translated routines
+// charge their 68000 cost with cpu(n) (costs below, fitted by least squares to 1882 ticks of emulator play in jungle and
+// village: std 1.9 lines), kernel/audio calls charge theirs, and s0Settle() pays the accumulated time as raster
+// lines (plus the level-3 handler time for every vblank crossed) before each k_swap. This keeps not only the
+// 2-frame period but also the frame in which the swap and the next joystick read happen (ticks with extra
+// bobs or sound effects push the swap past the frame end, exactly as on the A500).
 
 import Foundation
 
-/// Host-side timing origin used by the section-0 pacing (not game state; see file comment).
-private var s0TimingOrigin = 0
+let s0Debug = ProcessInfo.processInfo.environment["S0DEBUG"] != nil
 
 extension Platoon {
     // MARK: data addresses (section 0 data block $19fd8-$1ab49)
@@ -35,19 +35,57 @@ extension Platoon {
     static let s0Score500End: UInt32 = 0x1a6d6
     static let s0Score10000End: UInt32 = 0x1a6da
 
+    // MARK: 68000 costs (cycles; 454 cycles = 1 raster line) — see file comment
+
+    static let s0CyclesClearVars = 283 * 454      // $17026 clr.b loop over $1762 bytes (emu: $17000 -> $17070)
+    static let s0CyclesClearPlayfield = 330 * 454 // clr.l x 4 planes x $5a0 (draw_tiles, clear_buf_78000)
+    static let s0CyclesDrawTiles = 4 * 454        // $18cf4 tile blit setups (after the clear)
+    static let s0CyclesChooseBox = 131 * 454      // $1959c choose-your-man box, 113 rows x 18 bytes x 4 planes
+    static let s0CyclesTickOther = 3 * 454        // rest of a main-loop tick (state dispatch, tests, calls)
+    static let s0CyclesBobDrawn = 1961            // $1920a draw_bob, visible (x outside the screen: ~0)
+    static let s0CyclesBobStraddle = 350          // extra for a bob crossing the priority line
+    static let s0CyclesBobLower = 232             // extra for the db_lower mask blit
+    static let s0CyclesDrawFrame = 758            // $191d4 draw_frame (frame table lookup, bob list loop)
+    static let s0CyclesBulletDraw = 386           // $17610 bullet_draw tests
+    static let s0CyclesSolidAt = 390              // $19ed2 solid_at (mulu etc.)
+    static let s0CyclesRand = 513                 // jsr k_rand (8 LFSR steps) incl. the caller's test
+    static let s0CyclesScrollStep = 1126          // $189fe scroll_step tests and counters
+    static let s0CyclesAttrShift = 7000           // scroll_step: shift the attribute window (216 longs)
+    static let s0CyclesAttrTile = 1093            // attr_copy_cols per tile (12 longs + table lookup + loop)
+    static let s0CyclesDissolveStep = 1828 * 454  // one dissolve step: 5760 bytes x 4 planes by the CPU
+    /// Duration of the kernel level-3 (vblank) handler that preempts the CPU-bound code (lines).
+    static let s0VblankHandlerLines = 14
+
+    /// Register values (a1, d4) the dissolve reads its "random" mask source from, as left by the preceding
+    /// code at each dissolve_out call site (measured in tools/amiga/emu with breaksave $19936 + regs):
+    /// Left-Alt in the main loop (kernel HUD update), after a death (k_hud_wounds), trap door (the last
+    /// draw_bob of the prompt loop left a1 = $604a4, d4 = 2*(W+1) of a straddling bob).
+    static let s0DissolveA1AfterHudUpdate: UInt32 = 0x79e0d, s0DissolveD4AfterHudUpdate: UInt16 = 0xff
+    static let s0DissolveA1AfterHudWounds: UInt32 = 0x797d0, s0DissolveD4AfterHudWounds: UInt16 = 0xff
+    static let s0DissolveA1Trapdoor: UInt32 = 0x604a4, s0DissolveD4Trapdoor: UInt16 = 6
+
     // MARK: timing helpers (host side)
+
+    /// Debug trace (env S0DEBUG): original address + beam position, for timing comparisons with the emulator.
+    func s0Dbg(_ what: String) { if s0Debug { print("\(what) f\(m.frameCount) v\(m.beamLine)") } }
 
     /// Absolute beam position in lines since power-on (game-thread view).
     var s0Now: Int { Int(m.frameCount) * Chipset.linesPerFrame + m.beamLine }
 
-    /// Marks the current beam position as the start of a CPU-bound stretch of original code.
-    func s0MarkTiming() { s0TimingOrigin = s0Now }
-
-    /// Waits until `lines` raster lines after the last `s0MarkTiming()` (no wait if already later):
-    /// reproduces the time the original 68000 code needed for the stretch (see file comment).
-    func s0Pace(lines: Int) {
-        let target = s0TimingOrigin + lines
-        let tf = target / Chipset.linesPerFrame, tl = target % Chipset.linesPerFrame
+    /// Pays the accumulated 68000 time (section + kernel costs, `cpuCycles`) as raster lines, adding the
+    /// level-3 handler time for every vblank that falls inside the stretch, then continues at that line.
+    func s0Settle() {
+        let lines = cpuCycles / Platoon.cyclesPerLine
+        cpuCycles -= lines * Platoon.cyclesPerLine
+        guard lines > 0 else { return }
+        let now = s0Now, lpf = Chipset.linesPerFrame
+        var target = now + lines
+        var crossed = 0
+        while target / lpf - now / lpf > crossed {
+            crossed += 1
+            target += Platoon.s0VblankHandlerLines
+        }
+        let tf = target / lpf, tl = target % lpf
         while Int(m.frameCount) < tf { m.waitVBlank() }
         if Int(m.frameCount) == tf && m.beamLine < tl { m.waitLine(tl) }
     }
@@ -104,11 +142,12 @@ extension Platoon {
         // lea $400,a7: the kernel enters through m.jump, i.e. with a fresh game-thread stack.
         if config.deterministicRNG { mem.w32(0x12d70, 0x31415926) }   // lockstep seed (emu: at PC $17000)
         s0RegisterDispatch()
-        s0MarkTiming()
+        s0Dbg("017000")
         mem.w16(mem.r32(0xf888), 0x3c81)     // DIWSTRT of the game window in the shared copper tail
         mem.w16(mem.r32(0xf88c), 0x0088)     // BPLCON1 of the HUD part
         mem.fill(0x5f880, count: 0x1762)     // clr.b (a0)+ x $1762: all section variables
-        s0Pace(lines: 297)                   // the 68000 clear loop takes ~1 frame (emu: $17000 -> $17070)
+        cpu(Platoon.s0CyclesClearVars)       // the 68000 clear loop takes ~1 frame
+        s0Settle()
         v0.scrollcnt = 8
         mem.w8(0x1b209, 0x8c)                // repair the bridge in the map (level 1 row 2 cols $47/$48)
         mem.w8(0x1b20a, 0x8d)
@@ -152,9 +191,8 @@ extension Platoon {
         k_set_top_pal(Platoon.s0PalPlayfield)
         s0LevelEnter()
         k_wait_swap()
-        s0MarkTiming()
+        s0Dbg("017170")
         let a1 = s0DrawTiles()
-        s0Pace(lines: 344)                   // draw_tiles CPU clear + blits (emu: $17170 -> $17174)
         s0CopyBackbufTo68000()
         // dissolve source registers as left by draw_tiles: a1 = back buffer + $1680, d4 = $780
         s0DissolveIn(a1: a1, d4: 0x780)
@@ -167,12 +205,13 @@ extension Platoon {
     func s0MainLoop() {
         while true {
             tickPoint(0x17186)
+            s0Dbg("017186")
             v0.tick = v0.tick &+ 1
             s0ReadInput()
             if v0.noise < 8 { v0.noise = 8 }
             v0.noise = v0.noise &- 1                 // spawn chance decays to minimum 7
             if r_keytest(0x64) && v0.estate == 0 {   // Left-Alt: voluntary change of soldier
-                s0DissolveOut(a1: 0x79e0d, d4: 0xff) // a1/d4 as observed at this call site in the emulator
+                s0DissolveOut(a1: Platoon.s0DissolveA1AfterHudUpdate, d4: Platoon.s0DissolveD4AfterHudUpdate)
                 s0ManSelect()
             }
             if v0.cheat != 0 {                       // ml_cheat_keys: F1-F6 only with MEGA CHEAT
@@ -186,7 +225,6 @@ extension Platoon {
             // ml_frame $17266
             r_print(0x1a967)                          // text attribute reset string
             k_wait_swap()
-            s0MarkTiming()
             v0.dx = 0
             call(s0TableLong(Platoon.s0PlayerStateTable, v0.pstate))
             s0PlayerFireInput()
@@ -212,11 +250,14 @@ extension Platoon {
             s0BulletsUpdate()
             s0ExplosionUpdate()
             s0DrawPlayer()
-            s0Pace(lines: 362)                        // CPU time of the tick on the A500 (see file comment)
+            cpu(Platoon.s0CyclesTickOther)
+            s0Settle()                               // CPU time of the tick on the A500 (see file comment)
             k_swap()
             v0.bplcon1 = (v0.hscroll &<< 4) | v0.hscroll
             if v0.morale == 0 { s0Exit() }
-            v0.morale = v0.morale &- 1
+            if !enhancements.infiniteMorale {        // ENHANCEMENT hook (default off = original)
+                v0.morale = v0.morale &- 1
+            }
             if v0.morale == 0 { s0Exit() }
         }
     }
@@ -229,6 +270,7 @@ extension Platoon {
 
     /// $1735c morale_sub: morale -= d0, clamped at 0.
     func s0MoraleSub(_ d0: UInt16) {
+        if enhancements.infiniteMorale { return }    // ENHANCEMENT hook (default off = original)
         let m0 = v0.morale
         if d0 > m0 { v0.morale = 0 } else { v0.morale = m0 &- d0 }
     }
@@ -238,6 +280,8 @@ extension Platoon {
     /// $19f34 read_input: HUD tick, joystick -> $60cc1 (& $8f), SPACE -> bit 4, "CHEAT!" message.
     func s0ReadInput() {
         k_hud_update()
+        s0Settle()                           // the HUD update takes ~60 lines: sample the joystick when the A500 does
+        s0Dbg("019f3e")
         v0.input = r_joystick() & 0x8f
         if r_keytest(0x40) { v0.input |= 0x10 }
         guard v0.cheat != 0, v0.invincible != 0, v0.msgCount == 0 else { return }

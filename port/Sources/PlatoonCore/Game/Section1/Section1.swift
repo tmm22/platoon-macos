@@ -1,3 +1,6 @@
+import Foundation
+let S1DBG2 = ProcessInfo.processInfo.environment["S1DBG2"] != nil
+let S1DBG = ProcessInfo.processInfo.environment["S1DBG"] != nil
 // Load section 1 ("THE TUNNEL & FLARE SECTIONS"), code $17000-$19374, data $19374-$3d7c4.
 // Spec: re/tunnels/NOTES.md (engine + tunnels), re/flare/NOTES.md (flare section).
 // Listing: re/flare/section1_full_with_flare_labels.s (all section-1 code) / re/tunnels/tunnels.s.
@@ -103,6 +106,49 @@ enum S1 {
     static let mapCache0: UInt32 = 0x3d182
 }
 
+/// 68000 execution time of the CPU-heavy section-1 loops, in Musashi cycles (the emulator's CPU core,
+/// no DMA contention), charged with `cpu(n)` (KernelSupport CPU-time model) so that buffer swaps and
+/// palette changes land in the same video frame as in the original. Derived from the instruction timings
+/// of the listed loops and checked against emulator breakpoint timings (see STATUS/verification):
+/// draw_view 486 lines, copy_background 335 lines, fade clear 630 lines, decode_background 5279 lines
+/// (all including the vblank interrupts that ran meanwhile).
+enum S1Cyc {
+    /// $1759a one 8x8 tile of draw_viewhalf (move.b/andi/lsl/lea + 32 x move.b (a0)+,d(a1) + loop); nominal
+    /// instruction sum 586, calibrated to the emulator's measured 475 lines per draw_view (excl. interrupts).
+    static let viewTile = 578
+    /// $1758e per tile row of draw_viewhalf (screen_addr call, lea, loop control).
+    static let viewRow = 184
+    /// $1756c draw_viewhalf entry/exit.
+    static let viewHalfEntry = 114
+    /// $17406 draw_view: position/table setup, the 4 view scans and the code selection (typical).
+    static let viewSetup = 900
+    /// $17708 draw_map per window cell: compare only / changed (tile copy).
+    static let mapCell = 56, mapCellCopy = 550
+    /// $176fa draw_map per window row, and the fixed part (arrow, window clamp).
+    static let mapRow = 196, mapFixed = 330
+    /// $1853e draw_roompic per 16-pixel group (4 words) and per line; fixed part (emulator: 241 lines).
+    static let roomWord = 73, roomLine = 29, roomFixed = 110
+    /// $18d6c copy_background per row (10 x 4 longs + dbra).
+    static let bgRow = 1050
+    /// $18adc fade_out_and_clear per iteration (8 x clr.l, 4 longs of each buffer).
+    static let clearIter = 194
+    /// $177c4 / $1781c object loop per slot: inactive, active (handler call + bob address, excl. handler/blit).
+    static let objSlot = 72, objActive = 290
+    /// typical object handler body (compares, counters; kernel calls are charged by the kernel).
+    static let handler = 160
+    /// $17f7c / $180ee CPU part of the bob blits (register setup; the blitter itself is instant in the emulator).
+    static let blitNormal = 1264, blitNight = 1970
+    /// $18eda bg_put_byte + caller loop: byte with plane-toggle bit clear / set; per row end; control bytes.
+    static let bgByteEven = 74, bgByteOdd = 102, bgLiteralExtra = 8, bgRowEnd = 40
+    static let bgCtrlLiteral = 50, bgCtrlRun = 84, bgCtrlNop = 30
+    /// $17010.. sec1_entry clears/tables; $171be map cache fill (801 words).
+    static let entryTables = 21_000, mapCacheFill = 801 * 22
+}
+
+extension Platoon {
+    func s1dbg(_ t: String) { if S1DBG { FileHandle.standardError.write("\(t) f\(m.frameCount) v\(m.beamLine) debt \(cpuCycles)\n".data(using: .utf8)!) } }
+}
+
 /// Globals block offsets used by section 1 (a6 = $12dde).
 extension Platoon {
     var s1_a5: UInt32 { mem.r32(a6 + 0x1e) }
@@ -125,6 +171,7 @@ extension Platoon {
         for n in 0..<200 { mem.w32(S1.lineTab + UInt32(4 * n), d0); d0 &+= 0x28 }
         d1 = 0
         for n in 0..<40 { mem.w32(S1.viewMapTab + UInt32(4 * n), d1); d1 &+= 0xb4 }
+        cpu(S1Cyc.entryTables)
         k_clear_screens()
         s1_textScreen(S1.txtIntro)
         mem.w32(a6 + 0x1e, a6)
@@ -158,6 +205,7 @@ extension Platoon {
 
     /// $170c4 tunnels_restart: start of each life.
     func s1_tunnelsRestart() {
+        tickPoint(0x170c4)
         mem.w8(0x19d7b, 0)                        // guard frame
         mem.w32(0x19d84, 0x17b0c)                 // guard handler reset
         mem.w8(S1.walked, 0)
@@ -170,8 +218,10 @@ extension Platoon {
             mem.w32(S1.colLeft, 0xa)
             mem.w32(S1.colRight, 0x14)
         }
+        s1dbg("restart")
         // movea.l $1e(a6),a5
         k_hud_init()
+        s1dbg("hudinit1")
         mem.w8(S1.soldierLost, 0)
         mem.w8(S1.destroyed, 0)
         mem.w8(S1.posX, 0x15)
@@ -187,12 +237,43 @@ extension Platoon {
         }
         mem.w8(S1.inRoom, 0)
         s1_copyTunnelPalette()
-        k_set_top_pal(S1.palWork)
+        s1_setTopPal(S1.palWork)
         k_set_hud_pal(S1.palHud)
         k_hud_init()
+        s1dbg("hudinit2")
         s1_recolourCrosshair()
         for i in 0..<0x321 { mem.w16(S1.mapCache0 + UInt32(2 * i), 0xffff) }
+        cpu(S1Cyc.mapCacheFill)
     }
+
+    /// `jsr $f84c` with the CPU time spent so far paid first, so the copper swap is scheduled at the same
+    /// beam position as in the original (the level-6 split interrupt latches it at the next split line).
+    func s1_swap() {
+        settleCPU()
+        if S1DBG { FileHandle.standardError.write("swap f\(m.frameCount) v\(m.beamLine)\n".data(using: .utf8)!) }
+        k_swap()
+        if S1DBG2 {
+            while mem.r8(KA.swapPending) != 0 { m.waitLine(m.beamLine + 1) }
+            FileHandle.standardError.write("latched f\(m.frameCount) v\(m.beamLine)\n".data(using: .utf8)!)
+        }
+    }
+
+    /// `jsr $f878` after paying the CPU time spent so far (the palette lands in the same frame as the original).
+    func s1_setTopPal(_ a0: UInt32) {
+        settleCPU()
+        k_set_top_pal(a0)
+    }
+
+    /// `jsr $f86c` / `jsr $f868` / `jsr $f818` / `jsr $f808` after paying the CPU time spent so far, so sounds,
+    /// tunes and HUD icon changes start at the same beam position as in the original.
+    /// `jsr $410` / `jsr $40c`: the hardware is sampled after paying the CPU time spent so far, i.e. at the
+    /// same beam position (and video frame) as in the original.
+    func s1_joystick() -> UInt8 { settleCPU(); s1dbg("joy"); return r_joystick() }
+    func s1_keytest(_ code: UInt8) -> Bool { settleCPU(); return r_keytest(code) }
+    func s1_fx(_ d0: UInt16) { settleCPU(); k_fx(d0) }
+    func s1_music(_ d0: UInt16) { settleCPU(); k_music(d0) }
+    func s1_hudWounds() { settleCPU(); k_hud_wounds() }
+    func s1_hudIcons() { settleCPU(); k_hud_icons() }
 
     /// copy 8 longs $1a032 -> $1a012 (inline in $17176 and $172ce)
     func s1_copyTunnelPalette() {
@@ -206,9 +287,11 @@ extension Platoon {
             repeat {
                 tickPoint(0x171c6)
                 k_wait_vbl()
+                s1dbg("hud")
                 k_hud_update()
             } while mem.s16(a6 + 0x6a) >= 0
             tickPoint(0x171d8)
+            if S1DBG { FileHandle.standardError.write("tick f\(m.frameCount) v\(m.beamLine) debt \(cpuCycles)\n".data(using: .utf8)!) }
             mem.w16(a6 + 0x6a, 3)
             s1_drawMap()
             s1_drawView()
@@ -222,7 +305,7 @@ extension Platoon {
                 }
             }
             s1_objectsTunnel()
-            k_swap()
+            s1_swap()
             mem.w16(S1.mapCacheIdx, mem.r16(S1.mapCacheIdx) ^ 4)
             if mem.r8(S1.soldierLost) != 0 { return }
             if mem.r16(a6 + 0x2e) == 0 { s1_exitMoraleZero() }
@@ -246,7 +329,7 @@ extension Platoon {
 
     /// $17272 text_screen_music3: tune 3, then the text screen.
     func s1_textScreenMusic3(_ a0: UInt32) {
-        k_music(3)
+        s1_music(3)
         s1_textScreen(a0)
     }
 
@@ -254,24 +337,27 @@ extension Platoon {
     /// clear, tunnel palette back.
     func s1_textScreen(_ a0: UInt32) {
         k_clear_screens()
-        k_set_top_pal(S1.palText)
+        s1_setTopPal(S1.palText)
         k_set_hud_pal(S1.palHud)
         r_print(a0)
         k_wait_frames(0x31)
         // L_0172ae: jsr $410 / btst #7,d0 / beq — a tight poll loop in the original; polled once per frame here.
-        while r_joystick() & 0x80 == 0 {
-            m.waitVBlank()
+        while s1_joystick() & 0x80 == 0 {
+            busyWaitYield()
         }
-        k_music(4)
+        s1dbg("fire")
+        s1_music(4)
         k_clear_screens()
+        s1dbg("cleared")
         s1_copyTunnelPalette()
-        k_set_top_pal(S1.palWork)
+        s1_setTopPal(S1.palWork)
     }
 
     // MARK: dispatch of code addresses stored in RAM
 
     /// `jsr (a0)` with a0 = object handler l[a3+$a] (tunnel and flare object lists).
     func s1_objectHandler(_ addr: UInt32, _ a3: UInt32) {
+        cpu(S1Cyc.handler)
         switch addr {
         // tunnels
         case 0x178be: s1_hCrosshair(a3)

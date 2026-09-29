@@ -35,6 +35,7 @@ extension Platoon {
 
     /// Power-on: Kickstart state + the cracked bootblock (HLE, like tools/amiga/emu), then the boot loader.
     func boot() {
+        k_registerDispatch()
         // Kickstart leaves CIA-A DDRA = $03 (LED/OVL outputs) and CIA-B port B (drive control) all outputs, high.
         chip.ciaA.write(2, 0x03); chip.ciaB.write(3, 0xff); chip.ciaB.write(1, 0xff)
         // Bootblock (crack): loads $2c00 bytes from ADF offset $70c00 to $76000 and jumps to $7613a.
@@ -52,14 +53,18 @@ extension Platoon {
     /// $76148 boot_main: display init, drive select, load + show the Ocean loading picture, load the main
     /// program (tracks 1-17) to $400 and jump to it.
     func boot_main() {
+        tickPoint(0x76148)
         cpu(24)
         boot_display_init()
         mem.w16(RA.bootDrive, 1); boot_drive_select()
         mem.w16(RA.bootDrive, 0); boot_drive_select()
         boot_load(track: 0x12, count: 3, dest: 0x70000)
         boot_decode_picture()
-        for i in 0..<32 { chip.write(0x180 + 2 * i, mem.r16(RA.bootPalette &+ UInt32(2 * i))) }   // 32 words (only 16 are colours)
-        cpu(32 * 22)
+        for i in 0..<32 {                                   // 32 words (only 16 are colours): move.w (a0)+,(a1)+ ; dbra
+            cpu(22); settleCPU()
+            chip.write(0x180 + 2 * i, mem.r16(RA.bootPalette &+ UInt32(2 * i)))
+        }
+        tickPoint(0x76198)
         boot_load(track: 1, count: 0x11, dest: 0x400)
         // jmp $400: the image starts with bra $253c (reloc_stub)
         reloc_stub()
@@ -75,40 +80,49 @@ extension Platoon {
     /// (row y plane p -> $78000 + p*$2000 + y*40); stops after 200 rows (the original pops the return address
     /// of boot_putbyte). The 34-byte header (IFF-like, palette unused) is skipped.
     func boot_decode_picture() {
+        tickPoint(0x761dc)
         var a1: UInt32 = 0x78000, a2: UInt32 = 0x78000
         var d5: UInt32 = 0, d6: UInt8 = 0, d7: UInt8 = 0
         var a0: UInt32 = 0x70022
-        var bytes = 0
+        var cycles = 0                                     // 68000 cycles of the original loop (Musashi timing)
         /// $76224 boot_putbyte; returns true when the 200th row is complete.
         func putbyte(_ d1: UInt8) -> Bool {
             mem.w8(a1, d1); a1 &+= 1
             let wasSet = d5 & 0x8000 != 0
             d5 ^= 0x8000                                   // bchg #15,d5
-            if !wasSet { return false }
+            if !wasSet { cycles += 18 + 46; return false }   // bsr + body up to the rts
+            cycles += 18 + 70
             d5 = (d5 & 0xffffff00) | UInt32(UInt8(truncatingIfNeeded: d5) &+ 2)
             if UInt8(truncatingIfNeeded: d5) != 0x28 { return false }
             d5 &= 0xffffff00
             a2 &+= 0x2000; a1 = a2
             d6 = (d6 &+ 1) & 3
+            cycles += 36
             if d6 != 0 { return false }
             a2 = a2 &- 0x7fd8; a1 = a2
             d7 &+= 1
+            cycles += 28
             return d7 == 0xc8
         }
         decode: while true {
             let d0 = mem.r8(a0); a0 &+= 1
             if d0 & 0x80 == 0 {                              // literal run of d0+1 bytes
+                cycles += 50
                 for _ in 0...Int(d0 & 0x7f) {
-                    let d1 = mem.r8(a0); a0 &+= 1; bytes += 1
+                    let d1 = mem.r8(a0); a0 &+= 1
+                    cycles += 18                             // move.b (a0)+,d1 ; dbra
                     if putbyte(d1) { break decode }
                 }
             } else if d0 != 0x80 {                           // repeat next byte 1+(-d0 & $7f) times
+                cycles += 76
                 let n = Int(UInt8(truncatingIfNeeded: 0 &- d0) & 0x7f)
                 let d1 = mem.r8(a0); a0 &+= 1
-                for _ in 0...n { bytes += 1; if putbyte(d1) { break decode } }
+                for _ in 0...n { cycles += 10; if putbyte(d1) { break decode } }
+            } else {
+                cycles += 34                                 // $80: no-op code
             }
         }
-        cpu(bytes * Platoon.bootPutbyteCycles)
+        cpu(cycles * 10058 / 10000)                        // (calibrated: emu 6855 lines)
     }
 
     /// $76614 boot_display_init: interrupts/DMA off, 4 lowres planes at $78000 via the boot copper list,
@@ -121,7 +135,7 @@ extension Platoon {
         chip.writeL(0x080, RA.bootCopper)
         chip.write(0x088, 0)                                 // move.w $88(a0),d0 = COPJMP1 strobe
         mem.fill(0x78000, count: 0x8000)
-        cpu(0x2000 * 22)
+        cpu(240_170)                                         // clr.l (a1)+ ; dbra (emu: 529 lines)
         for s in 0..<8 { chip.write(0x142 + 8 * s, 0) }
         for i in 0..<32 { chip.write(0x180 + 2 * i, 0) }
         boot_kbd_off()
@@ -153,9 +167,10 @@ extension Platoon {
 
     /// $253c reloc_stub: INTENA off; move $404..$2537 down to $400 ($84d longs); jmp $400 (now bra $566).
     func reloc_stub() {
+        tickPoint(0x253c)
         chip.write(0x09a, 0x7fff)
         for i in 0..<0x84d { mem.w32(0x400 + UInt32(4 * i), mem.r32(0x404 + UInt32(4 * i))) }
-        cpu(0x84d * 22)
+        cpu(62_650)                                         // $84d x move.l (a0)+,(a1)+ ; dbra (emu: 138 lines)
         res_init()
     }
 
@@ -163,6 +178,7 @@ extension Platoon {
 
     /// $566 res_init: INTENA off, vector $20 := $582, SR $2700; falls into res_restart.
     func res_init() {
+        tickPoint(0x566)
         chip.write(0x09a, 0x7fff)
         mem.w32(0x20, UInt32(0x582))
         chip.ipl = 7
@@ -221,6 +237,8 @@ extension Platoon {
 
     /// $169c level2_handler: CIA-A SP -> key matrix / ASCII buffer; FLG -> serial flag; DEL -> warm restart.
     func level2_handler() {
+        irqDepth += 1; defer { irqDepth -= 1 }
+        irqCharge(200)
         chip.write(0x09c, 0x0008)
         let icr = chip.ciaA.read(13)
         if icr & 0x08 != 0 { l2_key(); return }
@@ -337,6 +355,7 @@ extension Platoon {
     func res_putchar_impl(_ c: UInt8) {
         let col = UInt32(mem.r16(RA.curCol) & 0x3f), row = UInt32(mem.r16(RA.curRow) & 0x1f)
         if Int8(bitPattern: c) < 0x20 { res_putchar_ctrl(c); return }   // cmpi.b #$20 / blt (signed)
+        settleCPU()
         cpu(Platoon.putcharCycles)
         var glyph = mem.r32(RA.fontPtr) &+ UInt32(c &- 0x20) * 16
         let d2 = mem.r32(RA.rowTab + row * 4) &+ col &+ 0x70000
@@ -435,16 +454,44 @@ extension Platoon {
         let first = Int(UInt8(truncatingIfNeeded: d0))
         // disk_seek: recalibrate (step out to track 0), then step in first>>1 cylinders
         cpu((diskCylinder + first >> 1) * Platoon.diskStepCycles + Platoon.diskSeekCycles)
-        disk.loadTracks(first: first, count: n, to: a0, memory: mem)
         var t = first
-        for _ in 0..<n {
-            cpu(Platoon.diskTrackCycles)
+        for i in 0..<n {
+            cpu(Platoon.diskReadRawCycles + diskDecodeCycles())
+            settleCPU()
+            disk.loadTracks(first: t, count: 1, to: a0 &+ UInt32(i * Disk.trackSize), memory: mem)
             t += 1
             if t & 1 == 0 { cpu(Platoon.diskStepCycles) }    // disk_step_next steps in when the new track is even
         }
         diskCylinder = t >> 1
         chip.ciaA.write(0, chip.ciaA.read(0) & ~0x02)       // bclr #1,$bfe001 (power LED)
         return 0
+    }
+
+    /// Duration of the MFM decode of one track: 11 sectors + the `cmpi.w #$4489,(a2)+` sync searches, whose
+    /// length depends on where in the track the disk DMA started (the reference emulator, like a real drive,
+    /// starts at a pseudo-random position: `3 + (rand() % 11) * 581` words into its 6400-word track image,
+    /// sectors 544 words apart, then after the next sync word). The port replays the emulator's rand() (macOS
+    /// libc: x = x * 16807 mod (2^31 - 1), seed 1) so that load times match it exactly.
+    func diskDecodeCycles() -> Int {
+        diskRandState = UInt32((UInt64(diskRandState) * 16807) % 0x7fffffff)
+        let r = Int(diskRandState % 11)
+        let n = 6400
+        func word(_ i: Int) -> Int {                        // 0 = other, 1 = sync
+            let q = i % n
+            if q >= 544 * 11 { return 0 }
+            let o = q % 544
+            return (o == 2 || o == 3) ? 1 : 0
+        }
+        var p = 3 + r * (n / 11)
+        while word(p) == 0 { p += 1 }
+        p += 1                                              // the DMA buffer starts after that sync word
+        var a = 0, scans = 0
+        for _ in 0..<11 {
+            repeat { scans += 1; a += 1 } while word(p + a - 1) == 0
+            if word(p + a) == 1 { a += 1 }                  // skip the second sync word
+            a += 28 + 256                                   // header/label/checksums + odd data half
+        }
+        return Platoon.diskDecodeCycles + scans * Platoon.diskSyncScanCycles10 / 10
     }
 
     /// $a9a disksave_stub ($424, crack): saves SP at $d16 and returns d0 = 0 without writing. The port persists

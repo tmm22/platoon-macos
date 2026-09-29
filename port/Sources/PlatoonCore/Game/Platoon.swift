@@ -27,6 +27,18 @@ public final class Platoon {
     var loadedSection = -1
     /// Emulated disk head cylinder (for the disk timing model of the resident loader).
     var diskCylinder = 0
+    /// State of the C library rand() the reference emulator uses to pick where a disk DMA starts in the track
+    /// (tools/amiga/emu disk_dma: p = 3 + (rand() % 11) * (6400 / 11)); decides the loader's sync-search time.
+    var diskRandState: UInt32 = 1
+    /// A tune was started by k_music and not stopped (the handler's music tick is then much longer).
+    var musicPlaying = false
+    /// CPU-time model of interrupts (KernelSupport.swift): the game thread is settling a CPU-bound stretch;
+    /// handler cycles that preempted it; end of the handlers that ran while it was waiting.
+    var cpuBusy = false
+    /// Nesting depth of the translated interrupt handlers (level 2/3/6) currently running.
+    var irqDepth = 0
+    var irqPreempted = 0
+    var irqBusyUntil = 0
 
     public init(machine: Machine) {
         m = machine; mem = machine.memory; chip = machine.chip; disk = machine.disk; input = machine.input

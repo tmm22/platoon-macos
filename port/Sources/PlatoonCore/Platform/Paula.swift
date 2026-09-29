@@ -48,8 +48,18 @@ public final class Paula {
         }
     }
 
+    /// DMACON written. Like the real Paula (and tools/amiga/emu), a voice's state machine only notices the DMA
+    /// enable bit when it next runs (here: at the next beam line, see `runLine`), so a DMA off/on pair written
+    /// within a few instructions does NOT restart the voice. Code that relies on a busy-wait between DMA off
+    /// and on (the music driver's sample-sfx trigger) calls `settleDMA()` where the original waits.
     func dmaconChanged(_ d: UInt16) {
         dmacon = d
+    }
+
+    /// Lets the voices see the current DMACON state now: DMA off stops a voice, DMA on (re)starts an idle voice
+    /// and latches AUDxLC/AUDxLEN. Called at every beam line and by translated busy-wait delays.
+    public func settleDMA() {
+        let d = dmacon
         for c in 0..<4 {
             let on = d & 0x200 != 0 && d & (1 << UInt16(c)) != 0
             if on && !ch[c].active { start(c) }
@@ -90,6 +100,7 @@ public final class Paula {
 
     /// Generates the audio for one beam line (1/15625 s).
     func runLine() {
+        settleDMA()
         for c in 0..<4 where ch[c].pendingIRQ { ch[c].pendingIRQ = false; raiseInterrupt?(0x80 << UInt16(c)) }
         sampleAcc += sampleRate / (50.0 * Double(Chipset.linesPerFrame))
         var n = 0

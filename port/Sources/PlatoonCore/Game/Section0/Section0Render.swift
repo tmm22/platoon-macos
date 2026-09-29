@@ -29,6 +29,7 @@ extension Platoon {
             var c = cols
             while true {
                 let colA0 = a0
+                cpu(Platoon.s0CyclesAttrTile)
                 let tile = UInt16(mem.r8(a1)); a1 &+= 1
                 var a2 = s0TableLong(0x5fcb4, tile)
                 for _ in 0...5 {
@@ -49,6 +50,7 @@ extension Platoon {
 
     /// $19ed2 solid_at: attribute cell at ($60c94,$60c96) is solid ($b0, $da, $c0..$d0). No bounds checks.
     func s0SolidAt() -> Bool {
+        cpu(Platoon.s0CyclesSolidAt)
         let row = UInt32(v0.probeY >> 3) * 0x38 &+ Platoon.s0AttrWin
         let d0 = (v0.probeX >> 3) &+ 8 &+ v0.c34
         let cell = mem.r8(s0AddW(row, d0))
@@ -63,6 +65,7 @@ extension Platoon {
     /// dissolve uses as its source pointer when it follows (d4 = $780 then).
     @discardableResult
     func s0DrawTiles() -> UInt32 {
+        cpu(Platoon.s0CyclesClearPlayfield + Platoon.s0CyclesDrawTiles)
         var a0 = v0.backBuf
         for _ in 0...0x59f {
             mem.w32(a0 &+ 0x2000, 0); mem.w32(a0 &+ 0x4000, 0); mem.w32(a0 &+ 0x6000, 0); mem.w32(a0, 0)
@@ -209,6 +212,7 @@ extension Platoon {
 
     /// $191d4 draw_frame: d0 = x<<16|y, d1 = frame (+$40 when $60c36 set); draws its $ff-terminated bob list.
     func s0DrawFrame(_ d0: UInt32, _ frame: UInt16) {
+        cpu(Platoon.s0CyclesDrawFrame)
         var d1 = frame
         if v0.flip != 0 { d1 = d1 &+ 0x40 }
         var a4 = s0TableLong(0x1a1c6, d1)
@@ -228,6 +232,7 @@ extension Platoon {
         let xs = UInt16(d0 >> 16) &- v0.hscroll
         d0 = UInt32(xs) << 16 | (d0 & 0xffff)
         if d0 >= 0x0140_0000 { return }                     // x' outside 0..319 (unsigned)
+        cpu(Platoon.s0CyclesBobDrawn)
         let savedD0 = d0
         // 1: clear the bob work buffer (160 rows x 6 words)
         chip.write(0x040, 0x0100)
@@ -243,8 +248,7 @@ extension Platoon {
         chip.write(0x058, 0x2806)
         // 2: copy mask + 4 planes (5H rows x W words) into rows of W+1 words
         d1 = d1 &<< 1
-        var a1 = s0TableLong(0x55000, d1 >> 2 &<< 1 >> 1)  // placeholder, replaced below
-        a1 = mem.r32(0x55000 &+ UInt32(bitPattern: Int32(Int16(bitPattern: d1)))) &+ 0x55400
+        var a1 = mem.r32(0x55000 &+ UInt32(bitPattern: Int32(Int16(bitPattern: d1)))) &+ 0x55400
         var hdr = mem.r32(a1); a1 &+= 4
         hdr = hdr &+ 0x0001_0001                            // W<<16 | H
         let h = UInt16(truncatingIfNeeded: hdr)
@@ -275,7 +279,7 @@ extension Platoon {
         let d3 = (0 &- (w1m &+ w1m)) &+ 0x28                // screen modulo 40 - 2(W+1)
         let scr = a0
         // 3-5: background mask = plane1 | plane2 | plane3 under the bob
-        var a1b = Platoon.s0BgMask
+        let a1b = Platoon.s0BgMask
         a0 &+= 0x2000
         chip.write(0x064, d3)
         chip.write(0x066, 0)
@@ -298,7 +302,6 @@ extension Platoon {
         // 6: priority vs line $60cba
         var am = Platoon.s0BgMask            // a0
         var ab = Platoon.s0BobBuf            // a1
-        a1b = ab
         let prio = v0.prioLine
         var con: UInt16
         var lower = false
@@ -313,6 +316,7 @@ extension Platoon {
                 return
             }
             // straddling: rows above the line get the plain (pre-shifted) mask
+            cpu(Platoon.s0CyclesBobStraddle)
             let top = d6 &- d5
             var s = bsize & 0x3f
             let above = (0 &- (top &- prio)) &<< 6
@@ -338,9 +342,9 @@ extension Platoon {
             ab = s0AddW(ab, off)
             lower = true
         }
-        _ = a1b
         if lower {
             // db_lower: mask = shift(mask) & ~bg
+            cpu(Platoon.s0CyclesBobLower)
             d7 |= 0x0d30
             chip.write(0x064, 0)
             chip.write(0x066, 0)
@@ -386,6 +390,7 @@ extension Platoon {
 
     /// $194fa clear_buf_78000: clear the playfield part (4 x $1680 bytes) of buffer $78000.
     func s0ClearBuf78000() {
+        cpu(Platoon.s0CyclesClearPlayfield)
         var a0: UInt32 = 0x78000
         for _ in 0...0x59f {
             mem.w32(a0 &+ 0x2000, 0); mem.w32(a0 &+ 0x4000, 0); mem.w32(a0 &+ 0x6000, 0); mem.w32(a0, 0)
@@ -439,12 +444,14 @@ extension Platoon {
 
     /// $19926 dissolve_in: masks from the all-zero group upwards.
     func s0DissolveIn(a1: UInt32, d4: UInt16) {
+        s0Dbg("019926")
         s0Dissolve(masks: 0x1a138, step: 0xffff_ffe0, a1: a1, d4: d4)
     }
 
     /// $19936 dissolve_out: save the back buffer to $68000, masks from 7 bits set downwards.
     /// `a1`/`d4` are the caller's register values (the dissolve's "random" source; see s0Dissolve).
     func s0DissolveOut(a1: UInt32, d4: UInt16) {
+        s0Dbg("019936")
         s0CopyBackbufTo68000()
         s0Dissolve(masks: 0x1a058, step: 0x20, a1: a1, d4: d4)
     }
@@ -457,7 +464,6 @@ extension Platoon {
         var a5 = a5in
         var a1 = a1in & 0xffff_fffe
         var d4 = d4in
-        s0MarkTiming()
         for _ in 0...7 {
             var a0 = v0.backBuf
             var a2: UInt32 = 0x68000
@@ -473,11 +479,12 @@ extension Platoon {
                 }
                 a1 &= 0xffff
             }
-            s0Pace(lines: 1912)              // 68000 time of one step (emu: 6 frames + 34 lines)
+            cpu(Platoon.s0CyclesDissolveStep)
+            s0Settle()
+            s0Dbg("019af8")
             k_swap()
             s0ReadInput()
             k_wait_swap()
-            s0MarkTiming()
             a5 = a5 &+ d3
         }
         s0Restore68000ToBackbuf()

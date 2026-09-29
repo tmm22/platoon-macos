@@ -22,8 +22,9 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
 
     /// Source crop in canvas coordinates (hires x, lines).
     var crop: (x: Int, y: Int, w: Int, h: Int) {
-        // standard PAL window: DIW $2c81 -> canvas lowres x = 0x21, y = 0x14 ; 320x256 lowres
-        showOverscan ? (x: 16, y: 4, w: 720, h: 282) : (x: (0x81 - Chipset.canvasH0) * 2, y: 0x2c - Chipset.canvasV0, w: 640, h: 256)
+        // Platoon's screens all lie in DIW h $71..$1b1 (the game window/HUD use DIWSTRT $xx71, the text screens
+        // are narrower), vertically within the standard PAL lines $2c..$12b -> 320x256 lowres.
+        showOverscan ? (x: 16, y: 4, w: 720, h: 282) : (x: (0x71 - Chipset.canvasH0) * 2, y: 0x2c - Chipset.canvasV0, w: 640, h: 256)
     }
 
     init?(view: MTKView) {

@@ -1,0 +1,74 @@
+706 poke 12e4e 1 2
+708 poke 60ca0 ff 1
+716 key 0x53 1
+726 key 0x53 0
+728 poke 12e4e 0 2
+812 key 0x40 1
+813 right 1
+832 key 0x40 0
+836 right 0
+842 up 1
+842 down 1
+862 up 0
+862 down 0
+872 left 1
+872 right 1
+892 left 0
+892 right 0
+902 left 1
+1340 left 0
+1340 up 1
+1350 up 0
+1364 key 0x64 1
+1370 key 0x64 0
+1373 poke 5f88a 9c 2
+1376 right 1
+1378 right 0
+1378 fire 1
+1384 fire 0
+1416 left 1
+1416 left 0
+1416 down 1
+1424 down 0
+1432 right 1
+1588 right 0
+1588 up 1
+1598 up 0
+1610 right 1
+1642 right 0
+1642 up 1
+1648 up 0
+1673 left 1
+1703 left 0
+1703 down 1
+1711 down 0
+1719 left 1
+2071 left 0
+2071 up 1
+2081 up 0
+2099 key 0x64 1
+2109 key 0x64 0
+2202 down 1
+2208 down 0
+2222 down 1
+2228 down 0
+2242 fire 1
+2248 fire 0
+2305 right 1
+2335 right 0
+2335 up 1
+2341 up 0
+2369 left 1
+2399 left 0
+2399 down 1
+2407 down 0
+2415 right 1
+2605 right 0
+2605 up 1
+2615 up 0
+2627 right 1
+2659 right 0
+2698 key 0x15 1
+2705 key 0x15 0
+3106 fire 1
+3119 fire 0

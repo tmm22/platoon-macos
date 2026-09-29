@@ -1,0 +1,11 @@
+820 poke 60ca0 ff 1
+822 right 1
+1000 right 0
+1002 down 1
+1040 down 0
+1042 right 1
+1400 right 0
+1402 fire 1
+1500 fire 0
+1502 left 1
+2000 left 0

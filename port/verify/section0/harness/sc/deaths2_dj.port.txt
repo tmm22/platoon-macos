@@ -1,0 +1,47 @@
+706 poke 60ca0 ff 1
+716 right 1
+868 right 0
+868 down 1
+876 down 0
+918 fire 0
+919 poke 60ca0 0 2
+920 right 1
+1136 right 0
+1274 fire 1
+1280 fire 0
+1334 poke 60ca0 ff 1
+1335 poke 12e4e 1 2
+1346 key 0x53 1
+1355 key 0x53 0
+1355 poke 12e4e 0 2
+1441 left 1
+1443 left 1
+2063 left 0
+2063 up 1
+2073 up 0
+2085 right 1
+2085 right 1
+2099 right 0
+2099 poke 60ca0 0 2
+2101 up 1
+2106 up 0
+2241 fire 1
+2247 fire 0
+2305 up 1
+2311 up 0
+2326 poke 60ca0 ff 1
+2327 left 1
+2341 left 0
+2341 down 1
+2350 down 0
+2357 right 1
+2357 right 1
+2708 right 0
+2708 up 1
+2718 up 0
+2718 poke 60ca0 0 2
+2900 fire 1
+2906 fire 0
+2962 poke 12e0c 0030 2
+4162 fire 1
+4169 fire 0

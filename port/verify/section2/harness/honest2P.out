@@ -1,0 +1,64 @@
+t1: 1456 ticks in A, 1456 ticks in B|tick 633: frame A 1749 / B 1750: 2 bytes differ|   $057e27 (+5): A=00 B=02|   $057e32 (+10): A=09 B=11|tick 634: frame A 1750 / B 1751: 4 bytes differ|   $057e27 (+5): A=02 B=04|   $057f49 (+127): A=00 B=02|   $057f5d (+13b): A=5c B=32|   $057f5f (+13d): A=00 B=02|tick 635: frame A 1751 / B 1752: 3 bytes differ|   $057e27 (+5): A=04 B=06|   $057f49 (+127): A=02 B=04|   $057f5f (+13d): A=02 B=04|
+t2: 1456 ticks in A, 1456 ticks in B|tick 629: frame A 1745 / B 1746: 1 bytes differ|   $012e49 (+6b): A=07 B=06|tick 630: frame A 1746 / B 1747: 1 bytes differ|   $012e49 (+6b): A=06 B=05|tick 631: frame A 1747 / B 1748: 1 bytes differ|   $012e49 (+6b): A=05 B=04|
+t3: 1456 ticks in A, 1456 ticks in B|tick 633: frame A 1749 / B 1750: 1 bytes differ|   $019013 (+f7): A=32 B=31|tick 634: frame A 1750 / B 1751: 2 bytes differ|   $019013 (+f7): A=31 B=30|   $019015 (+f9): A=32 B=31|tick 635: frame A 1751 / B 1752: 2 bytes differ|   $019013 (+f7): A=30 B=2f|   $019015 (+f9): A=31 B=30|
+t4: 1456 ticks in A, 1456 ticks in B|tick 636: frame A 1752 / B 1753: 1 bytes differ|   $017227 (+1): A=44 B=43|
+t5: 1456 ticks in A, 1456 ticks in B|all compared ticks identical|
+t6: 26 ticks in A, 26 ticks in B|tick 12: frame A 1812 / B 1813: 1 bytes differ|   $012e49 (+6b): A=28 B=27|
+t7: 158843 ticks in A, 2 ticks in B|tick 1: frame A 822 / B 2877: 24 bytes differ|   $012de1 (+3): A=00 B=04|   $012de3 (+5): A=00 B=01|   $012de5 (+7): A=00 B=09|   $012de7 (+9): A=00 B=90|   $012deb (+d): A=00 B=09|   $012ded (+f): A=00 B=90|   $012df1 (+13): A=00 B=09|   $012df3 (+15): A=00 B=90|   $012df7 (+19): A=00 B=09|   $012df9 (+1b): A=00 B=90|   $012e09 (+2b): A=00 B=03|   $012e0c (+2e): A=90 B=88|   $012e17 (+39): A=00 B=04|   $012e1b (+3d): A=00 B=0f|   $012e1d (+3f): A=00 B=0f|   $012e27 (+49): A=00 B=02|   $012e2e (+50): A=00 B=27|   $012e30 (+52): A=00 B=80|   $012e3e (+60): A=13 B
+bp counts differ:
+   1 BP 017000	   1 BP 000566
+   1 BP 017068	 145 BP 001a5c
+  26 BP 0170f4	1396 BP 001e46
+1456 BP 017118	   1 BP 00253c
+  26 BP 017604	   1 BP 00f890
+  26 BP 01764e	   1 BP 00f904
+158843 BP 01770e	   1 BP 00f908
+   2 BP 01771c	   1 BP 00f90c
+1436 BP 0179fa	   1 BP 00f912
+   1 BP 017c0a	   1 BP 00f95a
+	   1 BP 00f95e
+	   1 BP 00f96c
+	   1 BP 00f98a
+	   1 BP 00fbec
+	   1 BP 00fcb6
+	   1 BP 00fcc8
+	   1 BP 00fd1a
+	   1 BP 00fee8
+	   3 BP 010416
+	   3 BP 010426
+	   1 BP 01058a
+	   2 BP 010656
+	  46 BP 01070c
+	  44 BP 010732
+	   1 BP 01084a
+	1534 BP 0108a0
+	1534 BP 0108bc
+	1534 BP 010906
+	1534 BP 01093c
+	1534 BP 010956
+	 139 BP 010bcc
+	   6 BP 010c00
+	 182 BP 010c50
+	 355 BP 010ca0
+	3310 BP 010eac
+	   1 BP 011076
+	   1 BP 01108a
+	   1 BP 01108e
+	   1 BP 0110aa
+	   1 BP 0110ae
+	   1 BP 0110ba
+	   1 BP 0110d0
+	   1 BP 0110d4
+	   1 BP 0110e8
+	   2 BP 017000
+	   1 BP 017068
+	  26 BP 0170f4
+	1456 BP 017118
+	  26 BP 017604
+	  26 BP 01764e
+	   2 BP 01770e
+	   2 BP 01771c
+	   1 BP 017c0a
+	   1 BP 076148
+	   1 BP 076198
+	   1 BP 0761dc

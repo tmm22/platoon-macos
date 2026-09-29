@@ -1,0 +1,9 @@
+820 poke 12e4e 1 2
+830 key 0x52 1
+836 key 0x52 0
+842 poke 12e4e 0 2
+925 right 1
+1240 right 0
+1440 fire 1
+1446 fire 0
+2147 fire 0

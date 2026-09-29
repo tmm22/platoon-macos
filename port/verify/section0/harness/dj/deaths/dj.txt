@@ -1,0 +1,46 @@
+300 fire 1
+305 fire 0
+350 poke 12e4c 0 2
+600 fire 1
+605 fire 0
+1077 fire 1
+1083 fire 0
+1139 key 0x64 1
+1143 key 0x64 0
+1242 down 1
+1248 down 0
+1263 fire 1
+1269 fire 0
+1486 down 1
+1492 down 0
+1506 down 1
+1512 down 0
+1526 up 1
+1532 up 0
+1546 fire 1
+1552 fire 0
+1606 poke 12de2 3 2
+1608 key 0x64 1
+1612 key 0x64 0
+1712 up 1
+1718 up 0
+1732 up 1
+1738 up 0
+1752 up 1
+1758 up 0
+1772 fire 1
+1778 fire 0
+2022 up 1
+2028 up 0
+2042 fire 1
+2048 fire 0
+2102 poke 12de8 4 2
+2102 poke 12dee 4 2
+2102 poke 12df4 4 2
+2102 poke 12dfa 3 2
+2288 up 1
+2295 up 0
+2308 fire 1
+2314 fire 0
+4045 fire 1
+4051 fire 0

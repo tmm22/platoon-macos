@@ -1,0 +1,23 @@
+820 poke 12e4e 1 2
+830 key 0x54 1
+836 key 0x54 0
+850 right 1
+950 right 0
+960 key 0x51 1
+966 key 0x51 0
+1150 left 1
+1250 left 0
+1260 key 0x52 1
+1266 key 0x52 0
+1450 right 1
+1600 right 0
+1610 key 0x53 1
+1616 key 0x53 0
+1800 right 1
+1900 right 0
+1910 key 0x50 1
+1916 key 0x50 0
+2100 key 0x55 1
+2106 key 0x55 0
+2110 right 1
+2300 right 0

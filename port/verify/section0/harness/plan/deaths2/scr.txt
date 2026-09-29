@@ -1,0 +1,2 @@
+1 poke 12e0c 0030 2
+2 save /tmp/verify-section0/plan/deaths2/deaths2_3077.state

@@ -1,0 +1,2 @@
+41 fire 0
+42 save /tmp/verify-section0/plan/misc/misc_14602.state

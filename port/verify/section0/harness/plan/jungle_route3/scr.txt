@@ -1,0 +1,2 @@
+41 fire 0
+42 save /tmp/verify-section0/plan/jungle_route3/jungle_route3_8939.state

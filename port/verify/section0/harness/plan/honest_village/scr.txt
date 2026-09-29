@@ -1,0 +1,5 @@
+0 right 1
+31 right 0
+71 key 0x15 1
+77 key 0x15 0
+78 save /tmp/verify-section0/plan/honest_village/honest_village_12642.state

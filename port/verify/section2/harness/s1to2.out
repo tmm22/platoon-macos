@@ -1,0 +1,68 @@
+t1: 225 ticks in A, 225 ticks in B|all compared ticks identical|
+t2: 225 ticks in A, 225 ticks in B|tick 41: frame A 2766 / B 2765: 1 bytes differ|   $012e49 (+6b): A=24 B=25|tick 102: frame A 2828 / B 2827: 1 bytes differ|   $012e49 (+6b): A=18 B=19|tick 175: frame A 2902 / B 2901: 1 bytes differ|   $012e49 (+6b): A=00 B=01|
+t3: 225 ticks in A, 225 ticks in B|all compared ticks identical|
+t4: 225 ticks in A, 225 ticks in B|all compared ticks identical|
+t5: 225 ticks in A, 225 ticks in B|all compared ticks identical|
+t6: 2 ticks in A, 1 ticks in B|all compared ticks identical|
+t7: 137564 ticks in A, 2 ticks in B|tick 1: frame A 2634 / B 3009: 10 bytes differ|   $012de3 (+5): A=00 B=02|   $012e09 (+2b): A=03 B=00|   $012e0c (+2e): A=90 B=80|   $012e32 (+54): A=ff B=00|   $012e3e (+60): A=13 B=76|   $012e46 (+68): A=00 B=ff|   $012e48 (+6a): A=ff B=00|   $012e49 (+6b): A=ff B=2b|   $012e4a (+6c): A=00 B=01|   $012e4b (+6d): A=00 B=54|
+bp counts differ:
+   3 BP 017000	   1 BP 000566
+   2 BP 017068	 140 BP 001a5c
+   2 BP 0170f4	1278 BP 001e46
+ 225 BP 017118	   1 BP 00253c
+   1 BP 01718a	   2 BP 00f890
+   1 BP 017604	   2 BP 00f904
+   1 BP 01764e	   2 BP 00f908
+137564 BP 01770e	   2 BP 00f90c
+   2 BP 01771c	   2 BP 00f912
+   1 BP 017c0a	   2 BP 00f95a
+	   2 BP 00f95e
+	   2 BP 00f96c
+	   2 BP 00f98a
+	   2 BP 00fbec
+	   2 BP 00fcb6
+	   3 BP 00fcc8
+	   3 BP 00fd1a
+	   1 BP 00fee8
+	   6 BP 010416
+	   6 BP 010426
+	   4 BP 01058a
+	   8 BP 010656
+	  14 BP 01070c
+	  14 BP 010732
+	   4 BP 01084a
+	 782 BP 0108a0
+	 782 BP 0108bc
+	 782 BP 010906
+	 782 BP 01093c
+	 782 BP 010956
+	4310 BP 010eac
+	   3 BP 011076
+	   3 BP 01108a
+	   3 BP 01108e
+	   3 BP 0110aa
+	   3 BP 0110ae
+	   3 BP 0110ba
+	   3 BP 0110d0
+	   3 BP 0110d4
+	   3 BP 0110e8
+	   4 BP 017000
+	   1 BP 017068
+	   1 BP 0170c4
+	   1 BP 0170f4
+	 225 BP 017118
+	  80 BP 017186
+	  67 BP 0171c6
+	  23 BP 0171d8
+	   1 BP 017604
+	   1 BP 01764e
+	   2 BP 01770e
+	   2 BP 01771c
+	   1 BP 017c0a
+	   1 BP 018b0e
+	  74 BP 018bd8
+	   1 BP 019758
+	  74 BP 019772
+	   1 BP 076148
+	   1 BP 076198
+	   1 BP 0761dc

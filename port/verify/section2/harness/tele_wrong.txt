@@ -1,0 +1,109 @@
+300 fire 1
+305 fire 0
+350 poke 12e4c 2 2
+600 fire 1
+605 fire 0
+900 fire 1
+905 fire 0
+930 poke 17d68 4e75 2
+935 poke 57e26 5f 2
+935 poke 57e24 a0 2
+936 left 1
+975 left 0
+1045 poke 57e26 5f 2
+1045 poke 57e24 a0 2
+1046 left 1
+1085 left 0
+1155 poke 57e26 5f 2
+1155 poke 57e24 a0 2
+1156 left 1
+1195 left 0
+1265 poke 57e26 5f 2
+1265 poke 57e24 a0 2
+1266 left 1
+1305 left 0
+1375 poke 57e26 5f 2
+1375 poke 57e24 a0 2
+1376 right 1
+1415 right 0
+1485 poke 57e26 5f 2
+1485 poke 57e24 a0 2
+1486 left 1
+1525 left 0
+1595 poke 57e26 5f 2
+1595 poke 57e24 a0 2
+1596 right 1
+1635 right 0
+1705 poke 57e26 5f 2
+1705 poke 57e24 a0 2
+1706 left 1
+1745 left 0
+1815 poke 57e26 5f 2
+1815 poke 57e24 a0 2
+1816 left 1
+1855 left 0
+1925 poke 57e26 5f 2
+1925 poke 57e24 a0 2
+1926 right 1
+1965 right 0
+2035 poke 57e26 5f 2
+2035 poke 57e24 a0 2
+2036 left 1
+2075 left 0
+2145 poke 57e26 5f 2
+2145 poke 57e24 a0 2
+2146 left 1
+2185 left 0
+2255 poke 57e26 5f 2
+2255 poke 57e24 a0 2
+2256 right 1
+2295 right 0
+2365 poke 57e26 5f 2
+2365 poke 57e24 a0 2
+2366 right 1
+2405 right 0
+2475 poke 57e26 5f 2
+2475 poke 57e24 a0 2
+2476 left 1
+2515 left 0
+2585 poke 57e26 5f 2
+2585 poke 57e24 a0 2
+2586 right 1
+2625 right 0
+2695 poke 57e26 5f 2
+2695 poke 57e24 a0 2
+2696 right 1
+2735 right 0
+2805 poke 57e26 5f 2
+2805 poke 57e24 a0 2
+2806 left 1
+2845 left 0
+2915 poke 57e26 5f 2
+2915 poke 57e24 a0 2
+2916 right 1
+2955 right 0
+3025 poke 57e26 5f 2
+3025 poke 57e24 a0 2
+3026 left 1
+3065 left 0
+3135 poke 57e26 5f 2
+3135 poke 57e24 a0 2
+3136 right 1
+3175 right 0
+3245 poke 57e26 5f 2
+3245 poke 57e24 a0 2
+3246 left 1
+3285 left 0
+3355 poke 57e26 5f 2
+3355 poke 57e24 a0 2
+3356 left 1
+3395 left 0
+3465 poke 57e26 5f 2
+3465 poke 57e24 a0 2
+3466 right 1
+3505 right 0
+3575 poke 57e26 5f 2
+3575 poke 57e24 a0 2
+3576 left 1
+3615 left 0
+3685 poke 17d68 4239 2

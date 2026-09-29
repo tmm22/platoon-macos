@@ -1,0 +1,48 @@
+t1: 5974 ticks in A, 5974 ticks in B|all compared ticks identical|
+t2: 5974 ticks in A, 5974 ticks in B|all compared ticks identical|
+t3: 5974 ticks in A, 5974 ticks in B|all compared ticks identical|
+t4: 5974 ticks in A, 5974 ticks in B|all compared ticks identical|
+t5: 5974 ticks in A, 5974 ticks in B|all compared ticks identical|
+t6: 1 ticks in A, 1 ticks in B|all compared ticks identical|
+t7: 122281 ticks in A, 2 ticks in B|tick 1: frame A 822 / B 7043: 17 bytes differ|   $012ddf (+1): A=00 B=09|   $012de1 (+3): A=00 B=90|   $012de5 (+7): A=00 B=09|   $012de7 (+9): A=00 B=90|   $012deb (+d): A=00 B=09|   $012ded (+f): A=00 B=90|   $012df1 (+13): A=00 B=09|   $012df3 (+15): A=00 B=90|   $012df7 (+19): A=00 B=09|   $012df9 (+1b): A=00 B=90|   $012e30 (+52): A=00 B=80|   $012e3e (+60): A=13 B=76|   $012e46 (+68): A=00 B=ff|   $012e48 (+6a): A=ff B=00|   $012e49 (+6b): A=ff B=09|   $012e4a (+6c): A=00 B=59|   $012e4b (+6d): A=00 B=58|
+bp counts differ:
+   1 BP 017000	   1 BP 000566
+   1 BP 017068	   1 BP 00253c
+   1 BP 0170f4	   1 BP 00f890
+5974 BP 017118	   1 BP 00f904
+   1 BP 01718a	   1 BP 00f908
+   1 BP 017604	   1 BP 00f90c
+   1 BP 01764e	   1 BP 00f912
+122281 BP 01770e	   1 BP 00f95a
+   2 BP 01771c	   1 BP 00f95e
+	   1 BP 00f96c
+	   1 BP 00f98a
+	   1 BP 00fbec
+	   1 BP 00fcb6
+	   1 BP 00fcc8
+	   1 BP 00fd1a
+	   1 BP 00fee8
+	   3 BP 010416
+	   3 BP 010426
+	7210 BP 010eac
+	   1 BP 011076
+	   1 BP 01108a
+	   1 BP 01108e
+	   1 BP 0110aa
+	   1 BP 0110ae
+	   1 BP 0110ba
+	   1 BP 0110d0
+	   1 BP 0110d4
+	   1 BP 0110e8
+	   2 BP 017000
+	   1 BP 017068
+	   1 BP 0170f4
+	5974 BP 017118
+	   1 BP 01718a
+	   1 BP 017604
+	   1 BP 01764e
+	   2 BP 01770e
+	   2 BP 01771c
+	   1 BP 076148
+	   1 BP 076198
+	   1 BP 0761dc

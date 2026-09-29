@@ -1,0 +1,1 @@
+[f1500 v313] done: 1500 frames, 28622 blits, pc=018cfc

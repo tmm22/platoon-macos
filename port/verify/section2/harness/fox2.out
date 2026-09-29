@@ -1,0 +1,62 @@
+t1: 433 ticks in A, 433 ticks in B|all compared ticks identical|
+t2: 433 ticks in A, 433 ticks in B|tick 22: frame A 947 / B 946: 1 bytes differ|   $012e49 (+6b): A=05 B=06|tick 64: frame A 989 / B 988: 1 bytes differ|   $012e49 (+6b): A=0d B=0e|tick 79: frame A 1004 / B 1003: 1 bytes differ|   $012e49 (+6b): A=30 B=31|
+t3: 433 ticks in A, 433 ticks in B|all compared ticks identical|
+t4: 433 ticks in A, 433 ticks in B|all compared ticks identical|
+t5: 433 ticks in A, 433 ticks in B|all compared ticks identical|
+t6: 3 ticks in A, 2 ticks in B|all compared ticks identical|
+t7: 160827 ticks in A, 3 ticks in B|tick 1: frame A 822 / B 1207: 26 bytes differ|   $012ddf (+1): A=00 B=05|   $012de1 (+3): A=00 B=90|   $012de3 (+5): A=00 B=04|   $012de5 (+7): A=00 B=09|   $012de7 (+9): A=00 B=90|   $012deb (+d): A=00 B=09|   $012ded (+f): A=00 B=90|   $012df1 (+13): A=00 B=09|   $012df3 (+15): A=00 B=90|   $012df7 (+19): A=00 B=09|   $012df9 (+1b): A=00 B=90|   $012dff (+21): A=de B=e4|   $012e01 (+23): A=00 B=01|   $012e0c (+2e): A=90 B=70|   $012e0f (+31): A=01 B=0f|   $012e17 (+39): A=00 B=07|   $012e1b (+3d): A=00 B=09|   $012e27 (+49): A=00 B=01|   $012e30 (+52): A=00 B=
+bp counts differ:
+   2 BP 017000	   1 BP 000566
+   3 BP 017068	   1 BP 00253c
+   3 BP 0170f4	   2 BP 00f890
+ 433 BP 017118	   2 BP 00f904
+   2 BP 017604	   2 BP 00f908
+   2 BP 01764e	   2 BP 00f90c
+160827 BP 01770e	   2 BP 00f912
+   3 BP 01771c	   2 BP 00f95a
+   1 BP 017e96	   2 BP 00f95e
+   1 BP 017f18	   2 BP 00f96c
+	   2 BP 00f98a
+	   2 BP 00fbec
+	   2 BP 00fcb6
+	   2 BP 00fcc8
+	   2 BP 00fd1a
+	   1 BP 00fee8
+	   5 BP 010416
+	   5 BP 010426
+	   3 BP 01058a
+	  22 BP 010656
+	  23 BP 01070c
+	  22 BP 010732
+	   3 BP 01084a
+	 831 BP 0108a0
+	 831 BP 0108bc
+	 831 BP 010906
+	 831 BP 01093c
+	 831 BP 010956
+	3508 BP 010eac
+	   2 BP 011076
+	   2 BP 01108a
+	   2 BP 01108e
+	   2 BP 0110aa
+	   2 BP 0110ae
+	   2 BP 0110ba
+	   2 BP 0110d0
+	   2 BP 0110d4
+	   2 BP 0110e8
+	   3 BP 017000
+	   2 BP 017068
+	   2 BP 0170f4
+	 433 BP 017118
+	 215 BP 017186
+	   2 BP 017604
+	   2 BP 01764e
+	   3 BP 01770e
+	   3 BP 01771c
+	   1 BP 017e96
+	   1 BP 017f18
+	   3 BP 019758
+	  75 BP 019772
+	   1 BP 076148
+	   1 BP 076198
+	   1 BP 0761dc

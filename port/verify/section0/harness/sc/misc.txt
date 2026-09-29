@@ -1,0 +1,178 @@
+820 poke 60ca0 ff 1
+830 down 1
+840 fire 1
+850 fire 0
+854 down 0
+860 up 1
+866 up 0
+900 right 1
+902 up 1
+908 up 0
+940 right 0
+950 key 0x40 1
+956 key 0x40 0
+971 left 1
+975 left 0
+981 key 0x40 1
+987 key 0x40 0
+1013 right 1
+1130 right 0
+1130 down 1
+1138 down 0
+1180 fire 0
+1216 key 0x40 1
+1222 key 0x40 0
+1440 key 0x40 1
+1446 key 0x40 0
+1762 key 0x40 1
+1768 key 0x40 0
+1782 right 1
+1822 right 0
+1948 key 0x40 1
+1954 key 0x40 0
+2006 key 0x40 1
+2012 key 0x40 0
+2124 key 0x40 1
+2130 key 0x40 0
+2143 right 1
+2183 right 0
+2200 key 0x40 1
+2206 key 0x40 0
+2236 key 0x40 1
+2242 key 0x40 0
+2486 key 0x40 1
+2492 key 0x40 0
+2505 right 1
+2522 key 0x40 1
+2528 key 0x40 0
+2529 right 1
+2542 right 1
+2542 key 0x40 1
+2545 right 0
+2548 key 0x40 0
+2568 key 0x40 1
+2574 key 0x40 0
+2587 right 1
+2627 right 0
+2868 key 0x40 1
+2874 key 0x40 0
+2964 key 0x40 1
+2970 key 0x40 0
+2983 poke 12e4e 1 2
+2993 key 0x52 1
+2999 key 0x52 0
+3003 poke 12e4e 0 2
+3089 poke 12e06 ff00 2
+3089 right 1
+3090 right 1
+3184 right 0
+3184 poke 60ca0 0 2
+3420 poke 60ca0 ff 1
+3421 poke 12e4e 1 2
+3431 key 0x52 1
+3437 key 0x52 0
+3441 poke 12e4e 0 2
+3527 right 1
+3528 right 1
+3620 right 0
+3621 poke 12e4e 1 2
+3631 key 0x53 1
+3637 key 0x53 0
+3641 poke 12e4e 0 2
+3741 fire 1
+3749 fire 0
+4374 fire 1
+4382 fire 0
+4586 fire 1
+4594 fire 0
+4656 fire 1
+4664 fire 0
+4782 fire 1
+4790 fire 0
+4836 right 1
+4882 right 0
+4883 left 1
+4883 left 0
+4923 fire 1
+4931 fire 0
+4985 fire 1
+4993 fire 0
+5089 fire 1
+5097 fire 0
+5145 right 1
+5197 right 0
+5528 fire 1
+5536 fire 0
+5582 right 1
+5628 right 0
+5629 left 1
+5629 left 0
+6009 fire 1
+6017 fire 0
+6175 fire 1
+6183 fire 0
+6229 right 1
+6281 right 0
+6355 fire 1
+6363 fire 0
+6439 fire 1
+6447 fire 0
+6847 fire 1
+6855 fire 0
+6868 left 1
+6868 left 0
+6943 fire 1
+6951 fire 0
+6997 right 1
+7049 right 0
+7136 fire 1
+7144 fire 0
+7476 fire 1
+7484 fire 0
+7548 fire 1
+7556 fire 0
+7602 right 1
+7654 right 0
+7655 left 1
+7655 left 0
+7910 fire 1
+7918 fire 0
+8078 fire 1
+8086 fire 0
+8132 right 1
+8184 right 0
+8495 fire 1
+8503 fire 0
+8531 right 1
+8537 right 0
+8816 fire 1
+8819 left 1
+8819 left 0
+8824 fire 0
+8904 fire 1
+8912 fire 0
+9424 fire 1
+9432 fire 0
+9460 right 1
+9467 right 0
+10719 fire 1
+10727 fire 0
+10769 fire 1
+10777 fire 0
+10931 fire 1
+10934 left 1
+10934 left 0
+10939 fire 0
+13537 fire 1
+13545 fire 0
+14203 fire 1
+14211 fire 0
+14399 fire 1
+14407 fire 0
+14435 right 1
+14441 right 0
+14442 right 1
+14551 right 0
+14551 down 1
+14559 down 0
+14601 fire 0

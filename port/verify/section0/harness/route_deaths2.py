@@ -1,0 +1,35 @@
+import sys; sys.path.insert(0, '/tmp/verify-section0')
+import plan
+P = plan.Planner('deaths2', start_events=[(820, 'poke 60ca0 ff 1')], start_frame=830)
+# 1: tripwire (booby trap on the path) kills the man: level 2, invincibility off, walk until a trap hits
+P.go(1, 13, 'right', 'down')
+P.ev(0, 'poke 60ca0 0 2'); P.ev(1, 'right 1')
+h = P.leg(lambda t: t['pst'] == 8, [(0, 'right 0')], maxf=6000, label='1: walking on level 2 until hit')
+print('   trap state at hit:', h['trap'], 'hits', h['hits'])
+P.leg_wait('ms', lambda t: True, [(10, 'fire 1'), (16, 'fire 0')], label='  choose screen -> FIRE')
+P.leg(lambda t: t['pst'] == 0, [(0, 'poke 60ca0 ff 1')], label='  playing, invincible')
+P.save()
+# 2: hut booby trap without invincibility (F4 warp to the village, hut 0 at $190)
+P.ev(0, 'poke 12e4e 1 2'); P.ev(10, 'key 0x53 1'); P.ev(16, 'key 0x53 0'); P.ev(20, 'poke 12e4e 0 2')
+P.leg(lambda t: t['lvl'] == 0 and t['T'] == 0x41 and t['pst'] == 0, [(0, 'left 1')], label='2: F4 village')
+P.leg(lambda t: t['lvl'] == 0 and t['pst'] == 0 and t['col'] == 0x31 and t['c34'] == 0 and t['align'] == 0,
+      [(0, 'left 0'), (0, 'up 1'), (10, 'up 0')], maxf=5000, label='  hut 0 door')
+P.leg(lambda t: t['pst'] == 5, [(0, 'right 1')], label='  inside hut 0')
+P.leg(lambda t: t['c30'] == 0x190 and t['align'] == 0, [(0, 'right 0'), (0, 'poke 60ca0 0 2'), (2, 'up 1'), (8, 'up 0')], label='  search $190 (booby trap)')
+P.leg_wait('ms', lambda t: True, [(10, 'fire 1'), (16, 'fire 0')], label='  KIA -> choose screen -> FIRE')
+P.leg(lambda t: t['pst'] == 5, [(4, 'up 1'), (10, 'up 0')], label='  back in the hut (state 5), search again (flour)')
+P.leg(lambda t: t['msgs'] > 0, [], after=12, label='  message')
+# 3: hut 2 guard shoots the player
+P.ev(0, 'poke 60ca0 ff 1'); P.ev(0, 'left 1')
+P.leg(lambda t: t['c30'] == 0x18c and t['align'] == 0 and t['c34'] == 0, [(0, 'left 0'), (0, 'down 1'), (8, 'down 0')], label='  leave hut 0')
+P.leg(lambda t: t['pst'] == 0 and t['lvl'] == 0, [(0, 'right 1')], label='  outside')
+P.leg(lambda t: t['lvl'] == 0 and t['pst'] == 0 and t['col'] == 0x3c and t['c34'] == 0 and t['align'] == 0,
+      [(0, 'right 0'), (0, 'up 1'), (10, 'up 0'), (10, 'poke 60ca0 0 2')], maxf=5000, label='3: hut 2 door')
+P.leg(lambda t: t['pst'] == 8, [], maxf=3000, label='  shot by the hut guard')
+P.leg_wait('ms', lambda t: True, [(10, 'fire 1'), (16, 'fire 0')], label='  choose screen -> FIRE')
+P.leg(lambda t: t['pst'] == 5, [], label='  back in hut 2')
+P.save()
+# 4: morale runs out -> game over from the main loop
+P.leg(lambda t: t['pst'] == 5, [(0, 'poke 12e0c 0030 2')], label='4: morale := $30')
+P.ev(1200, 'fire 1'); P.ev(1206, 'fire 0')
+P.save()

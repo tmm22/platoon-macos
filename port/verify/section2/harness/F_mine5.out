@@ -1,0 +1,65 @@
+t1: 274 ticks in A, 274 ticks in B|all compared ticks identical|
+t2: 274 ticks in A, 274 ticks in B|tick 55: frame A 981 / B 980: 1 bytes differ|   $012e49 (+6b): A=15 B=16|tick 143: frame A 1070 / B 1069: 1 bytes differ|   $012e49 (+6b): A=20 B=21|
+t3: 274 ticks in A, 274 ticks in B|all compared ticks identical|
+t4: 274 ticks in A, 274 ticks in B|all compared ticks identical|
+t5: 274 ticks in A, 274 ticks in B|all compared ticks identical|
+t6: 1 ticks in A, 1 ticks in B|all compared ticks identical|
+t7: 51819 ticks in A, 1 ticks in B|all compared ticks identical|
+bp counts differ:
+   1 BP 017000	   1 BP 000566
+   1 BP 017068	  25 BP 001a5c
+   1 BP 0170f4	 503 BP 001e46
+ 274 BP 017118	   1 BP 00253c
+   1 BP 017604	   1 BP 00f890
+   1 BP 01764e	   1 BP 00f904
+51819 BP 01770e	   1 BP 00f908
+   1 BP 01771c	   1 BP 00f90c
+ 213 BP 0179fa	   1 BP 00f912
+	   1 BP 00f95a
+	   1 BP 00f95e
+	   1 BP 00f96c
+	   1 BP 00f98a
+	   1 BP 00fbec
+	   1 BP 00fcb6
+	   1 BP 00fcc8
+	   1 BP 00fd1a
+	   2 BP 010416
+	   2 BP 010426
+	   1 BP 01058a
+	   4 BP 010656
+	   6 BP 01070c
+	   6 BP 010732
+	   1 BP 01084a
+	 278 BP 0108a0
+	 278 BP 0108bc
+	 278 BP 010906
+	 278 BP 01093c
+	 278 BP 010956
+	 396 BP 010ad6
+	 273 BP 010ae2
+	 273 BP 010b14
+	  16 BP 010bcc
+	   4 BP 010c00
+	   9 BP 010c50
+	  18 BP 010ca0
+	1110 BP 010eac
+	   1 BP 011076
+	   1 BP 01108a
+	   1 BP 01108e
+	   1 BP 0110aa
+	   1 BP 0110ae
+	   1 BP 0110ba
+	   1 BP 0110d0
+	   1 BP 0110d4
+	   1 BP 0110e8
+	   2 BP 017000
+	   1 BP 017068
+	   1 BP 0170f4
+	 274 BP 017118
+	   1 BP 017604
+	   1 BP 01764e
+	   1 BP 01770e
+	   1 BP 01771c
+	   1 BP 076148
+	   1 BP 076198
+	   1 BP 0761dc

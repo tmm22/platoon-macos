@@ -1,0 +1,3 @@
+# no invincibility: idle at the start until shot, choose screen
+1100 fire 1
+1106 fire 0

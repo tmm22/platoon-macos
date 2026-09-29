@@ -1,0 +1,3 @@
+197 fire 1
+203 fire 0
+204 save /tmp/verify-section0/plan/doom/doom_1447.state

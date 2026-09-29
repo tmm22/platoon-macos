@@ -1,0 +1,79 @@
+300 fire 1
+305 fire 0
+350 poke 12e4c 0 2
+600 fire 1
+605 fire 0
+820 poke 12e4e 1 2
+822 poke 60ca0 ff 1
+830 key 0x53 1
+836 key 0x53 0
+842 poke 12e4e 0 2
+926 right 1
+926 key 0x40 1
+946 key 0x40 0
+950 right 0
+956 up 1
+956 down 1
+976 up 0
+976 down 0
+986 left 1
+986 right 1
+1006 left 0
+1006 right 0
+1017 left 1
+1454 left 0
+1454 up 1
+1464 up 0
+1477 key 0x64 1
+1483 key 0x64 0
+1487 poke 5f88a 9c 2
+1489 right 1
+1492 right 0
+1492 fire 1
+1498 fire 0
+1529 left 1
+1530 left 0
+1530 down 1
+1538 down 0
+1547 right 1
+1702 right 0
+1702 up 1
+1712 up 0
+1725 right 1
+1756 right 0
+1756 up 1
+1762 up 0
+1788 left 1
+1817 left 0
+1817 down 1
+1825 down 0
+1834 left 1
+2185 left 0
+2185 up 1
+2195 up 0
+2213 key 0x64 1
+2219 key 0x64 0
+2317 down 1
+2323 down 0
+2337 down 1
+2343 down 0
+2357 fire 1
+2363 fire 0
+2418 right 1
+2449 right 0
+2449 up 1
+2455 up 0
+2482 left 1
+2513 left 0
+2513 down 1
+2521 down 0
+2530 right 1
+2719 right 0
+2719 up 1
+2729 up 0
+2742 right 1
+2773 right 0
+2813 key 0x15 1
+2819 key 0x15 0
+3220 fire 1
+3230 fire 0

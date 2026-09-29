@@ -1,0 +1,5 @@
+0 right 1
+29 right 0
+69 key 0x15 1
+75 key 0x15 0
+76 save /tmp/verify-section0/plan/village_route/village_route_5140.state

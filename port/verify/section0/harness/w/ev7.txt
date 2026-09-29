@@ -1,0 +1,877 @@
+[f13 v106] DISK DMA read track 18 (cyl 9 side 0) -> 068000 words 8000
+[f14 v212] DISK DMA read track 19 (cyl 9 side 1) -> 068000 words 8000
+[f17 v117] DISK DMA read track 20 (cyl 10 side 0) -> 068000 words 8000
+[f53 v220] DISK DMA read track 1 (cyl 0 side 1) -> 068000 words 8000
+[f56 v125] DISK DMA read track 2 (cyl 1 side 0) -> 068000 words 8000
+[f57 v251] DISK DMA read track 3 (cyl 1 side 1) -> 068000 words 8000
+[f60 v156] DISK DMA read track 4 (cyl 2 side 0) -> 068000 words 8000
+[f61 v282] DISK DMA read track 5 (cyl 2 side 1) -> 068000 words 8000
+[f64 v213] DISK DMA read track 6 (cyl 3 side 0) -> 068000 words 8000
+[f66 v026] DISK DMA read track 7 (cyl 3 side 1) -> 068000 words 8000
+[f68 v244] DISK DMA read track 8 (cyl 4 side 0) -> 068000 words 8000
+[f70 v057] DISK DMA read track 9 (cyl 4 side 1) -> 068000 words 8000
+[f72 v275] DISK DMA read track 10 (cyl 5 side 0) -> 068000 words 8000
+[f74 v068] DISK DMA read track 11 (cyl 5 side 1) -> 068000 words 8000
+[f76 v286] DISK DMA read track 12 (cyl 6 side 0) -> 068000 words 8000
+[f78 v099] DISK DMA read track 13 (cyl 6 side 1) -> 068000 words 8000
+[f81 v004] DISK DMA read track 14 (cyl 7 side 0) -> 068000 words 8000
+[f82 v130] DISK DMA read track 15 (cyl 7 side 1) -> 068000 words 8000
+[f85 v035] DISK DMA read track 16 (cyl 8 side 0) -> 068000 words 8000
+[f86 v161] DISK DMA read track 17 (cyl 8 side 1) -> 068000 words 8000
+[f126 v005] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f126 v009] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f126 v013] AUD2 start ptr=008834 len=32 per=421 vol=24
+[f126 v016] AUD3 start ptr=0055dc len=2750 per=189 vol=60
+[f134 v003] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f134 v005] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f134 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f142 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f142 v005] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f142 v009] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f150 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f150 v005] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f150 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f158 v003] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f158 v006] AUD1 start ptr=008834 len=32 per=421 vol=64
+[f158 v010] AUD3 start ptr=006b5e len=2650 per=265 vol=60
+[f166 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f174 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f174 v005] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f174 v011] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f182 v003] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f182 v009] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f188 v067] DISK DMA read track 77 (cyl 38 side 1) -> 068000 words 8000
+[f190 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f190 v006] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f190 v011] AUD3 start ptr=0055dc len=2750 per=189 vol=60
+[f198 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f198 v005] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f198 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f206 v003] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f206 v005] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f206 v009] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f214 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f214 v005] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f214 v009] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f222 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f222 v006] AUD1 start ptr=008940 len=64 per=210 vol=32
+[f222 v011] AUD3 start ptr=006b5e len=2650 per=265 vol=60
+[f230 v003] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f238 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f238 v006] AUD1 start ptr=008834 len=32 per=842 vol=64
+[f238 v011] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f246 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f246 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f254 v006] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f254 v008] AUD1 start ptr=008834 len=32 per=630 vol=64
+[f254 v013] AUD3 start ptr=0055dc len=2750 per=189 vol=60
+[f262 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f262 v005] AUD1 start ptr=008834 len=32 per=630 vol=64
+[f262 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f270 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f270 v005] AUD1 start ptr=008834 len=32 per=630 vol=64
+[f270 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f278 v003] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f278 v005] AUD1 start ptr=008834 len=32 per=630 vol=64
+[f278 v009] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f286 v004] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f286 v006] AUD1 start ptr=008834 len=32 per=630 vol=64
+[f286 v010] AUD3 start ptr=006b5e len=2650 per=265 vol=60
+[f294 v004] AUD0 start ptr=0087ee len=32 per=421 vol=48
+[f302 v003] AUD0 start ptr=0087ee len=32 per=842 vol=48
+[f302 v005] AUD1 start ptr=008834 len=32 per=630 vol=64
+[f302 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f306 v008] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f314 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f322 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f330 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f338 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f346 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f354 v005] AUD1 start ptr=004310 len=2403 per=790 vol=64
+[f378 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f402 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f434 v007] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f442 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f450 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f458 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f466 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f472 v202] DISK DMA read track 21 (cyl 10 side 1) -> 068000 words 8000
+[f474 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f475 v138] DISK DMA read track 22 (cyl 11 side 0) -> 068000 words 8000
+[f476 v275] DISK DMA read track 23 (cyl 11 side 1) -> 068000 words 8000
+[f479 v212] DISK DMA read track 24 (cyl 12 side 0) -> 068000 words 8000
+[f481 v045] DISK DMA read track 25 (cyl 12 side 1) -> 068000 words 8000
+[f482 v005] AUD1 start ptr=004310 len=2403 per=790 vol=64
+[f483 v285] DISK DMA read track 26 (cyl 13 side 0) -> 068000 words 8000
+[f485 v120] DISK DMA read track 27 (cyl 13 side 1) -> 068000 words 8000
+[f488 v057] DISK DMA read track 28 (cyl 14 side 0) -> 068000 words 8000
+[f489 v194] DISK DMA read track 29 (cyl 14 side 1) -> 068000 words 8000
+[f492 v157] DISK DMA read track 30 (cyl 15 side 0) -> 068000 words 8000
+[f493 v294] DISK DMA read track 31 (cyl 15 side 1) -> 068000 words 8000
+[f496 v232] DISK DMA read track 32 (cyl 16 side 0) -> 068000 words 8000
+[f498 v092] DISK DMA read track 33 (cyl 16 side 1) -> 068000 words 8000
+[f501 v055] DISK DMA read track 34 (cyl 17 side 0) -> 068000 words 8000
+[f502 v193] DISK DMA read track 35 (cyl 17 side 1) -> 068000 words 8000
+[f505 v129] DISK DMA read track 36 (cyl 18 side 0) -> 068000 words 8000
+[f506 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f506 v266] DISK DMA read track 37 (cyl 18 side 1) -> 068000 words 8000
+[f509 v203] DISK DMA read track 38 (cyl 19 side 0) -> 068000 words 8000
+[f511 v037] DISK DMA read track 39 (cyl 19 side 1) -> 068000 words 8000
+[f513 v277] DISK DMA read track 40 (cyl 20 side 0) -> 068000 words 8000
+[f515 v112] DISK DMA read track 41 (cyl 20 side 1) -> 068000 words 8000
+[f518 v075] DISK DMA read track 42 (cyl 21 side 0) -> 068000 words 8000
+[f519 v212] DISK DMA read track 43 (cyl 21 side 1) -> 068000 words 8000
+[f522 v150] DISK DMA read track 44 (cyl 22 side 0) -> 068000 words 8000
+[f523 v267] DISK DMA read track 45 (cyl 22 side 1) -> 068000 words 8000
+[f526 v204] DISK DMA read track 46 (cyl 23 side 0) -> 068000 words 8000
+[f528 v038] DISK DMA read track 47 (cyl 23 side 1) -> 068000 words 8000
+[f530 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f530 v277] DISK DMA read track 48 (cyl 24 side 0) -> 068000 words 8000
+[f532 v112] DISK DMA read track 49 (cyl 24 side 1) -> 068000 words 8000
+[f535 v048] DISK DMA read track 50 (cyl 25 side 0) -> 068000 words 8000
+[f536 v186] DISK DMA read track 51 (cyl 25 side 1) -> 068000 words 8000
+[f539 v123] DISK DMA read track 52 (cyl 26 side 0) -> 068000 words 8000
+[f540 v260] DISK DMA read track 53 (cyl 26 side 1) -> 068000 words 8000
+[f543 v223] DISK DMA read track 54 (cyl 27 side 0) -> 068000 words 8000
+[f545 v083] DISK DMA read track 55 (cyl 27 side 1) -> 068000 words 8000
+[f548 v021] DISK DMA read track 56 (cyl 28 side 0) -> 068000 words 8000
+[f549 v158] DISK DMA read track 57 (cyl 28 side 1) -> 068000 words 8000
+[f552 v095] DISK DMA read track 58 (cyl 29 side 0) -> 068000 words 8000
+[f553 v232] DISK DMA read track 59 (cyl 29 side 1) -> 068000 words 8000
+[f556 v170] DISK DMA read track 60 (cyl 30 side 0) -> 068000 words 8000
+[f557 v307] DISK DMA read track 61 (cyl 30 side 1) -> 068000 words 8000
+[f560 v245] DISK DMA read track 62 (cyl 31 side 0) -> 068000 words 8000
+[f562 v006] AUD0 start ptr=008834 len=32 per=794 vol=64
+[f562 v010] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f562 v014] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f562 v082] DISK DMA read track 63 (cyl 31 side 1) -> 068000 words 8000
+[f565 v021] DISK DMA read track 64 (cyl 32 side 0) -> 068000 words 8000
+[f566 v139] DISK DMA read track 65 (cyl 32 side 1) -> 068000 words 8000
+[f569 v075] DISK DMA read track 66 (cyl 33 side 0) -> 068000 words 8000
+[f570 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f570 v213] DISK DMA read track 67 (cyl 33 side 1) -> 068000 words 8000
+[f573 v152] DISK DMA read track 68 (cyl 34 side 0) -> 068000 words 8000
+[f574 v290] DISK DMA read track 69 (cyl 34 side 1) -> 068000 words 8000
+[f577 v226] DISK DMA read track 70 (cyl 35 side 0) -> 068000 words 8000
+[f578 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f579 v061] DISK DMA read track 71 (cyl 35 side 1) -> 068000 words 8000
+[f581 v301] DISK DMA read track 72 (cyl 36 side 0) -> 068000 words 8000
+[f583 v136] DISK DMA read track 73 (cyl 36 side 1) -> 068000 words 8000
+[f586 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f586 v073] DISK DMA read track 74 (cyl 37 side 0) -> 068000 words 8000
+[f587 v211] DISK DMA read track 75 (cyl 37 side 1) -> 068000 words 8000
+[f590 v149] DISK DMA read track 76 (cyl 38 side 0) -> 068000 words 8000
+[f594 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f594 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f602 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f610 v006] AUD1 start ptr=004310 len=2403 per=790 vol=64
+[f626 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f634 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f658 v006] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f658 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f690 v004] AUD0 start ptr=008834 len=32 per=500 vol=64
+[f690 v008] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f690 v011] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f698 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f706 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f714 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f722 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f722 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f730 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f738 v006] AUD1 start ptr=004310 len=2403 per=790 vol=64
+[f754 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f762 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f786 v006] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f786 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f814 v004] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f814 v009] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f814 v014] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f820 v313] shot /tmp/verify-section0/w/s_00820.png
+[f822 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f822 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f830 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f830 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f845 v313] shot /tmp/verify-section0/w/s_00845.png
+[f846 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f846 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f870 v313] shot /tmp/verify-section0/w/s_00870.png
+[f870 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f870 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f878 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f878 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f894 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f894 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f895 v313] shot /tmp/verify-section0/w/s_00895.png
+[f902 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f902 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f918 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f918 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f920 v313] shot /tmp/verify-section0/w/s_00920.png
+[f926 v004] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f926 v009] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f926 v014] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f934 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f934 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f942 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f942 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f945 v313] shot /tmp/verify-section0/w/s_00945.png
+[f958 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f958 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f970 v313] shot /tmp/verify-section0/w/s_00970.png
+[f982 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f982 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f990 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f990 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f991 v208] BP 018506 d0=0000000a d1=00000008 d2=fefefff6 d3=00000022 a0=000182f2 a1=00079e0d a2=0001131e a6=00012dde sp=000003fc
+[f991 v208] BP 019f82 d0=00000084 d1=00000008 d2=fefefff6 d3=00000022 a0=000182f2 a1=00079e0d a2=0001131e a6=00012dde sp=000003fc
+[f991 v227] AUD0 start ptr=00ee94 len=1145 per=357 vol=64
+[f991 v253] AUD2 start ptr=00ee94 len=1145 per=357 vol=64
+[f995 v313] shot /tmp/verify-section0/w/s_00995.png
+[f1006 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1006 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1014 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1014 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1019 v209] BP 019f82 d0=00000000 d1=00000008 d2=fefe0083 d3=00000022 a0=0001ab26 a1=00079e0d a2=0001131e a6=00012dde sp=000003e8
+[f1019 v223] BP 017cd0 d0=00000000 d1=00000008 d2=fefe0083 d3=00000022 a0=0001ab26 a1=00079e0d a2=0001131e a6=00012dde sp=000003ec
+[f1020 v313] shot /tmp/verify-section0/w/s_01020.png
+[f1020 v010] AUD0 start ptr=008b00 len=64 per=487 vol=64
+[f1030 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1030 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1038 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1038 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1044 v010] AUD0 start ptr=0089c0 len=32 per=1060 vol=60
+[f1045 v313] shot /tmp/verify-section0/w/s_01045.png
+[f1054 v004] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f1054 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1054 v012] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1060 v209] BP 019f82 d0=00000000 d1=00000008 d2=fefe0083 d3=00000022 a0=0001ab26 a1=00079e0d a2=0001131e a6=00012dde sp=000003e8
+[f1060 v223] BP 017cd0 d0=00000000 d1=00000008 d2=fefe0083 d3=00000022 a0=0001ab26 a1=00079e0d a2=0001131e a6=00012dde sp=000003ec
+[f1061 v008] AUD0 start ptr=008b00 len=64 per=487 vol=64
+[f1062 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1062 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1070 v313] shot /tmp/verify-section0/w/s_01070.png
+[f1070 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1070 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1086 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1086 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1095 v313] shot /tmp/verify-section0/w/s_01095.png
+[f1102 v208] BP 019f82 d0=00000000 d1=00000009 d2=fefe0080 d3=00000022 a0=0001ab22 a1=00079e0d a2=0001131e a6=00012dde sp=000003e8
+[f1102 v223] BP 017cd0 d0=00000000 d1=00000009 d2=fefe0080 d3=00000022 a0=0001ab22 a1=00079e0d a2=0001131e a6=00012dde sp=000003ec
+[f1103 v009] AUD0 start ptr=008b00 len=64 per=487 vol=64
+[f1110 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1110 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1118 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1118 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1120 v313] shot /tmp/verify-section0/w/s_01120.png
+[f1134 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1134 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1142 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1142 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1144 v208] BP 019f82 d0=00000000 d1=0000000a d2=fefe007e d3=00000022 a0=0001ab1e a1=00079e0d a2=0001131e a6=00012dde sp=000003e8
+[f1144 v223] BP 017cd0 d0=00000000 d1=0000000a d2=fefe007e d3=00000022 a0=0001ab1e a1=00079e0d a2=0001131e a6=00012dde sp=000003ec
+[f1145 v313] shot /tmp/verify-section0/w/s_01145.png
+[f1145 v009] AUD0 start ptr=008b00 len=64 per=487 vol=64
+[f1158 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1158 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1166 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1166 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1170 v313] shot /tmp/verify-section0/w/s_01170.png
+[f1182 v004] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f1182 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1182 v012] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1190 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1190 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1195 v313] shot /tmp/verify-section0/w/s_01195.png
+[f1198 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1198 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1214 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1214 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1220 v313] shot /tmp/verify-section0/w/s_01220.png
+[f1238 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1238 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1245 v313] shot /tmp/verify-section0/w/s_01245.png
+[f1246 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1246 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1262 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1262 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1270 v313] shot /tmp/verify-section0/w/s_01270.png
+[f1270 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1270 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1286 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1286 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1294 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1294 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1295 v313] shot /tmp/verify-section0/w/s_01295.png
+[f1310 v003] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f1310 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1310 v012] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1318 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1318 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1320 v313] shot /tmp/verify-section0/w/s_01320.png
+[f1326 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1326 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1342 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1342 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1345 v313] shot /tmp/verify-section0/w/s_01345.png
+[f1366 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1366 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1370 v313] shot /tmp/verify-section0/w/s_01370.png
+[f1374 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1374 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1390 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1390 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1395 v313] shot /tmp/verify-section0/w/s_01395.png
+[f1398 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1398 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1414 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1414 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1420 v313] shot /tmp/verify-section0/w/s_01420.png
+[f1422 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1422 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1438 v004] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f1438 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1438 v012] AUD2 start ptr=008834 len=32 per=668 vol=64
+[f1438 v206] BP 019f82 d0=00980082 d1=0000001c d2=fefe0000 d3=00000024 a0=00060c48 a1=00079e0d a2=0001131e a6=00012dde sp=000003f8
+[f1438 v220] AUD0 start ptr=00c112 len=2414 per=357 vol=64
+[f1438 v246] AUD2 start ptr=00c112 len=2414 per=357 vol=64
+[f1438 v258] BP 017426 d0=00000282 d1=0000001c d2=fefe0000 d3=00000024 a0=00060c48 a1=00079e0d a2=0001131e a6=00012dde sp=000003fc
+[f1442 v206] BP 019f82 d0=00980082 d1=0000001c d2=fefe0000 d3=00000022 a0=00060c4e a1=00079e0d a2=0001131e a6=00012dde sp=000003f8
+[f1442 v220] AUD0 start ptr=00c112 len=2414 per=357 vol=64
+[f1442 v246] AUD2 start ptr=00c112 len=2414 per=357 vol=64
+[f1442 v258] BP 017426 d0=00000282 d1=0000001c d2=fefe0000 d3=00000022 a0=00060c4e a1=00079e0d a2=0001131e a6=00012dde sp=000003fc
+[f1445 v313] shot /tmp/verify-section0/w/s_01445.png
+[f1446 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1449 v253] BP 019f82 d0=00060080 d1=0006004e d2=0000007e d3=00000022 a0=0001a6d2 a1=000604a4 a2=0001768e a6=00012dde sp=000003e4
+[f1449 v267] AUD1 start ptr=008d08 len=2830 per=357 vol=64
+[f1449 v294] AUD3 start ptr=008d08 len=2830 per=357 vol=64
+[f1449 v306] BP 0176cc d0=00000380 d1=0006004e d2=0000007e d3=00000022 a0=0001a6d2 a1=000604a4 a2=0001768e a6=00012dde sp=000003e8
+[f1470 v313] shot /tmp/verify-section0/w/s_01470.png
+[f1494 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1495 v313] shot /tmp/verify-section0/w/s_01495.png
+[f1496 v207] BP 019f82 d0=00000000 d1=0000000d d2=fefe005a d3=00000022 a0=0001ab12 a1=00079e0d a2=0001131e a6=00012dde sp=000003e8
+[f1496 v222] BP 017cd0 d0=00000000 d1=0000000d d2=fefe005a d3=00000022 a0=0001ab12 a1=00079e0d a2=0001131e a6=00012dde sp=000003ec
+[f1497 v009] AUD0 start ptr=008b00 len=64 per=487 vol=64
+[f1502 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1518 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1520 v313] shot /tmp/verify-section0/w/s_01520.png
+[f1521 v009] AUD0 start ptr=0089c0 len=32 per=1060 vol=60
+[f1526 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1542 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1544 v208] BP 019f82 d0=00000000 d1=0000000c d2=fefe0060 d3=00000022 a0=0001ab16 a1=00079e0d a2=0001131e a6=00012dde sp=000003e8
+[f1544 v222] BP 017cd0 d0=00000000 d1=0000000c d2=fefe0060 d3=00000022 a0=0001ab16 a1=00079e0d a2=0001131e a6=00012dde sp=000003ec
+[f1545 v313] shot /tmp/verify-section0/w/s_01545.png
+[f1545 v009] AUD0 start ptr=008b00 len=64 per=487 vol=64
+[f1550 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1566 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1566 v010] AUD2 start ptr=008834 len=32 per=842 vol=64
+[f1569 v009] AUD0 start ptr=0089c0 len=32 per=1060 vol=60
+[f1570 v313] shot /tmp/verify-section0/w/s_01570.png
+[f1574 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1582 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1585 v103] BP 019f82 d0=00000000 d1=0000000c d2=ffff0060 d3=00000022 a0=0001ab16 a1=00079e0e a2=0001131e a6=00012dde sp=000003e8
+[f1585 v117] BP 017cd0 d0=00000000 d1=0000000c d2=ffff0060 d3=00000022 a0=0001ab16 a1=00079e0e a2=0001131e a6=00012dde sp=000003ec
+[f1586 v010] AUD0 start ptr=008b00 len=64 per=487 vol=64
+[f1595 v313] shot /tmp/verify-section0/w/s_01595.png
+[f1598 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1610 v010] AUD0 start ptr=0089c0 len=32 per=1060 vol=60
+[f1620 v313] shot /tmp/verify-section0/w/s_01620.png
+[f1622 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1630 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1645 v313] shot /tmp/verify-section0/w/s_01645.png
+[f1646 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1654 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1670 v313] shot /tmp/verify-section0/w/s_01670.png
+[f1670 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1678 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1694 v003] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f1694 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1694 v010] AUD2 start ptr=008834 len=32 per=749 vol=64
+[f1695 v313] shot /tmp/verify-section0/w/s_01695.png
+[f1702 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1710 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1720 v313] shot /tmp/verify-section0/w/s_01720.png
+[f1726 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1745 v313] shot /tmp/verify-section0/w/s_01745.png
+[f1750 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1758 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1770 v313] shot /tmp/verify-section0/w/s_01770.png
+[f1774 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1782 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1795 v313] shot /tmp/verify-section0/w/s_01795.png
+[f1798 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1806 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1820 v313] shot /tmp/verify-section0/w/s_01820.png
+[f1822 v004] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f1822 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1822 v010] AUD2 start ptr=008834 len=32 per=1001 vol=64
+[f1830 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1838 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1845 v313] shot /tmp/verify-section0/w/s_01845.png
+[f1854 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1860 v207] BP 019f82 d0=00000000 d1=0000000f d2=ffff002b d3=00000022 a0=0001ab0a a1=00079e0e a2=0001131e a6=00012dde sp=000003e8
+[f1860 v221] BP 017cd0 d0=00000000 d1=0000000f d2=ffff002b d3=00000022 a0=0001ab0a a1=00079e0e a2=0001131e a6=00012dde sp=000003ec
+[f1861 v009] AUD0 start ptr=008b00 len=64 per=487 vol=64
+[f1870 v313] shot /tmp/verify-section0/w/s_01870.png
+[f1878 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1885 v008] AUD0 start ptr=0089c0 len=32 per=1060 vol=60
+[f1886 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1895 v313] shot /tmp/verify-section0/w/s_01895.png
+[f1902 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1908 v206] BP 019f82 d0=00000000 d1=00000010 d2=ffff0028 d3=00000022 a0=0001ab06 a1=00079e0e a2=0001131e a6=00012dde sp=000003e8
+[f1908 v221] BP 017cd0 d0=00000000 d1=00000010 d2=ffff0028 d3=00000022 a0=0001ab06 a1=00079e0e a2=0001131e a6=00012dde sp=000003ec
+[f1909 v008] AUD0 start ptr=008b00 len=64 per=487 vol=64
+[f1910 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1920 v313] shot /tmp/verify-section0/w/s_01920.png
+[f1926 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1933 v008] AUD0 start ptr=0089c0 len=32 per=1060 vol=60
+[f1934 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1945 v313] shot /tmp/verify-section0/w/s_01945.png
+[f1948 v307] BP 019f82 d0=00000000 d1=00000011 d2=fefe0025 d3=00000022 a0=0001ab02 a1=00079e0d a2=0001131e a6=00012dde sp=000003e8
+[f1949 v015] BP 017cd0 d0=00000000 d1=00000011 d2=fefe0025 d3=00000022 a0=0001ab02 a1=00079e0d a2=0001131e a6=00012dde sp=000003ec
+[f1950 v003] AUD0 start ptr=0089c0 len=64 per=1060 vol=60
+[f1950 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1950 v012] AUD2 start ptr=008834 len=32 per=668 vol=64
+[f1950 v016] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f1958 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1958 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f1966 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1966 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f1970 v313] shot /tmp/verify-section0/w/s_01970.png
+[f1974 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f1974 v010] AUD0 start ptr=0089c0 len=32 per=1060 vol=60
+[f1982 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1982 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f1990 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f1995 v313] shot /tmp/verify-section0/w/s_01995.png
+[f1998 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2006 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2006 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2014 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2014 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2020 v313] shot /tmp/verify-section0/w/s_02020.png
+[f2022 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2028 v207] BP 019f82 d0=00000000 d1=0000000e d2=fefe0031 d3=00000022 a0=0001ab0e a1=00079e0d a2=0001131e a6=00012dde sp=000003e8
+[f2028 v221] BP 017cd0 d0=00000000 d1=0000000e d2=fefe0031 d3=00000022 a0=0001ab0e a1=00079e0d a2=0001131e a6=00012dde sp=000003ec
+[f2029 v008] AUD0 start ptr=008b00 len=64 per=487 vol=64
+[f2030 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2030 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2038 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2038 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2045 v313] shot /tmp/verify-section0/w/s_02045.png
+[f2046 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2054 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2054 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2062 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2062 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2070 v313] shot /tmp/verify-section0/w/s_02070.png
+[f2070 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2078 v003] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f2078 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2078 v010] AUD2 start ptr=008834 len=32 per=842 vol=64
+[f2078 v012] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2086 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2086 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2094 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2094 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2095 v313] shot /tmp/verify-section0/w/s_02095.png
+[f2102 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2110 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2110 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2118 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2120 v313] shot /tmp/verify-section0/w/s_02120.png
+[f2126 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2134 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2134 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2142 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2142 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2145 v313] shot /tmp/verify-section0/w/s_02145.png
+[f2150 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2158 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2158 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2166 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2166 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2170 v313] shot /tmp/verify-section0/w/s_02170.png
+[f2174 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2182 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2182 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2190 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2190 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2195 v313] shot /tmp/verify-section0/w/s_02195.png
+[f2198 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2206 v004] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f2206 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2206 v010] AUD2 start ptr=008834 len=32 per=749 vol=64
+[f2206 v014] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2214 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2214 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2220 v313] shot /tmp/verify-section0/w/s_02220.png
+[f2222 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2222 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2230 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2238 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2238 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2245 v313] shot /tmp/verify-section0/w/s_02245.png
+[f2246 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2254 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2262 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2262 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2270 v313] shot /tmp/verify-section0/w/s_02270.png
+[f2270 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2270 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2278 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2286 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2286 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2294 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2294 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2295 v313] shot /tmp/verify-section0/w/s_02295.png
+[f2302 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2310 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2310 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2318 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2318 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2320 v313] shot /tmp/verify-section0/w/s_02320.png
+[f2326 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2334 v004] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f2334 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2334 v010] AUD2 start ptr=008834 len=32 per=1001 vol=64
+[f2334 v012] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2342 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2342 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2345 v313] shot /tmp/verify-section0/w/s_02345.png
+[f2350 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2350 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2358 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2366 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2366 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2370 v313] shot /tmp/verify-section0/w/s_02370.png
+[f2374 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2382 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2390 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2390 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2395 v313] shot /tmp/verify-section0/w/s_02395.png
+[f2398 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2398 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2406 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2414 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2414 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2420 v313] shot /tmp/verify-section0/w/s_02420.png
+[f2422 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2422 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2430 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2438 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2438 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2445 v313] shot /tmp/verify-section0/w/s_02445.png
+[f2446 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2446 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2454 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2462 v005] AUD0 start ptr=008834 len=32 per=668 vol=64
+[f2462 v010] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2462 v015] AUD2 start ptr=004310 len=2403 per=443 vol=48
+[f2462 v018] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2470 v313] shot /tmp/verify-section0/w/s_02470.png
+[f2470 v004] AUD0 start ptr=008834 len=32 per=668 vol=64
+[f2470 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2470 v007] AUD2 start ptr=004310 len=2403 per=443 vol=48
+[f2470 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2478 v004] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2478 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2478 v008] AUD2 start ptr=004310 len=2403 per=497 vol=48
+[f2478 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2486 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2494 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2494 v008] AUD2 start ptr=004310 len=2403 per=591 vol=48
+[f2494 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2495 v313] shot /tmp/verify-section0/w/s_02495.png
+[f2502 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2510 v003] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2510 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2518 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2518 v008] AUD2 start ptr=004310 len=2403 per=745 vol=48
+[f2518 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2520 v313] shot /tmp/verify-section0/w/s_02520.png
+[f2526 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2526 v008] AUD2 start ptr=004310 len=2403 per=664 vol=48
+[f2526 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2534 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2542 v004] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2542 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2542 v008] AUD2 start ptr=004310 len=2403 per=745 vol=48
+[f2542 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2545 v313] shot /tmp/verify-section0/w/s_02545.png
+[f2550 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2550 v008] AUD2 start ptr=004310 len=2403 per=664 vol=48
+[f2550 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2558 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2566 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2566 v008] AUD2 start ptr=004310 len=2403 per=745 vol=48
+[f2566 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2570 v313] shot /tmp/verify-section0/w/s_02570.png
+[f2574 v004] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2574 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2574 v008] AUD2 start ptr=004310 len=2403 per=591 vol=48
+[f2574 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2582 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2589 v205] BP 019f82 d0=00000000 d1=00000013 d2=fefe0001 d3=00000022 a0=0001aafa a1=00079e0d a2=0001131e a6=00012dde sp=000003e8
+[f2589 v220] BP 017cd0 d0=00000000 d1=00000013 d2=fefe0001 d3=00000022 a0=0001aafa a1=00079e0d a2=0001131e a6=00012dde sp=000003ec
+[f2590 v005] AUD0 start ptr=0089c0 len=64 per=530 vol=16
+[f2590 v010] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2590 v012] AUD2 start ptr=004310 len=2403 per=995 vol=48
+[f2590 v014] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2595 v313] shot /tmp/verify-section0/w/s_02595.png
+[f2598 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2598 v007] AUD2 start ptr=004310 len=2403 per=995 vol=48
+[f2598 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2606 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2606 v008] AUD2 start ptr=004310 len=2403 per=887 vol=48
+[f2606 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2614 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2620 v313] shot /tmp/verify-section0/w/s_02620.png
+[f2622 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2622 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2622 v205] BP 019f82 d0=00000000 d1=00000013 d2=fefe0001 d3=00000022 a0=0001aafa a1=00079e0d a2=0001131e a6=00012dde sp=000003e8
+[f2622 v220] BP 017cd0 d0=00000000 d1=00000013 d2=fefe0001 d3=00000022 a0=0001aafa a1=00079e0d a2=0001131e a6=00012dde sp=000003ec
+[f2623 v010] AUD0 start ptr=008b00 len=64 per=487 vol=64
+[f2630 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2638 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2645 v313] shot /tmp/verify-section0/w/s_02645.png
+[f2646 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2646 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2647 v010] AUD0 start ptr=0089c0 len=32 per=532 vol=48
+[f2654 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2654 v008] AUD2 start ptr=004310 len=2403 per=664 vol=48
+[f2654 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2662 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2670 v313] shot /tmp/verify-section0/w/s_02670.png
+[f2670 v004] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2670 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2670 v008] AUD2 start ptr=004310 len=2403 per=664 vol=48
+[f2670 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2672 v206] BP 019f82 d0=00000000 d1=00000012 d2=fefe0006 d3=00000022 a0=0001aafe a1=00079e0d a2=0001131e a6=00012dde sp=000003e8
+[f2672 v220] BP 017cd0 d0=00000000 d1=00000012 d2=fefe0006 d3=00000022 a0=0001aafe a1=00079e0d a2=0001131e a6=00012dde sp=000003ec
+[f2673 v010] AUD0 start ptr=008b00 len=64 per=487 vol=64
+[f2678 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2678 v008] AUD2 start ptr=004310 len=2403 per=591 vol=48
+[f2678 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2682 v206] BP 019f82 d0=00000000 d1=00000012 d2=ffff0006 d3=00000022 a0=0001aafe a1=00079e0e a2=0001131e a6=00012dde sp=000003e8
+[f2682 v220] BP 017cd0 d0=00000200 d1=00000012 d2=ffff0006 d3=00000022 a0=0001aafe a1=00079e0e a2=0001131e a6=00012dde sp=000003ec
+[f2683 v011] AUD2 start ptr=008b00 len=64 per=487 vol=64
+[f2686 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2694 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2694 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2695 v313] shot /tmp/verify-section0/w/s_02695.png
+[f2702 v004] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2702 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2702 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2710 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2718 v005] AUD0 start ptr=008834 len=32 per=668 vol=64
+[f2718 v010] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2718 v013] AUD2 start ptr=004310 len=2403 per=295 vol=64
+[f2718 v016] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2720 v313] shot /tmp/verify-section0/w/s_02720.png
+[f2726 v003] AUD0 start ptr=008834 len=32 per=668 vol=64
+[f2726 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2726 v007] AUD2 start ptr=004310 len=2403 per=332 vol=64
+[f2726 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2734 v004] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2734 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2734 v008] AUD2 start ptr=004310 len=2403 per=295 vol=64
+[f2734 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2742 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2745 v313] shot /tmp/verify-section0/w/s_02745.png
+[f2750 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2750 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2758 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2766 v004] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2766 v008] AUD2 start ptr=004310 len=2403 per=332 vol=64
+[f2766 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2770 v313] shot /tmp/verify-section0/w/s_02770.png
+[f2774 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2774 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2782 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2782 v008] AUD2 start ptr=004310 len=2403 per=332 vol=64
+[f2782 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2790 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2795 v313] shot /tmp/verify-section0/w/s_02795.png
+[f2798 v003] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2798 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2798 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2806 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2806 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2814 v008] AUD2 start ptr=004310 len=2403 per=497 vol=64
+[f2814 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2820 v313] shot /tmp/verify-section0/w/s_02820.png
+[f2822 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2822 v008] AUD2 start ptr=004310 len=2403 per=443 vol=64
+[f2822 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2830 v004] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2830 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2830 v008] AUD2 start ptr=004310 len=2403 per=497 vol=64
+[f2830 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2838 v008] AUD2 start ptr=004310 len=2403 per=443 vol=64
+[f2838 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2845 v313] shot /tmp/verify-section0/w/s_02845.png
+[f2846 v005] AUD0 start ptr=008834 len=32 per=668 vol=64
+[f2846 v010] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2846 v014] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2854 v004] AUD0 start ptr=008834 len=32 per=668 vol=64
+[f2854 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2854 v008] AUD2 start ptr=004310 len=2403 per=497 vol=64
+[f2854 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2862 v004] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2862 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2862 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2870 v313] shot /tmp/verify-section0/w/s_02870.png
+[f2870 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2878 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2878 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2886 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2894 v003] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2894 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2895 v313] shot /tmp/verify-section0/w/s_02895.png
+[f2902 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2902 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2910 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2910 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2918 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2920 v313] shot /tmp/verify-section0/w/s_02920.png
+[f2926 v004] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2926 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2926 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2934 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2934 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2942 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2945 v313] shot /tmp/verify-section0/w/s_02945.png
+[f2950 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2950 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2958 v004] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2958 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2958 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2966 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2970 v313] shot /tmp/verify-section0/w/s_02970.png
+[f2974 v005] AUD0 start ptr=008834 len=32 per=668 vol=64
+[f2974 v010] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2974 v015] AUD2 start ptr=004310 len=2403 per=443 vol=48
+[f2974 v018] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2982 v004] AUD0 start ptr=008834 len=32 per=668 vol=64
+[f2982 v006] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f2982 v007] AUD2 start ptr=004310 len=2403 per=443 vol=48
+[f2982 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2990 v004] AUD0 start ptr=006b5e len=2650 per=530 vol=64
+[f2990 v006] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f2990 v008] AUD2 start ptr=004310 len=2403 per=497 vol=48
+[f2990 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f2995 v313] shot /tmp/verify-section0/w/s_02995.png
+[f2998 v010] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f3000 v313] shot /tmp/verify-section0/w/s_03020.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03045.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03070.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03095.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03120.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03145.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03170.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03195.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03220.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03245.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03270.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03295.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03320.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03345.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03370.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03395.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03420.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03445.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03470.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03495.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03520.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03545.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03570.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03595.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03620.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03645.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03670.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03695.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03720.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03745.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03770.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03795.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03820.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03845.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03870.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03895.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03920.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03945.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03970.png
+[f3000 v313] shot /tmp/verify-section0/w/s_03995.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04020.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04045.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04070.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04095.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04120.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04145.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04170.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04195.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04220.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04245.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04270.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04295.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04320.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04345.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04370.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04395.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04420.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04445.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04470.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04495.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04520.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04545.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04570.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04595.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04620.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04645.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04670.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04695.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04720.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04745.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04770.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04795.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04820.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04845.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04870.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04895.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04920.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04945.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04970.png
+[f3000 v313] shot /tmp/verify-section0/w/s_04995.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05020.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05045.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05070.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05095.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05120.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05145.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05170.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05195.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05220.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05245.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05270.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05295.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05320.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05345.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05370.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05395.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05420.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05445.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05470.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05495.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05520.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05545.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05570.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05595.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05620.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05645.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05670.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05695.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05720.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05745.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05770.png
+[f3000 v313] shot /tmp/verify-section0/w/s_05795.png
+[f3000 v313] done: 3000 frames, 99736 blits, pc=010a58

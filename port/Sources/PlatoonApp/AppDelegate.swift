@@ -19,6 +19,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
         window.contentMinSize = NSSize(width: 320, height: 256)
         view = GameView(frame: frame, device: MTLCreateSystemDefaultDevice())
         view.preferredFramesPerSecond = 120
+        view.framebufferOnly = false
         guard let r = MetalRenderer(view: view) else { fatalError("Metal is required") }
         renderer = r
         view.delegate = self
@@ -78,8 +79,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
 
     // MARK: MTKViewDelegate
     func mtkView(_ v: MTKView, drawableSizeWillChange size: CGSize) {}
+    var debugFrames = 0
     func draw(in v: MTKView) {
-        if let h = host, h.tick() { renderer.upload(h.machine.chip) }
+        if let h = host, h.tick() { renderer.upload(h.machine.chip); debugFrames += 1 }
+        if let dir = ProcessInfo.processInfo.environment["PLATOON_DEBUG_CAPTURE"] {
+            // debug: capture each filter mode once the title is up, then quit
+            let marks = [(400, 0), (430, 1), (460, 2)]
+            for (f, mode) in marks where debugFrames == f {
+                renderer.filter = MetalRenderer.Filter(rawValue: mode)!; renderer.capturePath = "\(dir)/app_mode\(mode).png"; debugFrames += 1
+            }
+            if debugFrames > 500 { NSApp.terminate(nil) }
+        }
         renderer.draw(in: v)
     }
 

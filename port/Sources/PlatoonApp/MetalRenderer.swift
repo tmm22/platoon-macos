@@ -17,6 +17,8 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
     var showOverscan = false
     var scanlineStrength: Float = 0.35
     var curvature = true
+    /// Debug: save the next presented frame to this PNG path.
+    var capturePath: String?
 
     /// Source crop in canvas coordinates (hires x, lines).
     var crop: (x: Int, y: Int, w: Int, h: Int) {
@@ -87,6 +89,17 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
         enc.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
         enc.endEncoding()
         cb.present(drawable)
+        if let path = capturePath {
+            capturePath = nil
+            let tex = drawable.texture
+            cb.addCompletedHandler { _ in
+                let w = tex.width, h = tex.height
+                var buf = [UInt32](repeating: 0, count: w * h)
+                tex.getBytes(&buf, bytesPerRow: w * 4, from: MTLRegionMake2D(0, 0, w, h), mipmapLevel: 0)
+                let png = ImageIO.png(width: w, height: h) { x, y in let p = buf[y * w + x]; return p } // BGRA little-endian -> 0xAARRGGBB
+                try? png.write(to: URL(fileURLWithPath: path))
+            }
+        }
         cb.commit()
     }
 

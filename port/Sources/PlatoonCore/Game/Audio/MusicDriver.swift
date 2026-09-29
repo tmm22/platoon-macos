@@ -114,7 +114,10 @@ extension Platoon {
     /// $281c api_stop -> $28e8.
     func md_stop_impl() { md_stop_all() }
     /// $2838 api_sfx -> $3c90.
-    func md_sfx_impl(_ d0: UInt16) { md_sfx_trigger(d0) }
+    func md_sfx_impl(_ d0: UInt16) {
+        cpuCycles += SfxCost.apiEntry
+        md_sfx_trigger(d0)
+    }
     /// $282a api_resume -> $2960 (never called by the game).
     func md_resume() { md_resume_impl() }
     /// $2846 api_sfx_stop_all -> $2942 (never called by the game).
@@ -480,6 +483,7 @@ extension Platoon {
 
     /// $3c90 sfx_trigger, d0.w = (channel << 8) | id: id < $80 synth (0..$b, larger -> 0), $80..$85 sample.
     private func md_sfx_trigger(_ d0in: UInt16) {
+        cpuCycles += SfxCost.prologue + (mem.r8(MD.tablesBuilt) != 0 ? SfxCost.initTablesBuilt : SfxCost.initTablesBuild)
         md_ledOff()
         md_hw(0x09e, 0x00ff)
         let d0 = d0in & 0x3ff
@@ -490,7 +494,8 @@ extension Platoon {
         let d7 = UInt32(mem.r8(MD.sfxRequest)) * 12
         mem.w8(MD.shadow &+ d7 &+ 0xb, 0xff)              // sfx owns channel: music writes suppressed
         let idw = UInt16(bitPattern: Int16(Int8(bitPattern: UInt8(truncatingIfNeeded: d0))))   // ext.w d0
-        if Int16(bitPattern: idw) < 0 { md_sfx_sample(idw); return }
+        if Int16(bitPattern: idw) < 0 { cpuCycles += SfxCost.toSample; md_sfx_sample(idw); cpuCycles += SfxCost.sampleExit; return }
+        cpuCycles += SfxCost.toSynth + SfxCost.synthBody + SfxCost.synthExit
         var id = idw
         if Int8(bitPattern: UInt8(truncatingIfNeeded: id)) > 0xb { id &= 0xff00 }   // clr.b d0
         // $3d00 sfx_synth
@@ -520,6 +525,7 @@ extension Platoon {
 
     /// $3dc2 sfx_sample (id >= $80). d0.w = sign-extended id.
     private func md_sfx_sample(_ d0: UInt16) {
+        cpuCycles += SfxCost.sampleHead + (mem.r8(MD.smpSfxBuilt) != 0 ? 0 : SfxCost.smpSfxBuild)
         md_init_smp_sfx()
         let b = Int8(bitPattern: UInt8(truncatingIfNeeded: d0))
         if b > Int8(bitPattern: 0x85) { return }          // $86..$ff ignored (channel stays marked sfx-owned)
@@ -537,8 +543,9 @@ extension Platoon {
 
     /// $3df4 sfx_sample_play: start sample sfx d0 on the requested channel.
     private func md_sfx_sample_play(_ d0: UInt16) {
-        md_init_smp_sfx()
         let d7 = Int(mem.r8(MD.sfxRequest))
+        cpuCycles += SfxCost.samplePlayBase + SfxCost.samplePerChannel * d7
+        md_init_smp_sfx()
         var a1 = MD.sfxChan
         var d1 = UInt8(d7)
         while true {                                      // $3e04 find the channel
@@ -575,6 +582,24 @@ extension Platoon {
         let len = mem.r16(a0 &+ 8) &- UInt16(truncatingIfNeeded: lp >> 1)
         md_hw(a6 + 4, len)
         md_hwL(a6, a2)
+    }
+
+    /// 68000 cycles of the driver code around the sfx busy-waits, measured in tools/amiga/emu (bp cycle
+    /// counter) on the sample path ($2838 -> $3c90 -> $3dc2 -> $3df4 -> 2x $3eaa -> rts) and the synth path
+    /// ($3d00 -> $3d64 busy wait). The busy waits themselves are charged by md_busy_wait.
+    enum SfxCost {
+        static let apiEntry = 122            // $2838 jump block: movem + bsr to $3c90
+        static let prologue = 208            // $3c90 .. jsr init_tables
+        static let initTablesBuilt = 22, initTablesBuild = 2918
+        static let toSample = 118            // $3c40 .. $3dc2
+        static let sampleHead = 18           // $3dc2 .. init_smp_sfx
+        static let smpSfxBuild = 2418        // init_smp_sfx when the table is not yet built
+        static let samplePlayBase = 22 + 46 + 18 + 22 + 242 + 198   // $3c8c..$3df4, table call, channel search, between the two delays
+        static let samplePerChannel = 36     // channel search loop per channel index
+        static let sampleExit = 172          // after the second dma_delay .. rts (excl. the kernel's movem restore)
+        static let toSynth = 138             // $3c40 .. $3d00
+        static let synthBody = 512 - 0       // $3d00 .. $3d64 (channel search + copy of the definition)
+        static let synthExit = 138           // after the $3d64 busy wait .. rts
     }
 
     /// $3eaa dma_delay: `bsr` + `move.w #$200,d0 ; dbra d0,*` + `rts` so that Paula sees the DMA off/on.

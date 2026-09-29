@@ -754,6 +754,7 @@ unsigned int m68k_read_disassembler_32(unsigned int a) { return (m68k_read_disas
 
 /* instruction hook: breakpoints, tracing, pc histogram */
 static uint32_t bp_addr[32]; static int n_bp;
+static uint64_t cyc_base;
 static int trace_count, trace_regs;
 static uint32_t breaksave_pc = 0xffffffff; static char breaksave_path[256]; static int breaksave_hit;
 static void save_state(const char *path);
@@ -764,8 +765,8 @@ static void dump_ram(const char *path);
 void emu_instr_hook(unsigned int pc) {
     if (pc_hist && pc >= pc_hist_lo && pc < pc_hist_hi) pc_hist[(pc - pc_hist_lo) >> 1]++;
     for (int i = 0; i < n_bp; i++) if (pc == bp_addr[i]) {
-        elog("BP %06x d0=%08x d1=%08x d2=%08x d3=%08x a0=%08x a1=%08x a2=%08x a6=%08x sp=%08x\n", pc,
-            m68k_get_reg(NULL, M68K_REG_D0), m68k_get_reg(NULL, M68K_REG_D1), m68k_get_reg(NULL, M68K_REG_D2), m68k_get_reg(NULL, M68K_REG_D3),
+        elog("BP %06x cyc=%llu d0=%08x d1=%08x d2=%08x d3=%08x a0=%08x a1=%08x a2=%08x a6=%08x sp=%08x\n", pc,
+            (unsigned long long)(cyc_base + m68k_cycles_run()), m68k_get_reg(NULL, M68K_REG_D0), m68k_get_reg(NULL, M68K_REG_D1), m68k_get_reg(NULL, M68K_REG_D2), m68k_get_reg(NULL, M68K_REG_D3),
             m68k_get_reg(NULL, M68K_REG_A0), m68k_get_reg(NULL, M68K_REG_A1), m68k_get_reg(NULL, M68K_REG_A2), m68k_get_reg(NULL, M68K_REG_A6), m68k_get_reg(NULL, M68K_REG_SP));
     }
     if (pc >= 0xf80000) { elog("PC in ROM %06x (reset?) — stopping\n", pc); stop_emulation = 1; m68k_end_timeslice(); }
@@ -894,7 +895,7 @@ static void run_frame(void) {
         copper_run(v, 0x30);
         sprites_line(v);
         render_line(v);
-        m68k_execute(CYCLES_PER_LINE);
+        cyc_base += m68k_execute(CYCLES_PER_LINE);
         if (breaksave_hit == 1) { breaksave_hit = 2; save_state(breaksave_path); stop_emulation = 1; }
         copper_run(v, 0xe2);
         tod_inc(&S.ciab);

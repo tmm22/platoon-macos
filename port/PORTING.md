@@ -75,3 +75,31 @@ Every module is an `extension Platoon { ... }` so all routines can call each oth
   outputs to find the first diverging frame, then `dumpr` both sides at that frame and compare bytes.
   Expect small timing offsets around loads/boot; compare from a synchronised point (e.g. section start).
 - `platoon-headless --chipdump FILE` renders an emulator `chipdump` snapshot (display regression test).
+
+## Non-returning jumps
+`jmp` to routines that never return (k_next_section, k_game_over, k_init, section entry, DEL warm restart) use
+`m.jump { ... }` (`-> Never`): the program continues on a fresh game thread and the old stack is discarded.
+From an interrupt handler running on the host thread use `m.requestJump { ... }`.
+
+## Lockstep tools
+- `--deterministic` (emu and platoon-headless): removes the unreproducible `add.l d1,$12d70` term of the vblank RNG
+  (emu NOPs it at $10ede; the port's vblank handler must skip it when `config.deterministicRNG`). With it, the RNG
+  sequence depends only on call order, so logic can be compared exactly.
+- `--tickdump HEXPC HEXLO HEXLEN FILE` (both tools): append `[u32 frame][LEN bytes at LO]` each time the original PC
+  executes (emu) / translated code calls `tickPoint(PC)` (port). Put `tickPoint(0x....)` at the head of every main
+  loop with the ORIGINAL address. Compare with `tools/tickcmp.py A B HEXLEN --base HEXLO` — ticks are aligned by index,
+  so differences in frame pacing do not matter.
+- `platoon-headless --start-section N` skips the title and starts a new game in load section N.
+- Frame pacing: several section loops are CPU-bound on the A500 (e.g. the jungle takes ~2-3 frames per tick with no
+  explicit pacing). Measure the emulator's typical frames-per-tick with --tickdump and reproduce it with explicit
+  `m.waitFrames`/`k_wait_vbl` so game speed matches. Document the choice.
+
+## Team rules (parallel translation)
+- Each agent owns its files (listed in its task). Do not edit other agents' files. `KernelAPI.swift` and
+  `Audio/MusicDriverAPI.swift` signatures are frozen (the kernel/audio owners may add, not change).
+- Platform files: only minimal bug fixes, announced in `port/STATUS.md` (append a line).
+- Build with your own scratch path to avoid lock contention: `swift build -c release --scratch-path /tmp/pbuild-<module>`.
+  Keep the build green: never leave your files non-compiling for more than a few minutes. If the build breaks in a
+  file you don't own, wait and retry; do not fix it.
+- Do not run git commands that modify the repo (no commit/add/stash/checkout); the coordinator commits.
+- Progress/handoff notes: append to `port/STATUS.md` ("[module] ..."), e.g. when a milestone works.

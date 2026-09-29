@@ -1,0 +1,181 @@
+# re/finaljungle labels for rdis (section 2 code $17000-$18866, data to $19400). v_ = variable, d_ = data.
+# kernel entry points (outside range, for operand naming)
+404 res_putchar
+408 res_print print control-coded string a0 ([col,row] 0=newpos 1-4=colour $ff=end)
+40c res_keytest d0=raw keycode -> NE if held
+410 res_joystick d0: b0 down b1 right b2 up b3 left b7 fire
+f80c k_add_score a0 = END of 4-byte BCD to add
+f818 k_hud_wounds
+f824 k_hex8
+f82c k_queue_text d0 = message number (table $4a(a6))
+f830 k_hud_init
+f834 k_hud_update
+f840 k_clear_screens clears $70000-$7ffff
+f844 k_wait_frames d0+1 vblanks
+f848 k_wait_vbl
+f84c k_swap toggle $62(a6) back buffer, request copper swap at split
+f850 k_random d0 = 0..255
+f85c k_wait_swap
+f860 k_display_init
+f864 k_game_over
+f868 k_music d0 = tune
+f86c k_fx d0 = effect
+f878 k_set_top_pal a0 -> 16 words, also $5a(a6)=a0
+f87c k_set_hud_pal a0 -> 16 words
+# ======================= section 2 code =======================
+17000 fj_entry section-2 entry (jmp from kernel $fd48): display init, row table, messages, intro text, men
+17014 fj_rowtab_loop $57b00[i] = i*40, 200 longs
+17068 fj_restart (re)start of the final jungle with man a5: timer 2:00, hints, start room
+17098 fj_restart_hints
+170a8 room_enter a0 = transition routine: sp=$400, clear object area, init slots, call a0
+170f4 room_enter_done per-room timers, timer on
+17118 main_loop one iteration per swap (normally 50 Hz)
+17136 ml_logic
+1718a time_up 2:00 elapsed: napalm flash + text + game over
+17196 napalm_flash_loop
+17226 v_last_time word: last seen $6c(a6)
+17228 hint_tick random hint message every 100..227 ticks
+17260 d_unused_17260 unreferenced bytes
+1726a pal_copy_current copy palette at $5a(a6) to $57f70 and set it
+1728a fade_out_start copy palette + hook level-3 vector with l3hook_fade
+172aa v_fade_active word: nonzero while fading
+172ac v_old_l3vec saved level-3 autovector ($6c)
+172b0 l3hook_restore
+172c2 l3hook_fade level-3 interrupt hook: palette -1 per component per vblank
+17332 idle_reset
+17342 idle_shot_tick sniper shot if the player keeps the same depth for $57f5c ticks
+17390 idle_shot_spawn
+17414 obj_idleshot_h0 first tick of the idle shot: only switch handler
+1741e obj_idleshot_h1 idle shot flight (horizontal)
+17458 idle_shot_end restore the borrowed slot
+17488 find_free_slot a0=first slot, d1=count-1 -> a0 = free slot, EQ if found
+17498 soldier_spawn_tick
+17556 rts_17556
+17558 bg_restore blit $68000 background (4 planes) into back buffer
+175e8 fade_out_wait start fade-out and wait until finished
+175ec fade_wait_loop
+17604 room_load_picture d0 = picture 1..10: start fade, RLE-decode to $68000, clear, spawn room objects
+17670 pic_putbyte
+17676 clear_play_and_pal clear rows 0-143 of both buffers, set game + HUD palettes
+176be d_pal_hud HUD palette (16 words)
+176de text_screen_music3 music 3, then text_screen
+176ea text_screen a0 = print string: clear, text palette, print, wait 50 frames, wait fire
+1771e game_screen_init music 5, clear screens, game palette
+1773e objects_update_draw run all 16 object handlers (slot 15..0), depth sort, draw
+177a6 objects_draw
+1780a dead_project unreferenced perspective helper (dead code)
+17850 draw_bob a1=bob header, d0 = x<<16 | screen y: cookie-cut 4-plane blit into back buffer
+179be dead_debug_frame unreferenced debug routine (keys to step frame, print hex) (dead code)
+179fa obj_player handler of slot 0 (a3=$57e22, a5 = current man)
+17a42 pl_key_released
+17a48 pl_fire_button
+17a60 pl_fire_pressed
+17a84 pl_fire_gun
+17a92 pl_move
+17ab8 pl_move_down
+17ae2 pl_move_up
+17b14 pl_move_horiz
+17b76 pl_clamp_exit
+17bb2 pl_anim_size
+17be0 rts_common shared rts
+17be2 bunker_goal_check bunker room: Barnes dead and player at the bunker door -> won
+17c0a game_won YOU MADE IT! -> game over
+17c1e obj_pbullet player bullet (slots 1-3)
+17c32 obj_soldier_L soldier in a left-turn room (walks in from left, back, leaves)
+17c7c obj_soldier_R soldier in a right-turn room
+17cc6 obj_soldier_T soldier in a T-junction room (crosses once)
+17cfc obj_ebullet enemy bullet (slots 7-9)
+17d1e bullet_hits_player a3 = bullet: on hit pop caller, clear bullet, fall into player_hit
+17d68 player_hit start death animation, hits+1, morale -$800, message
+17dd6 ph_set_death_end
+17e2c ph_sfx
+17e30 obj_player_dying death animation (frame+1 every 4 ticks)
+17e5e obj_player_dead_wait 8 ticks, then respawn / next man / game over
+17ec2 pd_respawn
+17ee4 pd_clear_loop
+17ef8 pd_reset_pos
+17f04 morale_zero morale 0 -> (intended WITHDRAWN text, actually) DESTROYED text + game over
+17f18 all_dead second man dead
+17f22 end_text_gameover
+17f32 soldier_fire
+17f4e soldier_fire_find
+17f68 barnes_fire
+17f84 barnes_fire_find
+17f9e soldier_fire_spawn a0 = free bullet slot, a3 = soldier
+17fcc fire_cancel
+18002 barnes_fire_spawn
+1807a soldier_hit_check player bullets vs soldier a3; dying soldier countdown
+180f6 play_hit_sfx
+180fc sfx_and_reset sfx d0, $57f64 = $80
+1810a shc_next
+18114 soldier_dying
+1811c pl_shoot spawn player bullet (slots 1-3)
+1816c trans_start transition routine for the start room ($69, heading 0)
+1817e exit_right
+18188 exit_left
+18192 trans_right compass+1, room += dirs.b0, dirs rol 8
+181b4 trans_left compass-1, room += dirs.b2, dirs ror 8
+181d2 room_setup d0 = room, d1 = dirs
+18226 rs_store_count
+18282 room_setup_bunker room type 16: Barnes
+182b0 obj_barnes Barnes handler (slot 4, health in active byte)
+182de throw_grenade spawn grenade in slots 10-12 (bunker room)
+182f8 tg_spawn
+1833a obj_grenade grenade arc, landing, hit test on Barnes
+183e6 gr_explode_msg
+183fc gr_vanish
+18400 d_grenade_arc 13 words dy added to +4/tick
+1841a room_spawn_objects static objects of the room type into slots 10..15
+1843e rso_loop
+1846c obj_s9_log block box $46 x $a
+184c6 obj_s10_log block box $32 x 8
+18520 obj_s11_log block box $28 x 6
+1857a obj_s0_rock block box $14 x 7
+185d4 obj_s1_rock block box $10 x 5 (type unused by any room)
+1862e obj_s2_rock block box $a x 5 (type unused by any room)
+18688 obj_s3_mine mine box $a x 4: explode + hit
+186cc mine_trigger
+186dc obj_to_explosion turn object a3 into a 4-frame explosion
+18706 obj_explosion
+18718 obj_s4_mine mine box 6 x 4 (player box +3)
+18760 obj_s5_mine mine box 6 x 4 (player box +3)
+187a8 obj_s6_wire barbed wire box $32 x 6: block + hit
+18804 obj_s78_wire barbed wire box $28 x 4: block + hit
+18860 sfx jmp k_fx
+18866 d_room_lists 17 longs: room type -> static object list
+188aa d_obj_gfx 12 longs: static object type -> bob directory entry
+188da d_obj_handlers 12 longs: static object type -> handler
+189d8 d_hints_init 4 message numbers copied to v_hints
+189dc v_hints 4 message numbers for hint_tick ([0] = $b if no compass else 0, [1] = 5 after <1 min)
+189e0 d_msg_table 17 message pointers (col,row,text,$ff)
+18b5a d_unused_text unreferenced print string
+18b5f d_txt_won
+18bb8 d_txt_napalm
+18c14 d_txt_withdrawn never shown (overwritten a0 bug in morale_zero)
+18c6d d_txt_intro
+18ce7 d_txt_destroyed
+18d2c d_txt_one_more_chance
+18df0 d_slot_init 46 longs copied to $57e22 on every room entry
+18ea4 d_map 12 rows x 10 cols room types
+18f1c v_room current room index (0..119)
+18f1d d_type_pic 17 bytes room type -> picture 1..10
+18f2e d_type_exits 17 bytes room type -> exits (bit0 left, bit1 right)
+18f40 v_dirs 4 signed bytes [R, B, L, F] room offsets for the current heading
+18f44 d_dirs_init $010afff6
+18f48 d_exit_frame 3 bytes (exits-1) soldier start frame
+18f4c d_exit_x 3 words soldier start x ($ffff = pick side)
+18f52 d_exit_dx 3 words soldier dx
+18f58 d_exit_handler 3 longs soldier handler
+18f64 d_unused_18f64 unreferenced small bitmap
+18f9a d_pic_table 10 longs picture offsets from $19400
+18fc2 d_pal_game game palette
+18fe2 d_pal_text text screen palette
+18ffe d_score_kill BCD 00000300 (a0 = $19002 = end)
+1900a v_sold_handler soldier handler for this room
+1900e v_sold_x
+19010 v_sold_dx
+19012 v_path_w path half-width (perspective), $32 at depth 0
+19014 v_path_w_saved
+19016 v_sold_frame
+19018 d_junk_19018 leftover bytes (old section-1 code), unreferenced, up to $19400
+19400 d_pictures RLE pictures

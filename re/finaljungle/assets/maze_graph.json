@@ -1,0 +1,1466 @@
+{
+"states": [
+{
+"room": 105,
+"row": 10,
+"col": 5,
+"type": 13,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 104,
+"row": 10,
+"col": 4,
+"type": 14,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 106,
+"row": 10,
+"col": 6,
+"type": 15,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 114,
+"row": 11,
+"col": 4,
+"type": 7,
+"dirs": "fff6010a",
+"compass": "S"
+},
+{
+"room": 94,
+"row": 9,
+"col": 4,
+"type": 12,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 96,
+"row": 9,
+"col": 6,
+"type": 4,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 116,
+"row": 11,
+"col": 6,
+"type": 9,
+"dirs": "fff6010a",
+"compass": "S"
+},
+{
+"room": 115,
+"row": 11,
+"col": 5,
+"type": 9,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 93,
+"row": 9,
+"col": 3,
+"type": 1,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 97,
+"row": 9,
+"col": 7,
+"type": 8,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 117,
+"row": 11,
+"col": 7,
+"type": 10,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 83,
+"row": 8,
+"col": 3,
+"type": 10,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 87,
+"row": 8,
+"col": 7,
+"type": 12,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 107,
+"row": 10,
+"col": 7,
+"type": 1,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 82,
+"row": 8,
+"col": 2,
+"type": 6,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 86,
+"row": 8,
+"col": 6,
+"type": 6,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 108,
+"row": 10,
+"col": 8,
+"type": 11,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 72,
+"row": 7,
+"col": 2,
+"type": 8,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 76,
+"row": 7,
+"col": 6,
+"type": 7,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 98,
+"row": 9,
+"col": 8,
+"type": 2,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 71,
+"row": 7,
+"col": 1,
+"type": 1,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 75,
+"row": 7,
+"col": 5,
+"type": 11,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 99,
+"row": 9,
+"col": 9,
+"type": 12,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 61,
+"row": 6,
+"col": 1,
+"type": 15,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 85,
+"row": 8,
+"col": 5,
+"type": 5,
+"dirs": "fff6010a",
+"compass": "S"
+},
+{
+"room": 89,
+"row": 8,
+"col": 9,
+"type": 9,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 60,
+"row": 6,
+"col": 0,
+"type": 2,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 62,
+"row": 6,
+"col": 2,
+"type": 7,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 84,
+"row": 8,
+"col": 4,
+"type": 2,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 88,
+"row": 8,
+"col": 8,
+"type": 3,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 50,
+"row": 5,
+"col": 0,
+"type": 5,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 52,
+"row": 5,
+"col": 2,
+"type": 3,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 74,
+"row": 7,
+"col": 4,
+"type": 10,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 78,
+"row": 7,
+"col": 8,
+"type": 10,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 51,
+"row": 5,
+"col": 1,
+"type": 7,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 53,
+"row": 5,
+"col": 3,
+"type": 8,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 73,
+"row": 7,
+"col": 3,
+"type": 5,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 77,
+"row": 7,
+"col": 7,
+"type": 6,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 41,
+"row": 4,
+"col": 1,
+"type": 4,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 43,
+"row": 4,
+"col": 3,
+"type": 5,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 63,
+"row": 6,
+"col": 3,
+"type": 1,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 67,
+"row": 6,
+"col": 7,
+"type": 12,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 42,
+"row": 4,
+"col": 2,
+"type": 9,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 44,
+"row": 4,
+"col": 4,
+"type": 11,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 64,
+"row": 6,
+"col": 4,
+"type": 9,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 66,
+"row": 6,
+"col": 6,
+"type": 1,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 32,
+"row": 3,
+"col": 2,
+"type": 6,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 34,
+"row": 3,
+"col": 4,
+"type": 16,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 54,
+"row": 5,
+"col": 4,
+"type": 3,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 56,
+"row": 5,
+"col": 6,
+"type": 5,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 33,
+"row": 3,
+"col": 3,
+"type": 12,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 55,
+"row": 5,
+"col": 5,
+"type": 12,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 57,
+"row": 5,
+"col": 7,
+"type": 7,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 23,
+"row": 2,
+"col": 3,
+"type": 5,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 45,
+"row": 4,
+"col": 5,
+"type": 6,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 47,
+"row": 4,
+"col": 7,
+"type": 6,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 24,
+"row": 2,
+"col": 4,
+"type": 16,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 46,
+"row": 4,
+"col": 6,
+"type": 7,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 48,
+"row": 4,
+"col": 8,
+"type": 11,
+"dirs": "0afff601",
+"compass": "E"
+},
+{
+"room": 36,
+"row": 3,
+"col": 6,
+"type": 10,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 38,
+"row": 3,
+"col": 8,
+"type": 9,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 35,
+"row": 3,
+"col": 5,
+"type": 1,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 37,
+"row": 3,
+"col": 7,
+"type": 4,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 25,
+"row": 2,
+"col": 5,
+"type": 8,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 27,
+"row": 2,
+"col": 7,
+"type": 7,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 24,
+"row": 2,
+"col": 4,
+"type": 16,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 26,
+"row": 2,
+"col": 6,
+"type": 2,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 16,
+"row": 1,
+"col": 6,
+"type": 12,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 15,
+"row": 1,
+"col": 5,
+"type": 6,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 5,
+"row": 0,
+"col": 5,
+"type": 11,
+"dirs": "010afff6",
+"compass": "N"
+},
+{
+"room": 4,
+"row": 0,
+"col": 4,
+"type": 8,
+"dirs": "f6010aff",
+"compass": "W"
+},
+{
+"room": 14,
+"row": 1,
+"col": 4,
+"type": 16,
+"dirs": "fff6010a",
+"compass": "S"
+}
+],
+"edges": [
+{
+"from": [
+105,
+"N"
+],
+"exit": "L",
+"to": [
+104,
+"W"
+],
+"to_type": 14
+},
+{
+"from": [
+105,
+"N"
+],
+"exit": "R",
+"to": [
+106,
+"E"
+],
+"to_type": 15
+},
+{
+"from": [
+104,
+"W"
+],
+"exit": "L",
+"to": [
+114,
+"S"
+],
+"to_type": 7
+},
+{
+"from": [
+104,
+"W"
+],
+"exit": "R",
+"to": [
+94,
+"N"
+],
+"to_type": 12
+},
+{
+"from": [
+106,
+"E"
+],
+"exit": "L",
+"to": [
+96,
+"N"
+],
+"to_type": 4
+},
+{
+"from": [
+106,
+"E"
+],
+"exit": "R",
+"to": [
+116,
+"S"
+],
+"to_type": 9
+},
+{
+"from": [
+114,
+"S"
+],
+"exit": "L",
+"to": [
+115,
+"E"
+],
+"to_type": 9
+},
+{
+"from": [
+94,
+"N"
+],
+"exit": "L",
+"to": [
+93,
+"W"
+],
+"to_type": 1
+},
+{
+"from": [
+96,
+"N"
+],
+"exit": "R",
+"to": [
+97,
+"E"
+],
+"to_type": 8
+},
+{
+"from": [
+116,
+"S"
+],
+"exit": "L",
+"to": [
+117,
+"E"
+],
+"to_type": 10
+},
+{
+"from": [
+115,
+"E"
+],
+"exit": "L",
+"to": [
+105,
+"N"
+],
+"to_type": 13
+},
+{
+"from": [
+93,
+"W"
+],
+"exit": "R",
+"to": [
+83,
+"N"
+],
+"to_type": 10
+},
+{
+"from": [
+97,
+"E"
+],
+"exit": "L",
+"to": [
+87,
+"N"
+],
+"to_type": 12
+},
+{
+"from": [
+117,
+"E"
+],
+"exit": "L",
+"to": [
+107,
+"N"
+],
+"to_type": 1
+},
+{
+"from": [
+83,
+"N"
+],
+"exit": "L",
+"to": [
+82,
+"W"
+],
+"to_type": 6
+},
+{
+"from": [
+87,
+"N"
+],
+"exit": "L",
+"to": [
+86,
+"W"
+],
+"to_type": 6
+},
+{
+"from": [
+107,
+"N"
+],
+"exit": "R",
+"to": [
+108,
+"E"
+],
+"to_type": 11
+},
+{
+"from": [
+82,
+"W"
+],
+"exit": "R",
+"to": [
+72,
+"N"
+],
+"to_type": 8
+},
+{
+"from": [
+86,
+"W"
+],
+"exit": "R",
+"to": [
+76,
+"N"
+],
+"to_type": 7
+},
+{
+"from": [
+108,
+"E"
+],
+"exit": "L",
+"to": [
+98,
+"N"
+],
+"to_type": 2
+},
+{
+"from": [
+72,
+"N"
+],
+"exit": "L",
+"to": [
+71,
+"W"
+],
+"to_type": 1
+},
+{
+"from": [
+76,
+"N"
+],
+"exit": "L",
+"to": [
+75,
+"W"
+],
+"to_type": 11
+},
+{
+"from": [
+98,
+"N"
+],
+"exit": "R",
+"to": [
+99,
+"E"
+],
+"to_type": 12
+},
+{
+"from": [
+71,
+"W"
+],
+"exit": "R",
+"to": [
+61,
+"N"
+],
+"to_type": 15
+},
+{
+"from": [
+75,
+"W"
+],
+"exit": "L",
+"to": [
+85,
+"S"
+],
+"to_type": 5
+},
+{
+"from": [
+99,
+"E"
+],
+"exit": "L",
+"to": [
+89,
+"N"
+],
+"to_type": 9
+},
+{
+"from": [
+61,
+"N"
+],
+"exit": "L",
+"to": [
+60,
+"W"
+],
+"to_type": 2
+},
+{
+"from": [
+61,
+"N"
+],
+"exit": "R",
+"to": [
+62,
+"E"
+],
+"to_type": 7
+},
+{
+"from": [
+85,
+"S"
+],
+"exit": "R",
+"to": [
+84,
+"W"
+],
+"to_type": 2
+},
+{
+"from": [
+89,
+"N"
+],
+"exit": "L",
+"to": [
+88,
+"W"
+],
+"to_type": 3
+},
+{
+"from": [
+60,
+"W"
+],
+"exit": "R",
+"to": [
+50,
+"N"
+],
+"to_type": 5
+},
+{
+"from": [
+62,
+"E"
+],
+"exit": "L",
+"to": [
+52,
+"N"
+],
+"to_type": 3
+},
+{
+"from": [
+84,
+"W"
+],
+"exit": "R",
+"to": [
+74,
+"N"
+],
+"to_type": 10
+},
+{
+"from": [
+88,
+"W"
+],
+"exit": "R",
+"to": [
+78,
+"N"
+],
+"to_type": 10
+},
+{
+"from": [
+50,
+"N"
+],
+"exit": "R",
+"to": [
+51,
+"E"
+],
+"to_type": 7
+},
+{
+"from": [
+52,
+"N"
+],
+"exit": "R",
+"to": [
+53,
+"E"
+],
+"to_type": 8
+},
+{
+"from": [
+74,
+"N"
+],
+"exit": "L",
+"to": [
+73,
+"W"
+],
+"to_type": 5
+},
+{
+"from": [
+78,
+"N"
+],
+"exit": "L",
+"to": [
+77,
+"W"
+],
+"to_type": 6
+},
+{
+"from": [
+51,
+"E"
+],
+"exit": "L",
+"to": [
+41,
+"N"
+],
+"to_type": 4
+},
+{
+"from": [
+53,
+"E"
+],
+"exit": "L",
+"to": [
+43,
+"N"
+],
+"to_type": 5
+},
+{
+"from": [
+73,
+"W"
+],
+"exit": "R",
+"to": [
+63,
+"N"
+],
+"to_type": 1
+},
+{
+"from": [
+77,
+"W"
+],
+"exit": "R",
+"to": [
+67,
+"N"
+],
+"to_type": 12
+},
+{
+"from": [
+41,
+"N"
+],
+"exit": "R",
+"to": [
+42,
+"E"
+],
+"to_type": 9
+},
+{
+"from": [
+43,
+"N"
+],
+"exit": "R",
+"to": [
+44,
+"E"
+],
+"to_type": 11
+},
+{
+"from": [
+63,
+"N"
+],
+"exit": "R",
+"to": [
+64,
+"E"
+],
+"to_type": 9
+},
+{
+"from": [
+67,
+"N"
+],
+"exit": "L",
+"to": [
+66,
+"W"
+],
+"to_type": 1
+},
+{
+"from": [
+42,
+"E"
+],
+"exit": "L",
+"to": [
+32,
+"N"
+],
+"to_type": 6
+},
+{
+"from": [
+44,
+"E"
+],
+"exit": "L",
+"to": [
+34,
+"N"
+],
+"to_type": 16
+},
+{
+"from": [
+64,
+"E"
+],
+"exit": "L",
+"to": [
+54,
+"N"
+],
+"to_type": 3
+},
+{
+"from": [
+66,
+"W"
+],
+"exit": "R",
+"to": [
+56,
+"N"
+],
+"to_type": 5
+},
+{
+"from": [
+32,
+"N"
+],
+"exit": "R",
+"to": [
+33,
+"E"
+],
+"to_type": 12
+},
+{
+"from": [
+54,
+"N"
+],
+"exit": "R",
+"to": [
+55,
+"E"
+],
+"to_type": 12
+},
+{
+"from": [
+56,
+"N"
+],
+"exit": "R",
+"to": [
+57,
+"E"
+],
+"to_type": 7
+},
+{
+"from": [
+33,
+"E"
+],
+"exit": "L",
+"to": [
+23,
+"N"
+],
+"to_type": 5
+},
+{
+"from": [
+55,
+"E"
+],
+"exit": "L",
+"to": [
+45,
+"N"
+],
+"to_type": 6
+},
+{
+"from": [
+57,
+"E"
+],
+"exit": "L",
+"to": [
+47,
+"N"
+],
+"to_type": 6
+},
+{
+"from": [
+23,
+"N"
+],
+"exit": "R",
+"to": [
+24,
+"E"
+],
+"to_type": 16
+},
+{
+"from": [
+45,
+"N"
+],
+"exit": "R",
+"to": [
+46,
+"E"
+],
+"to_type": 7
+},
+{
+"from": [
+47,
+"N"
+],
+"exit": "R",
+"to": [
+48,
+"E"
+],
+"to_type": 11
+},
+{
+"from": [
+46,
+"E"
+],
+"exit": "L",
+"to": [
+36,
+"N"
+],
+"to_type": 10
+},
+{
+"from": [
+48,
+"E"
+],
+"exit": "L",
+"to": [
+38,
+"N"
+],
+"to_type": 9
+},
+{
+"from": [
+36,
+"N"
+],
+"exit": "L",
+"to": [
+35,
+"W"
+],
+"to_type": 1
+},
+{
+"from": [
+38,
+"N"
+],
+"exit": "L",
+"to": [
+37,
+"W"
+],
+"to_type": 4
+},
+{
+"from": [
+35,
+"W"
+],
+"exit": "R",
+"to": [
+25,
+"N"
+],
+"to_type": 8
+},
+{
+"from": [
+37,
+"W"
+],
+"exit": "R",
+"to": [
+27,
+"N"
+],
+"to_type": 7
+},
+{
+"from": [
+25,
+"N"
+],
+"exit": "L",
+"to": [
+24,
+"W"
+],
+"to_type": 16
+},
+{
+"from": [
+27,
+"N"
+],
+"exit": "L",
+"to": [
+26,
+"W"
+],
+"to_type": 2
+},
+{
+"from": [
+26,
+"W"
+],
+"exit": "R",
+"to": [
+16,
+"N"
+],
+"to_type": 12
+},
+{
+"from": [
+16,
+"N"
+],
+"exit": "L",
+"to": [
+15,
+"W"
+],
+"to_type": 6
+},
+{
+"from": [
+15,
+"W"
+],
+"exit": "R",
+"to": [
+5,
+"N"
+],
+"to_type": 11
+},
+{
+"from": [
+5,
+"N"
+],
+"exit": "L",
+"to": [
+4,
+"W"
+],
+"to_type": 8
+},
+{
+"from": [
+4,
+"W"
+],
+"exit": "L",
+"to": [
+14,
+"S"
+],
+"to_type": 16
+}
+],
+"shortest_route_to_bunker": [
+"L",
+"R",
+"L",
+"R",
+"L",
+"R",
+"L",
+"R",
+"R",
+"L",
+"R",
+"L",
+"R",
+"L"
+],
+"bunker_state": [
+34,
+"N"
+]
+}

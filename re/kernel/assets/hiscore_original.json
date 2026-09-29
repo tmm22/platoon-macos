@@ -1,0 +1,89 @@
+{
+ "note": "Darc image track 77 is all zeros -> the kernel hiscore screens/name entry print garbage/nothing. Original table below comes from re/platoon_b.adf track 77 (loaded to $116cc, $1600 bytes).",
+ "darc_track77_nonzero_bytes": 0,
+ "entries": [
+  {
+   "rank": 1,
+   "string_addr": "0x116e5",
+   "col": 7,
+   "row": 11,
+   "name": "MPU.............",
+   "score_bcd": "00068000"
+  },
+  {
+   "rank": 2,
+   "string_addr": "0x116fe",
+   "col": 7,
+   "row": 12,
+   "name": "CIA A...........",
+   "score_bcd": "00008520"
+  },
+  {
+   "rank": 3,
+   "string_addr": "0x11717",
+   "col": 7,
+   "row": 13,
+   "name": "CIA B...........",
+   "score_bcd": "00008520"
+  },
+  {
+   "rank": 4,
+   "string_addr": "0x11730",
+   "col": 7,
+   "row": 14,
+   "name": "IKBD............",
+   "score_bcd": "00006502"
+  },
+  {
+   "rank": 5,
+   "string_addr": "0x11749",
+   "col": 7,
+   "row": 15,
+   "name": "ANGUS...........",
+   "score_bcd": "00005040"
+  },
+  {
+   "rank": 6,
+   "string_addr": "0x11762",
+   "col": 7,
+   "row": 16,
+   "name": "BLITTER.........",
+   "score_bcd": "00000720"
+  },
+  {
+   "rank": 7,
+   "string_addr": "0x1177b",
+   "col": 7,
+   "row": 17,
+   "name": "COPPER..........",
+   "score_bcd": "00000120"
+  },
+  {
+   "rank": 8,
+   "string_addr": "0x11794",
+   "col": 7,
+   "row": 18,
+   "name": "DENISE..........",
+   "score_bcd": "00000024"
+  },
+  {
+   "rank": 9,
+   "string_addr": "0x117ad",
+   "col": 7,
+   "row": 19,
+   "name": "DMA.............",
+   "score_bcd": "00000006"
+  },
+  {
+   "rank": 10,
+   "string_addr": "0x117c6",
+   "col": 7,
+   "row": 20,
+   "name": "PAULA...........",
+   "score_bcd": "00000002"
+  }
+ ],
+ "title_string": "0c0901000201030254454e20424553542053434f5245533aff",
+ "name_entry_line_$11830": "070d0202030a5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f0208030900000e2000000e2500190d0202030aff",
+ "raw_used_bytes_hex": "0c0901000201030254454e20424553542053434f5245533aff070b020303044d50552e2e2e2e2e2e2e2e2e2e2e2e2e2020ff070c0205030643494120412e2e2e2e2e2e2e2e2e2e2e2020ff070d0207030843494120422e2e2e2e2e2e2e2e2e2e2e2020ff070e0209030a494b42442e2e2e2e2e2e2e2e2e2e2e2e2020ff070f020b030c414e4755532e2e2e2e2e2e2e2e2e2e2e2020ff0710020d030e424c49545445522e2e2e2e2e2e2e2e2e2020ff071102030304434f505045522e2e2e2e2e2e2e2e2e2e2020ff07120205030644454e4953452e2e2e2e2e2e2e2e2e2e2020ff071302070308444d412e2e2e2e2e2e2e2e2e2e2e2e2e2020ff07140209030a5041554c412e2e2e2e2e2e2e2e2e2e2e2020ff000000000000000019000000320000004b000000640000007d00000096000000af000000c8000000e100068000000085200000852000006502000050400000072000000120000000240000000600000002070d0202030a5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f0208030900000e2000000e2500190d0202030aff000000000000"
+}

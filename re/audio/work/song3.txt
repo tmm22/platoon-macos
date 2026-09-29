@@ -1,0 +1,5 @@
+400 poke 12cce 3 2
+402 key 0x59 1
+408 key 0x59 0
+422 key 0x59 1
+428 key 0x59 0

@@ -1,0 +1,4 @@
+0 shot f0
+2 shot f2
+20 shot f20
+100 shot f100

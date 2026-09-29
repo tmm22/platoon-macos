@@ -1,0 +1,4 @@
+0 dumpr 18f1c 1 r.bin
+0 dumpr 12dde 80 a.bin
+30 shot a30
+0 dumpr 17d68 2 c.bin

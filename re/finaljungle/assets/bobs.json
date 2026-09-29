@@ -1,0 +1,866 @@
+[
+{
+"entry": "47400",
+"ofs": "00000",
+"data": "47700",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47408",
+"ofs": "0034c",
+"data": "47a4c",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47410",
+"ofs": "00698",
+"data": "47d98",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47418",
+"ofs": "009e4",
+"data": "480e4",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47420",
+"ofs": "00d30",
+"data": "48430",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47428",
+"ofs": "0107c",
+"data": "4877c",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47430",
+"ofs": "013c8",
+"data": "48ac8",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47438",
+"ofs": "01714",
+"data": "48e14",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47440",
+"ofs": "01a60",
+"data": "49160",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47448",
+"ofs": "01dac",
+"data": "494ac",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47450",
+"ofs": "020f8",
+"data": "497f8",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47458",
+"ofs": "02444",
+"data": "49b44",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47460",
+"ofs": "02790",
+"data": "49e90",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47468",
+"ofs": "02adc",
+"data": "4a1dc",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47470",
+"ofs": "02e28",
+"data": "4a528",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47478",
+"ofs": "03174",
+"data": "4a874",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47480",
+"ofs": "034c0",
+"data": "4abc0",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47488",
+"ofs": "0380c",
+"data": "4af0c",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47490",
+"ofs": "03b58",
+"data": "4b258",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47498",
+"ofs": "03ea4",
+"data": "4b5a4",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "474a0",
+"ofs": "041f0",
+"data": "4b8f0",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "474a8",
+"ofs": "0453c",
+"data": "4bc3c",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "474b0",
+"ofs": "04888",
+"data": "4bf88",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "474b8",
+"ofs": "04bd4",
+"data": "4c2d4",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "474c0",
+"ofs": "04f20",
+"data": "4c620",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "474c8",
+"ofs": "0526c",
+"data": "4c96c",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "474d0",
+"ofs": "055b8",
+"data": "4ccb8",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "474d8",
+"ofs": "05904",
+"data": "4d004",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "474e0",
+"ofs": "05c50",
+"data": "4d350",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "474e8",
+"ofs": "05f9c",
+"data": "4d69c",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "474f0",
+"ofs": "062e8",
+"data": "4d9e8",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "474f8",
+"ofs": "06634",
+"data": "4dd34",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47500",
+"ofs": "06980",
+"data": "4e080",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47508",
+"ofs": "06ccc",
+"data": "4e3cc",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47510",
+"ofs": "07018",
+"data": "4e718",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47518",
+"ofs": "07364",
+"data": "4ea64",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47520",
+"ofs": "076b0",
+"data": "4edb0",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47528",
+"ofs": "079fc",
+"data": "4f0fc",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47530",
+"ofs": "07d48",
+"data": "4f448",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47538",
+"ofs": "08094",
+"data": "4f794",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47540",
+"ofs": "083e0",
+"data": "4fae0",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47548",
+"ofs": "0872c",
+"data": "4fe2c",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47550",
+"ofs": "08a78",
+"data": "50178",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47558",
+"ofs": "08dc4",
+"data": "504c4",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47560",
+"ofs": "09110",
+"data": "50810",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47568",
+"ofs": "0945c",
+"data": "50b5c",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47570",
+"ofs": "097a8",
+"data": "50ea8",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47578",
+"ofs": "09af4",
+"data": "511f4",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47580",
+"ofs": "09e40",
+"data": "51540",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47588",
+"ofs": "0a18c",
+"data": "5188c",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47590",
+"ofs": "0a4d8",
+"data": "51bd8",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47598",
+"ofs": "0a824",
+"data": "51f24",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "475a0",
+"ofs": "0ab70",
+"data": "52270",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "475a8",
+"ofs": "0aebc",
+"data": "525bc",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "475b0",
+"ofs": "0b208",
+"data": "52908",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "475b8",
+"ofs": "0b554",
+"data": "52c54",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "475c0",
+"ofs": "0b8a0",
+"data": "52fa0",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "475c8",
+"ofs": "0bbec",
+"data": "532ec",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "475d0",
+"ofs": "0bf38",
+"data": "53638",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "475d8",
+"ofs": "0c284",
+"data": "53984",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "475e0",
+"ofs": "0c5d0",
+"data": "53cd0",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "475e8",
+"ofs": "0c91c",
+"data": "5401c",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "475f0",
+"ofs": "0cc68",
+"data": "54368",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "475f8",
+"ofs": "0cfb4",
+"data": "546b4",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47600",
+"ofs": "0d300",
+"data": "54a00",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47608",
+"ofs": "0d64c",
+"data": "54d4c",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47610",
+"ofs": "0d998",
+"data": "55098",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47618",
+"ofs": "0dce4",
+"data": "553e4",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47620",
+"ofs": "0e030",
+"data": "55730",
+"words": 2,
+"rows": 42,
+"hdr_words": 2,
+"hdr_rows": 42
+},
+{
+"entry": "47628",
+"ofs": "0e37c",
+"data": "55a7c",
+"words": 2,
+"rows": 15,
+"hdr_words": 2,
+"hdr_rows": 15
+},
+{
+"entry": "47630",
+"ofs": "0e4ac",
+"data": "55bac",
+"words": 2,
+"rows": 15,
+"hdr_words": 2,
+"hdr_rows": 15
+},
+{
+"entry": "47638",
+"ofs": "0e5dc",
+"data": "55cdc",
+"words": 2,
+"rows": 15,
+"hdr_words": 2,
+"hdr_rows": 15
+},
+{
+"entry": "47640",
+"ofs": "0e70c",
+"data": "55e0c",
+"words": 2,
+"rows": 16,
+"hdr_words": 2,
+"hdr_rows": 16
+},
+{
+"entry": "47648",
+"ofs": "0e850",
+"data": "55f50",
+"words": 1,
+"rows": 14,
+"hdr_words": 1,
+"hdr_rows": 14
+},
+{
+"entry": "47650",
+"ofs": "0e8e0",
+"data": "55fe0",
+"words": 1,
+"rows": 12,
+"hdr_words": 1,
+"hdr_rows": 12
+},
+{
+"entry": "47658",
+"ofs": "0e95c",
+"data": "5605c",
+"words": 1,
+"rows": 5,
+"hdr_words": 1,
+"hdr_rows": 5
+},
+{
+"entry": "47660",
+"ofs": "0e992",
+"data": "56092",
+"words": 1,
+"rows": 4,
+"hdr_words": 1,
+"hdr_rows": 4
+},
+{
+"entry": "47668",
+"ofs": "0e9be",
+"data": "560be",
+"words": 1,
+"rows": 4,
+"hdr_words": 1,
+"hdr_rows": 4
+},
+{
+"entry": "47670",
+"ofs": "0e9ea",
+"data": "560ea",
+"words": 4,
+"rows": 20,
+"hdr_words": 4,
+"hdr_rows": 20
+},
+{
+"entry": "47678",
+"ofs": "0ed0e",
+"data": "5640e",
+"words": 3,
+"rows": 20,
+"hdr_words": 3,
+"hdr_rows": 20
+},
+{
+"entry": "47680",
+"ofs": "0ef6a",
+"data": "5666a",
+"words": 3,
+"rows": 17,
+"hdr_words": 3,
+"hdr_rows": 17
+},
+{
+"entry": "47688",
+"ofs": "0f16c",
+"data": "5686c",
+"words": 5,
+"rows": 30,
+"hdr_words": 5,
+"hdr_rows": 30
+},
+{
+"entry": "47690",
+"ofs": "0f74c",
+"data": "56e4c",
+"words": 4,
+"rows": 17,
+"hdr_words": 4,
+"hdr_rows": 17
+},
+{
+"entry": "47698",
+"ofs": "0f9f8",
+"data": "570f8",
+"words": 3,
+"rows": 12,
+"hdr_words": 3,
+"hdr_rows": 12
+},
+{
+"entry": "476a0",
+"ofs": "0fb64",
+"data": "57264",
+"words": 1,
+"rows": 2,
+"hdr_words": 1,
+"hdr_rows": 2
+},
+{
+"entry": "476a8",
+"ofs": "0fb7c",
+"data": "5727c",
+"words": 1,
+"rows": 5,
+"hdr_words": 1,
+"hdr_rows": 5
+},
+{
+"entry": "476b0",
+"ofs": "0fbb2",
+"data": "572b2",
+"words": 1,
+"rows": 2,
+"hdr_words": 1,
+"hdr_rows": 2
+},
+{
+"entry": "476b8",
+"ofs": "0fbca",
+"data": "572ca",
+"words": 1,
+"rows": 3,
+"hdr_words": 1,
+"hdr_rows": 3
+},
+{
+"entry": "476c0",
+"ofs": "0fbec",
+"data": "572ec",
+"words": 1,
+"rows": 3,
+"hdr_words": 1,
+"hdr_rows": 3
+},
+{
+"entry": "476c8",
+"ofs": "0fc0e",
+"data": "5730e",
+"words": 1,
+"rows": 12,
+"hdr_words": 1,
+"hdr_rows": 12
+},
+{
+"entry": "476d0",
+"ofs": "0fc8a",
+"data": "5738a",
+"words": 1,
+"rows": 12,
+"hdr_words": 1,
+"hdr_rows": 12
+},
+{
+"entry": "476d8",
+"ofs": "0fd06",
+"data": "57406",
+"words": 1,
+"rows": 9,
+"hdr_words": 1,
+"hdr_rows": 9
+},
+{
+"entry": "476e0",
+"ofs": "0fd64",
+"data": "57464",
+"words": 2,
+"rows": 15,
+"hdr_words": 2,
+"hdr_rows": 15
+},
+{
+"entry": "476e8",
+"ofs": "0fe94",
+"data": "57594",
+"words": 2,
+"rows": 19,
+"hdr_words": 2,
+"hdr_rows": 19
+},
+{
+"entry": "476f0",
+"ofs": "10014",
+"data": "57714",
+"words": 2,
+"rows": 21,
+"hdr_words": 2,
+"hdr_rows": 21
+},
+{
+"entry": "476f8",
+"ofs": "101bc",
+"data": "578bc",
+"words": 2,
+"rows": 21,
+"hdr_words": 2,
+"hdr_rows": 21
+}
+]

@@ -19,9 +19,8 @@ Writes into re/jungle/assets/:
   messages.json                     message table $1a6de (25 messages)
   tables.json                       misc tables (jump arc, grenade arc, village item table, ...)
 
-Optionally:  extract.py --render RAMDUMP OUT.png  re-implements the in-game renderer
-(tile blits of $18cf4 + bob blits of $1920a incl. the foreground-priority mask) from a RAM dump
-and writes the 320x144 back buffer so it can be compared with the emulator's screen.
+The in-game renderer itself (tile blits of $18cf4, bob blits of $1920a incl. the foreground
+priority mask) is re-implemented blit-exactly in render_sim.py (validated against the emulator).
 """
 import os, sys, json, struct
 from PIL import Image, ImageDraw
@@ -297,34 +296,7 @@ def extract_all(m):
     json.dump(tables, open(os.path.join(OUT, 'tables.json'), 'w'), indent=1)
 
 
-# ============================================================================ renderer check
-def render_from_ram(ram, out_png):
-    """Re-implement $18cf4 (tile redraw) + the bob list of the main loop from a RAM dump
-    taken right after a frame was rendered (e.g. breakpoint at $17328, before the swap)
-    and write the back-buffer ($62(a6)) as PNG. Pure planar model of the blits."""
-    m = ram
-    level = w(m, 0x60c26)
-    pal = [w(m, 0x115fa + 4 * i) for i in range(16)]  # palette actually in the copper list
-    buf = l(m, 0x12dde + 0x62)
-    W_, H_ = 320, 144
-    im = Image.new('RGB', (W_, H_))
-    px = im.load()
-    P = [amiga_rgb(c) for c in pal]
-    for y in range(H_):
-        for xb in range(40):
-            bs = [m[buf + p * 0x2000 + y * 40 + xb] for p in range(4)]
-            for b in range(8):
-                c = 0
-                for p in range(4):
-                    c |= ((bs[p] >> (7 - b)) & 1) << p
-                px[xb * 8 + b, y] = P[c]
-    im.save(out_png)
-
-
 if __name__ == '__main__':
-    if len(sys.argv) > 1 and sys.argv[1] == '--render':
-        render_from_ram(bytearray(open(sys.argv[2], 'rb').read()), sys.argv[3])
-    else:
-        mem = load_section()
-        extract_all(mem)
-        print('assets written to', OUT)
+    mem = load_section()
+    extract_all(mem)
+    print('assets written to', OUT)

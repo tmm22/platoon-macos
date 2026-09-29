@@ -1,0 +1,19 @@
+5 shot k0005
+10 key 0x42 1
+14 key 0x42 0
+30 shot k0030
+31 shot k0031
+32 dumpr 10ea8 4 pause.bin
+60 shot k0060
+100 key 0x42 1
+104 key 0x42 0
+130 shot k0130
+200 key 0x59 1
+204 key 0x59 0
+230 shot k0230
+231 dumpr 12e44 2 mus.bin
+300 key 0x46 1
+304 key 0x46 0
+310 regs
+400 shot k0400
+600 shot k0600

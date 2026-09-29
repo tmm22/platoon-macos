@@ -1,0 +1,343 @@
+# inline comments merged into finaljungle.s by gen_listing.py (ADDR comment)
+17000 kernel display init
+17020 message table for k_queue_text
+1702e intro text "!THE JUNGLE! YOU HAVE TWO MINUTES..."
+17034 text_screen (no music change)
+17038 music 5, clear, game palette
+1703c init 5 men at a6+0: grenades 9, ammo $90, hits 0
+17064 a5 = man 0
+1706c first transition routine = trans_start
+17072 timer: frame sub-counter 50
+17078 timer = 02:00 (BCD mm:ss)
+1707e hints = 00 01 06 07
+1708c $26(a6) = compass carried?
+17094 no compass -> hint 0 = "A COMPASS WOULD HELP !"
+170a0 full HUD redraw
+170b0 clear $57e20..$58f9f (objects, sort buckets, vars, blit buffer)
+170c0 copy slot init table (slots 0..9) to $57e22
+170d6 sort buckets $57f90..$5808f = $ff (empty)
+170e8 $54(a6) = 0
+170ec d0 = 1 (unused by the transition routines)
+170f2 call transition routine (room setup, picture, objects)
+170f4 idle-shot countdown 100
+170fc soldier spawn delay 20
+17104 enemy fire cooldown 20
+1710c pending hit sfx = $80
+17114 timer running
+1711e MEGA CHEAT (bit1 of $70(a6))
+17128 CAPS LOCK = instant win
+17142 wait for the previous swap
+1714c morale 0?
+17150 background restore (blitter)
+17154 objects: logic + depth sort + draw
+17158 swap buffers (at split raster IRQ)
+1715e timer changed?
+17172 minutes byte
+1717a < 1 minute: hint 1 = "NOT LONG BEFORE THE NAPALM"
+17182 00:00 -> napalm
+1718a sfx $81 (explosion)
+171a4 red +1 until $f
+171b8 green +1 until $f
+171cc blue +1 until $f
+171ee 4 vblanks per step
+1720c fade out
+17216 "YOU DIDN'T MAKE IT! ... BY A NAPALM STRIKE !"
+17228 hint countdown
+17232 reload 100..227
+17246 pick one of 4 hints
+1728e flag: fading
+17294 save level-3 autovector
+1729e install hook
+172c2 hook: fade finished?
+172d0 decrement every component of $57f70 palette by 1 (floor 0)
+17314 still fading if any component changed
+17320 set palette (kernel copies into copper list)
+1732a continue with original level-3 handler
+17342 only in rooms with exits (not bunker)
+1734c idle shot already flying
+17356 player dying
+17360 player depth >= $40 (unsigned): no idle shot
+1737c depth changed -> restart 50-tick countdown
+17390 slots 4..8
+173a2 mark active, remember slot
+173aa save gfx, handler and frame/extra word of the borrowed slot
+173c2 gfx = $476c0 (entry 88), handler obj_idleshot_h0
+173e6 random side: bit1 set -> x=$110 dx=-7 else x=$18 dx=+8
+173fe y = player depth + $14
+1740c sfx $82 (shot)
+17424 player hit? (pops the pushed return on hit)
+17428 gfx = $476a0 (bullet entry 84)
+1743a x += dx
+17442 x < $10 or x >= $12c (unsigned) -> end
+17478 no idle shot active
+1747e countdown 100
+17498 player dying?
+174a2 bunker room: no soldiers
+174ac soldiers left for this room?
+174b6 spawn delay
+174c0 reload 20..35
+174d4 player depth > $40 (signed): no spawn
+174e0 slots 4..6
+174f2 one soldier less in the pool
+174fc handler/frame/dx/x from the exit tables
+17514 y = $5b (far end of the path)
+17522 x >= 0: done
+17526 T-junction: from the left (x=$5f, frame 0, dx 5) ...
+17536 ... unless the player is left of centre (x <= $64 signed): from the right
+17558 source: decoded background
+1755e dest: back buffer
+17570 BLTSIZE 144 rows x 20 words
+17574 BLTCON0 A->D copy, BLTCON1 0
+1757a A/D modulo 0
+1760c 4 planes to $68000/$6a000/$6c000/$6e000
+17618 picture n: offset table $18f9a[n-1] + $19400
+17630 $17c0 bytes per plane (152 rows x 40)
+17634 escape byte of this plane
+1763a escape -> run
+17644 next plane
+1764e wait for fade-out end
+17654 clear screens + palettes
+17658 static room objects, then rts to room_enter_done
+1765c value, count (0 = 256)
+17668 dbeq: stops when the plane is full (Z from subq d3)
+17676 rows 0..143 of the 4 planes of both buffers
+176a6 game palette
+176b2 HUD palette
+176de tune 3
+176ec clear both buffers completely
+176f2 text palette
+17700 print string a0
+17706 wait 50 vblanks
+1770e wait fire pressed (no release wait)
+1771e tune 5 (final jungle music)
+17744 a3 = slot 15
+1774a slot active?
+17754 call handler (a3 = object, a5 = man)
+1775e handler may have freed the slot
+17764 d0.w = y (depth)
+1776a player: key = y
+17770 slots 1..3 (player bullets): key = y-$14
+17776 slots 4..6: key = y
+1777c slots >= 10: key = y ; slots 7..9: key = y-$14
+17788 bucket = key & $ff, probe upward to the first empty ($ff) byte
+1779a store slot number
+177a6 draw from the highest bucket ($5808f) down to $57f90 (far to near)
+177b8 empty the bucket
+177c6 d0 = x<<16 | y
+177ca a0 = bob directory of the object (+6)
+177ce screen top = $8f - y - (h-1 of directory entry 0)
+177da anim counter &= 7 (stored back)
+177e4 entry = (anim>>1) + frame
+177ec a1 = data address of the frame ($47700 + ofs)
+17858 clear blit buffer $58190: D only, 6 words x 300 rows
+17894 bob header: word words-1, word rows-1
+1789e rows*5 (mask + 4 planes) x words
+178b8 copy bob data into the buffer with 1 extra (zero) word per row (D modulo 2)
+178d6 row table
+178e4 + back buffer
+178e8 x
+178ec shift = x & 15
+178f0 byte offset = (x>>3) & $fffe
+178f8 header again: words+1, rows
+1790e d2 = size of one buffer plane = rows*(words+1)*2
+17918 C/D modulo = 40 - 2*(words+1)
+17928 B = buffer + one plane (bitplane 0 data); A = buffer (mask)
+17930 BLTCON0 = shift<<12 | $fce (A,B,C,D; D = A ? B : C), BLTCON1 = shift<<12 (B shift)
+17968 planes 1..3: A re-pointed to the mask, B continues sequentially
+179fa save position and path width (restored by blocking objects)
+17a0c bunker room?
+17a16 won?
+17a1a '.' key throws a grenade in the bunker room (latched)
+17a48 fire button
+17a56 released: clear latch
+17a60 bunker room: fire = grenade (latched)
+17a84 elsewhere: fire = rifle if ammo left (latched in pl_shoot)
+17a92 joystick again
+17a98 d1 = 2 (depth step), d3 = anim step, d4 = vertical flag
+17aa0 no direction: standing frame (4 - anim/2, displayed as 4)
+17ab8 DOWN: towards the camera
+17ac6 path wider
+17ace depth -= 2
+17ad6 clamp at 0
+17ae2 UP: into the screen
+17aec anim runs backwards
+17af0 depth += 2
+17af4 path narrower
+17afc clamp at $5f
+17b14 horizontal step 4
+17b1a exits only at the far end (depth >= $5a)
+17b24 d6 = exit mask of this room
+17b2a LEFT: frame 9, x -= 4
+17b40 RIGHT: frame 0, x += 4
+17b56 fire latched -> shoot
+17b6a vertical movement: frame $11
+17b76 left edge = $64 - w, right edge = $be + w
+17b8e x < left edge
+17b94 left exit available -> leave room
+17b9c else clamp
+17ba0 x > right edge
+17ba6 right exit available -> leave room
+17bb2 anim += step
+17bba depth > $1e: medium size frames (+$15)
+17bc8 depth > $3c: far size frames (+$15 again, not for frames >= $26)
+17be2 Barnes still alive
+17bec x in ($9e,$ae]
+17c00 depth >= $5f
+17c0a clear, palettes
+17c0e "YOU MADE IT! A HUEY IS ON IT'S WAY, TO TAKE YOU BACK TO THE FIREBASE !"
+17c18 game over (hiscore) - the game ends here
+17c1e bullet: depth += 8, dies at >= $6e
+17c32 bullets vs this soldier (returns early if dying/killed)
+17c36 maybe shoot
+17c3a walk animation
+17c48 x < $5f or x >= $d2 -> turn back
+17c5c undo step, reverse
+17c66 frame 0 <-> 5
+17c6c left-turn soldier: leaves when back at frame 0
+17c72 back into the pool
+17cb6 right-turn soldier: leaves when frame becomes 5 again
+17cf0 T-junction soldier: leaves at the first edge
+17cfc enemy bullet: hit test, x += dx, depth -= 4
+17d08 x >= $140 (unsigned)
+17d1e player dying: no hits
+17d30 player position
+17d40 player box: x..x+$18, y+8..y+$1c
+17d64 hit: drop return into the bullet handler
+17d66 bullet gone
+17d68 player anim = 0
+17d6e player handler -> dying
+17d78 death animation start frame from the current frame (size/facing)
+17dd6 end frame = start + 3
+17dee player dying flag
+17df4 idle-shot countdown 100
+17dfc hits + 1
+17e00 msg $a "YOU'RE HIT" ...
+17e0e ... or 9 "KILLED IN ACTION" at 4 hits
+17e18 HUD wound marks
+17e1e morale -$800 (clamp 0)
+17e30 every 4 ticks
+17e40 frame + 1
+17e4c reached end frame
+17e54 hold 8 ticks
+17e6e path width reset
+17e76 player handler back to normal
+17e7e not dying
+17e84 4 hits: man dead
+17e8e second man already -> all dead
+17e96 man 1 takes over
+17ea8 fade out
+17eb0 "YOU DIDN'T MAKE IT ! ONE OF YOUR PLATOON MEMBERS FOLLOWED YOU TO THE EDGE OF THE JUNGLE ..."
+17eba music 5, clear
+17ebe restart the whole jungle (timer 2:00, start room)
+17ec2 bunker room: only clear slots 7-9 (Barnes' bullets)
+17eda other rooms: clear slots 1-9 (bullets, soldiers, enemy bullets)
+17eee (no effect)
+17ef8 back to the room entry: depth 0, x $a0
+17f0e "WITHDRAWN FROM ACTION" text ... (overwritten below: bug)
+17f22 "YOUR PLATOON HAS BEEN DESTROYED! PRESS FIRE TO CONTINUE."
+17f3c shared fire cooldown: fire when it reaches 0
+17f4e enemy bullet slots 7..9
+17f72 Barnes fires when the cooldown goes negative
+17fa0 d1 = soldier depth - player depth
+17faa d0 = player x - soldier x
+17fba tst.b: only the low byte is tested
+17fc0 dx = -(|dx|*4 / dy) (divu quotient)
+17fdc bullet dx
+17fe0 bullet starts at the soldier position
+17fe8 cooldown 20..35
+17ffc sfx $82
+18008 d1 = (Barnes depth - player depth) >> 3
+18026 dx = -((|dx| / d1) & $f)
+18032 d1 == 0: dx = -15
+18040 dx = (dx / d1) & $f
+1804a d1 == 0: dx = 15
+18058 bullet x = Barnes x + $e
+18060 cooldown 10..25
+1807a active < 0 ($ff) = alive, 1..$7f = dying countdown
+1808e player bullet slots 1..3
+1809e bullet depth >= $5f
+180a8 bullet x + $10 within [x+2, x+$1e]
+180bc killed: dying countdown 4
+180c4 bullet gone
+180c6 death frame (+4)
+180cc +300 points
+180d8 skip the rest of the soldier handler
+180da msg 3 "GOOD SHOOTING!" or 8 "THAT'S THE WAY TO DO IT!"
+180f6 pending sfx ($80, or $81 after a mine)
+18114 dying: count down, skip the handler
+1811c one bullet per fire press
+18136 first slot with active and anim byte = 0
+18146 ammo - 1
+1814e bullet at player x+8, depth+$28
+18162 sfx $82
+1816c start room $69, heading dirs $010afff6
+18176 compass 0
+1817e d6 bit1: right exit
+18188 d6 bit0: left exit
+181b4 compass - 1
+181be room + L offset
+181ca dirs ror 8
+181d2 store dirs and room
+181de BUG?: clears the high word of the level-2 autovector (meant $68(a6)?) - harmless, it is 0 anyway
+181e4 room type
+181f2 exit mask of this room type
+18206 picture of this room type
+18212 soldiers in this room: rand&7, 6/7 -> 3/4 (0..5)
+1822e path width $32
+18238 exits == 0: bunker room
+18242 soldier parameters for this exit type
+1827e decode picture d0 and spawn objects
+18282 Barnes in slot 4: active byte = health $32
+1828c +$e..+$11 = 0 (frame 0)
+18290 x $96, depth $69
+1829c handler obj_barnes, gfx $47628
+182b0 Barnes shoots
+182b4 face the player: frame 0 (x<$82), 1 (x<$a0), 2
+182de grenade slots 10..12
+182f8 grenades left?
+18300 grenades - 1
+18304 active $ff, anim 0
+18308 x+$a, depth+$1e
+1831c handler obj_grenade, gfx $476a8
+18334 sfx $a (throw)
+1833a depth += 4 + arc[step]
+18354 depth >= $8c: gone (no explosion)
+1835e step + 1, lands after 13 steps
+1836c miss: sfx $85
+18372 hit area: depth [$60,$6e), x ($9b,$aa], Barnes alive
+183a4 msg $e "DIRECT HIT !" or $f "YOU GOT HIM!"
+183b4 hit: sfx $81
+183b8 Barnes health - 10
+183c4 Barnes dead: msg $10 "GET TO THE BUNKER - NOW!"
+183d2 $57f55 is write-only
+183e2 grenade becomes an explosion
+1841a room type -> object list
+18444 active
+18448 gfx and handler of the object type
+18460 x, y
+1846c player position
+18478 player box x..x+$e, y..y+4
+18484 object box x..x+w, y..y+d
+184b0 overlap: undo the player's move this tick
+186cc mine: explode, sfx $81, player hit
+186dc explosion: frame 0, handler obj_explosion, gfx $476e0 (entries 92-95), x-$e, y+4
+18706 4 frames, then free
+187ec overlap: undo move and player hit
+# foxhole inline comments (override finaljungle comments at the same address)
+17a1a FOXHOLE QUIRK: move.b only sets d0.b; d0.w high byte is left from the previous slot's sort key (or $24 from bg_restore's $2414 when no other slot is active) -> keytest reads $2498+$2407=$489f bit1 (=1): phantom '.' after Barnes died
+17a1e keytest d0.w (index uses the whole word!)
+17a3e throw_grenade, returns to $17a48
+17be2 Barnes' slot byte is both 'active' and hit points
+17c14 music 3, clear, text palette $18fe2, print, wait 50 vbl, wait fire (busy poll, no release wait)
+18300 man.grenades - 1 (HUD grenade bar from $0(a5))
+18350 y (depth/height) += 4 + arc[e]
+18354 unsigned: y >= $8c -> vanish without explosion or sound
+18362 lands on the 13th tick (cumulative +52)
+18372 y >= $60 (signed)
+1837c y < $6e (unsigned)
+18386 x > $9b (signed)
+18390 x <= $aa (signed)
+1839a Barnes alive (hp byte != 0)
+183aa one rand() call per hit
+183c0 not dead yet: sfx $81 + msg d1
+183d8 sfx $81 (kill) - no score is awarded for Barnes

@@ -1,0 +1,12 @@
+5 poke 12e0c 0001 2
+50 shot g50
+100 shot g100
+200 shot g200
+300 shot g300
+400 shot g400
+500 shot g500
+600 shot g600
+800 shot g800
+1000 shot g1000
+1200 shot g1200
+1500 shot g1500

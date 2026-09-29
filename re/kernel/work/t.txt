@@ -1,0 +1,7 @@
+1700 regs
+1800 regs
+2500 regs
+4000 regs
+4000 shot t4000
+6000 shot t6000
+6000 regs

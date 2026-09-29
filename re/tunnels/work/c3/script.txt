@@ -1,0 +1,23 @@
+5 poke 12de2 3 2
+5 poke 3b237 1 1
+100 shot k100
+160 shot k160
+220 shot k220
+280 shot k280
+340 shot k340
+400 shot k400
+460 shot k460
+520 shot k520
+580 shot k580
+640 shot k640
+700 shot k700
+700 fire 1
+710 fire 0
+760 shot k760
+800 dumpr 12dde 80 a800.bin
+800 dumpr 1a0b0 2 p800.bin
+820 shot k820
+880 shot k880
+940 shot k940
+1000 shot k1000
+1060 shot k1060

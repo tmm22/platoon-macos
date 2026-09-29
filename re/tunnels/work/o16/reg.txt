@@ -1,0 +1,582 @@
+W f912 v0 COP 08a=0000 pc=000000
+W f912 v0 COP 102=0000 pc=000000
+W f912 v0 COP 08e=3c71 pc=000000
+W f912 v3 CPU 0a6=018e pc=002c02
+W f912 v5 CPU 0b6=0318 pc=002c02
+W f912 v7 CPU 0c6=022f pc=002c02
+W f912 v8 CPU 0d6=00bd pc=002c02
+W f912 v9 CPU 0d8=0028 pc=002c34
+W f912 v204 COP 102=0000 pc=01761a
+W f912 v204 COP 08e=3c71 pc=01761a
+BLIT f912 v246 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f912 v247 con0=09f0 con1=0000 w=2 h=90 A=01e224 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f912 v248 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b7ae C=071056 D=071056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f912 v248 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b81a C=073056 D=073056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f912 v248 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b886 C=075056 D=075056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=d33c
+BLIT f912 v248 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b8f2 C=077056 D=077056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=2cc3
+W f913 v0 COP 08a=0000 pc=010ade
+W f913 v0 COP 102=0000 pc=010ade
+W f913 v0 COP 08e=3c71 pc=010ade
+W f913 v3 CPU 0a6=018f pc=002c02
+W f913 v4 CPU 0a8=0010 pc=002c34
+W f913 v6 CPU 0b6=031a pc=002c02
+W f913 v6 CPU 0b8=0018 pc=002c34
+W f913 v8 CPU 0c6=022f pc=002c02
+W f913 v9 CPU 0d6=00bd pc=002c02
+W f913 v9 CPU 0d8=0028 pc=002c34
+W f913 v204 COP 102=0000 pc=010ada
+W f913 v204 COP 08e=3c71 pc=010ada
+W f913 v204 CPU 080=0001 pc=010fc2
+W f913 v204 CPU 082=15d0 pc=010fc2
+W f914 v0 COP 102=0000 pc=010ada
+W f914 v0 COP 08e=3c71 pc=010ada
+W f914 v3 CPU 0a6=018e pc=002c02
+W f914 v5 CPU 0b6=031c pc=002c02
+W f914 v6 CPU 0c6=022f pc=002c02
+W f914 v8 CPU 0d6=00bd pc=002c02
+W f914 v8 CPU 0d8=0028 pc=002c34
+W f914 v204 COP 102=0000 pc=010ada
+W f914 v204 COP 08e=3c71 pc=010ada
+W f915 v0 COP 102=0000 pc=010ade
+W f915 v0 COP 08e=3c71 pc=010ade
+W f915 v3 CPU 0a6=018d pc=002c02
+W f915 v4 CPU 0a8=0008 pc=002c34
+W f915 v6 CPU 0b6=031a pc=002c02
+W f915 v6 CPU 0b8=0010 pc=002c34
+W f915 v8 CPU 0c6=022f pc=002c02
+W f915 v9 CPU 0d6=00bd pc=002c02
+W f915 v9 CPU 0d8=0028 pc=002c34
+W f915 v204 COP 102=0000 pc=01759a
+W f915 v204 COP 08e=3c71 pc=01759a
+W f916 v0 COP 102=0000 pc=0175ea
+W f916 v0 COP 08e=3c71 pc=0175ea
+W f916 v3 CPU 0a6=018c pc=002c02
+W f916 v4 CPU 096=0002 pc=002a9a
+W f916 v6 CPU 0c6=022f pc=002c02
+W f916 v7 CPU 0d6=00bd pc=002c02
+W f916 v7 CPU 0d8=0028 pc=002c34
+W f916 v204 COP 102=0000 pc=01760e
+W f916 v204 COP 08e=3c71 pc=01760e
+BLIT f916 v245 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f916 v246 con0=09f0 con1=0000 w=2 h=245 A=01ee34 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f916 v247 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b868 C=07862a D=07862a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f916 v247 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b98e C=07a62a D=07a62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f916 v247 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bab4 C=07c62a D=07c62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=ffcc
+BLIT f916 v248 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bbda C=07e62a D=07e62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0033
+BLIT f916 v250 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f916 v250 con0=09f0 con1=0000 w=2 h=90 A=01e224 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f916 v252 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b7ae C=079056 D=079056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f916 v252 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b81a C=07b056 D=07b056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f916 v252 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b886 C=07d056 D=07d056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=d33c
+BLIT f916 v252 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b8f2 C=07f056 D=07f056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=2cc3
+W f917 v0 COP 102=0000 pc=010ade
+W f917 v0 COP 08e=3c71 pc=010ade
+W f917 v3 CPU 0a6=018b pc=002c02
+W f917 v4 CPU 0a8=0018 pc=002c34
+W f917 v5 CPU 0b0=0000 pc=002aec
+W f917 v5 CPU 0b2=8834 pc=002aec
+W f917 v5 CPU 0b4=0020 pc=002af2
+W f917 v6 CPU 0b8=0040 pc=002af8
+W f917 v6 CPU 0b6=031a pc=002b1e
+W f917 v6 CPU 096=8202 pc=002b36
+W f917 v7 CPU 0c6=022f pc=002c02
+W f917 v9 CPU 0d6=00bd pc=002c02
+W f917 v9 CPU 0d8=0028 pc=002c34
+W f917 v204 COP 102=0000 pc=010ada
+W f917 v204 COP 08e=3c71 pc=010ada
+W f917 v204 CPU 080=0001 pc=010fc2
+W f917 v204 CPU 082=16a8 pc=010fc2
+W f918 v0 COP 08a=0000 pc=010ada
+W f918 v0 COP 102=0000 pc=010ada
+W f918 v0 COP 08e=3c71 pc=010ada
+W f918 v3 CPU 0a6=018c pc=002c02
+W f918 v4 CPU 0b0=0000 pc=002a52
+W f918 v4 CPU 0b2=8834 pc=002a52
+W f918 v4 CPU 0b4=0020 pc=002a56
+W f918 v5 CPU 0b6=0318 pc=002c02
+W f918 v7 CPU 0c6=022f pc=002c02
+W f918 v8 CPU 0d6=00bd pc=002c02
+W f918 v9 CPU 0d8=0028 pc=002c34
+W f918 v204 COP 102=0000 pc=010ade
+W f918 v204 COP 08e=3c71 pc=010ade
+W f919 v0 COP 08a=0000 pc=010ada
+W f919 v0 COP 102=0000 pc=010ada
+W f919 v0 COP 08e=3c71 pc=010ada
+W f919 v3 CPU 0a6=018d pc=002c02
+W f919 v4 CPU 0a8=0010 pc=002c34
+W f919 v6 CPU 0b6=031a pc=002c02
+W f919 v6 CPU 0b8=0030 pc=002c34
+W f919 v8 CPU 0c6=022f pc=002c02
+W f919 v9 CPU 0d6=00bd pc=002c02
+W f919 v9 CPU 0d8=0028 pc=002c34
+W f919 v204 COP 102=0000 pc=01759a
+W f919 v204 COP 08e=3c71 pc=01759a
+W f920 v0 COP 08a=0000 pc=0175ea
+W f920 v0 COP 102=0000 pc=0175ea
+W f920 v0 COP 08e=3c71 pc=0175ea
+W f920 v3 CPU 0a6=018e pc=002c02
+W f920 v5 CPU 0b6=031c pc=002c02
+W f920 v6 CPU 0c6=022f pc=002c02
+W f920 v8 CPU 0d6=00bd pc=002c02
+W f920 v8 CPU 0d8=0028 pc=002c34
+W f920 v204 COP 102=0000 pc=01759c
+W f920 v204 COP 08e=3c71 pc=01759c
+BLIT f920 v245 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f920 v245 con0=09f0 con1=0000 w=2 h=245 A=01ee34 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f920 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b868 C=07062a D=07062a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f920 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b98e C=07262a D=07262a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f920 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bab4 C=07462a D=07462a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=ffcc
+BLIT f920 v247 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bbda C=07662a D=07662a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0033
+BLIT f920 v249 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f920 v250 con0=09f0 con1=0000 w=2 h=90 A=01e224 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f920 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b7ae C=071056 D=071056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f920 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b81a C=073056 D=073056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f920 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b886 C=075056 D=075056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=d33c
+BLIT f920 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b8f2 C=077056 D=077056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=2cc3
+W f921 v0 COP 08a=0000 pc=010ade
+W f921 v0 COP 102=0000 pc=010ade
+W f921 v0 COP 08e=3c71 pc=010ade
+W f921 v3 CPU 0a6=018f pc=002c02
+W f921 v4 CPU 0a8=0008 pc=002c34
+W f921 v6 CPU 0b6=031a pc=002c02
+W f921 v6 CPU 0b8=0020 pc=002c34
+W f921 v8 CPU 0c6=022f pc=002c02
+W f921 v9 CPU 0d6=00bd pc=002c02
+W f921 v9 CPU 0d8=0028 pc=002c34
+W f921 v204 COP 102=0000 pc=010ada
+W f921 v204 COP 08e=3c71 pc=010ada
+W f921 v204 CPU 080=0001 pc=010fc2
+W f921 v204 CPU 082=15d0 pc=010fc2
+W f922 v0 COP 102=0000 pc=010ada
+W f922 v0 COP 08e=3c71 pc=010ada
+W f922 v3 CPU 0a6=018e pc=002c02
+W f922 v5 CPU 0b6=0318 pc=002c02
+W f922 v6 CPU 0c6=022f pc=002c02
+W f922 v8 CPU 0d6=00bd pc=002c02
+W f922 v8 CPU 0d8=0028 pc=002c34
+W f922 v204 COP 102=0000 pc=010ada
+W f922 v204 COP 08e=3c71 pc=010ada
+W f923 v0 COP 102=0000 pc=010ade
+W f923 v0 COP 08e=3c71 pc=010ade
+W f923 v3 CPU 0a6=018d pc=002c02
+W f923 v4 CPU 0a8=0004 pc=002c34
+W f923 v6 CPU 0b6=031a pc=002c02
+W f923 v6 CPU 0b8=0018 pc=002c34
+W f923 v8 CPU 0c6=022f pc=002c02
+W f923 v9 CPU 0d6=00bd pc=002c02
+W f923 v10 CPU 0d8=0028 pc=002c34
+W f923 v204 COP 102=0000 pc=01761e
+W f923 v204 COP 08e=3c71 pc=01761e
+W f924 v0 COP 102=0000 pc=0175da
+W f924 v0 COP 08e=3c71 pc=0175da
+W f924 v2 CPU 096=0001 pc=002a9a
+W f924 v4 CPU 0b6=031c pc=002c02
+W f924 v6 CPU 0c6=022f pc=002c02
+W f924 v7 CPU 0d6=00bd pc=002c02
+W f924 v8 CPU 0d8=0028 pc=002c34
+W f924 v204 COP 102=0000 pc=0175ea
+W f924 v204 COP 08e=3c71 pc=0175ea
+BLIT f924 v244 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f924 v244 con0=09f0 con1=0000 w=2 h=245 A=01ee34 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f924 v245 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b868 C=07862a D=07862a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f924 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b98e C=07a62a D=07a62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f924 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bab4 C=07c62a D=07c62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=ffcc
+BLIT f924 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bbda C=07e62a D=07e62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0033
+BLIT f924 v248 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f924 v249 con0=09f0 con1=0000 w=2 h=90 A=01e224 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f924 v250 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b7ae C=079056 D=079056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f924 v250 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b81a C=07b056 D=07b056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f924 v250 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b886 C=07d056 D=07d056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=d33c
+BLIT f924 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b8f2 C=07f056 D=07f056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=2cc3
+W f925 v0 COP 102=0000 pc=010ada
+W f925 v0 COP 08e=3c71 pc=010ada
+W f925 v3 CPU 0a0=0000 pc=002aec
+W f925 v3 CPU 0a2=8834 pc=002aec
+W f925 v3 CPU 0a4=0020 pc=002af2
+W f925 v3 CPU 0a8=0020 pc=002af8
+W f925 v3 CPU 0a6=018d pc=002b1e
+W f925 v4 CPU 096=8201 pc=002b36
+W f925 v5 CPU 0b6=031a pc=002c02
+W f925 v6 CPU 0b8=0030 pc=002c34
+W f925 v7 CPU 0c6=022f pc=002c02
+W f925 v9 CPU 0d6=00bd pc=002c02
+W f925 v9 CPU 0d8=0028 pc=002c34
+W f925 v204 COP 102=0000 pc=010ade
+W f925 v204 COP 08e=3c71 pc=010ade
+W f925 v204 CPU 080=0001 pc=010fc2
+W f925 v204 CPU 082=16a8 pc=010fc2
+W f926 v0 COP 08a=0000 pc=010ade
+W f926 v0 COP 102=0000 pc=010ade
+W f926 v0 COP 08e=3c71 pc=010ade
+W f926 v3 CPU 0a0=0000 pc=002a52
+W f926 v3 CPU 0a2=8834 pc=002a52
+W f926 v3 CPU 0a4=0020 pc=002a56
+W f926 v4 CPU 0a6=018c pc=002c02
+W f926 v5 CPU 0b6=0318 pc=002c02
+W f926 v7 CPU 0c6=022f pc=002c02
+W f926 v8 CPU 0d6=00bd pc=002c02
+W f926 v9 CPU 0d8=0028 pc=002c34
+W f926 v204 COP 102=0000 pc=010ade
+W f926 v204 COP 08e=3c71 pc=010ade
+W f927 v0 COP 08a=0000 pc=010ada
+W f927 v0 COP 102=0000 pc=010ada
+W f927 v0 COP 08e=3c71 pc=010ada
+W f927 v3 CPU 0a6=018b pc=002c02
+W f927 v4 CPU 0a8=0018 pc=002c34
+W f927 v6 CPU 0b6=031a pc=002c02
+W f927 v6 CPU 0b8=0020 pc=002c34
+W f927 v8 CPU 0c6=022f pc=002c02
+W f927 v9 CPU 0d6=00bd pc=002c02
+W f927 v9 CPU 0d8=0028 pc=002c34
+W f927 v204 COP 102=0000 pc=01759a
+W f927 v204 COP 08e=3c71 pc=01759a
+W f928 v0 COP 08a=0000 pc=0175ea
+W f928 v0 COP 102=0000 pc=0175ea
+W f928 v0 COP 08e=3c71 pc=0175ea
+W f928 v3 CPU 0a6=018c pc=002c02
+W f928 v5 CPU 0b6=031c pc=002c02
+W f928 v6 CPU 0c6=022f pc=002c02
+W f928 v8 CPU 0d6=00bd pc=002c02
+W f928 v8 CPU 0d8=0028 pc=002c34
+W f928 v204 COP 102=0000 pc=01759c
+W f928 v204 COP 08e=3c71 pc=01759c
+BLIT f928 v245 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f928 v245 con0=09f0 con1=0000 w=2 h=245 A=01f20c B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f928 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b868 C=07062a D=07062a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f928 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b98e C=07262a D=07262a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f928 v247 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bab4 C=07462a D=07462a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=ffcc
+BLIT f928 v247 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bbda C=07662a D=07662a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0033
+BLIT f928 v249 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f928 v250 con0=09f0 con1=0000 w=2 h=90 A=01e224 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f928 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b7ae C=071056 D=071056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f928 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b81a C=073056 D=073056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f928 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b886 C=075056 D=075056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=d33c
+BLIT f928 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b8f2 C=077056 D=077056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=2cc3
+W f929 v0 COP 08a=0000 pc=010ada
+W f929 v0 COP 102=0000 pc=010ada
+W f929 v0 COP 08e=3c71 pc=010ada
+W f929 v3 CPU 0a6=018d pc=002c02
+W f929 v4 CPU 0a8=0010 pc=002c34
+W f929 v6 CPU 0b6=031a pc=002c02
+W f929 v6 CPU 0b8=0018 pc=002c34
+W f929 v8 CPU 0c6=022f pc=002c02
+W f929 v9 CPU 0d6=00bd pc=002c02
+W f929 v9 CPU 0d8=0028 pc=002c34
+W f929 v204 COP 102=0000 pc=010ade
+W f929 v204 COP 08e=3c71 pc=010ade
+W f929 v204 CPU 080=0001 pc=010fc2
+W f929 v204 CPU 082=15d0 pc=010fc2
+W f930 v0 COP 102=0000 pc=010ade
+W f930 v0 COP 08e=3c71 pc=010ade
+W f930 v3 CPU 0a6=018e pc=002c02
+W f930 v5 CPU 0b6=0318 pc=002c02
+W f930 v6 CPU 0c6=022f pc=002c02
+W f930 v8 CPU 0d6=00bd pc=002c02
+W f930 v8 CPU 0d8=0028 pc=002c34
+W f930 v204 COP 102=0000 pc=010ada
+W f930 v204 COP 08e=3c71 pc=010ada
+W f931 v0 COP 102=0000 pc=010ade
+W f931 v0 COP 08e=3c71 pc=010ade
+W f931 v3 CPU 0a6=018f pc=002c02
+W f931 v4 CPU 0a8=0008 pc=002c34
+W f931 v6 CPU 0b6=031a pc=002c02
+W f931 v6 CPU 0b8=0010 pc=002c34
+W f931 v8 CPU 0c6=022f pc=002c02
+W f931 v9 CPU 0d6=00bd pc=002c02
+W f931 v9 CPU 0d8=0028 pc=002c34
+W f931 v204 COP 102=0000 pc=01759a
+W f931 v204 COP 08e=3c71 pc=01759a
+W f932 v0 COP 102=0000 pc=0175ea
+W f932 v0 COP 08e=3c71 pc=0175ea
+W f932 v3 CPU 0a6=018e pc=002c02
+W f932 v5 CPU 0b6=031c pc=002c02
+W f932 v6 CPU 0c6=022f pc=002c02
+W f932 v8 CPU 0d6=00bd pc=002c02
+W f932 v8 CPU 0d8=0028 pc=002c34
+W f932 v204 COP 102=0000 pc=01759c
+W f932 v204 COP 08e=3c71 pc=01759c
+BLIT f932 v245 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f932 v245 con0=09f0 con1=0000 w=2 h=245 A=01f20c B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f932 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b868 C=07862a D=07862a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f932 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b98e C=07a62a D=07a62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f932 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bab4 C=07c62a D=07c62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=ffcc
+BLIT f932 v247 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bbda C=07e62a D=07e62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0033
+BLIT f932 v249 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f932 v250 con0=09f0 con1=0000 w=2 h=90 A=01e224 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f932 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b7ae C=079056 D=079056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f932 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b81a C=07b056 D=07b056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f932 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b886 C=07d056 D=07d056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=d33c
+BLIT f932 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b8f2 C=07f056 D=07f056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=2cc3
+W f933 v0 COP 102=0000 pc=010ade
+W f933 v0 COP 08e=3c71 pc=010ade
+W f933 v3 CPU 0a6=018d pc=002c02
+W f933 v4 CPU 0a8=0018 pc=002c34
+W f933 v6 CPU 0b6=031a pc=002c02
+W f933 v6 CPU 0b8=0020 pc=002c34
+W f933 v7 CPU 0c6=022f pc=002c02
+W f933 v9 CPU 0d6=00bd pc=002c02
+W f933 v9 CPU 0d8=0028 pc=002c34
+W f933 v204 COP 102=0000 pc=010ada
+W f933 v204 COP 08e=3c71 pc=010ada
+W f933 v204 CPU 080=0001 pc=010fc2
+W f933 v204 CPU 082=16a8 pc=010fc2
+W f934 v0 COP 08a=0000 pc=010ada
+W f934 v0 COP 102=0000 pc=010ada
+W f934 v0 COP 08e=3c71 pc=010ada
+W f934 v3 CPU 0a6=018c pc=002c02
+W f934 v5 CPU 0b6=0318 pc=002c02
+W f934 v6 CPU 0c6=022f pc=002c02
+W f934 v8 CPU 0d6=00bd pc=002c02
+W f934 v8 CPU 0d8=0028 pc=002c34
+W f934 v204 COP 102=0000 pc=010ada
+W f934 v204 COP 08e=3c71 pc=010ada
+W f935 v0 COP 08a=0000 pc=010ade
+W f935 v0 COP 102=0000 pc=010ade
+W f935 v0 COP 08e=3c71 pc=010ade
+W f935 v3 CPU 0a6=018b pc=002c02
+W f935 v4 CPU 0a8=0010 pc=002c34
+W f935 v6 CPU 0b6=031a pc=002c02
+W f935 v6 CPU 0b8=0018 pc=002c34
+W f935 v8 CPU 0c6=022f pc=002c02
+W f935 v9 CPU 0d6=00bd pc=002c02
+W f935 v10 CPU 0d8=0028 pc=002c34
+W f935 v204 COP 102=0000 pc=01761e
+W f935 v204 COP 08e=3c71 pc=01761e
+W f936 v0 COP 08a=0000 pc=0175da
+W f936 v0 COP 102=0000 pc=0175da
+W f936 v0 COP 08e=3c71 pc=0175da
+W f936 v3 CPU 0a6=018c pc=002c02
+W f936 v5 CPU 0b6=031c pc=002c02
+W f936 v6 CPU 0c6=022f pc=002c02
+W f936 v8 CPU 0d6=00bd pc=002c02
+W f936 v8 CPU 0d8=0028 pc=002c34
+W f936 v204 COP 102=0000 pc=017622
+W f936 v204 COP 08e=3c71 pc=017622
+BLIT f936 v245 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f936 v245 con0=09f0 con1=0000 w=2 h=245 A=01f20c B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f936 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b868 C=07062a D=07062a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f936 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b98e C=07262a D=07262a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f936 v247 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bab4 C=07462a D=07462a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=ffcc
+BLIT f936 v247 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bbda C=07662a D=07662a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0033
+BLIT f936 v249 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f936 v250 con0=09f0 con1=0000 w=2 h=90 A=01e224 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f936 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b7ae C=071056 D=071056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f936 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b81a C=073056 D=073056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f936 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b886 C=075056 D=075056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=d33c
+BLIT f936 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b8f2 C=077056 D=077056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=2cc3
+W f937 v0 COP 08a=0000 pc=010ada
+W f937 v0 COP 102=0000 pc=010ada
+W f937 v0 COP 08e=3c71 pc=010ada
+W f937 v3 CPU 0a6=018d pc=002c02
+W f937 v4 CPU 0a8=0008 pc=002c34
+W f937 v6 CPU 0b6=031a pc=002c02
+W f937 v6 CPU 0b8=0010 pc=002c34
+W f937 v8 CPU 0c6=022f pc=002c02
+W f937 v9 CPU 0d6=00bd pc=002c02
+W f937 v9 CPU 0d8=0028 pc=002c34
+W f937 v204 COP 102=0000 pc=010ade
+W f937 v204 COP 08e=3c71 pc=010ade
+W f937 v204 CPU 080=0001 pc=010fc2
+W f937 v204 CPU 082=15d0 pc=010fc2
+W f938 v0 COP 102=0000 pc=010ade
+W f938 v0 COP 08e=3c71 pc=010ade
+W f938 v3 CPU 0a6=018e pc=002c02
+W f938 v5 CPU 0b6=0318 pc=002c02
+W f938 v6 CPU 0c6=022f pc=002c02
+W f938 v8 CPU 0d6=00bd pc=002c02
+W f938 v8 CPU 0d8=0028 pc=002c34
+W f938 v204 COP 102=0000 pc=010ada
+W f938 v204 COP 08e=3c71 pc=010ada
+W f939 v0 COP 102=0000 pc=010ade
+W f939 v0 COP 08e=3c71 pc=010ade
+W f939 v3 CPU 0a6=018f pc=002c02
+W f939 v4 CPU 0a8=0004 pc=002c34
+W f939 v6 CPU 0b6=031a pc=002c02
+W f939 v6 CPU 0b8=0008 pc=002c34
+W f939 v8 CPU 0c6=022f pc=002c02
+W f939 v9 CPU 0d6=00bd pc=002c02
+W f939 v9 CPU 0d8=0028 pc=002c34
+W f939 v204 COP 102=0000 pc=01759a
+W f939 v204 COP 08e=3c71 pc=01759a
+W f940 v0 COP 102=0000 pc=0175ea
+W f940 v0 COP 08e=3c71 pc=0175ea
+W f940 v2 CPU 096=0001 pc=002a9a
+W f940 v4 CPU 0b6=031c pc=002c02
+W f940 v6 CPU 0c6=022f pc=002c02
+W f940 v7 CPU 0d6=00bd pc=002c02
+W f940 v8 CPU 0d8=0028 pc=002c34
+W f940 v204 COP 102=0000 pc=0175fa
+W f940 v204 COP 08e=3c71 pc=0175fa
+BLIT f940 v244 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f940 v244 con0=09f0 con1=0000 w=2 h=245 A=01f20c B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f940 v245 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b868 C=07862a D=07862a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f940 v245 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b98e C=07a62a D=07a62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f940 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bab4 C=07c62a D=07c62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=ffcc
+BLIT f940 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bbda C=07e62a D=07e62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0033
+BLIT f940 v248 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f940 v249 con0=09f0 con1=0000 w=2 h=90 A=01e224 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f940 v250 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b7ae C=079056 D=079056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f940 v250 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b81a C=07b056 D=07b056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f940 v250 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b886 C=07d056 D=07d056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=d33c
+BLIT f940 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b8f2 C=07f056 D=07f056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=2cc3
+W f941 v0 COP 102=0000 pc=010ade
+W f941 v0 COP 08e=3c71 pc=010ade
+W f941 v3 CPU 0a0=0000 pc=002aec
+W f941 v3 CPU 0a2=8834 pc=002aec
+W f941 v3 CPU 0a4=0020 pc=002af2
+W f941 v3 CPU 0a8=0020 pc=002af8
+W f941 v4 CPU 0a6=018d pc=002b1e
+W f941 v4 CPU 096=8201 pc=002b36
+W f941 v6 CPU 0b6=031a pc=002c02
+W f941 v6 CPU 0b8=0018 pc=002c34
+W f941 v7 CPU 0c6=022f pc=002c02
+W f941 v9 CPU 0d6=00bd pc=002c02
+W f941 v9 CPU 0d8=0028 pc=002c34
+W f941 v204 COP 102=0000 pc=010ada
+W f941 v204 COP 08e=3c71 pc=010ada
+W f941 v204 CPU 080=0001 pc=010fc2
+W f941 v204 CPU 082=16a8 pc=010fc2
+W f942 v0 COP 08a=0000 pc=010ada
+W f942 v0 COP 102=0000 pc=010ada
+W f942 v0 COP 08e=3c71 pc=010ada
+W f942 v3 CPU 0a0=0000 pc=002a52
+W f942 v3 CPU 0a2=8834 pc=002a52
+W f942 v3 CPU 0a4=0020 pc=002a56
+W f942 v4 CPU 0a6=018e pc=002c02
+W f942 v5 CPU 0b6=0318 pc=002c02
+W f942 v7 CPU 0c6=022f pc=002c02
+W f942 v8 CPU 0d6=00bd pc=002c02
+W f942 v9 CPU 0d8=0028 pc=002c34
+W f942 v204 COP 102=0000 pc=010ade
+W f942 v204 COP 08e=3c71 pc=010ade
+W f943 v0 COP 08a=0000 pc=010ada
+W f943 v0 COP 102=0000 pc=010ada
+W f943 v0 COP 08e=3c71 pc=010ada
+W f943 v3 CPU 0a6=018d pc=002c02
+W f943 v4 CPU 0a8=0018 pc=002c34
+W f943 v6 CPU 0b6=031a pc=002c02
+W f943 v6 CPU 0b8=0010 pc=002c34
+W f943 v8 CPU 0c6=022f pc=002c02
+W f943 v9 CPU 0d6=00bd pc=002c02
+W f943 v9 CPU 0d8=0028 pc=002c34
+W f943 v204 COP 102=0000 pc=01759a
+W f943 v204 COP 08e=3c71 pc=01759a
+W f944 v0 COP 08a=0000 pc=0175ea
+W f944 v0 COP 102=0000 pc=0175ea
+W f944 v0 COP 08e=3c71 pc=0175ea
+W f944 v3 CPU 0a6=018c pc=002c02
+W f944 v5 CPU 0b6=031c pc=002c02
+W f944 v6 CPU 0c6=022f pc=002c02
+W f944 v8 CPU 0d6=00bd pc=002c02
+W f944 v8 CPU 0d8=0028 pc=002c34
+W f944 v204 COP 102=0000 pc=01759c
+W f944 v204 COP 08e=3c71 pc=01759c
+BLIT f944 v245 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f944 v245 con0=09f0 con1=0000 w=2 h=245 A=01f5e4 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f944 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b868 C=07062a D=07062a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f944 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b98e C=07262a D=07262a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f944 v247 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bab4 C=07462a D=07462a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=ffcc
+BLIT f944 v247 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bbda C=07662a D=07662a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0033
+BLIT f944 v249 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f944 v250 con0=09f0 con1=0000 w=2 h=90 A=01e224 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f944 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b7ae C=071056 D=071056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f944 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b81a C=073056 D=073056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f944 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b886 C=075056 D=075056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=d33c
+BLIT f944 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b8f2 C=077056 D=077056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=2cc3
+W f945 v0 COP 08a=0000 pc=010ade
+W f945 v0 COP 102=0000 pc=010ade
+W f945 v0 COP 08e=3c71 pc=010ade
+W f945 v3 CPU 0a6=018b pc=002c02
+W f945 v4 CPU 0a8=0010 pc=002c34
+W f945 v6 CPU 0b6=031a pc=002c02
+W f945 v6 CPU 0b8=000c pc=002c34
+W f945 v8 CPU 0c6=022f pc=002c02
+W f945 v9 CPU 0d6=00bd pc=002c02
+W f945 v9 CPU 0d8=0028 pc=002c34
+W f945 v204 COP 102=0000 pc=010ada
+W f945 v204 COP 08e=3c71 pc=010ada
+W f945 v204 CPU 080=0001 pc=010fc2
+W f945 v204 CPU 082=15d0 pc=010fc2
+W f946 v0 COP 102=0000 pc=010ada
+W f946 v0 COP 08e=3c71 pc=010ada
+W f946 v3 CPU 0a6=018c pc=002c02
+W f946 v5 CPU 0b6=0318 pc=002c02
+W f946 v6 CPU 0c6=022f pc=002c02
+W f946 v8 CPU 0d6=00bd pc=002c02
+W f946 v8 CPU 0d8=0028 pc=002c34
+W f946 v204 COP 102=0000 pc=010ada
+W f946 v204 COP 08e=3c71 pc=010ada
+W f947 v0 COP 102=0000 pc=010ade
+W f947 v0 COP 08e=3c71 pc=010ade
+W f947 v4 CPU 0a6=018d pc=002c02
+W f947 v4 CPU 0a8=0008 pc=002c34
+W f947 v6 CPU 0b6=031a pc=002c02
+W f947 v6 CPU 0b8=0008 pc=002c34
+W f947 v8 CPU 0c6=022f pc=002c02
+W f947 v9 CPU 0d6=00bd pc=002c02
+W f947 v10 CPU 0d8=0028 pc=002c34
+W f947 v204 COP 102=0000 pc=01761e
+W f947 v204 COP 08e=3c71 pc=01761e
+W f948 v0 COP 102=0000 pc=0175da
+W f948 v0 COP 08e=3c71 pc=0175da
+W f948 v2 CPU 096=0001 pc=002a9a
+W f948 v4 CPU 0b6=031c pc=002c02
+W f948 v6 CPU 0c6=022f pc=002c02
+W f948 v7 CPU 0d6=00bd pc=002c02
+W f948 v8 CPU 0d8=0028 pc=002c34
+W f948 v204 COP 102=0000 pc=0175ea
+W f948 v204 COP 08e=3c71 pc=0175ea
+BLIT f948 v244 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f948 v244 con0=09f0 con1=0000 w=2 h=245 A=01f5e4 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f948 v245 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b868 C=07862a D=07862a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=1000
+BLIT f948 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03b98e C=07a62a D=07a62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f948 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bab4 C=07c62a D=07c62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=ffcc
+BLIT f948 v246 con0=1fce con1=1000 w=3 h=49 A=03b742 B=03bbda C=07e62a D=07e62a mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0033
+BLIT f948 v248 con0=0100 con1=0000 w=5 h=560 A=000000 B=000000 C=000000 D=03b742 mods A0 B0 C0 D0 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f948 v249 con0=09f0 con1=0000 w=2 h=90 A=01e224 B=000000 C=000000 D=03b742 mods A0 B0 C0 D2 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f948 v250 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b7ae C=079056 D=079056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f948 v250 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b81a C=07b056 D=07b056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=0000
+BLIT f948 v250 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b886 C=07d056 D=07d056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=d33c
+BLIT f948 v251 con0=4fce con1=4000 w=3 h=18 A=03b742 B=03b8f2 C=07f056 D=07f056 mods A0 B0 C34 D34 fwm=ffff lwm=ffff adat=0000 bdat=0000 cdat=2cc3
+W f949 v0 COP 102=0000 pc=010ada
+W f949 v0 COP 08e=3c71 pc=010ada
+W f949 v3 CPU 0a0=0000 pc=002aec
+W f949 v3 CPU 0a2=8834 pc=002aec
+W f949 v3 CPU 0a4=0020 pc=002af2
+W f949 v3 CPU 0a8=0020 pc=002af8
+W f949 v3 CPU 0a6=018d pc=002b1e
+W f949 v4 CPU 096=8201 pc=002b36
+W f949 v5 CPU 0b6=031a pc=002c02
+W f949 v6 CPU 0b8=0010 pc=002c34
+W f949 v7 CPU 0c6=022f pc=002c02
+W f949 v9 CPU 0d6=00bd pc=002c02
+W f949 v9 CPU 0d8=0028 pc=002c34
+W f949 v204 COP 102=0000 pc=010ade
+W f949 v204 COP 08e=3c71 pc=010ade
+W f949 v204 CPU 080=0001 pc=010fc2
+W f949 v204 CPU 082=16a8 pc=010fc2
+W f950 v0 COP 08a=0000 pc=010ade
+W f950 v0 COP 102=0000 pc=010ade
+W f950 v0 COP 08e=3c71 pc=010ade
+W f950 v3 CPU 0a0=0000 pc=002a52
+W f950 v3 CPU 0a2=8834 pc=002a52
+W f950 v3 CPU 0a4=0020 pc=002a56
+W f950 v4 CPU 0a6=018e pc=002c02
+W f950 v5 CPU 0b6=0318 pc=002c02
+W f950 v7 CPU 0c6=022f pc=002c02
+W f950 v8 CPU 0d6=00bd pc=002c02
+W f950 v9 CPU 0d8=0028 pc=002c34
+W f950 v204 COP 102=0000 pc=010ade
+W f950 v204 COP 08e=3c71 pc=010ade
+W f951 v0 COP 08a=0000 pc=010ada
+W f951 v0 COP 102=0000 pc=010ada
+W f951 v0 COP 08e=3c71 pc=010ada
+W f951 v3 CPU 0a6=018f pc=002c02
+W f951 v4 CPU 0a8=0018 pc=002c34
+W f951 v6 CPU 0b6=031a pc=002c02
+W f951 v6 CPU 0b8=000c pc=002c34
+W f951 v8 CPU 0c6=022f pc=002c02
+W f951 v9 CPU 0d6=00bd pc=002c02
+W f951 v9 CPU 0d8=0028 pc=002c34
+W f951 v204 COP 102=0000 pc=01759a
+W f951 v204 COP 08e=3c71 pc=01759a

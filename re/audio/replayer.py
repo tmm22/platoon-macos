@@ -81,6 +81,7 @@ class Driver:
         self.log = []   # (frame, reg, value)
         self.hw = [0] * 0x100  # custom register shadow (word index = reg>>1)
         self.dmacon = 0
+        self.seq_wraps = [0, 0, 0, 0]   # instrumentation only (counts sequence restarts per channel)
 
     # ---- memory helpers ----
     def r8(self, a): return self.m[a & 0x7ffff]
@@ -325,6 +326,7 @@ class Driver:
                 d0 = (d0 + 2) & 0xffff
                 if m.r16((A3 + sx16(a2)) & 0xffffffff) == 0:
                     a2 = m.r16(a0 + 8); d0 = 2
+                    m.seq_wraps[d7] += 1
                 a1 = (A3 + sx16(m.r16((A3 + sx16(a2)) & 0xffffffff))) & 0xffffffff
                 m.w16(a0 + 0xa, d0)
             elif c == 1:      # $81 portamento: speed, delay
@@ -445,6 +447,7 @@ class Driver:
         m.w8(a1 + 0x19, 1)
         e = sx8(m.r8(a1 + 0x14)) * 2
         m.w32(a1 + 0x1a, (A3 + sx16(m.r16(m.SFXENV + e))) & 0xffffffff)
+        m.log.append((m.frame, -2, 12))           # busy wait at $3d64
         m.w8(a1 + 0x18, 0xff)
 
     def sfx_sample(self, idb):
@@ -475,6 +478,7 @@ class Driver:
         m.w8(a1 + 0x12, m.r8(a0 + 0xc))
         if m.r8(a0 + 0xd):
             m.w8(a1 + 0x12, 0)
+        m.log.append((m.frame, -2, 12))           # bsr $3eaa busy wait (~12 raster lines)
         hw = 0xa0 + ch * 16
         m.cw(hw + 4, m.r16(a0 + 8))
         m.cwl(hw + 0, m.r32(a0 + 0))
@@ -483,6 +487,7 @@ class Driver:
         m.cw(hw + 8, 0x40)
         m.cw(0x96, 0x8200 | d2)
         m.w8(a1 + 0x18, 0xff)
+        m.log.append((m.frame, -2, 12))           # bsr $3eaa busy wait
         d0 = m.r32(a0 + 4)
         if d0 & 0x80000000:
             m.cwl(hw + 0, m.r32(m.SILENT))
@@ -596,6 +601,7 @@ class Driver:
 # ---------------------------------------------------------------------------
 class Paula:
     """Mixer identical to tools/amiga/emu.c audio_line() (for sample-exact comparison with --wav).
+    Driver.log entries with reg -1 (CIA LED bit) and -2 (busy-wait of N raster lines) are not register writes.
     313 lines/frame, 50 frames/s, 44100 Hz output, clock 3546895, ch0+3 left, ch1+2 right, *3 gain."""
     LINES = 313
 

@@ -1,0 +1,4 @@
+5 poke 12e2c 00012345 4
+6 poke 12e0c 0001 2
+300 save re/states/kernel_nameentry.state
+301 shot ne

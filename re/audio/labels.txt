@@ -1,0 +1,137 @@
+# Platoon audio driver (David Whittaker) labels for tools/rdis.py.  All addresses absolute (a3 = $2800 base).
+# ---- API jump block (each saves regs, calls the worker) ----
+2800 api_init_song      d0.b = song 0..6  (kernel $10c00)
+280e api_play           called once per vblank from level-3 handler $10f50
+281c api_stop           stop music + all sfx, audio DMA off, volumes 0
+282a api_resume         re-enable DMA and playing flag (UNUSED by game)
+2838 api_sfx            d0.w = (channel<<8)|id  (kernel $10c50)
+2846 api_sfx_stop_all   force all sfx to end on next tick (UNUSED by game)
+# ---- music ----
+2854 init_song          bset LED/filter-off, stop, build tables, set tempo/speed, reset 4 channel structs
+2892 init_song_chan     per-channel init loop (d7 = 0..3, a1 = channel struct, d0 = song table offset)
+28e8 stop               clears playing flag, sfx active flags, shadow +$a/+$b; DMACON=$000f ADKCON=$00ff AUDxVOL=0
+2942 sfx_stop_all       sfx duration counters := 1
+2960 resume             if song loaded: ADKCON=$ff, DMACON=$820f, playing=$ff
+298a play_to_sfx        bra sfx_update (music skipped this frame)
+298e play_rts
+2990 play               per-vblank: NTSC skip, speed accumulator, PWM waveform, 4 channels, then sfx_update
+29ae play_speed         speed accumulator (never skips: all songs speed 0)
+29de pwm_narrow         write $3f3f at PWM offset, offset -= 2
+29f4 play_chan_start
+29f6 play_chan          channel loop head (d7 = channel)
+2a5c chan_loop_silent   instrument has no loop: repeat = 64-byte silence buffer
+2a7a chan_count         decrement duration counter (+$1e)
+2aa0 chan_gap_done
+2aa4 chan_event         counter reached 0: clear flags, read pattern bytes
+2aa8 chan_read          read next pattern byte (commands loop back here)
+2afc note_period
+2b22 note_commit        +$16=0 (loop pending), save pattern ptr, reload counter
+2b26 note_commit_tie    (target of cmd $83) save ptr, reload counter, DMA on
+2b3c chan_next          next channel / finish
+2b4a chan_effects       counter > 1: arpeggio, portamento, vibrato, envelope
+2b66 fx_arp_store
+2b98 fx_slide
+2ba6 fx_vibrato
+2bc8 fx_vib_down
+2bdc fx_vib_sign
+2bf6 fx_vib_sub
+2bf8 fx_set_period
+2c06 fx_envelope
+2c1e fx_env_hold
+2c38 fx_done
+2c3c cmd_dispatch       d0 >= $80
+2c52 cmd_c0_instrument  $c0-$df: instrument (d0-$c0)*12 + $2f48
+2c6e cmd_b0_envelope    $b0-$bf: volume envelope
+2c92 cmd_a0_arpeggio    $a0-$af: arpeggio table
+2cb4 cmd_80_jump        $80-$8a via jump table $2d80
+2cc2 cmd80_next_pattern end of pattern: advance sequence (0 word = loop to start)
+2cda cmd80_set
+2ce8 cmd81_portamento   2 bytes: speed (signed, per tick added to slide), delay (ticks)
+2cfe cmd82_rest         silence for one duration
+2d26 cmd82_done
+2d2a cmd83_tie          extend current note one duration (no retrigger)
+2d2e cmd84_end_song     stop everything (UNUSED by data)
+2d36 cmd85_gtranspose   1 byte: global transpose
+2d3e cmd86_vibrato      2 bytes: speed, depth
+2d52 cmd87_vibrato_off
+2d5a cmd88_transpose    1 byte: channel transpose
+2d62 cmd89_new_sequence 2 bytes: new sequence offset (UNUSED by data)
+2d74 cmd8a_tempo        1 byte: tempo (UNUSED by data)
+2d80 d_cmd_jumptab      11 words, offsets rel $2800 for commands $80-$8a
+# ---- music variables ----
+2d96 v_tempo            w  duration unit (song table byte 0, sign-extended)
+2d98 v_master_vol       w  0..64, set to $40 by kernel, faded by $fed6
+2d9a v_speed            b  speed/skip rate (song table byte 1)
+2d9b v_speed_copy       b
+2d9c v_speed_acc        b
+2d9d v_song_loaded      b
+2d9e v_tables_built     b
+2d9f v_playing          b
+2da0 v_gtranspose       b
+2da1 v_ntsc_count       b  init 6
+2da2 v_ntsc_enable      b  never set
+2da4 v_silence_ptr      l  -> $89c0 (64 zero bytes)
+2da8 v_pwm_dir          w
+2daa v_pwm_ofs          w
+2dac v_chan0            $30-byte channel structs x4
+2ddc v_chan1
+2e0c v_chan2
+2e3c v_chan3
+2e6c d_period_table     84 words; period = table[n]*inst_mult >> 10
+2efc d_arp_table        13 words (offsets rel $2800)
+2f16 d_arp_data         arpeggio byte lists, last byte has bit7 set
+2f48 d_instruments      8 x 12: l ptr, l loop offset (-1 none), w len words, w period multiplier
+2fa8 d_song_table       7 x 10: b tempo, b speed, 4 w sequence offsets
+2fee d_sequences        word lists of pattern offsets (rel $2800), 0-terminated
+3074 d_patterns         pattern byte streams (see NOTES)
+3bce init_tables        build instrument table from chained samples at $430a, silence ptr, sfx wave ptr, PWM wave
+3be0 init_tables_loop
+3c40 init_tables_done
+3c42 init_smp_sfx       build sample-sfx table from chained samples at $8d02 (5 entries)
+3c8c init_smp_sfx_done
+3c8e v_smpsfx_built     b
+3c90 sfx_trigger        d0.w=(ch<<8)|id ; id<$80 synth (0..$b), $80..$85 sample
+3d00 sfx_synth
+3d14 sfx_synth_findch
+3d24 sfx_synth_setup
+3d72 d_smpsfx_table     5 x 16: l ptr, l loop(-1), w len words, w period, b frames, b long-flag
+3dc2 sfx_sample         id>=$80
+3df4 sfx_sample_play
+3e04 sfx_sample_findch
+3e0e sfx_sample_setup
+3e3e sfx_sample_hw
+3e92 sfx_sample_loop
+3eaa dma_delay          dbra $200 busy wait (~5.1k cycles) - lets Paula see DMA off
+3eb4 sfx_update         per-vblank sfx processing for channels 0..3
+3ecc sfx_update_1
+3ee4 sfx_update_2
+3efc sfx_update_3
+3f14 sfx_update_done
+3f16 sfx_chan           a1=sfx struct a0=$dff0x0 d2=DMA bit a4=shadow
+3f52 sfx_chan_rts
+3f54 sfx_chan_live
+3f5c sfx_alt_period
+3f7c sfx_alt_period_add
+3f84 sfx_sweep
+3fa4 sfx_volenv
+3fc2 sfx_set_period
+3fce sfx_set_wave
+3fe0 sfx_set_wave2
+3ffa v_sfxch0           $22-byte sfx channel structs x4
+401c v_sfxch1
+403e v_sfxch2
+4060 v_sfxch3
+4082 v_sfx_request      w (channel<<8)|id
+4084 v_shadow0          12-byte music shadow regs x4: l ptr, w len, w per, w vol, b music-active, b sfx-owns
+4090 v_shadow1
+409c v_shadow2
+40a8 v_shadow3
+40b4 d_sfx_defs         12 x 22-byte synth sfx definitions
+41bc d_sfx_env_table    3 words (offsets rel $2800)
+41c2 d_sfx_env0
+41e4 d_sfx_env1
+41fa d_sfx_env2
+41fc v_sfx_wave_ptr     l -> $8a00 (6 x 128-byte synth waveforms)
+4200 d_env_table        16 words (offsets rel $2800) music volume envelopes; byte before each = speed
+4220 d_env_data
+430a d_samples          8 chained instrument samples: l len bytes, w rate Hz, data

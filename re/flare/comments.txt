@@ -1,0 +1,205 @@
+# inline comments merged into flare.s by annotate.py (ADDR comment)
+17810 a3 = list1 base ($19e0a)
+17816 start at entry 7 (+$7e), iterate down to entry 0
+17826 a0 = handler (+$a); called with a3 = object
+1782c handler may have deactivated the object
+17836 d0 = x<<16 | y
+17840 a0 = anim table base (+6)
+17846 frame index (+1) * 8
+1784c a1 = $1e220 + offset (bob header)
+17856 night blit (colour-15 occlusion)
+17866 list2 ($19eac): crosshair + muzzle flashes, normal blit
+17dd0 $3b22e cleared (write-only flag)
+17dd6 sound $80
+17de2 msg $20 "YOU'RE HIT"
+17dec hits taken +1
+17df2 $f818: redraw hits HUD
+17dfe not dead yet
+17e02 4th hit: red fade (uses tunnel palette $1a012!)
+17e06 msg $1b "KILLED IN ACTION"
+17e10 second (last) member already -> all dead
+17e1a switch to member 1 (a6+6)
+17e28 -> main loop exits to exit_back_to_tunnels
+17e3a wait until message queue empty (game frozen meanwhile)
+17e48 morale -$c00
+17e56 msg 0 "GET GOING !"
+17e7e red: +$100 until $f00
+17e94 green: -$10 until 0
+17ea4 blue: -1 until 0
+17eca hits==4 -> return (flare section always takes this path)
+17f6e borrow -> clamp morale to 0
+17f8c blit 1: clear $3b742, D only, 5 words x 560 lines (5600 bytes)
+17fc0 frame header: (w-1)<<16 | (h-1)
+17fd0 d0 = (h*5)<<6 | w  (all 5 planes of the bob, contiguous)
+17fe4 blit 2: A->D copy bob (mask+4 planes) to $3b742 with DMOD 2 (one extra zero word per row)
+18002 row table y*40
+1800e + back buffer
+18012 + $3b3f8 (0 in flare section)
+1801a d7 = x & 15 (shift)
+18020 + (x>>3) & $fe
+1802c (w+1) words, h rows
+1803e d2 = h*(w+1) words
+18040 d2 = bytes per plane in buffer
+1804a d3 = 40 - 2*(w+1) = screen modulo
+18064 BLTCON0 = shift<<12 | $fce (ABCD, D = B | ~A&C)
+18070 CMOD = DMOD = d3
+18080 BLTCON1 = shift<<12 (B shift)
+18084 A = mask ($3b742), B = plane, C = D = screen plane
+18098 next screen plane (+$2000); B pointer continues to next bob plane
+180fe blit 1: clear $3b742, 10 words x 560 lines (11200 bytes, covers temp $3cd22 too)
+1813c width words >= 8 -> -8 (flag bit?) for the copy blit only
+1817c blit 2: copy bob to $3b742 (DMOD 2)
+18190 dest = back buffer + y*40 (no $3b3f8 here)
+181e4 blit 3: A = screen plane0 (AMOD d3) -> D = $3cd22 temp, unshifted, (w+1) x h
+1820e blits 4-6: $ba0 = A AND C: temp &= screen planes 1..3  => temp = pixels of colour 15
+18268 BLTCON0 = shift<<12 | $d30 : A,B,D, D = A AND NOT B
+18280 blit 7: mask($3b742, A shifted) &= ~temp  -> in place, mods 0, BLTCON1 = 0
+18294 d6 = $fca: cookie-cut A->no shift (mask already shifted)
+182be blits 8-11: D = A&B | ~A&C, BLTCON1 = B shift
+18922 msg $f "WELL DONE. YOU HAVE FOUND AN EXIT,"
+1892c msg d7 ($15 "AND THIS ONE'S CLEAR")
+18934 msg $21 "YOU WILL NEED SOME FLARES."
+18938 flares < 5 -> refuse
+18942 msg $22 "YOU NEED MORE FLARES"
+18946 flares < 8 -> refuse
+18950 msg $23 "WOULD A COMPASS HELP?" (only printed if no compass)
+18960 +30000 score
+1896c proceed to the flare section
+189c0 crosshair frame (anim $1e020 frame 0)
+189ca muzzle flash frame 0 (anim $1e048)
+189d4 muzzle flash frame 1 ($1e050)
+189e4 d5 = plane size in bytes = 2*w*h
+189fc plane0 := 0
+18a02 plane1 := 0
+18a08 plane2 := mask
+18a0e plane3 := 0
+18a9c 3 vblanks per fade step
+18aba wait until message queue empty
+18ac2 and until fade complete
+18adc clear both screens (4 planes x $1680 bytes each)
+18afe cheat: 9 flares
+18b04 msg $24 "LET'S GO TO THE FLARE SCREEN!"
+18b0e fade to black + clear screens
+18b12 recolour crosshair/muzzle bobs to colour 4
+18b1a clear 8 spawn-slot 'used' bytes
+18b2a enemies = list1 entries 2..6 (+ companions +$90)
+18b3a BUG: uses a3 (stale pointer) instead of a0 for these 4 clears
+18b52 palette = night0 ($19f92)
+18b5e reset stack: never returns to the tunnel engine
+18b64 music 6
+18b6c decode $36242 -> $68000
+18b70 no x offset for normal blits
+18b76 spawn countdown = $24
+18b7e spawn base interval = $90
+18b86 copy bg to both buffers (flip in between)
+18b9a palette index 0
+18ba0 set night0, $3b222 = 4
+18ba4 messages $25,$26,$27
+18bb4 3 vblanks + HUD/msg update per wait iteration
+18bd8 cheat: HELP key with $71(a6) bit1 -> instant win
+18bf2 wait for copper-list swap (previous flip done)
+18bf8 restore clean background into back buffer
+18bfc spawn countdown
+18c08 new interval = (base + killbonus) >> 2
+18c1c find a free enemy (5 entries)
+18c3a none free: retry next iteration
+18c46 random start slot (rnd>>4)&7
+18c56 linear probe for free slot (wraps mod 8)
+18c6c all 8 slots busy: retry next iteration
+18c78 slot used
+18c7c enemy x = slot x
+18c82 +$10 = slot offset (0..$1c)
+18c86 y = $40 + ((rnd>>4)&7)
+18c9a active, frame 0 ($e not reset)
+18ca0 handler = h_enemy_rise
+18ca8 update & draw all objects
+18cac member died -> back to tunnels
+18cb6 morale 0 -> game over (withdrawn)
+18cbe all members dead -> game over (destroyed)
+18cc8 light cycle already running?
+18cd2 SPACE key ($40) fires a flare
+18ce8 flare object still rising -> no countdown
+18cf2 countdown (byte; from 0 wraps to $ff = 255 iterations)
+18cfe next palette of the sequence
+18d02 duration index = new $3b222 >> 2
+18d12 HUD/message update
+18d18 flip buffers
+18d2c flares - 1
+18d32 flare object active
+18d38 frame 0 (its +$10 phase is NOT reset)
+18d3e y = $6e (x stays $d8)
+18d46 sound $a (flare launch)
+18d4e light cycle running (blocks new flares)
+18d54 countdown starts after the flare object disappears
+18e3a palette pointer table
+18e4a set playfield palette (copper colours 0-15)
+18e54 end of 7-step sequence?
+18e5e light cycle over
+18e64 flares left -> continue; none -> win
+18e6c msg $28 "WELL DONE,"
+18e76 msg $29 "YOU MADE IT THROUGH THE NIGHT"
+18e80 fade out
+18e84 load next section (section 2: jungle & foxhole)
+18ea6 control byte
+18eac $80 = no-op
+18eb4 run: count = (-b)&$7f, repeat next byte count+1 times
+18ec8 literal: copy b+1 bytes
+18eda store, count 2 bytes per step (bit 15 of d5 toggles)
+18ee4 40 bytes = one plane row
+18ef2 next plane
+18f04 after 4 planes: back to plane 0, next row
+18f0e 144 rows done -> return from decode_background (drops bsr return)
+18fbc ammo - 1
+18fc2 sound $83 (shot)
+18fcc x += rnd&7
+18fea x -= rnd&7
+19008 y += rnd&7
+19026 y -= rnd&7
+19048 joystick: bit0 down, bit1 right, bit2 up, bit3 left, bit7 fire
+19058 not moving: speed = 4
+19064 step = speed >> 1
+1906c accelerate by 2 up to >= $f (steps 2,3,..,8)
+19080 fired-this-iteration flag cleared
+1908e crosshair over flare box x[$cf,$df] y[$6f,$78] -> fire flare (branch, rts from there)
+190b6 no ammo -> no shot
+190be fired this iteration (enemy_hit_test reads it)
+190c4 shooting speeds up spawns: base -= 2 (min 0)
+190e2 up
+190ec BUG: y>9 skips down AND left tests (up+left moves only up)
+190f6 down
+19112 left
+1912e right
+1914c flare: y -= 20
+19156 frame++ every 2nd iteration
+19170 y < 0: flare gone
+19178 frame++ every 8 iterations (phase from stale $e)
+1918e frame 3 reached -> aim state
+191a6 16 iterations
+191be sound $84 (first enemy shot)
+191d0 shot timer
+191d6 i = $3b222>>2 (0..6)
+191e8 threshold = (|i-3|+1)*16 - 13
+191f2 timer > threshold -> enemy hits player
+191fe every 8 iterations another shot
+19206 sound $83
+19212 companion list2 entry active
+19216 x,y copied
+1921c x - 13
+19222 y + 11
+1922a free spawn slot
+19238 enemy gone (companion flash not cleared)
+1923a reset spawn countdown/base/kill bonus
+19250 light cycle started (a 'free flare' if none was burning)
+19256 -> player_hit_flare (tail call)
+1925a death anim: frame++ every 2nd iteration
+19270 frame 8 -> remove
+1927c kill bonus +3 slows future spawns
+19292 score +300
+192a0 flash: 2..4 iterations depending on phase
+192c4 a0 = crosshair object
+192de crosshair hot spot = (x+9, y+9)
+192e6 enemy box = [x, x+$1e] x [y, y+$19] (inclusive, signed compares)
+19306 must have fired this iteration
+19310 and have ammo (checked after decrement!)
+19318 frame 5 = first death frame
+1932a sound $80

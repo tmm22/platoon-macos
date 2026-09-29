@@ -1,0 +1,2 @@
+1 poke 57e22 0 1
+6 shot barnes

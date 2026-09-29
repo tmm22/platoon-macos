@@ -1,0 +1,104 @@
+{
+ "hud": {
+  "palette_used": [
+   "000",
+   "00f",
+   "f00",
+   "f0f",
+   "0f0",
+   "0ff",
+   "ff0",
+   "fff",
+   "000",
+   "000",
+   "c66",
+   "a60",
+   "444",
+   "888",
+   "840",
+   "000"
+  ],
+  "cells": {
+   "13254": "heart (morale bar)",
+   "13274": "bullet (ammo bar, man+2)",
+   "13294": "grenade (top bar, man+0)",
+   "132b4": "small wound mark (used by sections via $f884+$60)",
+   "132d4": "alt top-bar cell when $54(a6)!=0"
+  },
+  "icons": {
+   "132f4": "star frame 0 ($26!=0, $2a&3==0)",
+   "13414": "star frame 1",
+   "13534": "star frame 2",
+   "13654": "star frame 3",
+   "13774": "icon $24(a6) at $797d8",
+   "13894": "icon $28(a6) at $797dc",
+   "139b4": "wound icon (man+4 count) at $797c0+4k",
+   "13ad4": "icon $2c(a6) at $797d4",
+   "13bf4": "music ON",
+   "13d14": "fx ON",
+   "13e34": "music OFF",
+   "13f54": "fx OFF"
+  }
+ },
+ "pictures": {
+  "logo": {
+   "addr": "0x14074",
+   "bytes_per_plane": 1920,
+   "end": "0x14ec1",
+   "w": 320,
+   "h": 48
+  },
+  "attract": {
+   "addr": "0x14ec4",
+   "bytes_per_plane": 3020,
+   "end": "0x16a6c",
+   "w": 160,
+   "h": 151,
+   "blit_dest": "0x7878a (buffer $78000 line 48, x=80)"
+  },
+  "loading_picture": {
+   "tracks": "18-20 -> $70000",
+   "body_offset": "0x22",
+   "encoded_bytes_used": 12684,
+   "w": 320,
+   "h": 200,
+   "palette_used($766d2)": [
+    "000",
+    "444",
+    "b80",
+    "b70",
+    "950",
+    "ca9",
+    "a00",
+    "fff",
+    "8ef",
+    "7df",
+    "6cf",
+    "5af",
+    "38f",
+    "26f",
+    "13f",
+    "006"
+   ],
+   "file_header_word0": "8000",
+   "file_header_palette(unused)": [
+    "000",
+    "222",
+    "540",
+    "530",
+    "420",
+    "654",
+    "500",
+    "777",
+    "477",
+    "367",
+    "367",
+    "257",
+    "147",
+    "137",
+    "017",
+    "003"
+   ]
+  }
+ }
+}

@@ -1,0 +1,137 @@
+# tunnels module labels (section 1 = "THE TUNNEL & FLARE SECTIONS", loaded at $17000)
+# format: HEXADDR name comment      (v_/d_ prefixes = data, not followed as code)
+17000 sec1_entry section 1 entry: SSP=$400, clear vars $3b220..$3b3fb, build row tables, intro text screen, init 5 soldier records
+17010 init_clrvars clear $1dc bytes at $3b220
+17024 init_tab_charrow $3b248[25] = n*$140 (screen byte offset of 8-line char row n)
+1703c init_tab_maprow $3b2ac[43] = n*43 (maze map row offsets)
+17054 init_tab_line $3b402[200] = n*40 (screen line offsets)
+1706c init_tab_viewmap $3b358[40] = n*180 (view tile-map offsets)
+17098 init_soldiers 5 x {w 9, w $90 ammo, w 0 hits} at a6+0..; $1e(a6)=a6+0, $22(a6)=0
+170c4 life_start (re)start of a life: reset position/direction/items/palette, then main loop
+17160 life_clr_taken clear bit7 ("taken") of every item word in $19a60.. until a negative word
+171c6 main_loop main tunnel loop: wait until vblank counter $6a(a6)<0 (=4 frames), then 1 logic tick
+17224 main_objs run+draw objects, swap buffers, check end conditions
+17252 end_destroyed both soldiers KIA -> text $19851, game over (kernel f864)
+17262 end_withdrawn morale==0 -> text $198a3, game over (kernel f864)
+17272 textscreen_music3 play tune 3, then textscreen
+1727e textscreen clear screens, text palette, print text a0 (resident $408), wait 50 frames, wait fire, tune 4, restore tunnel palette
+172f6 end_soldier_lost first soldier KIA -> text $198fc ("ONE MORE CHANCE"), restart life
+17304 spawn_enemy choose + activate an enemy according to the current view codes $3b22c/$3b22d
+1736e spawn_water forward blocked (wall/door ahead): water enemy obj3 at (35,59)
+173a6 spawn_side_left left side opening at distance 2 (code&7==5): obj2 at (35,54), already standing (h_obj2b)
+173d6 spawn_side_right right side opening at distance 2: obj2 at (105,54) (h_obj2b)
+17406 draw_view compute left/right view codes from the maze and draw the two 80x144 halves (or room picture)
+17470 dv_left_side left side-opening scan
+174a0 dv_right_fwd right half: forward scan
+174be dv_right_side right side-opening scan
+174f2 dv_combine combine codes; both 0 -> animated corridor (coord&3)
+17548 dv_draw store codes $3b22c/$3b22d and draw left (code) and right (code+$14) halves
+1756c draw_viewhalf draw 10x18 tiles of view tile-map d1 at column a4 (CPU copy, 4 planes)
+17640 draw_map mark player on map, draw 20x18 map window (if $24(a6) map owned) using per-buffer tile cache
+177b2 dm_restore_cell SMC: immediate byte at $177b5 = saved map cell (restored after drawing)
+177b8 objects_tunnel update+draw tunnel objects 7..0 at $19d32 (stride $12)
+17810 objects_flare flare section object lists $19e0a and $19eac (see re/flare)
+178be h_crosshair object 0 handler: cheat HELP key, input, crosshair sway while walking
+17936 h_flash object 1 (enemy bullet/muzzle flash): 5 frames x 4 ticks, then clears obj2 and hits player
+17968 h_enemy_walk obj2 far corridor enemy: frames 0,1 (4 ticks each) then h_enemy_aim
+17996 h_enemy_aim obj2 standing, frame 2: after 15 ticks fire (activate obj1), frame 3
+179e4 h_enemy_fired obj2 after firing: 4 ticks then frame 2 and only hit-test
+17a08 h_enemy_die obj2 dying frames 5..11 every 2 ticks (y+=30 at frame 8), then +300 score
+17a4a h_water obj3 water enemy rising: 5 steps (3 ticks) from $19cf2/$19d12, then hits player
+17ab4 h_water_die obj3 sinking frames $10=6,7 (4 ticks each) then +300 score
+17b0c h_roomguard obj4 room-0 guard: frames 0..2 every 12 ticks, then fires once
+17b76 h_roomguard_die obj4 dying frames 3..4 every 3 ticks, then stays (handler=rts)
+17ba4 hit_enemy hit test crosshair(+9,+9) vs obj2 box [x..x+30]x[y..y+25] + fired flag + ammo>0
+17c1c hit_water hit test crosshair(+9,+9) vs fixed box [60..100]x[64..110]
+17ca6 hit_roomguard hit test crosshair(+9,+9) vs fixed box [30..62]x[35..69]
+17d1a player_hit player was hit: sfx $80, "YOU'RE HIT", leave room, hits+1, red flash, KIA check, morale-$c00
+17d9e ph_waitmsg wait for message queue to empty (HUD updating)
+17dd0 player_hit_flare flare-section variant of player_hit (no room handling) - see re/flare
+17e60 flash_red fade palette to red (3 frames/step), redraw view into both buffers, fade back (1 frame/step)
+17ee8 fade_back fade $1a012 back towards $1a032 (R down, G/B up by 1 per step)
+17f64 set_destroyed $3b235=1 (second soldier KIA)
+17f6e morale_sub $2e(a6) -= d0, clamp at 0 (unsigned)
+17f7c draw_bob masked blitter bob: d0=x<<16|y (view relative), a1=bob data, 6 blits via scratch $3b742
+180ee draw_bob_flare flare-section bob variant (x wrap, extra buffer $3cd22) - see re/flare
+18330 input_tunnel joystick handling for crosshair object (a3=obj0); may return to caller's caller
+18378 in_nav corridor navigation: fire=waste bullet, up=walk (every 2nd tick), left/right=turn (edge)
+18408 in_clrturn clear turn latch
+1840e rts_1840e common rts (also used as "do nothing" object handler)
+18410 move_forward step one cell in direction $2a(a6); walls block; value 3 = enter room
+18502 mf_ok corridor cell: accept
+18506 mf_blocked wall: restore position
+1850e draw_roompic draw room picture $3b242 (20 bytes x 144 lines, word-interleaved planes) at column $3b3f8
+18560 mf_clamp_x0
+1856a mf_clamp_x42
+18576 mf_clamp_y0
+18580 mf_clamp_y42
+1858c in_combat combat crosshair: accelerating movement, auto-fire with recoil jitter
+18654 in_room room navigation: slower crosshair, fire (edge) = click hotspot
+18706 room_click find hotspot under crosshair and run item handler
+18760 rc_found hotspot group d4 found: fetch item word, taken-> EMPTY/NOTHING, sfx 0, jump handler (d7=code, a4=item word)
+187ca rc_next
+187d6 item_00_leave leave room: msg d7, restore pos, turn 180 degrees
+18810 item_01_map plan of the tunnel system: map display on
+18862 item_04_flares flares = min(flares+5, 8)
+18880 item_05_score +500 score, then mark taken
+1888c item_13_taken mark taken (bit7), morale+$200
+18898 item_generic show message d7
+188a4 item_0a_food rotten food: "YUK!!", +500 (never marked taken)
+188ba item_0c_ammo ammunition: refill to $90 if not full
+188ce item_0d_medic medical supplies: hits-1 if >0
+188e6 item_0f_blocked exit, but blocked
+188fc item_11_compass compass: $26(a6)=1
+1890c item_12_roman roman empire book ("... IN VIETNAMESE!")
+18922 item_15_exit the real exit: needs >=8 flares; +30000 score -> flare section $18b0e
+18970 ie_msg_back show message d0 and return
+1897a recolour_crosshair crosshair bob: plane1:=mask, planes2-4:=0 (colour 1)
+189c0 recolour_flare flare bobs recolour (see re/flare)
+18a20 fadeout_init copy current palette ($5a(a6)) to $3b722
+18a42 fadeout_step decrement every non-zero RGB component of $3b722, flag $18a40 if changed
+18a98 fadeout fade to black (3 frames/step) and wait for message queue, then clear 144 lines of both buffers
+18afe cheat_to_flare HELP key cheat: flares=9, msg $24, then flare section
+18b0e flare_start flare section entry (from item_15_exit) - see re/flare
+18f1a map_slide room picture slides left 16px/step (col 10 -> 2) when map picked up
+18f3c combat_shot ammo-1, sfx $83, crosshair recoil: x += r&7, x -= r&7, y += r&7, y -= r&7 (clamped)
+18fba combat_shot_flare flare variant - see re/flare
+1933c scr_charaddr a1 = $62(a6) + $3b248[d2] + d1.b  (d1=byte column, d2=char row)
+19374 d_msgtab 42 message pointers (kernel message queue f82c); entry: x.b, $12, text, $ff
+1981c d_txt_intro text screen "THE TUNNEL SYSTEM / PRESS FIRE TO CONTINUE"
+19851 d_txt_destroyed text screen: platoon destroyed
+198a3 d_txt_withdrawn text screen: platoon withdrawn (morale 0)
+198fc d_txt_onemore text screen: one more chance
+199bc d_itemhandlers 22 item handler pointers, index = item code
+19a14 d_roompics 4 room picture pointers (by room type)
+19a24 d_roomtype 10 words: room type 0..3 per room
+19a38 d_roomitems 10 pointers to item-code lists (one word per hotspot group)
+19a60 d_items item code words (bit 7 = taken), terminated by $ffff at $19aea
+19aec d_roompos 10 words x<<8|y: map cell that enters each room
+19b00 d_hotspots 4 pointers to hotspot lists (by room type)
+19b10 d_hot_type0
+19b42 d_hot_type1
+19b72 d_hot_type2
+19b9c d_hot_type3
+19bc2 d_swaytab 32 x (dx.w,dy.w) crosshair walking sway arc, + ($24,$68)
+19cc2 d_dirdelta 4 x (dx.b,dy.b): N,E,S,W
+19cca d_dirofs 4 ptrs -> (left,right,forward) map offsets per direction
+19cf2 d_water_xy 8 x (x.w,y.w) water enemy positions by step
+19d12 d_water_frm 8 frame-table entry pointers for water enemy steps
+19d32 d_obj0 object 0 crosshair  (object = 18 bytes: +0 active.b +1 frame.b +2 x.w +4 y.w +6 frametab.l +a handler.l +e cnt.w +10 cnt2.w)
+19d44 d_obj1 object 1 enemy shot/flash
+19d56 d_obj2 object 2 corridor enemy
+19d68 d_obj3 object 3 water enemy
+19d7a d_obj4 object 4 room-0 guard
+19d8c d_obj5 objects 5-7 unused in the tunnels
+19e0a d_flareobjs flare section objects (see re/flare)
+1a012 v_palwork working palette (16 words) passed to kernel f878
+1a032 d_pal_tunnel tunnel/room palette
+1a052 d_pal_text text-screen palette
+1a06e d_pal_hud lower screen (HUD) palette (kernel f87c)
+1a08e d_mapcache 2 ptrs to 360-byte map tile caches ($3d182,$3d4a2), indexed by $1a096
+1a096 v_mapbuf word 0/4 toggled each tick (which cache belongs to the draw buffer)
+1a0a0 d_sc300 BCD 00000300 (enemy kill); f80c is passed the END address ($1a0a4)
+1a0a4 d_sc500 BCD 00000500 (item)
+1a0a8 d_sc30000 BCD 00030000 (tunnel exit)
+1a0ae v_xhspeed crosshair speed accumulator
+1a0b0 v_posx player map x (byte), $1a0b1 = y (byte)
+19356 scr_charaddr_other UNUSED: like scr_charaddr but bchg #15 -> address in the other (displayed) buffer

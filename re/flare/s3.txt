@@ -1,1 +1,0 @@
-400 dump /Users/deborahmangan/Projects/Platoon/re/flare/ram_flare400.bin

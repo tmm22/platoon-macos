@@ -1,0 +1,62 @@
+4 poke 12e08 0 2
+5 poke 3b237 1 1
+6 poke 3b237 3 1
+8 dumpr 19d32 5a d0008.bin
+8 dumpr 12dde 80 a0008.bin
+12 dumpr 19d32 5a d0012.bin
+12 dumpr 12dde 80 a0012.bin
+16 dumpr 19d32 5a d0016.bin
+16 dumpr 12dde 80 a0016.bin
+20 dumpr 19d32 5a d0020.bin
+20 dumpr 12dde 80 a0020.bin
+24 dumpr 19d32 5a d0024.bin
+24 dumpr 12dde 80 a0024.bin
+28 dumpr 19d32 5a d0028.bin
+28 dumpr 12dde 80 a0028.bin
+30 poke 19d34 46 2
+30 poke 19d36 3c 2
+32 fire 1
+32 dumpr 19d32 5a d0032.bin
+32 dumpr 12dde 80 a0032.bin
+36 fire 0
+36 dumpr 19d32 5a d0036.bin
+36 dumpr 12dde 80 a0036.bin
+40 dumpr 19d32 5a d0040.bin
+40 dumpr 12dde 80 a0040.bin
+44 dumpr 19d32 5a d0044.bin
+44 dumpr 12dde 80 a0044.bin
+48 dumpr 19d32 5a d0048.bin
+48 dumpr 12dde 80 a0048.bin
+50 shot wk1
+52 dumpr 19d32 5a d0052.bin
+52 dumpr 12dde 80 a0052.bin
+56 dumpr 19d32 5a d0056.bin
+56 dumpr 12dde 80 a0056.bin
+58 shot wk2
+60 dumpr 19d32 5a d0060.bin
+60 dumpr 12dde 80 a0060.bin
+64 dumpr 19d32 5a d0064.bin
+64 dumpr 12dde 80 a0064.bin
+66 shot wk3
+68 dumpr 19d32 5a d0068.bin
+68 dumpr 12dde 80 a0068.bin
+72 dumpr 19d32 5a d0072.bin
+72 dumpr 12dde 80 a0072.bin
+76 dumpr 19d32 5a d0076.bin
+76 dumpr 12dde 80 a0076.bin
+80 dumpr 19d32 5a d0080.bin
+80 dumpr 12dde 80 a0080.bin
+84 dumpr 19d32 5a d0084.bin
+84 dumpr 12dde 80 a0084.bin
+88 dumpr 19d32 5a d0088.bin
+88 dumpr 12dde 80 a0088.bin
+92 dumpr 19d32 5a d0092.bin
+92 dumpr 12dde 80 a0092.bin
+96 dumpr 19d32 5a d0096.bin
+96 dumpr 12dde 80 a0096.bin
+100 dumpr 19d32 5a d0100.bin
+100 dumpr 12dde 80 a0100.bin
+104 dumpr 19d32 5a d0104.bin
+104 dumpr 12dde 80 a0104.bin
+108 dumpr 19d32 5a d0108.bin
+108 dumpr 12dde 80 a0108.bin

@@ -1,0 +1,5 @@
+1 poke 18f0d 3 1
+100 fire 1
+105 fire 0
+200 shot pic5
+201 dumpr 68000 8000 pic5_68000.bin

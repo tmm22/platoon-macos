@@ -1,0 +1,254 @@
+{
+ "00": {
+  "addr": "1941c",
+  "x_col": 14,
+  "y_row": 18,
+  "text": "GET GOING !"
+ },
+ "01": {
+  "addr": "1942a",
+  "x_col": 6,
+  "y_row": 18,
+  "text": "A PLAN OF THE TUNNEL SYSTEM."
+ },
+ "02": {
+  "addr": "19462",
+  "x_col": 7,
+  "y_row": 18,
+  "text": "A CUP OF COLD, PUTRID TEA."
+ },
+ "03": {
+  "addr": "1947f",
+  "x_col": 0,
+  "y_row": 18,
+  "text": "A BOOK OF VIETNAMESE POETRY BY M.T. KATO"
+ },
+ "04": {
+  "addr": "194aa",
+  "x_col": 5,
+  "y_row": 18,
+  "text": "YOU HAVE FOUND A BOX OF FLARES"
+ },
+ "05": {
+  "addr": "194cb",
+  "x_col": 5,
+  "y_row": 18,
+  "text": "SOME SECRET DOCUMENTS - TAKEN."
+ },
+ "06": {
+  "addr": "194ec",
+  "x_col": 17,
+  "y_row": 18,
+  "text": "EMPTY"
+ },
+ "07": {
+  "addr": "194f4",
+  "x_col": 8,
+  "y_row": 18,
+  "text": "A BOX OF VIET CONG BOOTS"
+ },
+ "08": {
+  "addr": "1950f",
+  "x_col": 4,
+  "y_row": 18,
+  "text": "SORRY, IT DOESN'T APPEAR TO WORK"
+ },
+ "09": {
+  "addr": "19532",
+  "x_col": 11,
+  "y_row": 18,
+  "text": "LOOKS LIKE A DIARY"
+ },
+ "0a": {
+  "addr": "19547",
+  "x_col": 4,
+  "y_row": 18,
+  "text": "YOU HAVE FOUND SOME ROTTEN FOOD."
+ },
+ "0b": {
+  "addr": "19587",
+  "x_col": 9,
+  "y_row": 18,
+  "text": "NOTHING IN THIS DRAWER"
+ },
+ "0c": {
+  "addr": "195a0",
+  "x_col": 10,
+  "y_row": 18,
+  "text": "VIET CONG AMMUNITION"
+ },
+ "0d": {
+  "addr": "195b7",
+  "x_col": 12,
+  "y_row": 18,
+  "text": "MEDICAL SUPPLIES"
+ },
+ "0e": {
+  "addr": "195ca",
+  "x_col": 11,
+  "y_row": 18,
+  "text": "VIET CONG WEAPONS."
+ },
+ "0f": {
+  "addr": "195df",
+  "x_col": 2,
+  "y_row": 18,
+  "text": "WELL DONE. YOU HAVE FOUND AN EXIT,"
+ },
+ "10": {
+  "addr": "19619",
+  "x_col": 11,
+  "y_row": 18,
+  "text": "A MEDICAL HANDBOOK"
+ },
+ "11": {
+  "addr": "1962e",
+  "x_col": 8,
+  "y_row": 18,
+  "text": "YOU HAVE FOUND A COMPASS"
+ },
+ "12": {
+  "addr": "19649",
+  "x_col": 1,
+  "y_row": 18,
+  "text": "THE RISE & FALL OF THE ROMAN EMPIRE.."
+ },
+ "13": {
+  "addr": "19686",
+  "x_col": 12,
+  "y_row": 18,
+  "text": "A DECK OF CARDS."
+ },
+ "14": {
+  "addr": "19699",
+  "x_col": 12,
+  "y_row": 18,
+  "text": "A COMBAT MANUAL."
+ },
+ "15": {
+  "addr": "196ac",
+  "x_col": 10,
+  "y_row": 18,
+  "text": "AND THIS ONE'S CLEAR"
+ },
+ "16": {
+  "addr": "196c3",
+  "x_col": 18,
+  "y_row": 18,
+  "text": "EXIT"
+ },
+ "17": {
+  "addr": "196ca",
+  "x_col": 13,
+  "y_row": 18,
+  "text": "GOOD SHOOTING!"
+ },
+ "18": {
+  "addr": "196db",
+  "x_col": 15,
+  "y_row": 18,
+  "text": "GO GET 'EM"
+ },
+ "19": {
+  "addr": "196e8",
+  "x_col": 15,
+  "y_row": 18,
+  "text": "STAY ALERT"
+ },
+ "1a": {
+  "addr": "196f5",
+  "x_col": 8,
+  "y_row": 18,
+  "text": "THAT'S THE WAY TO DO IT!"
+ },
+ "1b": {
+  "addr": "19710",
+  "x_col": 12,
+  "y_row": 18,
+  "text": "KILLED IN ACTION"
+ },
+ "1c": {
+  "addr": "19449",
+  "x_col": 9,
+  "y_row": 18,
+  "text": "WHICH YOU ALREADY HAVE"
+ },
+ "1d": {
+  "addr": "1956a",
+  "x_col": 7,
+  "y_row": 18,
+  "text": "YUK!! IT TASTES DISGUSTING"
+ },
+ "1e": {
+  "addr": "19604",
+  "x_col": 11,
+  "y_row": 18,
+  "text": "BUT IT IS BLOCKED."
+ },
+ "1f": {
+  "addr": "19671",
+  "x_col": 11,
+  "y_row": 18,
+  "text": "... IN VIETNAMESE!"
+ },
+ "20": {
+  "addr": "19723",
+  "x_col": 15,
+  "y_row": 18,
+  "text": "YOU'RE HIT"
+ },
+ "21": {
+  "addr": "19730",
+  "x_col": 7,
+  "y_row": 18,
+  "text": "YOU WILL NEED SOME FLARES."
+ },
+ "22": {
+  "addr": "1974d",
+  "x_col": 10,
+  "y_row": 18,
+  "text": "YOU NEED MORE FLARES"
+ },
+ "23": {
+  "addr": "19764",
+  "x_col": 9,
+  "y_row": 18,
+  "text": "WOULD A COMPASS HELP?"
+ },
+ "24": {
+  "addr": "1977c",
+  "x_col": 6,
+  "y_row": 18,
+  "text": "LET'S GO TO THE FLARE SCREEN!"
+ },
+ "25": {
+  "addr": "1979c",
+  "x_col": 6,
+  "y_row": 18,
+  "text": "YOU ARE IN A DUGOUT AT NIGHT"
+ },
+ "26": {
+  "addr": "197bb",
+  "x_col": 5,
+  "y_row": 18,
+  "text": "THE ENEMY SUSPECT YOUR POSITION"
+ },
+ "27": {
+  "addr": "197dd",
+  "x_col": 13,
+  "y_row": 18,
+  "text": "AND WILL ATTACK"
+ },
+ "28": {
+  "addr": "197ef",
+  "x_col": 15,
+  "y_row": 18,
+  "text": "WELL DONE,"
+ },
+ "29": {
+  "addr": "197fc",
+  "x_col": 6,
+  "y_row": 18,
+  "text": "YOU MADE IT THROUGH THE NIGHT"
+ }
+}

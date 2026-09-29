@@ -1,0 +1,20 @@
+[f924 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f924 v006] AUD1 start ptr=008834 len=32 per=374 vol=64
+[f924 v008] AUD2 start ptr=0088ba len=64 per=280 vol=48
+[f924 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f930 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f935 v011] BP 017c0a d0=ffffffff d1=00000048 d2=ffffffff d3=00000022 a0=00013254 a1=00079e0e a2=00dff000 a6=00012dde sp=00000400
+[f936 v006] AUD1 start ptr=008834 len=32 per=749 vol=64
+[f936 v008] AUD2 start ptr=0088ba len=64 per=374 vol=48
+[f936 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f938 v008] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f946 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f954 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f962 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f970 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f978 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f986 v005] AUD1 start ptr=004310 len=2403 per=790 vol=64
+[f1010 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f1024 v313] shot ot3/c100.png
+[f1034 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f1044 v313] done: 1044 frames, 176 blits, pc=017714

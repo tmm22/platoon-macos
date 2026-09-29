@@ -1,0 +1,6 @@
+5 poke 12e4a 3 2
+150 shot n150
+200 shot n200
+240 shot n240
+300 shot n300
+400 shot n400

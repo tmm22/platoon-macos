@@ -1,0 +1,21 @@
+3 poke 1a0b0 d03 2
+3 poke 12e08 1 2
+5 poke 3b237 1 1
+6 poke 3b237 2 1
+8 dumpr 19d32 5a d0008.bin
+8 dumpr 12dde 80 a0008.bin
+12 dumpr 19d32 5a d0012.bin
+12 dumpr 12dde 80 a0012.bin
+16 dumpr 19d32 5a d0016.bin
+16 dumpr 12dde 80 a0016.bin
+20 dumpr 19d32 5a d0020.bin
+20 dumpr 12dde 80 a0020.bin
+24 dumpr 19d32 5a d0024.bin
+24 dumpr 12dde 80 a0024.bin
+28 dumpr 19d32 5a d0028.bin
+28 dumpr 12dde 80 a0028.bin
+30 shot sr
+32 dumpr 19d32 5a d0032.bin
+32 dumpr 12dde 80 a0032.bin
+36 dumpr 19d32 5a d0036.bin
+36 dumpr 12dde 80 a0036.bin

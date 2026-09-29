@@ -1,0 +1,1922 @@
+{
+ "source": "re/platoon_darc.adf section 0 (RAM $17000 = ADF $1ce00)",
+ "door_table_1aaf4": [
+  "4d",
+  "49",
+  "42",
+  "3c",
+  "37",
+  "31"
+ ],
+ "huts": [
+  {
+   "hut": 0,
+   "door_col": "31",
+   "door_c30": "18c",
+   "span_cols": [
+    "30",
+    "33"
+   ],
+   "occupant": null
+  },
+  {
+   "hut": 1,
+   "door_col": "37",
+   "door_c30": "1bc",
+   "span_cols": [
+    "35",
+    "39"
+   ],
+   "occupant": "trap-door prop bob $3b at x=$d0-($60c30-$1bc)*8, y=$3d; enemy state 4 w/o frame"
+  },
+  {
+   "hut": 2,
+   "door_col": "3c",
+   "door_c30": "1e4",
+   "span_cols": [
+    "3b",
+    "3e"
+   ],
+   "occupant": "VC (enemy state 4, facing left, frame $34 -> fires every $19 ticks, first after $f; dead: frame $33 and $60c70=1) at x=$d0-($60c30-$1e4)*8, y=$3d"
+  },
+  {
+   "hut": 3,
+   "door_col": "42",
+   "door_c30": "214",
+   "span_cols": [
+    "40",
+    "43"
+   ],
+   "occupant": null
+  },
+  {
+   "hut": 4,
+   "door_col": "49",
+   "door_c30": "24c",
+   "span_cols": [
+    "46",
+    "4a"
+   ],
+   "occupant": null
+  },
+  {
+   "hut": 5,
+   "door_col": "4d",
+   "door_c30": "26c",
+   "span_cols": [
+    "4c",
+    "4f"
+   ],
+   "occupant": null
+  }
+ ],
+ "trapdoor": {
+  "hut": 1,
+  "col_60c24": "35",
+  "fine_60c34": 0,
+  "c30": "1c4",
+  "requires": "facing right, $60c32==0"
+ },
+ "items_1aafa": [
+  {
+   "index": 0,
+   "addr": "1aafa",
+   "lo": 0,
+   "hi": 1,
+   "msg": 15,
+   "msg_after": 1,
+   "text": "A VIET CONG BOOBY TRAP!!",
+   "text_after": "A SACK OF FLOUR.",
+   "reachable_d0": [
+    1
+   ],
+   "reachable_c30": [
+    "190"
+   ],
+   "hut": 0,
+   "unreachable": false,
+   "special": "BOOBY TRAP: explosion, man.hits:=3, player_hit (-> KILLED IN ACTION), entry.msg := entry.msg_after (one-shot), msg $f"
+  },
+  {
+   "index": 1,
+   "addr": "1aafe",
+   "lo": 4,
+   "hi": 6,
+   "msg": 16,
+   "msg_after": 16,
+   "text": "YOU HAVE FOUND A TORCH (then: A POT OF RICE.)",
+   "text_after": "YOU HAVE FOUND A TORCH (then: A POT OF RICE.)",
+   "reachable_d0": [
+    5
+   ],
+   "reachable_c30": [
+    "194"
+   ],
+   "hut": 0,
+   "unreachable": false,
+   "special": "TORCH spot: first search sets torch ($60cbd), morale+$200, +500, msg 2; later searches give msg 3 (A POT OF RICE)"
+  },
+  {
+   "index": 2,
+   "addr": "1ab02",
+   "lo": 36,
+   "hi": 37,
+   "msg": 4,
+   "msg_after": 4,
+   "text": "RUBBISH.",
+   "text_after": "RUBBISH.",
+   "reachable_d0": [
+    37
+   ],
+   "reachable_c30": [
+    "1b4"
+   ],
+   "hut": 1,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 3,
+   "addr": "1ab06",
+   "lo": 38,
+   "hi": 40,
+   "msg": 3,
+   "msg_after": 3,
+   "text": "A POT OF RICE.",
+   "text_after": "A POT OF RICE.",
+   "reachable_d0": [
+    39
+   ],
+   "reachable_c30": [
+    "1b6"
+   ],
+   "hut": 1,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 4,
+   "addr": "1ab0a",
+   "lo": 42,
+   "hi": 43,
+   "msg": 5,
+   "msg_after": 5,
+   "text": "A STOOL.",
+   "text_after": "A STOOL.",
+   "reachable_d0": [
+    43
+   ],
+   "reachable_c30": [
+    "1ba"
+   ],
+   "hut": 1,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 5,
+   "addr": "1ab0e",
+   "lo": 48,
+   "hi": 49,
+   "msg": 6,
+   "msg_after": 6,
+   "text": "EMPTY.",
+   "text_after": "EMPTY.",
+   "reachable_d0": [
+    49
+   ],
+   "reachable_c30": [
+    "1c0"
+   ],
+   "hut": 1,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 6,
+   "addr": "1ab12",
+   "lo": 89,
+   "hi": 90,
+   "msg": 5,
+   "msg_after": 5,
+   "text": "A STOOL.",
+   "text_after": "A STOOL.",
+   "reachable_d0": [
+    89
+   ],
+   "reachable_c30": [
+    "1e8"
+   ],
+   "hut": 2,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 7,
+   "addr": "1ab16",
+   "lo": 93,
+   "hi": 96,
+   "msg": 23,
+   "msg_after": 23,
+   "text": "YOU HAVE FOUND A MAP (else: A TABLE.)",
+   "text_after": "YOU HAVE FOUND A MAP (else: A TABLE.)",
+   "reachable_d0": [
+    93,
+    95
+   ],
+   "reachable_c30": [
+    "1ec",
+    "1ee"
+   ],
+   "hut": 2,
+   "unreachable": false,
+   "special": "MAP spot: only if hut-2 VC is dead ($60c70) and map not yet taken ($24(a6)); sets $24(a6), HUD icon, morale+$200, +500, msg 8; otherwise msg 7 (A TABLE)"
+  },
+  {
+   "index": 8,
+   "addr": "1ab1a",
+   "lo": 107,
+   "hi": 96,
+   "msg": 7,
+   "msg_after": 7,
+   "text": "A TABLE.",
+   "text_after": "A TABLE.",
+   "reachable_d0": [],
+   "reachable_c30": [],
+   "hut": null,
+   "unreachable": true,
+   "special": null
+  },
+  {
+   "index": 9,
+   "addr": "1ab1e",
+   "lo": 125,
+   "hi": 126,
+   "msg": 4,
+   "msg_after": 4,
+   "text": "RUBBISH.",
+   "text_after": "RUBBISH.",
+   "reachable_d0": [
+    125
+   ],
+   "reachable_c30": [
+    "20c"
+   ],
+   "hut": 3,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 10,
+   "addr": "1ab22",
+   "lo": 127,
+   "hi": 128,
+   "msg": 1,
+   "msg_after": 1,
+   "text": "A SACK OF FLOUR.",
+   "text_after": "A SACK OF FLOUR.",
+   "reachable_d0": [
+    127
+   ],
+   "reachable_c30": [
+    "20e"
+   ],
+   "hut": 3,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 11,
+   "addr": "1ab26",
+   "lo": 129,
+   "hi": 131,
+   "msg": 3,
+   "msg_after": 3,
+   "text": "A POT OF RICE.",
+   "text_after": "A POT OF RICE.",
+   "reachable_d0": [
+    129,
+    131
+   ],
+   "reachable_c30": [
+    "210",
+    "212"
+   ],
+   "hut": 3,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 12,
+   "addr": "1ab2a",
+   "lo": 172,
+   "hi": 173,
+   "msg": 9,
+   "msg_after": 9,
+   "text": "PROVISIONS",
+   "text_after": "PROVISIONS",
+   "reachable_d0": [
+    173
+   ],
+   "reachable_c30": [
+    "23c"
+   ],
+   "hut": 4,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 13,
+   "addr": "1ab2e",
+   "lo": 174,
+   "hi": 176,
+   "msg": 15,
+   "msg_after": 10,
+   "text": "A VIET CONG BOOBY TRAP!!",
+   "text_after": "A POT OF WATER",
+   "reachable_d0": [
+    175
+   ],
+   "reachable_c30": [
+    "23e"
+   ],
+   "hut": 4,
+   "unreachable": false,
+   "special": "BOOBY TRAP: explosion, man.hits:=3, player_hit (-> KILLED IN ACTION), entry.msg := entry.msg_after (one-shot), msg $f"
+  },
+  {
+   "index": 14,
+   "addr": "1ab32",
+   "lo": 178,
+   "hi": 178,
+   "msg": 5,
+   "msg_after": 5,
+   "text": "A STOOL.",
+   "text_after": "A STOOL.",
+   "reachable_d0": [],
+   "reachable_c30": [],
+   "hut": null,
+   "unreachable": true,
+   "special": null
+  },
+  {
+   "index": 15,
+   "addr": "1ab36",
+   "lo": 179,
+   "hi": 184,
+   "msg": 7,
+   "msg_after": 7,
+   "text": "A TABLE.",
+   "text_after": "A TABLE.",
+   "reachable_d0": [
+    179,
+    181,
+    183
+   ],
+   "reachable_c30": [
+    "242",
+    "244",
+    "246"
+   ],
+   "hut": 4,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 16,
+   "addr": "1ab3a",
+   "lo": 185,
+   "hi": 185,
+   "msg": 5,
+   "msg_after": 5,
+   "text": "A STOOL.",
+   "text_after": "A STOOL.",
+   "reachable_d0": [
+    185
+   ],
+   "reachable_c30": [
+    "248"
+   ],
+   "hut": 4,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 17,
+   "addr": "1ab3e",
+   "lo": 224,
+   "hi": 225,
+   "msg": 1,
+   "msg_after": 1,
+   "text": "A SACK OF FLOUR.",
+   "text_after": "A SACK OF FLOUR.",
+   "reachable_d0": [
+    225
+   ],
+   "reachable_c30": [
+    "270"
+   ],
+   "hut": 5,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 18,
+   "addr": "1ab42",
+   "lo": 226,
+   "hi": 227,
+   "msg": 5,
+   "msg_after": 5,
+   "text": "A STOOL.",
+   "text_after": "A STOOL.",
+   "reachable_d0": [
+    227
+   ],
+   "reachable_c30": [
+    "272"
+   ],
+   "hut": 5,
+   "unreachable": false,
+   "special": null
+  },
+  {
+   "index": 19,
+   "addr": "1ab46",
+   "lo": 230,
+   "hi": 231,
+   "msg": 5,
+   "msg_after": 5,
+   "text": "A STOOL.",
+   "text_after": "A STOOL.",
+   "reachable_d0": [
+    231
+   ],
+   "reachable_c30": [
+    "276"
+   ],
+   "hut": 5,
+   "unreachable": false,
+   "special": null
+  }
+ ],
+ "messages": [
+  {
+   "n": 0,
+   "addr": "1a742",
+   "x_char": 13,
+   "y_row": 18,
+   "text": "A FOOD PACKAGE"
+  },
+  {
+   "n": 1,
+   "addr": "1a753",
+   "x_char": 12,
+   "y_row": 18,
+   "text": "A SACK OF FLOUR."
+  },
+  {
+   "n": 2,
+   "addr": "1a766",
+   "x_char": 9,
+   "y_row": 18,
+   "text": "YOU HAVE FOUND A TORCH"
+  },
+  {
+   "n": 3,
+   "addr": "1a77f",
+   "x_char": 13,
+   "y_row": 18,
+   "text": "A POT OF RICE."
+  },
+  {
+   "n": 4,
+   "addr": "1a790",
+   "x_char": 16,
+   "y_row": 18,
+   "text": "RUBBISH."
+  },
+  {
+   "n": 5,
+   "addr": "1a79b",
+   "x_char": 16,
+   "y_row": 18,
+   "text": "A STOOL."
+  },
+  {
+   "n": 6,
+   "addr": "1a7a6",
+   "x_char": 17,
+   "y_row": 18,
+   "text": "EMPTY."
+  },
+  {
+   "n": 7,
+   "addr": "1a7af",
+   "x_char": 16,
+   "y_row": 18,
+   "text": "A TABLE."
+  },
+  {
+   "n": 8,
+   "addr": "1a7ba",
+   "x_char": 10,
+   "y_row": 18,
+   "text": "YOU HAVE FOUND A MAP"
+  },
+  {
+   "n": 9,
+   "addr": "1a7d1",
+   "x_char": 15,
+   "y_row": 18,
+   "text": "PROVISIONS"
+  },
+  {
+   "n": 10,
+   "addr": "1a7de",
+   "x_char": 13,
+   "y_row": 18,
+   "text": "A POT OF WATER"
+  },
+  {
+   "n": 11,
+   "addr": "1a7ef",
+   "x_char": 1,
+   "y_row": 18,
+   "text": "HERE IS A TRAP DOOR.... GO DOWN (Y/N)?"
+  },
+  {
+   "n": 12,
+   "addr": "1a818",
+   "x_char": 12,
+   "y_row": 18,
+   "text": "MEDICAL SUPPLIES"
+  },
+  {
+   "n": 13,
+   "addr": "1a82b",
+   "x_char": 8,
+   "y_row": 18,
+   "text": "YOU NEED TO FIND A TORCH"
+  },
+  {
+   "n": 14,
+   "addr": "1a846",
+   "x_char": 15,
+   "y_row": 18,
+   "text": "YOU'RE HIT"
+  },
+  {
+   "n": 15,
+   "addr": "1a853",
+   "x_char": 8,
+   "y_row": 18,
+   "text": "A VIET CONG BOOBY TRAP!!"
+  },
+  {
+   "n": 16,
+   "addr": "1a86e",
+   "x_char": 5,
+   "y_row": 18,
+   "text": "YOU HAVE FOUND SOME EXPLOSIVES"
+  },
+  {
+   "n": 17,
+   "addr": "1a88f",
+   "x_char": 4,
+   "y_row": 18,
+   "text": "SET THE EXPLOSIVES ON THE BRIDGE"
+  },
+  {
+   "n": 18,
+   "addr": "1a8b2",
+   "x_char": 12,
+   "y_row": 18,
+   "text": "KILLED IN ACTION"
+  },
+  {
+   "n": 19,
+   "addr": "1a8c5",
+   "x_char": 5,
+   "y_row": 18,
+   "text": "A BOX OF VIET CONG AMMUNITION."
+  },
+  {
+   "n": 20,
+   "addr": "1a8e6",
+   "x_char": 14,
+   "y_row": 18,
+   "text": "AN EMPTY BOX"
+  },
+  {
+   "n": 21,
+   "addr": "1a8f5",
+   "x_char": 6,
+   "y_row": 18,
+   "text": "TAKE CONTROL OF YOUR MAN...."
+  },
+  {
+   "n": 22,
+   "addr": "1a914",
+   "x_char": 17,
+   "y_row": 18,
+   "text": "CHEAT!"
+  },
+  {
+   "n": 23,
+   "addr": "1a91d",
+   "x_char": 1,
+   "y_row": 18,
+   "text": "YOU SHOULDN'T SHOOT INNOCENT VILLAGERS"
+  },
+  {
+   "n": 24,
+   "addr": "1a946",
+   "x_char": 5,
+   "y_row": 18,
+   "text": "PLEASE DON'T ATTEMPT SUICIDE!!"
+  }
+ ],
+ "palette_level0_5": [
+  "0000",
+  "0a60",
+  "00c2",
+  "0c40",
+  "0620",
+  "006f",
+  "0ca2",
+  "0060",
+  "0682",
+  "0ca6",
+  "0c64",
+  "0c42",
+  "08aa",
+  "0688",
+  "0100",
+  "0fff"
+ ],
+ "palette_jungle": [
+  "0000",
+  "0a60",
+  "00c2",
+  "0c40",
+  "0620",
+  "006f",
+  "000d",
+  "0060",
+  "0682",
+  "0ca6",
+  "0c64",
+  "0c42",
+  "08aa",
+  "0688",
+  "0100",
+  "0fff"
+ ],
+ "village_level0_map": [
+  [
+   "3c",
+   "4f",
+   "62",
+   "4e",
+   "51",
+   "55",
+   "54",
+   "4f",
+   "51",
+   "54",
+   "4f",
+   "51",
+   "54",
+   "4f",
+   "55",
+   "51",
+   "54",
+   "4e",
+   "63",
+   "4f",
+   "54",
+   "54",
+   "51",
+   "4f",
+   "54",
+   "51",
+   "4e",
+   "54",
+   "55",
+   "4f",
+   "4f",
+   "51",
+   "4f",
+   "4e",
+   "55",
+   "54",
+   "62",
+   "3c",
+   "4f",
+   "54",
+   "4f",
+   "62",
+   "54",
+   "54",
+   "54",
+   "3c",
+   "51",
+   "61",
+   "29",
+   "24",
+   "45",
+   "47",
+   "48",
+   "29",
+   "24",
+   "49",
+   "4b",
+   "46",
+   "3c",
+   "29",
+   "24",
+   "44",
+   "26",
+   "3b",
+   "29",
+   "23",
+   "44",
+   "26",
+   "3c",
+   "3b",
+   "29",
+   "49",
+   "4a",
+   "45",
+   "26",
+   "3c",
+   "29",
+   "23",
+   "44",
+   "47",
+   "48",
+   "41",
+   "4e",
+   "4f",
+   "4f",
+   "63",
+   "3c",
+   "4f",
+   "4e",
+   "4f"
+  ],
+  [
+   "50",
+   "07",
+   "59",
+   "08",
+   "57",
+   "07",
+   "09",
+   "08",
+   "56",
+   "58",
+   "07",
+   "57",
+   "07",
+   "58",
+   "09",
+   "57",
+   "07",
+   "08",
+   "10",
+   "07",
+   "57",
+   "08",
+   "57",
+   "09",
+   "58",
+   "57",
+   "08",
+   "07",
+   "58",
+   "09",
+   "07",
+   "56",
+   "07",
+   "08",
+   "07",
+   "09",
+   "59",
+   "56",
+   "09",
+   "58",
+   "07",
+   "59",
+   "58",
+   "07",
+   "58",
+   "3a",
+   "4c",
+   "5c",
+   "5e",
+   "21",
+   "25",
+   "27",
+   "4d",
+   "2a",
+   "25",
+   "21",
+   "31",
+   "27",
+   "3a",
+   "2a",
+   "21",
+   "1d",
+   "27",
+   "39",
+   "2a",
+   "25",
+   "21",
+   "27",
+   "3a",
+   "4d",
+   "2a",
+   "25",
+   "1e",
+   "21",
+   "27",
+   "4c",
+   "2a",
+   "21",
+   "31",
+   "27",
+   "43",
+   "3f",
+   "40",
+   "08",
+   "07",
+   "53",
+   "50",
+   "07",
+   "07",
+   "07"
+  ],
+  [
+   "03",
+   "05",
+   "0d",
+   "06",
+   "04",
+   "02",
+   "05",
+   "5a",
+   "05",
+   "06",
+   "02",
+   "5b",
+   "02",
+   "5a",
+   "05",
+   "06",
+   "02",
+   "04",
+   "0d",
+   "02",
+   "05",
+   "04",
+   "05",
+   "06",
+   "5b",
+   "05",
+   "02",
+   "05",
+   "5a",
+   "02",
+   "05",
+   "04",
+   "5b",
+   "04",
+   "02",
+   "05",
+   "0d",
+   "04",
+   "02",
+   "05",
+   "04",
+   "0d",
+   "05",
+   "06",
+   "02",
+   "1b",
+   "5f",
+   "5d",
+   "2b",
+   "22",
+   "1c",
+   "28",
+   "1b",
+   "2b",
+   "1c",
+   "22",
+   "1c",
+   "60",
+   "1b",
+   "2b",
+   "22",
+   "1c",
+   "60",
+   "5f",
+   "2b",
+   "1c",
+   "22",
+   "28",
+   "1b",
+   "5f",
+   "2b",
+   "1c",
+   "1c",
+   "22",
+   "60",
+   "1b",
+   "2b",
+   "22",
+   "1c",
+   "28",
+   "3d",
+   "3e",
+   "42",
+   "05",
+   "04",
+   "0d",
+   "03",
+   "05",
+   "04",
+   "05"
+  ]
+ ],
+ "hut_level5_map": [
+  [
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "3c",
+   "51",
+   "61",
+   "67",
+   "6c",
+   "69",
+   "64",
+   "48",
+   "67",
+   "6c",
+   "6b",
+   "6e",
+   "6d",
+   "3c",
+   "67",
+   "6c",
+   "65",
+   "68",
+   "3b",
+   "67",
+   "66",
+   "65",
+   "68",
+   "3c",
+   "3b",
+   "67",
+   "6b",
+   "6a",
+   "69",
+   "68",
+   "3c",
+   "67",
+   "66",
+   "65",
+   "64",
+   "48",
+   "41",
+   "4e",
+   "4f",
+   "4f",
+   "63",
+   "3c",
+   "4f",
+   "4e",
+   "4f"
+  ],
+  [
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "3a",
+   "4c",
+   "5c",
+   "71",
+   "76",
+   "79",
+   "6f",
+   "4d",
+   "70",
+   "2d",
+   "7a",
+   "7f",
+   "6f",
+   "3a",
+   "70",
+   "7d",
+   "7c",
+   "6f",
+   "39",
+   "70",
+   "7e",
+   "80",
+   "6f",
+   "3a",
+   "4d",
+   "70",
+   "2d",
+   "2c",
+   "2e",
+   "6f",
+   "4c",
+   "70",
+   "76",
+   "32",
+   "6f",
+   "43",
+   "3f",
+   "40",
+   "08",
+   "07",
+   "53",
+   "50",
+   "07",
+   "07",
+   "07"
+  ],
+  [
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "00",
+   "1b",
+   "5f",
+   "5d",
+   "72",
+   "77",
+   "75",
+   "73",
+   "1b",
+   "72",
+   "78",
+   "7b",
+   "75",
+   "74",
+   "1b",
+   "72",
+   "77",
+   "75",
+   "74",
+   "5f",
+   "72",
+   "78",
+   "30",
+   "73",
+   "1b",
+   "5f",
+   "72",
+   "78",
+   "2f",
+   "30",
+   "74",
+   "1b",
+   "72",
+   "77",
+   "75",
+   "73",
+   "3d",
+   "3e",
+   "42",
+   "05",
+   "04",
+   "0d",
+   "03",
+   "05",
+   "04",
+   "05"
+  ]
+ ],
+ "solid_cells_level0_row1": {
+  "2f": [
+   2,
+   3,
+   4,
+   5,
+   6,
+   10,
+   11,
+   12,
+   13,
+   14,
+   18,
+   19,
+   20,
+   21,
+   22,
+   26,
+   27,
+   28,
+   29,
+   30,
+   34,
+   35,
+   37,
+   38,
+   45,
+   46
+  ],
+  "55": [
+   3,
+   4,
+   5,
+   11,
+   12,
+   13,
+   19,
+   20,
+   21,
+   27,
+   28,
+   29,
+   35,
+   36,
+   37,
+   43,
+   44,
+   45
+  ]
+ },
+ "solid_cells_level5_row1": {
+  "2f": [
+   2,
+   3,
+   4,
+   5,
+   6,
+   10,
+   11,
+   12,
+   13,
+   14,
+   18,
+   19,
+   20,
+   21,
+   22,
+   26,
+   27,
+   28,
+   29,
+   30,
+   34,
+   35,
+   37,
+   38,
+   45,
+   46
+  ],
+  "30": [
+   5,
+   21,
+   29,
+   45
+  ],
+  "31": [
+   0,
+   8,
+   16,
+   24,
+   32
+  ],
+  "33": [
+   0,
+   2,
+   8,
+   10,
+   16,
+   24,
+   26,
+   32,
+   34
+  ],
+  "35": [
+   5,
+   21,
+   29,
+   45
+  ],
+  "36": [
+   0,
+   8,
+   16,
+   24,
+   32
+  ],
+  "39": [
+   0,
+   2,
+   8,
+   10,
+   16,
+   24,
+   26,
+   32,
+   34
+  ],
+  "3b": [
+   5,
+   21,
+   29,
+   45
+  ],
+  "3c": [
+   0,
+   8,
+   16,
+   24,
+   32
+  ],
+  "3e": [
+   0,
+   2,
+   8,
+   10,
+   16,
+   24,
+   26,
+   32,
+   34
+  ],
+  "40": [
+   5,
+   21,
+   29,
+   45
+  ],
+  "41": [
+   0,
+   8,
+   16,
+   24,
+   32
+  ],
+  "43": [
+   0,
+   2,
+   8,
+   10,
+   16,
+   24,
+   26,
+   32,
+   34
+  ],
+  "46": [
+   5,
+   21,
+   29,
+   45
+  ],
+  "47": [
+   0,
+   8,
+   16,
+   24,
+   32
+  ],
+  "4a": [
+   0,
+   2,
+   8,
+   10,
+   16,
+   24,
+   26,
+   32,
+   34
+  ],
+  "4c": [
+   5,
+   21,
+   29,
+   45
+  ],
+  "4d": [
+   0,
+   8,
+   16,
+   24,
+   32
+  ],
+  "4f": [
+   0,
+   2,
+   8,
+   10,
+   16,
+   24,
+   26,
+   32,
+   34
+  ],
+  "55": [
+   3,
+   4,
+   5,
+   11,
+   12,
+   13,
+   19,
+   20,
+   21,
+   27,
+   28,
+   29,
+   35,
+   36,
+   37,
+   43,
+   44,
+   45
+  ]
+ },
+ "frames": {
+  "23": {
+   "bobs": [
+    "38",
+    "04"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "24": {
+   "bobs": [
+    "38",
+    "05"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "25": {
+   "bobs": [
+    "39",
+    "06"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "26": {
+   "bobs": [
+    "39",
+    "07"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "27": {
+   "bobs": [
+    "38",
+    "08"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "28": {
+   "bobs": [
+    "38",
+    "09"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "29": {
+   "bobs": [
+    "39",
+    "0a"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "2a": {
+   "bobs": [
+    "39",
+    "0b"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "63": {
+   "bobs": [
+    "63",
+    "43"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "64": {
+   "bobs": [
+    "63",
+    "44"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "65": {
+   "bobs": [
+    "64",
+    "45"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "66": {
+   "bobs": [
+    "64",
+    "46"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "67": {
+   "bobs": [
+    "63",
+    "47"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "68": {
+   "bobs": [
+    "63",
+    "48"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "69": {
+   "bobs": [
+    "64",
+    "49"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "6a": {
+   "bobs": [
+    "64",
+    "4a"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "34": {
+   "bobs": [
+    "2c",
+    "0e"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "74": {
+   "bobs": [
+    "5f",
+    "4d"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "1f": {
+   "bobs": [
+    "19",
+    "1a"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "20": {
+   "bobs": [
+    "1c",
+    "1d"
+   ],
+   "origin": [
+    -16,
+    25
+   ]
+  },
+  "33": {
+   "bobs": [
+    "1e",
+    "1f"
+   ],
+   "origin": [
+    -16,
+    34
+   ]
+  },
+  "5f": {
+   "bobs": [
+    "58",
+    "59"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "60": {
+   "bobs": [
+    "5b",
+    "5c"
+   ],
+   "origin": [
+    0,
+    25
+   ]
+  },
+  "73": {
+   "bobs": [
+    "5d",
+    "5e"
+   ],
+   "origin": [
+    0,
+    34
+   ]
+  },
+  "11": {
+   "bobs": [
+    "24",
+    "28"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "12": {
+   "bobs": [
+    "25",
+    "29"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "13": {
+   "bobs": [
+    "26",
+    "2a"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "14": {
+   "bobs": [
+    "27",
+    "2b"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "0d": {
+   "bobs": [
+    "20",
+    "28"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "0e": {
+   "bobs": [
+    "21",
+    "29"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "0f": {
+   "bobs": [
+    "22",
+    "2a"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "10": {
+   "bobs": [
+    "23",
+    "2b"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "31": {
+   "bobs": [
+    "18",
+    "1a"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "32": {
+   "bobs": [
+    "1b",
+    "1d"
+   ],
+   "origin": [
+    -16,
+    21
+   ]
+  },
+  "15": {
+   "bobs": [
+    "2c",
+    "04"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "16": {
+   "bobs": [
+    "2c",
+    "05"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "17": {
+   "bobs": [
+    "2d",
+    "06"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "18": {
+   "bobs": [
+    "2d",
+    "07"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "19": {
+   "bobs": [
+    "2e",
+    "08"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "1a": {
+   "bobs": [
+    "2e",
+    "09"
+   ],
+   "origin": [
+    0,
+    1
+   ]
+  },
+  "1b": {
+   "bobs": [
+    "2f",
+    "0a"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  "1c": {
+   "bobs": [
+    "2f",
+    "0b"
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  }
+ },
+ "jump_arc_1a194": [
+  8,
+  15,
+  22,
+  28,
+  33,
+  37,
+  39,
+  40,
+  39,
+  37,
+  33,
+  28,
+  22,
+  15,
+  8,
+  0,
+  0
+ ],
+ "score_bcd": {
+  "1a6ce(+300)": "00000300",
+  "1a6d2(+500)": "00000500",
+  "1a6d6(+10000)": "00010000"
+ },
+ "start_pos_1a6da": "00050001"
+}

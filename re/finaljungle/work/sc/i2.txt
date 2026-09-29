@@ -1,0 +1,29 @@
+[f924 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f924 v006] AUD1 start ptr=008834 len=32 per=374 vol=64
+[f924 v008] AUD2 start ptr=0088ba len=64 per=280 vol=48
+[f924 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f930 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f936 v006] AUD1 start ptr=008834 len=32 per=749 vol=64
+[f936 v008] AUD2 start ptr=0088ba len=64 per=374 vol=48
+[f936 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f942 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f942 v006] AUD1 start ptr=008834 len=32 per=421 vol=64
+[f942 v008] AUD2 start ptr=0088ba len=64 per=236 vol=48
+[f942 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f944 v015] BP 0174fa d0=00000022 d1=00000002 d2=ffffffff d3=00000022 a0=00057e6a a1=00079e0e a2=00dff000 a6=00012dde sp=000003fc
+[f954 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f954 v006] AUD1 start ptr=008834 len=32 per=472 vol=64
+[f954 v008] AUD2 start ptr=0088ba len=64 per=250 vol=48
+[f954 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f960 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f964 v209] BP 017fe6 d0=0031ffff d1=0000005b d2=ffff00ae d3=00000004 a0=00057ea0 a1=00076000 a2=00dff000 a6=00012dde sp=000003ec
+[f964 v229] AUD0 start ptr=00c112 len=2414 per=357 vol=64
+[f964 v255] AUD2 start ptr=00c112 len=2414 per=357 vol=64
+[f972 v006] AUD1 start ptr=008834 len=32 per=500 vol=64
+[f972 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f979 v019] BP 0174fa d0=00000023 d1=00000002 d2=ffffffff d3=00000022 a0=00057e6a a1=00079e0e a2=00dff000 a6=00012dde sp=000003fc
+[f980 v313] dumped 057e22+180 to sc/slots56.bin
+[f981 v208] BP 017d64 d0=007000b3 d1=0000001b d2=ffff00a0 d3=00000008 a0=00017cfc a1=0007e000 a2=00dff000 a6=00012dde sp=000003ec
+[f982 v201] AUD1 start ptr=008d08 len=2830 per=357 vol=64
+[f982 v228] AUD3 start ptr=008d08 len=2830 per=357 vol=64
+[f984 v313] done: 984 frames, 1196 blits, pc=0109c0

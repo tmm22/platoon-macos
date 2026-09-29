@@ -1,0 +1,82 @@
+# ---- flare module labels (Platoon load section 1, code $17000..) ----
+# shared section-1 engine pieces the flare section uses
+17252 exit_platoon_destroyed  all platoon members dead: text $19851 "YOUR PLATOON HAS BEEN DESTROYED", then jmp $f864 (game over/hiscore)
+17262 exit_morale_zero  morale $2e(a6)==0: text $198a3 "...WITHDRAWN FROM ACTION", then jmp $f864
+17272 text_screen_music3  d0=3 -> $f868 (music 3), falls into text_screen
+1727e text_screen  a0=text: $f840 clear, palettes $1a052/$1a06e, jsr $408 print, $f844(#$31), wait fire (bit7 of $410), $f868(4), restore tunnel palette $1a032->$1a012
+172f6 exit_back_to_tunnels  member killed (not last): text $198fc "ONLY ONE ... REMAINS AT THE ENTRANCE TO THE TUNNELS" then bra $170c4 (restart tunnel section; flares/compass reset to 0)
+170c4 tunnels_restart  tunnel section (re)initialisation (owned by tunnels module)
+17810 flare_update_draw_objects  run handler + draw for list1 ($19e0a, 8 x $12, night blit) then list2 ($19eac, 8 x $12, normal blit); entries 7..0
+17dd0 player_hit_flare  enemy bullet hit: sound $80, msg $20 YOU'RE HIT, hits++ ($4(a5)), HUD; 4 hits -> red fade + KIA + member switch/$3b235/$3b236; wait msgs; morale -$c00; msg 0
+17e2e player_hit_wait_msgs
+17e60 red_fade  fade $1a012 palette toward $f00 (3 vblanks/step) until all red; if hits==4 return; else redraw tunnel + fade back (tunnel only)
+17f64 player_hit_last_man  sets $3b235 (all dead)
+17f6e morale_sub  $2e(a6) -= d0 (unsigned, clamp at 0 on borrow)
+17f7c blit_bob_normal  cookie-cut bob blit (list2): d0 = x<<16|y, a1 = bob frame; dest $62(a6)+$3b3f8+y*40+(x>>3&$fe); minterm $ce
+180ee blit_bob_night  list1 blit: like blit_bob_normal but the mask is ANDed with NOT(background==colour 15) -> colour-15 scenery occludes enemies/flare
+18922 tunnel_exit_handler  room object $15 "EXIT": msgs $f,$15; flares<5 -> $21; flares<8 -> $22; else ($23 if no compass) +30000 and bra flare_enter
+18970 tunnel_exit_refuse  print d0 message and return to tunnel game
+189c0 recolor_crosshair_c4  L_0189da on frames $1e020(crosshair),$1e048,$1e050(muzzle): planes := 0,0,mask,0 (colour 4)
+189da recolor_bob_c4
+18a20 fade_copy_palette  copy current palette ($5a(a6)) -> $3b722, set it
+18a40 v_fade_active  word: nonzero while fade step changed something
+18a42 fade_step_down  each of 16 colours in $3b722: R,G,B each -1 toward 0; set palette; $18a40 = changed flag
+18a98 fade_out_and_clear  fade to black (3 vblanks/step, also waits message queue $48(a6)==0), then clear both screens $70000/$78000 (4 x $1680 bytes)
+18afe flare_cheat_entry  HELP key ($5f) in tunnels with $71(a6) bit1: flares=9, msg $24 "LET'S GO TO THE FLARE SCREEN!"
+18b0e flare_enter  normal entry (from tunnel exit): fade/clear, init objects, stack=$400, music 6, decode background
+18bd8 flare_main_loop  one iteration per ~2 frames
+18bf2 flare_loop_body
+18ca8 flare_loop_objects
+18ce8 flare_palette_countdown
+18d12 flare_loop_end
+18d22 fire_flare  if !$3b231: flares--, launch flare obj (y=$6e), sound $a, $3b231=st, $3b224=1
+18d5e copy_background  $68000 -> back buffer $62(a6): 144 rows x 40 bytes x 4 planes (plane stride $2000)
+18e3a palette_step  set palette [$3b222] from $19f76; $3b222+=4; at $1c: wrap 0, clear $3b231, if flares==0 -> flare_win
+18e6c flare_win  msgs $28 "WELL DONE," $29 "YOU MADE IT THROUGH THE NIGHT", fade, jmp $f874 (load section 2)
+18e8a palette_step_store
+18e92 decode_background  RLE $36242 -> $68000 (4 planes, 40x144)
+18eda bg_put_byte
+18f1a map_scroll_anim  (tunnels, map screen)
+18f3c shot_jitter_tunnel  (tunnels version of shot_jitter)
+18fba shot_jitter_flare  ammo--, sound $83, crosshair += rnd(0..7) - rnd(0..7) in x and y, clamped x[$1e,$10e] y[$a,$78]
+19048 h_crosshair  list2[0] handler: joystick move (accelerating), fire = shoot or fire flare on flare box
+1914c h_flare_rise  list1[0] handler: y -= $14 each iteration, frame++ every 2nd; y<0 -> inactive
+19174 h_enemy_rise  enemy state A: frame 0->3 every 8 iterations
+191a2 h_enemy_aim  enemy state B: 16 iterations, then first shot (sound $84) -> state C
+191cc h_enemy_shoot  enemy state C: count; shot flash every 8; after light-dependent threshold -> hits player
+19212 enemy_muzzle_flash  activate companion list2 entry (+$90): x=ex-$d, y=ey+$b
+1922a enemy_hits_player  free slot, remove enemy, reset spawn difficulty, $3b231=st, bra player_hit_flare
+1925a h_enemy_dying  frames 5..7 every 2 iterations; at 8: inactive, $3b22a+=3, free slot, score +300
+192a0 h_muzzle_flash  list2[1..6] handler: short-lived flash
+192c4 enemy_hit_test  crosshair (x+9,y+9) inside enemy [x,x+$1e]x[y,y+$19] && fired this iteration && ammo>0 -> kill (frame 5, h_enemy_dying, sound $80)
+1933c screen_addr  (engine) a1 = $62(a6) + rowtab[d2] + d1.b
+# ---- data ----
+19374 d_message_ptrs  $2a longword pointers used by $f82c (via $4a(a6))
+1977c d_msg24_lets_go_flare
+1979c d_msg25_dugout
+197bb d_msg26_enemy_suspect
+197dd d_msg27_will_attack
+197ef d_msg28_well_done
+197fc d_msg29_made_it
+19851 d_txt_destroyed
+198a3 d_txt_withdrawn
+198fc d_txt_one_more_chance
+199bc d_room_handler_table  (tunnels) handler per object message code; [$15] = tunnel_exit_handler
+19e0a d_list1  8 objects x $12: [0]=flare, [1] unused, [2..6]=enemies, [7] unused
+19e2e d_list1_enemies
+19eac d_list2  8 objects x $12: [0]=crosshair, [1..6]=muzzle flashes (enemy+$90)
+19f4e d_spawn_slots  8 x {b used, b 0, w x}: x=$20,$40..$100
+19f6e d_palstep_dur  8 bytes: 1,1,1,1,$46,$32,$1e,$0a (indexed by new $3b222>>2)
+19f76 d_palseq  7 ptrs: $19f92,$19fb2,$19fd2,$19ff2,$19fd2,$19fb2,$19f92
+19f92 d_pal_night0
+19fb2 d_pal_night1
+19fd2 d_pal_night2
+19ff2 d_pal_night3
+1a012 d_pal_tunnel_work
+1a032 d_pal_tunnel
+1a0a4 d_score300_end  BCD 00000300 at $1a0a0..$1a0a3 (f80c adds 4 bytes BEFORE a0)
+1a0ac d_score30000_end
+1a0ae v_crosshair_speed  word
+1e020 d_anim_table  8 bytes/frame: long offset from $1e220, long header copy
+1e220 d_bob_bank
+36242 d_bg_rle

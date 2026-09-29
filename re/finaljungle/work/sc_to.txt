@@ -1,0 +1,9 @@
+1 poke 12e4a 0003 2
+100 shot to100
+200 shot to200
+260 shot to260
+400 shot to400
+600 shot to600
+800 fire 1
+805 fire 0
+900 shot to900

@@ -187,3 +187,146 @@
 1aaa4 d_player_state_table 11 longs
 1aad0 d_enemy_state_table 9 longs
 1768e hit_pbullet
+# ---- data (d_) inside the section
+19fd8 d_msg_fade 8 longs message colour fade table ($34(a6))
+19ff8 d_pal_playfield 16 words playfield palette
+1a004 d_pal_col6 colour 6, patched per level ($000d jungle / $0ca2 village)
+1a018 d_pal_hud 16 words HUD palette
+1a038 d_pal_black 16 words black
+1a058 d_dissolve_masks 8 groups x 8 longs
+1a138 d_dissolve_zero 8 zero longs
+1a158 d_man_gren_pos choose screen grenade bar positions
+1a16c d_man_ammo_pos choose screen ammo bar positions
+1a180 d_man_hits_pos choose screen hit marker positions
+1a194 d_jump_arc 16 words
+1a1b4 d_grenade_arc 9 words
+1a1c6 d_frame_table 128 longs -> bob lists
+1a3c6 d_bob_lists
+1a536 d_bob_offsets 101 x (x.w,y.w)
+1a6ce d_bcd_300
+1a6d2 d_bcd_500
+1a6d6 d_bcd_10000
+1a6da d_start_pos T.w, level.w
+1a6de d_msg_table 25 message pointers
+1a742 d_msg_texts
+1a967 d_txt_reset kernel $408 string
+1a970 d_txt_bridge_gameover
+1a9b3 d_txt_gameover
+1a9cd d_txt_choose
+1a9fe d_txt_kia
+1aa18 d_txt_num_normal 5 pointers
+1aa5e d_txt_num_hilite 5 pointers
+1aaf4 d_hut_doors 6 bytes
+1aafa d_village_items 20 x 4 bytes
+# ---- variables (v_) for operand substitution
+5f880 v_px
+5f882 v_py
+5f884 v_pframe
+5f886 v_pfacing
+5f888 v_estate
+5f88a v_ex
+5f88c v_ey
+5f88e v_eframe
+5f890 v_efacing
+5f892 v_ebase
+5f894 v_ecnt
+5f896 v_espeed
+5f898 v_evillager
+5f89a v_pstate
+5f89c v_map_levels
+5f8b4 v_tile_gfx_ptrs
+5fcb4 v_tile_attr_ptrs
+600b4 v_attr_win
+604a4 v_bobbuf
+60864 v_bgmask
+60c24 v_T
+60c26 v_level
+60c28 v_pcol
+60c2a v_plevel
+60c2c v_pmapptr
+60c30 v_pworld
+60c32 v_align
+60c34 v_c34
+60c36 v_flip
+60c38 v_savefacing
+60c3a v_pathofs
+60c3c v_pcnt
+60c3e v_firetoggle
+60c40 v_hut
+60c42 v_grenade_busy
+60c44 v_dx
+60c46 v_firecool
+60c48 v_pbullets
+60c5a v_grenade
+60c5c v_grenade_y
+60c60 v_ebullet
+60c62 v_ebullet_y
+60c64 v_ebullet_dx
+60c66 v_grenade_t
+60c68 v_expl_frame
+60c6a v_expl_pos
+60c6c v_expl_y
+60c6e v_expl_timer
+60c70 v_hutkilled
+60c72 v_hutprop
+60c76 v_trap_pos
+60c7a v_trap_state
+60c7c v_bomb_pos
+60c7e v_bomb_y
+60c80 v_trapx_frame
+60c82 v_trapx_timer
+60c84 v_crate_pos
+60c86 v_crate_y
+60c88 v_hit_target
+60c8c v_bul_old
+60c90 v_bul_new
+60c94 v_probe_x
+60c96 v_probe_y
+60c98 v_bonus_bcd
+60c9c v_bridge
+60c9e v_man_hilite
+60ca0 v_invincible
+60ca4 v_runner_shots
+60ca6 v_runner_slot
+60caa v_runner_timer
+60cae v_noise
+60cb0 v_scrollcnt
+60cb2 v_hscroll
+60cb4 v_tick
+60cb7 v_tick_lo
+60cba v_prio_line
+60cbc v_blastflag
+60cbd v_torch
+60cbe v_searchlatch
+60cbf v_jumpinput
+60cc0 v_lastdir
+60cc1 v_input
+60cc2 v_rowtab
+1b000 v_map
+1b209 v_bridge_tile1
+1b20a v_bridge_tile2
+f808 k_hud_items
+f80c k_add_score
+f818 k_hud_hits
+f82c k_message
+f830 k_hud_init
+f834 k_hud_update
+f838 k_draw_bar
+f83c k_draw_icon
+f840 k_clear_screens
+f848 k_wait_vbl
+f84c k_swap
+f850 k_rand
+f854 k_fill_table
+f85c k_wait_swap
+f864 k_game_over
+f868 k_music
+f86c k_sfx
+f870 k_fade_palette
+f874 k_next_section
+f878 k_set_pal_upper
+f87c k_set_pal_lower
+f880 k_hud_split
+40c r_key_test
+410 r_joy_read
+408 r_print

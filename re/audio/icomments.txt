@@ -1,0 +1,135 @@
+2854 CIA-A PRA bit1 = 1: power LED off / audio low-pass filter OFF
+285c a3 = $2800 base for all a3-relative variables
+2868 global transpose := 0
+2870 song index * 10 (ext.w: song must be 0..127)
+287a tempo := (signed) song byte 0
+2884 speed := song byte 1
+288a copy of speed (never read)
+2892 duration counter := 1 -> first tick reads the pattern
+2898 flags (portamento bit1) := 0
+289c vibrato state := 0
+28a0 channel transpose := 0
+28a4 loop-pending := $ff (no repeat write on first tick)
+28a8 arpeggio := default table $2f16 ("00 80" = no arpeggio)
+28b8 sequence offset for this channel
+28c0 sequence index := 2 (entry 0 is loaded now)
+28c6 first pattern = $2800 + seq[0]
+28de playing := $ff
+28e2 song loaded := $ff
+28f0 sfx channel 0..3 active flags := 0
+2900 clr.w shadow+$a: clears BOTH music-active (+$a) and sfx-owns (+$b)
+2910 DMACON: audio DMA 0-3 off
+2918 ADKCON: clear all audio modulation bits
+2920 AUD0VOL..AUD3VOL := 0
+2946 sfx duration := 1 -> each active sfx ends on next sfx_update
+296a ADKCON clear modulation
+2972 d1 = $820f
+2994 not playing -> only sfx
+299a NTSC mode (never enabled): skip every 6th frame entirely (incl. sfx)
+29ae speed accumulator += speed; carry -> skip music tick this frame
+29b8 a0 = instrument 5 sample ($8834, 64-byte square wave)
+29c0 PWM direction
+29c6 widen: write $c0c0 at offset, offset += 2, flip at $2c
+29de narrow: write $3f3f at offset, offset -= 2, flip at $20
+29f6 a4 = shadow regs of channel d7
+2a02 shadow+$a := $ff (music is using this channel)
+2a0c a6 = $dff000 + 16*ch (AUDxLC = $a0(a6))
+2a12 a0 = channel struct $2dac + $30*ch
+2a1e a1 = pattern pointer
+2a22 a5 = instrument
+2a26 loop-pending flag: 0 = note started last tick -> set repeat now
+2a30 instrument loop offset (bytes); negative = one-shot
+2a36 repeat start = sample + loop
+2a3e repeat length = len_words - loop/2
+2a4c sfx owns channel -> shadow only
+2a52 AUDxLC/AUDxLEN := repeat (latched by Paula for next wrap)
+2a5c one-shot: repeat = 64 zero bytes at (v_silence_ptr)
+2a7a duration counter -= 1
+2a80 counter == 1: last tick of the note
+2a90 next byte $83 (tie) -> keep DMA running
+2a96 else DMA off for this channel (1 tick gap before next note)
+2aa4 new event: clear flags (ends portamento)
+2aaa read pattern byte; >= $80 = command
+2ab0 note number
+2ab4 + global transpose + channel transpose (8-bit wrap)
+2abc volume envelope: first byte = initial volume
+2ac6 envelope counter := envelope speed
+2ace shadow ptr/len := instrument sample
+2ade vol = env*master >> 6 (lsr.w on low word)
+2aec AUDxLC, AUDxLEN, AUDxVOL (skipped while sfx owns channel)
+2b00 period = pertab[note] * inst_mult >> 10
+2b1e AUDxPER
+2b22 loop-pending := 0 -> next tick writes repeat ptr/len
+2b2a counter := duration
+2b30 DMACON = $8200 | 1<<ch (always, even if sfx owns channel)
+2b4a effects: note + transposes
+2b56 arpeggio: next byte, bit7 = last (restart list)
+2b6a note += arpeggio offset
+2b84 portamento active?
+2b8c delay ticks before slide starts
+2b98 slide += speed (signed); period -= slide
+2ba6 vibrato: 0 = off, bit7 = direction up, bit0 = sign
+2bae up: pos += speed, flip direction when pos == depth
+2bc8 down: pos -= speed, flip when pos == 0
+2bdc pos == 0 -> flip sign bit
+2bea period +/- pos (sign-extended byte)
+2bf8 shadow per, AUDxPER
+2c06 envelope counter -= 1; underflow -> next envelope byte
+2c16 byte >= $80 = last: hold (pointer not advanced)
+2c1e vol = (byte & $7f) * master >> 6 -> AUDxVOL
+2c3c $e0-$ff: duration = (b - $df) * tempo
+2c52 $c0-$df: instrument
+2c6e $b0-$bf: envelope
+2c88 envelope speed = byte before envelope data
+2c92 $a0-$af: arpeggio table
+2cb4 $80-$8a: jump table (b*2 & $ff)
+2cc2 next sequence entry; 0 word -> restart sequence at entry 0 (index 2)
+2ce8 slide := 0
+2cf4 portamento flag
+2cfe rest: counter := duration, repeat/current -> silence buffer (DMA was switched off at counter==1)
+2d2e song-loaded := 0 then stop (returns straight out of play)
+3bce once only
+3bd6 8 chained samples: l length, w rate(Hz), data
+3bf0 period multiplier = 3579545 / rate (NTSC clock)
+3c04 after last sample: 64 bytes of silence
+3c0c synth sfx waveforms start 64 bytes later ($8a00)
+3c10 instrument 5 = 64-byte PWM square wave: 32 x $c0, 32 x $3f
+3c2c instrument 5 length := 32 words
+3c48 5 chained sfx samples at $8d02
+3c52 frames = len_lo*50/rate + 1
+3c98 ADKCON clear modulation (no LED change here: bset was at $3c90)
+3ca4 d0 = (ch<<8)|id, keep 10 bits
+3ca8 store request word: $4082 = channel, $4083 = id
+3cac kill any sfx running on that channel
+3ce2 shadow+$b := $ff (sfx owns channel, music writes suppressed)
+3cf2 id >= $80 -> sample sfx
+3cf8 synth id > 11 -> 0
+3d24 sfx inactive while setting up
+3d28 DMA off for the channel
+3d2e AUDxLEN := 64 words (128-byte waveforms)
+3d32 copy 22-byte definition into sfx channel struct
+3d42 +$16/+$17 counters := def +$e/+$f
+3d48 volume envelope counter := 1 (first byte applied on first update)
+3d56 envelope pointer from table $41bc[def+$14]
+3d64 busy wait
+3d6c active (DMA is started by sfx_update next vblank)
+3dc6 signed compare: $86..$ff ignored
+3dce $85 = sample $83 at double period (octave down), double duration
+3e12 +$15 := id (non-zero => update only counts duration)
+3e2e duration frames
+3e34 long-flag -> duration 0 (=256 frames)
+3e4a AUDxLEN, AUDxLC, AUDxPER, VOL=64, DMA on
+3e7e then repeat := silence (one-shot) or loop
+3f16 duration -= 1
+3f1c ended: DMA off, release channel
+3f2a music active -> restore shadow regs and DMA on
+3f54 sample sfx: nothing else to do
+3f5c alternate period step every +$f frames
+3f6e pattern bit (ror) chooses low word (+6) if 1, high word (+4) if 0
+3f84 per-frame period delta (+0)
+3f8c sweep reset every +$e frames: period := +2
+3fa4 volume envelope step every +$13 frames; byte >= $80 = hold
+3fc2 period clamp: signed < $7c -> $7c
+3fd2 waveform offset alternation (pattern +$11): bit 1 -> +$c, 0 -> +$a
+3fe4 AUDxLC := $8a00 + offset (sign-extended word)
+3fee DMA on every frame (restarts only if it was off)

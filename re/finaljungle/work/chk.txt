@@ -1,0 +1,3 @@
+1 dumpr 18f1c 1 rm.bin
+1 dumpr 17d68 2 pk.bin
+2 shot b

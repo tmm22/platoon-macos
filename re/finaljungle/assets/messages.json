@@ -1,0 +1,270 @@
+{
+ "messages_189e0": [
+  {
+   "n": 0,
+   "addr": "18a24",
+   "x": 15,
+   "y": 18,
+   "text": "GET GOING!"
+  },
+  {
+   "n": 1,
+   "addr": "18a31",
+   "x": 14,
+   "y": 18,
+   "text": "KEEP MOVING!"
+  },
+  {
+   "n": 2,
+   "addr": "18a40",
+   "x": 13,
+   "y": 18,
+   "text": "GOOD SHOOTING!"
+  },
+  {
+   "n": 3,
+   "addr": "18a40",
+   "x": 13,
+   "y": 18,
+   "text": "GOOD SHOOTING!"
+  },
+  {
+   "n": 4,
+   "addr": "18a51",
+   "x": 16,
+   "y": 18,
+   "text": "GOT YA !"
+  },
+  {
+   "n": 5,
+   "addr": "18a5c",
+   "x": 7,
+   "y": 18,
+   "text": "NOT LONG BEFORE THE NAPALM"
+  },
+  {
+   "n": 6,
+   "addr": "18a79",
+   "x": 15,
+   "y": 18,
+   "text": "GO GET 'EM"
+  },
+  {
+   "n": 7,
+   "addr": "18a86",
+   "x": 15,
+   "y": 18,
+   "text": "STAY ALERT"
+  },
+  {
+   "n": 8,
+   "addr": "18a93",
+   "x": 8,
+   "y": 18,
+   "text": "THAT'S THE WAY TO DO IT!"
+  },
+  {
+   "n": 9,
+   "addr": "18aae",
+   "x": 12,
+   "y": 18,
+   "text": "KILLED IN ACTION"
+  },
+  {
+   "n": 10,
+   "addr": "18ac1",
+   "x": 15,
+   "y": 18,
+   "text": "YOU'RE HIT"
+  },
+  {
+   "n": 11,
+   "addr": "18ace",
+   "x": 9,
+   "y": 18,
+   "text": "A COMPASS WOULD HELP !"
+  },
+  {
+   "n": 12,
+   "addr": "18ae7",
+   "x": 10,
+   "y": 18,
+   "text": "JUNGLE CONFRONTATION"
+  },
+  {
+   "n": 13,
+   "addr": "18afe",
+   "x": 5,
+   "y": 18,
+   "text": "KILL BARNES WITH THE GRENADES."
+  },
+  {
+   "n": 14,
+   "addr": "18b1f",
+   "x": 14,
+   "y": 18,
+   "text": "DIRECT HIT !"
+  },
+  {
+   "n": 15,
+   "addr": "18b2e",
+   "x": 14,
+   "y": 18,
+   "text": "YOU GOT HIM!"
+  },
+  {
+   "n": 16,
+   "addr": "18b3d",
+   "x": 8,
+   "y": 18,
+   "text": "GET TO THE BUNKER - NOW!"
+  }
+ ],
+ "text_screens": {
+  "intro": {
+   "addr": "18c6d",
+   "lines": [
+    {
+     "col": 14,
+     "row": 3,
+     "text": "{c2=6}{c3=7}!THE JUNGLE!"
+    },
+    {
+     "col": 6,
+     "row": 5,
+     "text": "{c2=4}{c3=5}YOU HAVE TWO  MINUTES BEFORE"
+    },
+    {
+     "col": 13,
+     "row": 7,
+     "text": "THE AIRSTRIKE."
+    },
+    {
+     "col": 12,
+     "row": 10,
+     "text": "{c2=2}{c3=3}FIND THE BUNKER!"
+    },
+    {
+     "col": 9,
+     "row": 17,
+     "text": "{c2=8}{c3=9}PRESS FIRE WHEN READY"
+    }
+   ]
+  },
+  "won": {
+   "addr": "18b5f",
+   "lines": [
+    {
+     "col": 14,
+     "row": 5,
+     "text": "{c2=6}{c3=7}YOU MADE IT!"
+    },
+    {
+     "col": 9,
+     "row": 10,
+     "text": "{c2=2}{c3=3}A HUEY IS ON IT'S WAY,"
+    },
+    {
+     "col": 3,
+     "row": 14,
+     "text": "{c2=4}{c3=5}TO TAKE YOU BACK TO THE FIREBASE !"
+    }
+   ]
+  },
+  "napalm": {
+   "addr": "18bb8",
+   "lines": [
+    {
+     "col": 10,
+     "row": 5,
+     "text": "{c2=6}{c3=7}YOU DIDN'T MAKE IT!"
+    },
+    {
+     "col": 4,
+     "row": 10,
+     "text": "{c2=2}{c3=3}YOUR PLATOON HAS BEEN DESTROYED,"
+    },
+    {
+     "col": 10,
+     "row": 14,
+     "text": "{c2=4}{c3=5}BY A NAPALM STRIKE !"
+    }
+   ]
+  },
+  "withdrawn": {
+   "addr": "18c14",
+   "lines": [
+    {
+     "col": 10,
+     "row": 3,
+     "text": "{c2=2}{c3=3}YOU DIDN'T MAKE IT !"
+    },
+    {
+     "col": 1,
+     "row": 5,
+     "text": "{c2=4}{c3=5}YOUR PLATOON HAS WITHDRAWN FROM ACTION"
+    },
+    {
+     "col": 15,
+     "row": 8,
+     "text": "{c2=6}{c3=7}PRESS FIRE"
+    }
+   ]
+  },
+  "destroyed_2nd": {
+   "addr": "18ce7",
+   "lines": [
+    {
+     "col": 5,
+     "row": 3,
+     "text": "{c2=4}{c3=5}YOUR PLATOON HAS BEEN DESTROYED!"
+    },
+    {
+     "col": 9,
+     "row": 10,
+     "text": "{c2=8}{c3=9}PRESS FIRE TO CONTINUE."
+    }
+   ]
+  },
+  "one_more_chance": {
+   "addr": "18d2c",
+   "lines": [
+    {
+     "col": 10,
+     "row": 1,
+     "text": "{c2=2}{c3=3}YOU DIDN'T MAKE IT !"
+    },
+    {
+     "col": 6,
+     "row": 4,
+     "text": "{c2=4}{c3=5}ONE OF YOUR PLATOON MEMBERS"
+    },
+    {
+     "col": 6,
+     "row": 6,
+     "text": "FOLLOWED YOU TO THE EDGE OF"
+    },
+    {
+     "col": 15,
+     "row": 8,
+     "text": "THE JUNGLE"
+    },
+    {
+     "col": 8,
+     "row": 11,
+     "text": "{c2=6}{c3=7}YOU HAVE ONE MORE CHANCE"
+    },
+    {
+     "col": 8,
+     "row": 14,
+     "text": "{c2=8}{c3=9}TAKE CONTROL OF YOUR MAN"
+    },
+    {
+     "col": 9,
+     "row": 20,
+     "text": "{c2=6}{c3=7}PRESS FIRE TO CONTINUE"
+    }
+   ]
+  }
+ }
+}

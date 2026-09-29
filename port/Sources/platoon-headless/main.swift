@@ -16,7 +16,7 @@ func usage() -> Never {
 }
 
 var args = Array(CommandLine.arguments.dropFirst())
-var adfPath = "../re/platoon_darc.adf", frames = 500, scriptPath: String?, outDir = "out", shotEvery = 0
+var adfPath = "../re/platoon_port.adf", frames = 500, scriptPath: String?, outDir = "out", shotEvery = 0
 var wavPath: String?, hashRange: (UInt32, Int)?, chipdump: String?
 while !args.isEmpty {
     let a = args.removeFirst()

@@ -114,6 +114,34 @@ public final class Machine {
             gameYielded.signal()
             Thread.exit()
         }
+        if let j = pendingJump { pendingJump = nil; jump(j) }
+    }
+
+    private var pendingJump: (() -> Void)?
+
+    /// Non-local `jmp` into a routine that never returns (next section, game over, warm restart):
+    /// continues the program on a fresh game thread with an empty stack and ends the current one.
+    /// Call only from the game thread.
+    public func jump(_ entry: @escaping () -> Void) -> Never {
+        let t = Thread { [unowned self] in
+            entry()
+            self.wait = .finished
+            self.gameFinished = true
+            self.gameYielded.signal()
+        }
+        t.stackSize = 16 << 20
+        t.name = "Platoon game"
+        thread = t
+        t.start()
+        Thread.exit()
+        fatalError("unreachable")
+    }
+
+    /// Requests a `jump` from outside the game thread (e.g. an interrupt handler running on the host
+    /// thread, like the DEL-key warm restart). Performed when the game thread next resumes.
+    public func requestJump(_ entry: @escaping () -> Void) {
+        if Thread.current === thread { jump(entry) }
+        pendingJump = entry
     }
 
     /// Waits for the start of the next frame (after the vertical-blank interrupt has run).

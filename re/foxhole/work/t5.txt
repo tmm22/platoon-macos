@@ -1,0 +1,5 @@
+1 up 1
+11 up 0
+12 key 0x39 1
+16 key 0x39 0
+20 shot k20

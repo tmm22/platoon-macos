@@ -1,0 +1,13 @@
+1 poke 19f50 80 2
+1 poke 19f54 80 2
+1 poke 19f58 80 2
+1 poke 19f5c 80 2
+1 poke 19f60 80 2
+1 poke 19f64 80 2
+1 poke 19f68 80 2
+1 poke 19f6c 80 2
+1 poke 19eae 7d 2
+1 poke 19eb0 3a 2
+2 fire 1
+10 shot k10
+2 fire 0

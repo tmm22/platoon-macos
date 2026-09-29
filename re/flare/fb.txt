@@ -1,0 +1,3 @@
+2 fire 1
+6 fire 0
+10 dumpr 12e0a 2 fl.bin

@@ -1,0 +1,10 @@
+1 up 1
+5 poke 12de2 3 2
+11 up 0
+60 shot d60
+100 shot d100
+200 shot d200
+300 fire 1
+305 fire 0
+340 shot d340
+400 shot d400

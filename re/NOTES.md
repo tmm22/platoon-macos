@@ -1,6 +1,9 @@
 # Platoon (Amiga, Ocean 1988): reverse-engineering notes (shared)
 
-Canonical disk image: `re/platoon_darc.adf` (the "[cr 68 Darc]" dump). The Beyonders crack (`re/platoon.adf`) has
+**Use `re/platoon_port.adf`** = Darc image with tracks 77 (hiscore table, blank in Darc) and 127 (section-2 room
+pictures, corrupt in Darc) taken from `re/platoon_b.adf`. It is what the port ships/reads.
+
+Base disk image: `re/platoon_darc.adf` (the "[cr 68 Darc]" dump). The Beyonders crack (`re/platoon.adf`) has
 corrupt tracks in the third load section (tracks 111+); do NOT use it for section C. `re/platoon_b.adf` = original
 (protected, bad dump, encrypted bootblock) — identical to Darc for all game data tracks except 0,1,13,77-83,127.
 

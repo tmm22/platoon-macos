@@ -1,0 +1,86 @@
+0170b8 $54(a6)=$ff: HUD shows flares instead of grenades
+0170bc save map flag at section start; restored on every life start
+0170e0 first spawn delay = (rand&3)+2 ticks
+01710a no map: view centred (cols 10..29); map owned: view cols 0..19, map cols 20..39
+01713c start cell (21,3)
+01714c facing 3 = west
+017152 compass lost
+017156 flares = 0
+0171b4 invalidate both map tile caches ($ffff)
+0171d2 vblank handler decrements $6a(a6): logic runs every 4th frame (12.5 Hz)
+0171e6 enemy spawn timer only runs while obj2 and obj3 are inactive
+017202 reload = (rand & $31) + $10 : 16..65 ticks
+017216 no spawn inside rooms (timer still reloaded)
+01722e toggle map cache index each tick (matches buffer swap)
+017304 reset crosshair speed on spawn
+017312 left code bit3 (wall ahead) or bit4 (door ahead) -> water enemy
+017322 left code & 7 == 5: left opening at distance 2
+017424 a0 -> (left,right,forward) offset triple for direction
+017440 a1 = &map[y][x]
+017456 forward scan: 4 cells; 3=door -> $10|d4 ; !=2 -> wall $08|d4 (d4 = 3 - distance)
+017472 side scan: first corridor cell (2) beside the 4 cells ahead -> |4|d4
+0174ec RIGHT side only: andi #$fc drops the wall distance bits before or-ing the opening distance
+017522 no walls/doors/openings within 4 cells: animate corridor by position (y&3 for N/S, x&3 for E/W)
+017560 right half uses tile maps $14..$27
+017596 a1 = screen char row d4, column d3, + half column a4
+017668 SMC: save current cell into the immediate of move.b #x,(a0) at $177b2
+017672 player marker tile = $21 + direction
+017688 window left = clamp(x-10, 0, 23)
+017698 window top = clamp(y-9, 0, 25)
+01770c tile unchanged in this buffer's cache -> skip
+0177f8 bob data = $1e220 + frametab[frame*8].offset
+0178be cheat bit ($71(a6) bit1) + HELP key ($5f) -> flare section
+0178e4 at rest position ($44,$78) and not walking -> stop swaying
+017918 sway index += step; reverse when low byte of index goes negative
+017936 NOTE: counter is the BYTE at +$e (high byte of the word)
+017956 clear obj2 frame+active ($13/$12 relative to obj1 = $19d57/$19d56)
+017964 bullet arrived: player hit (even if the shooter was killed meanwhile)
+0179ae activate obj1 (flash) at (x-5, y+12)
+0179d8 sfx $83 gunshot
+017a42 frame 8: body drops into the water (y += 30)
+017a34 +300 score (f80c adds the 4 BCD bytes before a0)
+017a86 step 5 reached: water enemy strikes -> player hit
+017bf0 NOTE: ammo tested AFTER the shot decremented it: the last bullet can never kill
+017c0a sfx $81 enemy hit
+017d20 sfx $80 player hit
+017d2c message $20 "YOU'RE HIT"
+017d36 hit while in a room: thrown back to the corridor cell (no 180 turn)
+017d5c hits +1, HUD hit icons (f818)
+017d6c 4 hits = killed in action
+017db8 morale -= $c00 (after the message queue drained)
+017e7e fade to red: R+1, G-1, B-1 per step
+017fb2 blit 1: clear 560x5 words scratch at $3b742 (BLTCON0 $0100)
+017fea blit 2: copy 5 planes (mask+4) into scratch with one extra zero word per row (A->D, DMOD 2)
+018064 blits 3-6: BLTCON0 = shift<<12|$0fce (D = B | ~A&C), BLTCON1 = shift<<12, A=mask (reloaded), B=plane data (continues), C=D=screen plane
+018378 corridor mode (no enemy, not in room)
+018380 $3b238 set when leaving a room: swallow the fire press used to click EXIT
+018390 wasted shot into empty corridor: ammo-1, sfx $82
+0183b4 up held: toggle -> move on every 2nd tick
+0183d8 right: turn clockwise (edge-triggered via $3b23a bit3)
+0183fa left: turn anticlockwise (edge-triggered via $3b23a bit2)
+01842e d1 = dx for direction; x += dx, clamp 0..42
+01848a 2 = corridor
+018492 3 = room entrance
+0184b2 find room index in $19aec (falls out as index 9 if not found)
+0184ee only room 0 has the guard (obj4)
+018592 no direction: speed := 2
+0185ac speed sequence 2,4,..,16 (px/tick = value before increment)
+0185c6 auto-fire: every tick while fire held and ammo>0
+0185f8 up: y -= speed (min 0)
+01860c down: y += speed (max 125)
+018628 left: x -= speed (min 0)
+01863c right: x += speed (max 141)
+018650 pop return: skip sway code in h_crosshair
+01865e room mode: speed := 4 when idle; px/tick = speed>>2 (1,1,2,..,8)
+0186ee fire edge: one click per press
+018722 hotspot list for room type
+01873a inside if x1<=x<=x2 and y1<=y<=y2 (unsigned byte compares)
+01877a bit7 = already taken
+018786 taken & code in {5,10,17,19} -> 11 "NOTHING IN THIS DRAWER" else 6 "EMPTY"
+0187c0 sfx 0 (click) for every hotspot
+018800 turn around (dir+2)
+01882e slide room picture left, then show the map
+01893e fewer than 5 flares
+01894c fewer than 8 flares
+018954 compass hint only shown without compass (not required)
+018960 +30000 then flare section

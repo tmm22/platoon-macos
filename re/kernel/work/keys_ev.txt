@@ -1,0 +1,43 @@
+[f1005 v313] shot re/kernel/work/keys/k0005.png
+[f1006 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1022 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1030 v313] shot re/kernel/work/keys/k0030.png
+[f1030 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1031 v313] shot re/kernel/work/keys/k0031.png
+[f1032 v313] dumped 010ea8+4 to re/kernel/work/keys/pause.bin
+[f1046 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1046 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1054 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1054 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1060 v313] shot re/kernel/work/keys/k0060.png
+[f1070 v004] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f1070 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1070 v012] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1078 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1078 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1086 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1086 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1102 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1102 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1126 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1126 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1130 v313] shot re/kernel/work/keys/k0130.png
+[f1134 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1134 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1150 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1150 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1158 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1158 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1174 v005] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1174 v007] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1182 v005] AUD1 start ptr=004310 len=2403 per=995 vol=64
+[f1182 v007] AUD2 start ptr=004310 len=2403 per=995 vol=64
+[f1198 v004] AUD0 start ptr=006b5e len=2650 per=1060 vol=60
+[f1198 v008] AUD1 start ptr=004310 len=2403 per=887 vol=64
+[f1198 v012] AUD2 start ptr=004310 len=2403 per=887 vol=64
+[f1230 v313] shot re/kernel/work/keys/k0230.png
+[f1231 v313] dumped 012e44+2 to re/kernel/work/keys/mus.bin
+[f1310 v313] REGS pc=010ada sr=2004 d0-7=0007000d 00000222 00000020 00010200 0000000f 000000f0 00000f00 0000ffff a0-7=00012cf0 0001137e 00078000 00012e38 00011010 00012dde 00012dde 000003f6
+[f1400 v313] shot re/kernel/work/keys/k0400.png
+[f1600 v313] shot re/kernel/work/keys/k0600.png
+[f1700 v313] done: 1700 frames, 2554 blits, pc=010ade

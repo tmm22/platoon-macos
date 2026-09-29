@@ -1,0 +1,14 @@
+2 poke 12e04 0001 2
+2 poke 12e08 0002 2
+2 poke 12e02 0001 2
+2 poke 12e06 0001 2
+2 poke 12e0a 0005 2
+2 poke 12de2 0003 2
+2 poke 12dde 0004 2
+2 poke 12de0 0030 2
+2 poke 12e2c 00123456 4
+2 poke 12e30 00 1
+2 poke 12e46 00ff 2
+2 poke 12e4a 0130 2
+5 dumpr 12dde 80 a6.bin
+10 shot i10

@@ -10,7 +10,7 @@ BIN=$(swift build -c "$CONFIG" $ARCHFLAGS --product Platoon --show-bin-path)/Pla
 APP=build/Platoon.app
 rm -rf "$APP"; mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/Platoon"
-ADF=../re/platoon_darc.adf
+ADF=../re/platoon_port.adf
 [ -f "$ADF" ] && cp "$ADF" "$APP/Contents/Resources/Platoon.adf"
 [ -f Resources/AppIcon.icns ] && cp Resources/AppIcon.icns "$APP/Contents/Resources/"
 cat > "$APP/Contents/Info.plist" <<PLIST

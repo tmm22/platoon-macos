@@ -1,0 +1,82 @@
+{
+ "barnes_f0": {
+  "entry": "0x47628",
+  "data": "0x55a7c",
+  "w": 32,
+  "h": 15,
+  "header": "0001000e",
+  "header_ok": true
+ },
+ "barnes_f1": {
+  "entry": "0x47630",
+  "data": "0x55bac",
+  "w": 32,
+  "h": 15,
+  "header": "0001000e",
+  "header_ok": true
+ },
+ "barnes_f2": {
+  "entry": "0x47638",
+  "data": "0x55cdc",
+  "w": 32,
+  "h": 15,
+  "header": "0001000e",
+  "header_ok": true
+ },
+ "grenade": {
+  "entry": "0x476a8",
+  "data": "0x5727c",
+  "w": 16,
+  "h": 5,
+  "header": "00000004",
+  "header_ok": true
+ },
+ "expl_f0": {
+  "entry": "0x476e0",
+  "data": "0x57464",
+  "w": 32,
+  "h": 15,
+  "header": "0001000e",
+  "header_ok": true
+ },
+ "expl_f1": {
+  "entry": "0x476e8",
+  "data": "0x57594",
+  "w": 32,
+  "h": 19,
+  "header": "00010012",
+  "header_ok": true
+ },
+ "expl_f2": {
+  "entry": "0x476f0",
+  "data": "0x57714",
+  "w": 32,
+  "h": 21,
+  "header": "00010014",
+  "header_ok": true
+ },
+ "expl_f3": {
+  "entry": "0x476f8",
+  "data": "0x578bc",
+  "w": 32,
+  "h": 21,
+  "header": "00010014",
+  "header_ok": true
+ },
+ "enemy_bullet": {
+  "entry": "0x476b0",
+  "data": "0x572b2",
+  "w": 16,
+  "h": 2,
+  "header": "00000001",
+  "header_ok": true
+ },
+ "player_bullet": {
+  "entry": "0x476a0",
+  "data": "0x57264",
+  "w": 16,
+  "h": 2,
+  "header": "00000001",
+  "header_ok": true
+ }
+}

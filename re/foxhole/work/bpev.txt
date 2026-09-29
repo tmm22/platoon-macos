@@ -1,0 +1,134 @@
+[f924 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f924 v006] AUD1 start ptr=008834 len=32 per=374 vol=64
+[f924 v008] AUD2 start ptr=0088ba len=64 per=280 vol=48
+[f924 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f924 v157] BP 00f82c d0=00000006 d1=00000048 d2=ffffffff d3=00000000 a0=000189dc a1=00079e0e a2=00070000 a6=00012dde sp=000003fc
+[f930 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f936 v006] AUD1 start ptr=008834 len=32 per=749 vol=64
+[f936 v008] AUD2 start ptr=0088ba len=64 per=374 vol=48
+[f936 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f936 v210] BP 00f86c d0=0000000a d1=00000048 d2=ffff0000 d3=00000022 a0=00057ed6 a1=00076000 a2=00dff000 a6=00012dde sp=000003ec
+[f937 v011] AUD0 start ptr=008c00 len=64 per=2112 vol=4
+[f942 v006] AUD1 start ptr=008834 len=32 per=421 vol=64
+[f942 v008] AUD2 start ptr=0088ba len=64 per=236 vol=48
+[f942 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f949 v208] BP 00f86c d0=00000081 d1=0000000f d2=ffffffff d3=00000022 a0=00018400 a1=0007e000 a2=00dff000 a6=00012dde sp=000003ea
+[f949 v227] AUD1 start ptr=00a32a len=3825 per=357 vol=64
+[f949 v253] AUD3 start ptr=00a32a len=3825 per=357 vol=64
+[f949 v265] BP 00f82c d0=0000000f d1=0000000f d2=ffffffff d3=00000022 a0=00018400 a1=0007e000 a2=00dff000 a6=00012dde sp=000003ec
+[f954 v008] AUD2 start ptr=0088ba len=64 per=250 vol=48
+[f964 v210] BP 00f86c d0=0000000a d1=00000048 d2=ffff0000 d3=00000022 a0=00057ed6 a1=00076000 a2=00dff000 a6=00012dde sp=000003ec
+[f965 v010] AUD2 start ptr=008c00 len=64 per=2112 vol=4
+[f972 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f977 v208] BP 00f86c d0=00000081 d1=0000000f d2=ffffffff d3=00000022 a0=00018400 a1=0007e000 a2=00dff000 a6=00012dde sp=000003ea
+[f977 v222] AUD1 start ptr=00a32a len=3825 per=357 vol=64
+[f977 v248] AUD3 start ptr=00a32a len=3825 per=357 vol=64
+[f977 v260] BP 00f82c d0=0000000f d1=0000000f d2=ffffffff d3=00000022 a0=00018400 a1=0007e000 a2=00dff000 a6=00012dde sp=000003ec
+[f984 v006] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f990 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f992 v210] BP 00f86c d0=0000000a d1=00000048 d2=ffff0000 d3=00000022 a0=00057ed6 a1=00076000 a2=00dff000 a6=00012dde sp=000003ec
+[f993 v010] AUD0 start ptr=008c00 len=64 per=2112 vol=4
+[f994 v012] AUD2 start ptr=0088ba len=64 per=280 vol=16
+[f996 v012] AUD2 start ptr=0088ba len=64 per=374 vol=48
+[f1005 v208] BP 00f86c d0=00000081 d1=0000000e d2=ffffffff d3=00000022 a0=00018400 a1=0007e000 a2=00dff000 a6=00012dde sp=000003ea
+[f1005 v222] AUD1 start ptr=00a32a len=3825 per=357 vol=64
+[f1005 v248] AUD3 start ptr=00a32a len=3825 per=357 vol=64
+[f1005 v260] BP 00f82c d0=0000000e d1=0000000e d2=ffffffff d3=00000022 a0=00018400 a1=0007e000 a2=00dff000 a6=00012dde sp=000003ec
+[f1008 v007] AUD2 start ptr=0088ba len=64 per=374 vol=48
+[f1020 v008] AUD2 start ptr=0088ba len=64 per=280 vol=48
+[f1020 v210] BP 00f86c d0=0000000a d1=00000048 d2=ffff0000 d3=00000022 a0=00057ed6 a1=00076000 a2=00dff000 a6=00012dde sp=000003ec
+[f1021 v012] AUD2 start ptr=008c00 len=64 per=2112 vol=4
+[f1026 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f1033 v208] BP 00f86c d0=00000081 d1=0000000f d2=ffffffff d3=00000022 a0=00018400 a1=0007e000 a2=00dff000 a6=00012dde sp=000003ea
+[f1033 v222] AUD1 start ptr=00a32a len=3825 per=357 vol=64
+[f1033 v248] AUD3 start ptr=00a32a len=3825 per=357 vol=64
+[f1033 v260] BP 00f82c d0=0000000f d1=0000000f d2=ffffffff d3=00000022 a0=00018400 a1=0007e000 a2=00dff000 a6=00012dde sp=000003ec
+[f1038 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f1044 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f1048 v210] BP 00f86c d0=0000000a d1=00000048 d2=ffff0000 d3=00000022 a0=00057ed6 a1=00076000 a2=00dff000 a6=00012dde sp=000003ec
+[f1049 v006] AUD0 start ptr=008c00 len=64 per=2112 vol=4
+[f1061 v208] BP 0183c4 d0=00000081 d1=0000000e d2=ffffffff d3=00000022 a0=00018400 a1=0007e000 a2=00dff000 a6=00012dde sp=000003f0
+[f1061 v208] BP 00f82c d0=00000010 d1=0000000e d2=ffffffff d3=00000022 a0=00018400 a1=0007e000 a2=00dff000 a6=00012dde sp=000003ec
+[f1061 v208] BP 00f86c d0=00000081 d1=00000002 d2=ffffffff d3=00000022 a0=00012e1c a1=0007e000 a2=00dff000 a6=00012dde sp=000003ec
+[f1061 v222] AUD1 start ptr=00a32a len=3825 per=357 vol=64
+[f1061 v248] AUD3 start ptr=00a32a len=3825 per=357 vol=64
+[f1063 v313] shot ow2/w139.png
+[f1065 v313] shot ow2/w141.png
+[f1065 v209] BP 00f86c d0=0000000a d1=00000048 d2=ffffffff d3=00000022 a0=00057ed6 a1=0007e000 a2=00dff000 a6=00012dde sp=000003ec
+[f1066 v313] state saved to ../../states/foxhole_barnes_dead.state
+[f1066 v012] AUD2 start ptr=008c00 len=64 per=2112 vol=4
+[f1079 v207] BP 00f86c d0=00000085 d1=00000000 d2=ffffffff d3=00000022 a0=00018400 a1=00076000 a2=00dff000 a6=00012dde sp=000003ea
+[f1079 v221] AUD0 start ptr=00d3f4 len=3405 per=714 vol=64
+[f1079 v247] AUD2 start ptr=00d3f4 len=3405 per=714 vol=64
+[f1083 v209] BP 00f86c d0=0000000a d1=00000048 d2=ffffffff d3=00000022 a0=00057ed6 a1=00076000 a2=00dff000 a6=00012dde sp=000003ec
+[f1084 v011] AUD2 start ptr=008c00 len=64 per=2112 vol=4
+[f1086 v019] BP 00f82c d0=0000000b d1=00000048 d2=ffffffff d3=00000022 a0=000189dc a1=00079e0e a2=0001131e a6=00012dde sp=000003fc
+[f1096 v207] BP 00f86c d0=00000085 d1=00000000 d2=ffffffff d3=00000022 a0=00018400 a1=0007e000 a2=00dff000 a6=00012dde sp=000003ea
+[f1096 v221] AUD0 start ptr=00d3f4 len=3405 per=714 vol=64
+[f1096 v247] AUD2 start ptr=00d3f4 len=3405 per=714 vol=64
+[f1100 v209] BP 00f86c d0=0000000a d1=00000048 d2=ffffffff d3=00000022 a0=00057ed6 a1=0007e000 a2=00dff000 a6=00012dde sp=000003ec
+[f1101 v011] AUD2 start ptr=008c00 len=64 per=2112 vol=4
+[f1104 v006] AUD1 start ptr=008834 len=32 per=749 vol=64
+[f1104 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f1113 v207] BP 00f86c d0=00000085 d1=00000000 d2=ffffffff d3=00000022 a0=00018400 a1=00076000 a2=00dff000 a6=00012dde sp=000003ea
+[f1113 v221] AUD0 start ptr=00d3f4 len=3405 per=714 vol=64
+[f1113 v247] AUD2 start ptr=00d3f4 len=3405 per=714 vol=64
+[f1114 v313] shot ow2/w190.png
+[f1116 v313] shot ow2/w192.png
+[f1116 v006] AUD1 start ptr=008834 len=32 per=374 vol=64
+[f1116 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f1118 v313] shot ow2/w194.png
+[f1118 v126] BP 00f86c d0=0000000a d1=00000048 d2=ffffffff d3=00000022 a0=00057ed6 a1=00076000 a2=00dff000 a6=00012dde sp=000003ec
+[f1119 v011] AUD2 start ptr=008c00 len=64 per=2112 vol=4
+[f1120 v313] shot ow2/w196.png
+[f1121 v313] shot ow2/w197.png
+[f1121 v207] BP 017c0a d0=00002414 d1=00000048 d2=ffffffff d3=00000022 a0=000179fa a1=00076000 a2=00dff000 a6=00012dde sp=000003ec
+[f1122 v313] shot ow2/w198.png
+[f1123 v313] shot ow2/w199.png
+[f1123 v217] BP 00f868 d0=00000003 d1=00000048 d2=ffffffff d3=00000022 a0=00018b5f a1=00079680 a2=00dff000 a6=00012dde sp=000003e4
+[f1124 v313] shot ow2/w200.png
+[f1124 v008] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f1126 v313] shot ow2/w202.png
+[f1129 v313] shot ow2/w205.png
+[f1132 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f1134 v313] shot ow2/w210.png
+[f1140 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f1144 v313] shot ow2/w220.png
+[f1148 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f1156 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f1164 v313] shot ow2/w240.png
+[f1164 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f1172 v005] AUD1 start ptr=004310 len=2403 per=790 vol=64
+[f1184 v313] shot ow2/w260.png
+[f1196 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f1220 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f1252 v007] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f1260 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f1268 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f1276 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f1284 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f1292 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f1300 v005] AUD1 start ptr=004310 len=2403 per=790 vol=64
+[f1324 v313] shot ow2/w400.png
+[f1324 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f1344 v011] BP 00f864 d0=00000080 d1=00000048 d2=ffff0000 d3=00000022 a0=00018b5f a1=00080000 a2=00dff000 a6=00012dde sp=000003ec
+[f1348 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f1354 v313] shot ow2/w430.png
+[f1374 v313] shot ow2/w450.png
+[f1380 v006] AUD0 start ptr=008834 len=32 per=794 vol=64
+[f1380 v010] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f1380 v014] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f1388 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f1396 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f1404 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f1412 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f1412 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f1420 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=56
+[f1424 v313] shot ow2/w500.png
+[f1424 v313] shot ow2/w600.png
+[f1424 v313] shot ow2/w700.png
+[f1424 v313] shot ow2/w800.png
+[f1424 v313] shot ow2/w900.png
+[f1424 v313] shot ow2/w1000.png
+[f1424 v313] shot ow2/w1200.png
+[f1424 v313] done: 1424 frames, 3570 blits, pc=010ada

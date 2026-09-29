@@ -1,0 +1,2 @@
+1 shot a
+100 shot b

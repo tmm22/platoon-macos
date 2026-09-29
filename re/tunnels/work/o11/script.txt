@@ -1,0 +1,17 @@
+5 poke 3b237 ff 1
+5 poke 1a0b0 271f 2
+5 poke 12e08 0 2
+5 poke 12e0a 8 2
+20 up 1
+36 up 0
+60 shot r9
+70 poke 19d34 70 2
+70 poke 19d36 20 2
+72 fire 1
+80 fire 0
+84 shot x1
+150 shot x2
+300 shot x3
+500 shot x4
+700 shot x5
+900 shot x6

@@ -1,0 +1,84 @@
+1 poke 17d68 4e75 2
+5 poke 57e26 5f 2
+5 poke 57e24 a0 2
+6 left 1
+45 left 0
+105 shot r00
+105 dumpr 18f1c 1 room00.bin
+115 poke 57e26 5f 2
+115 poke 57e24 a0 2
+116 right 1
+155 right 0
+215 shot r01
+215 dumpr 18f1c 1 room01.bin
+225 poke 57e26 5f 2
+225 poke 57e24 a0 2
+226 left 1
+265 left 0
+325 shot r02
+325 dumpr 18f1c 1 room02.bin
+335 poke 57e26 5f 2
+335 poke 57e24 a0 2
+336 right 1
+375 right 0
+435 shot r03
+435 dumpr 18f1c 1 room03.bin
+445 poke 57e26 5f 2
+445 poke 57e24 a0 2
+446 left 1
+485 left 0
+545 shot r04
+545 dumpr 18f1c 1 room04.bin
+555 poke 57e26 5f 2
+555 poke 57e24 a0 2
+556 right 1
+595 right 0
+655 shot r05
+655 dumpr 18f1c 1 room05.bin
+665 poke 57e26 5f 2
+665 poke 57e24 a0 2
+666 left 1
+705 left 0
+765 shot r06
+765 dumpr 18f1c 1 room06.bin
+775 poke 57e26 5f 2
+775 poke 57e24 a0 2
+776 right 1
+815 right 0
+875 shot r07
+875 dumpr 18f1c 1 room07.bin
+885 poke 57e26 5f 2
+885 poke 57e24 a0 2
+886 right 1
+925 right 0
+985 shot r08
+985 dumpr 18f1c 1 room08.bin
+995 poke 57e26 5f 2
+995 poke 57e24 a0 2
+996 left 1
+1035 left 0
+1095 shot r09
+1095 dumpr 18f1c 1 room09.bin
+1105 poke 57e26 5f 2
+1105 poke 57e24 a0 2
+1106 right 1
+1145 right 0
+1205 shot r10
+1205 dumpr 18f1c 1 room10.bin
+1215 poke 57e26 5f 2
+1215 poke 57e24 a0 2
+1216 left 1
+1255 left 0
+1315 shot r11
+1315 dumpr 18f1c 1 room11.bin
+1325 poke 57e26 5f 2
+1325 poke 57e24 a0 2
+1326 right 1
+1365 right 0
+1425 shot r12
+1425 dumpr 18f1c 1 room12.bin
+1435 poke 57e26 5f 2
+1435 poke 57e24 a0 2
+1436 left 1
+1438 poke 17d68 4239 2
+1439 breaksave 170f4 ../../states/finaljungle_bunker.state

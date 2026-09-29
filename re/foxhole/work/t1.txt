@@ -1,0 +1,3 @@
+5 poke 12e0c 0 2
+60 shot m60
+200 shot m200

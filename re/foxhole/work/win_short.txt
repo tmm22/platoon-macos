@@ -1,0 +1,14 @@
+1 poke 57f5a 7fff 2
+1 up 1
+11 up 0
+12 fire 1
+14 fire 0
+40 fire 1
+42 fire 0
+68 fire 1
+70 fire 0
+96 fire 1
+98 fire 0
+124 fire 1
+126 fire 0
+139 shot w139

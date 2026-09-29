@@ -1,0 +1,56 @@
+260 key 0x25 1
+264 key 0x25 0
+270 key 0x20 1
+274 key 0x20 0
+280 key 0x37 1
+284 key 0x37 0
+290 key 0x35 1
+294 key 0x35 0
+300 key 0x16 1
+304 key 0x16 0
+310 key 0x13 1
+314 key 0x13 0
+320 key 0x24 1
+324 key 0x24 0
+330 key 0x12 1
+334 key 0x12 0
+340 key 0x13 1
+344 key 0x13 0
+370 key 0x4a 1
+374 key 0x4a 0
+380 key 0x25 1
+384 key 0x25 0
+390 key 0x17 1
+394 key 0x17 0
+400 key 0x28 1
+404 key 0x28 0
+410 key 0x28 1
+414 key 0x28 0
+425 dumpr 12e4e 2 cheatflags.bin
+400 shot c0400
+500 shot c0500
+600 shot c0600
+700 shot c0700
+800 shot c0800
+900 shot c0900
+1000 shot c1000
+1100 shot c1100
+1200 shot c1200
+1300 shot c1300
+1400 shot c1400
+1500 shot c1500
+1600 shot c1600
+1700 shot c1700
+1800 shot c1800
+1900 shot c1900
+2000 shot c2000
+2100 shot c2100
+2200 shot c2200
+2300 shot c2300
+2400 shot c2400
+2500 shot c2500
+2600 shot c2600
+2700 shot c2700
+2800 shot c2800
+2900 shot c2900
+1990 save re/states/kernel_cheat_title.state

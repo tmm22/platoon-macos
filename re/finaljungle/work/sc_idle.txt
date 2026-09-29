@@ -1,0 +1,3 @@
+150 shot idle150
+200 shot idle200
+400 shot idle400

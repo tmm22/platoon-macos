@@ -1,0 +1,124 @@
+1 poke 3b237 ff 1
+5 shot p00
+5 up 1
+13 up 0
+23 shot p01
+23 up 1
+31 up 0
+41 shot p02
+41 up 1
+49 up 0
+59 shot p03
+59 up 1
+67 up 0
+77 shot p04
+77 up 1
+85 up 0
+95 shot p05
+95 up 1
+103 up 0
+113 shot p06
+113 up 1
+121 up 0
+131 shot p07
+131 up 1
+139 up 0
+149 shot p08
+149 up 1
+157 up 0
+167 shot p09
+167 up 1
+175 up 0
+185 shot p10
+185 left 1
+191 left 0
+201 poke 3b237 ff 1
+201 shot p11
+201 up 1
+209 up 0
+219 shot p12
+219 up 1
+227 up 0
+237 shot p13
+237 up 1
+245 up 0
+255 shot p14
+255 up 1
+263 up 0
+273 shot p15
+273 right 1
+279 right 0
+289 shot p16
+289 up 1
+297 up 0
+307 shot p17
+307 up 1
+315 up 0
+325 shot p18
+325 up 1
+333 up 0
+343 shot p19
+343 up 1
+351 up 0
+361 shot p20
+361 up 1
+369 up 0
+379 shot p21
+379 up 1
+387 up 0
+397 shot p22
+397 up 1
+401 poke 3b237 ff 1
+405 up 0
+415 shot p23
+415 up 1
+423 up 0
+433 shot p24
+433 right 1
+439 right 0
+449 shot p25
+449 up 1
+457 up 0
+467 shot p26
+467 up 1
+475 up 0
+485 shot p27
+485 up 1
+493 up 0
+503 shot p28
+503 up 1
+511 up 0
+521 shot p29
+521 right 1
+527 right 0
+537 shot p30
+537 up 1
+545 up 0
+555 shot p31
+555 up 1
+563 up 0
+573 shot p32
+573 up 1
+581 up 0
+591 shot p33
+591 up 1
+599 up 0
+601 poke 3b237 ff 1
+609 shot p34
+609 up 1
+617 up 0
+627 shot p35
+667 shot room
+667 dump room0.bin
+667 save /Users/deborahmangan/Projects/Platoon/re/states/tunnels_room0.state
+801 poke 3b237 ff 1
+1001 poke 3b237 ff 1
+1201 poke 3b237 ff 1
+1401 poke 3b237 ff 1
+1601 poke 3b237 ff 1
+1801 poke 3b237 ff 1
+2001 poke 3b237 ff 1
+2201 poke 3b237 ff 1
+2401 poke 3b237 ff 1
+2601 poke 3b237 ff 1
+2801 poke 3b237 ff 1

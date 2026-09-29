@@ -1,0 +1,296 @@
+[
+ {
+  "id": 0,
+  "addr": "1941c",
+  "x": 14,
+  "row": 18,
+  "text": "GET GOING !"
+ },
+ {
+  "id": 1,
+  "addr": "1942a",
+  "x": 6,
+  "row": 18,
+  "text": "A PLAN OF THE TUNNEL SYSTEM."
+ },
+ {
+  "id": 2,
+  "addr": "19462",
+  "x": 7,
+  "row": 18,
+  "text": "A CUP OF COLD, PUTRID TEA."
+ },
+ {
+  "id": 3,
+  "addr": "1947f",
+  "x": 0,
+  "row": 18,
+  "text": "A BOOK OF VIETNAMESE POETRY BY M.T. KATO"
+ },
+ {
+  "id": 4,
+  "addr": "194aa",
+  "x": 5,
+  "row": 18,
+  "text": "YOU HAVE FOUND A BOX OF FLARES"
+ },
+ {
+  "id": 5,
+  "addr": "194cb",
+  "x": 5,
+  "row": 18,
+  "text": "SOME SECRET DOCUMENTS - TAKEN."
+ },
+ {
+  "id": 6,
+  "addr": "194ec",
+  "x": 17,
+  "row": 18,
+  "text": "EMPTY"
+ },
+ {
+  "id": 7,
+  "addr": "194f4",
+  "x": 8,
+  "row": 18,
+  "text": "A BOX OF VIET CONG BOOTS"
+ },
+ {
+  "id": 8,
+  "addr": "1950f",
+  "x": 4,
+  "row": 18,
+  "text": "SORRY, IT DOESN'T APPEAR TO WORK"
+ },
+ {
+  "id": 9,
+  "addr": "19532",
+  "x": 11,
+  "row": 18,
+  "text": "LOOKS LIKE A DIARY"
+ },
+ {
+  "id": 10,
+  "addr": "19547",
+  "x": 4,
+  "row": 18,
+  "text": "YOU HAVE FOUND SOME ROTTEN FOOD."
+ },
+ {
+  "id": 11,
+  "addr": "19587",
+  "x": 9,
+  "row": 18,
+  "text": "NOTHING IN THIS DRAWER"
+ },
+ {
+  "id": 12,
+  "addr": "195a0",
+  "x": 10,
+  "row": 18,
+  "text": "VIET CONG AMMUNITION"
+ },
+ {
+  "id": 13,
+  "addr": "195b7",
+  "x": 12,
+  "row": 18,
+  "text": "MEDICAL SUPPLIES"
+ },
+ {
+  "id": 14,
+  "addr": "195ca",
+  "x": 11,
+  "row": 18,
+  "text": "VIET CONG WEAPONS."
+ },
+ {
+  "id": 15,
+  "addr": "195df",
+  "x": 2,
+  "row": 18,
+  "text": "WELL DONE. YOU HAVE FOUND AN EXIT,"
+ },
+ {
+  "id": 16,
+  "addr": "19619",
+  "x": 11,
+  "row": 18,
+  "text": "A MEDICAL HANDBOOK"
+ },
+ {
+  "id": 17,
+  "addr": "1962e",
+  "x": 8,
+  "row": 18,
+  "text": "YOU HAVE FOUND A COMPASS"
+ },
+ {
+  "id": 18,
+  "addr": "19649",
+  "x": 1,
+  "row": 18,
+  "text": "THE RISE & FALL OF THE ROMAN EMPIRE.."
+ },
+ {
+  "id": 19,
+  "addr": "19686",
+  "x": 12,
+  "row": 18,
+  "text": "A DECK OF CARDS."
+ },
+ {
+  "id": 20,
+  "addr": "19699",
+  "x": 12,
+  "row": 18,
+  "text": "A COMBAT MANUAL."
+ },
+ {
+  "id": 21,
+  "addr": "196ac",
+  "x": 10,
+  "row": 18,
+  "text": "AND THIS ONE'S CLEAR"
+ },
+ {
+  "id": 22,
+  "addr": "196c3",
+  "x": 18,
+  "row": 18,
+  "text": "EXIT"
+ },
+ {
+  "id": 23,
+  "addr": "196ca",
+  "x": 13,
+  "row": 18,
+  "text": "GOOD SHOOTING!"
+ },
+ {
+  "id": 24,
+  "addr": "196db",
+  "x": 15,
+  "row": 18,
+  "text": "GO GET 'EM"
+ },
+ {
+  "id": 25,
+  "addr": "196e8",
+  "x": 15,
+  "row": 18,
+  "text": "STAY ALERT"
+ },
+ {
+  "id": 26,
+  "addr": "196f5",
+  "x": 8,
+  "row": 18,
+  "text": "THAT'S THE WAY TO DO IT!"
+ },
+ {
+  "id": 27,
+  "addr": "19710",
+  "x": 12,
+  "row": 18,
+  "text": "KILLED IN ACTION"
+ },
+ {
+  "id": 28,
+  "addr": "19449",
+  "x": 9,
+  "row": 18,
+  "text": "WHICH YOU ALREADY HAVE"
+ },
+ {
+  "id": 29,
+  "addr": "1956a",
+  "x": 7,
+  "row": 18,
+  "text": "YUK!! IT TASTES DISGUSTING"
+ },
+ {
+  "id": 30,
+  "addr": "19604",
+  "x": 11,
+  "row": 18,
+  "text": "BUT IT IS BLOCKED."
+ },
+ {
+  "id": 31,
+  "addr": "19671",
+  "x": 11,
+  "row": 18,
+  "text": "... IN VIETNAMESE!"
+ },
+ {
+  "id": 32,
+  "addr": "19723",
+  "x": 15,
+  "row": 18,
+  "text": "YOU'RE HIT"
+ },
+ {
+  "id": 33,
+  "addr": "19730",
+  "x": 7,
+  "row": 18,
+  "text": "YOU WILL NEED SOME FLARES."
+ },
+ {
+  "id": 34,
+  "addr": "1974d",
+  "x": 10,
+  "row": 18,
+  "text": "YOU NEED MORE FLARES"
+ },
+ {
+  "id": 35,
+  "addr": "19764",
+  "x": 9,
+  "row": 18,
+  "text": "WOULD A COMPASS HELP?"
+ },
+ {
+  "id": 36,
+  "addr": "1977c",
+  "x": 6,
+  "row": 18,
+  "text": "LET'S GO TO THE FLARE SCREEN!"
+ },
+ {
+  "id": 37,
+  "addr": "1979c",
+  "x": 6,
+  "row": 18,
+  "text": "YOU ARE IN A DUGOUT AT NIGHT"
+ },
+ {
+  "id": 38,
+  "addr": "197bb",
+  "x": 5,
+  "row": 18,
+  "text": "THE ENEMY SUSPECT YOUR POSITION"
+ },
+ {
+  "id": 39,
+  "addr": "197dd",
+  "x": 13,
+  "row": 18,
+  "text": "AND WILL ATTACK"
+ },
+ {
+  "id": 40,
+  "addr": "197ef",
+  "x": 15,
+  "row": 18,
+  "text": "WELL DONE,"
+ },
+ {
+  "id": 41,
+  "addr": "197fc",
+  "x": 6,
+  "row": 18,
+  "text": "YOU MADE IT THROUGH THE NIGHT"
+ }
+]

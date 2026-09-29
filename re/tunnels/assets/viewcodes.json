@@ -1,0 +1,58 @@
+{
+ "meaning": {
+  "code bits (per half)": "bit4 door (room) ahead, bit3 wall ahead, bit2 side opening, bits0-1 = 3-distance",
+  "0-3": "open corridor >=4 cells, no side opening within 4 cells; animated with (y&3 facing N/S, x&3 facing E/W)",
+  "4-7": "side opening, 4=3 cells ahead .. 7=adjacent",
+  "8-b": "wall ahead, 8=3 cells ahead .. b=directly ahead",
+  "c-f": "wall + side opening; LEFT: low bits = wallDist|openDist (OR), RIGHT: low bits = openDist",
+  "10-13": "room entrance ahead, 10=3 cells ahead .. 13=directly ahead",
+  "left half": "tile map index = code, drawn at byte column $3b3f8 (10, or 0 with map)",
+  "right half": "tile map index = code + $14, drawn at byte column $3b3fe (20, or 10 with map)"
+ },
+ "usage_count_all_cells_dirs": {
+  "left": {
+   "00": 70,
+   "01": 70,
+   "02": 70,
+   "03": 112,
+   "04": 44,
+   "05": 44,
+   "06": 44,
+   "07": 104,
+   "08": 32,
+   "09": 32,
+   "0a": 32,
+   "0b": 46,
+   "0c": 60,
+   "0d": 60,
+   "0e": 60,
+   "0f": 760,
+   "10": 10,
+   "11": 10,
+   "12": 10,
+   "13": 10
+  },
+  "right": {
+   "00": 70,
+   "01": 70,
+   "02": 70,
+   "03": 112,
+   "04": 44,
+   "05": 44,
+   "06": 44,
+   "07": 104,
+   "08": 32,
+   "09": 32,
+   "0a": 32,
+   "0b": 46,
+   "0c": 60,
+   "0d": 60,
+   "0e": 60,
+   "0f": 760,
+   "10": 10,
+   "11": 10,
+   "12": 10,
+   "13": 10
+  }
+ }
+}

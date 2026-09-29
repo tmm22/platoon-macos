@@ -755,6 +755,10 @@ static uint32_t bp_addr[32]; static int n_bp;
 static int trace_count, trace_regs;
 static uint32_t breaksave_pc = 0xffffffff; static char breaksave_path[256]; static int breaksave_hit;
 static void save_state(const char *path);
+static char outdir[512];
+static void out_path(char *dst, size_t n, const char *arg) { if (arg[0] == '/') snprintf(dst, n, "%s", arg); else snprintf(dst, n, "%s/%s", outdir, arg); }
+static uint32_t breakdump_pc = 0xffffffff; static char breakdump_file[256]; static int breakdump_hit;
+static void dump_ram(const char *path);
 void emu_instr_hook(unsigned int pc) {
     if (pc_hist && pc >= pc_hist_lo && pc < pc_hist_hi) pc_hist[(pc - pc_hist_lo) >> 1]++;
     for (int i = 0; i < n_bp; i++) if (pc == bp_addr[i]) {
@@ -763,6 +767,7 @@ void emu_instr_hook(unsigned int pc) {
             m68k_get_reg(NULL, M68K_REG_A0), m68k_get_reg(NULL, M68K_REG_A1), m68k_get_reg(NULL, M68K_REG_A2), m68k_get_reg(NULL, M68K_REG_A6), m68k_get_reg(NULL, M68K_REG_SP));
     }
     if (pc >= 0xf80000) { elog("PC in ROM %06x (reset?) — stopping\n", pc); stop_emulation = 1; m68k_end_timeslice(); }
+    if (pc == breakdump_pc && !breakdump_hit) { breakdump_hit = 1; dump_ram(breakdump_file); }
     if (pc == breaksave_pc && !breaksave_hit) { breaksave_hit = 1; elog("breaksave hit at %06x\n", pc); m68k_end_timeslice(); }
     if (trace_count > 0 && pclog) {
         char buf[128]; m68k_disassemble(buf, pc, M68K_CPU_TYPE_68000);
@@ -802,7 +807,7 @@ static void write_png(const char *path, const uint32_t *px, int w, int h, int xs
 /* ------------------------------------------------------------------ */
 /* input script: lines "<frame> <cmd> [args]" */
 typedef struct { uint64_t frame; char cmd[32]; char arg[256]; } Ev;
-static Ev evs[4096]; static int n_evs, ev_i;
+static Ev evs[65536]; static int n_evs, ev_i;
 static int joy_up, joy_down, joy_left, joy_right;
 static void update_joy(void) {
     /* JOY1DAT encoding */
@@ -814,7 +819,7 @@ static void update_joy(void) {
     (void)y1; (void)y0;
     S.joy1dat = v;
 }
-static char outdir[512] = "out";
+
 static const int save_regs[] = { M68K_REG_D0, M68K_REG_D1, M68K_REG_D2, M68K_REG_D3, M68K_REG_D4, M68K_REG_D5, M68K_REG_D6, M68K_REG_D7,
     M68K_REG_A0, M68K_REG_A1, M68K_REG_A2, M68K_REG_A3, M68K_REG_A4, M68K_REG_A5, M68K_REG_A6, M68K_REG_A7,
     M68K_REG_PC, M68K_REG_SR, M68K_REG_USP, M68K_REG_ISP };
@@ -834,7 +839,7 @@ static void load_state(const char *path) {
     m68k_set_reg(M68K_REG_SR, r[17]);
     update_irq();
 }
-static void dump_ram(const char *path) { FILE *f = fopen(path, "wb"); fwrite(S.chip, 1, CHIP_SIZE, f); fclose(f); elog("chip ram dumped to %s\n", path); }
+static void dump_ram(const char *path) { FILE *f = fopen(path, "wb"); if (!f) { elog("cannot write %s\n", path); return; } fwrite(S.chip, 1, CHIP_SIZE, f); fclose(f); elog("chip ram dumped to %s\n", path); }
 static void do_event(Ev *e) {
     char path[1024];
     if (!strcmp(e->cmd, "up")) joy_up = atoi(e->arg);
@@ -846,7 +851,7 @@ static void do_event(Ev *e) {
     else if (!strcmp(e->cmd, "key")) { int code = 0, down = 1; sscanf(e->arg, "%i %d", &code, &down); keyq[keyq_n++ & 255] = (code & 0x7f) | (down ? 0 : 0x80); }
     else if (!strcmp(e->cmd, "shot")) { snprintf(path, sizeof path, "%s/%s.png", outdir, e->arg[0] ? e->arg : "shot"); write_png(path, canvas, CANVAS_W, CANVAS_H, 2); elog("shot %s\n", path); }
     else if (!strcmp(e->cmd, "save")) { snprintf(path, sizeof path, "%s", e->arg); save_state(path); }
-    else if (!strcmp(e->cmd, "dump")) { snprintf(path, sizeof path, "%s/%s", outdir, e->arg); dump_ram(path); }
+    else if (!strcmp(e->cmd, "dump")) { out_path(path, sizeof path, e->arg); dump_ram(path); }
     else if (!strcmp(e->cmd, "poke")) { unsigned a, v, sz = 1; sscanf(e->arg, "%x %x %u", &a, &v, &sz); if (sz == 1) m68k_write_memory_8(a, v); else if (sz == 2) m68k_write_memory_16(a, v); else m68k_write_memory_32(a, v); }
     else if (!strcmp(e->cmd, "trace")) { trace_count = atoi(e->arg); if (!pclog) { snprintf(path, sizeof path, "%s/trace.txt", outdir); pclog = fopen(path, "w"); } }
     else if (!strcmp(e->cmd, "regs")) {
@@ -854,11 +859,12 @@ static void do_event(Ev *e) {
             m68k_get_reg(NULL, M68K_REG_D0), m68k_get_reg(NULL, M68K_REG_D1), m68k_get_reg(NULL, M68K_REG_D2), m68k_get_reg(NULL, M68K_REG_D3), m68k_get_reg(NULL, M68K_REG_D4), m68k_get_reg(NULL, M68K_REG_D5), m68k_get_reg(NULL, M68K_REG_D6), m68k_get_reg(NULL, M68K_REG_D7),
             m68k_get_reg(NULL, M68K_REG_A0), m68k_get_reg(NULL, M68K_REG_A1), m68k_get_reg(NULL, M68K_REG_A2), m68k_get_reg(NULL, M68K_REG_A3), m68k_get_reg(NULL, M68K_REG_A4), m68k_get_reg(NULL, M68K_REG_A5), m68k_get_reg(NULL, M68K_REG_A6), m68k_get_reg(NULL, M68K_REG_A7));
     }
-    else if (!strcmp(e->cmd, "dumpr")) { unsigned a, l; char fn[256]; if (sscanf(e->arg, "%x %x %255s", &a, &l, fn) == 3) { snprintf(path, sizeof path, "%s/%s", outdir, fn); FILE *df = fopen(path, "wb"); for (unsigned i = 0; i < l; i++) fputc(m68k_read_memory_8(a + i), df); fclose(df); elog("dumped %06x+%x to %s\n", a, l, path); } }
+    else if (!strcmp(e->cmd, "dumpr")) { unsigned a, l; char fn[256]; if (sscanf(e->arg, "%x %x %255s", &a, &l, fn) == 3) { out_path(path, sizeof path, fn); FILE *df = fopen(path, "wb"); if (!df) { elog("cannot write %s\n", path); return; } for (unsigned i = 0; i < l; i++) fputc(m68k_read_memory_8(a + i), df); fclose(df); elog("dumped %06x+%x to %s\n", a, l, path); } }
     else if (!strcmp(e->cmd, "breaksave")) { unsigned a; char fn[256]; if (sscanf(e->arg, "%x %255s", &a, fn) == 2) { breaksave_pc = a; snprintf(breaksave_path, sizeof breaksave_path, "%s", fn); } }
+    else if (!strcmp(e->cmd, "breakdump")) { unsigned a; char fn[256]; if (sscanf(e->arg, "%x %255s", &a, fn) == 2) { breakdump_pc = a; out_path(breakdump_file, sizeof breakdump_file, fn); breakdump_hit = 0; } }
     else if (!strcmp(e->cmd, "tracer")) { trace_regs = 1; trace_count = atoi(e->arg); if (!pclog) { snprintf(path, sizeof path, "%s/trace.txt", outdir); pclog = fopen(path, "w"); } }
     else if (!strcmp(e->cmd, "chipdump")) {
-        snprintf(path, sizeof path, "%s/%s", outdir, e->arg); FILE *cf = fopen(path, "wb");
+        out_path(path, sizeof path, e->arg); FILE *cf = fopen(path, "wb"); if (!cf) { elog("cannot write %s\n", path); return; }
         fwrite(S.chip, 1, CHIP_SIZE, cf);
         for (int i = 0; i < 0x100; i++) { uint16_t r = S.regs[i]; if (i == 1) r = S.dmacon; fputc(r >> 8, cf); fputc(r & 0xff, cf); }
         uint16_t x[4] = { S.dmacon, S.intena, S.intreq, S.adkcon };
@@ -920,6 +926,8 @@ static void usage(void) {
         "  --hash HEXLO HEXLEN   print FNV-1a hash of RAM region after every frame (lockstep vs platoon-headless)\n"
         "script cmds: up/down/left/right/fire/fire0 0|1, key CODE 0|1, shot NAME, save PATH, dump FILE,\n"
         "  chipdump FILE (chip RAM + custom regs for platoon-headless --chipdump),\n  dumpr HEXADDR HEXLEN FILE, poke HEXADDR HEXVAL SIZE, trace N, tracer N (with regs), regs,\n"
+        "  breakdump HEXPC FILE (dump chip RAM the first time pc is hit), key CODE uses C %%i parsing: write hex as 0x46,\n"
+        "  paths for dump/dumpr/chipdump/breakdump are relative to --out unless absolute; events are sorted by frame,\n"
         "  breaksave HEXPC PATH (save state+stop when pc hit; note: saved mid-line), quit\n");
 }
 
@@ -953,13 +961,15 @@ int main(int argc, char **argv) {
             if (line[0] == '#' || line[0] == '\n') continue;
             Ev *e = &evs[n_evs]; e->arg[0] = 0;
             int n = sscanf(line, "%llu %31s %255[^\n]", (unsigned long long *)&e->frame, e->cmd, e->arg);
-            if (n >= 2) n_evs++;
+            if (n >= 2 && n_evs < 65536) n_evs++;
         }
         if (sf) fclose(sf);
+        for (int a = 1; a < n_evs; a++) { Ev t = evs[a]; int b = a - 1; while (b >= 0 && evs[b].frame > t.frame) { evs[b + 1] = evs[b]; b--; } evs[b + 1] = t; }
     }
     if (wavpath) {
         wav = fopen(wavpath, "wb"); uint8_t hdr[44] = { 0 }; fwrite(hdr, 1, 44, wav);
     }
+    if (!outdir[0]) snprintf(outdir, sizeof outdir, "out");
     m68k_init(); m68k_set_cpu_type(M68K_CPU_TYPE_68000);
     memset(&S, 0, sizeof S);
     if (loadst) load_state(loadst);

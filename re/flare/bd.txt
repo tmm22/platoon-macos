@@ -1,0 +1,3 @@
+10 key 0x40 1
+14 key 0x40 0
+18 breakdump 18cac post18.bin

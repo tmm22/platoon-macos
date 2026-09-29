@@ -1,0 +1,466 @@
+{
+ "A ($115d0, displays $70000)": [
+  {
+   "addr": "0x115d0",
+   "op": "MOVE",
+   "reg": "$0e0",
+   "val": "0007"
+  },
+  {
+   "addr": "0x115d4",
+   "op": "MOVE",
+   "reg": "$0e2",
+   "val": "0000"
+  },
+  {
+   "addr": "0x115d8",
+   "op": "MOVE",
+   "reg": "$0e4",
+   "val": "0007"
+  },
+  {
+   "addr": "0x115dc",
+   "op": "MOVE",
+   "reg": "$0e6",
+   "val": "2000"
+  },
+  {
+   "addr": "0x115e0",
+   "op": "MOVE",
+   "reg": "$0e8",
+   "val": "0007"
+  },
+  {
+   "addr": "0x115e4",
+   "op": "MOVE",
+   "reg": "$0ea",
+   "val": "4000"
+  },
+  {
+   "addr": "0x115e8",
+   "op": "MOVE",
+   "reg": "$0ec",
+   "val": "0007"
+  },
+  {
+   "addr": "0x115ec",
+   "op": "MOVE",
+   "reg": "$0ee",
+   "val": "6000"
+  }
+ ],
+ "common ($115f0 = COP2LC)": [
+  {
+   "addr": "0x115f0",
+   "op": "MOVE",
+   "reg": "$102",
+   "val": "0000"
+  },
+  {
+   "addr": "0x115f4",
+   "op": "MOVE",
+   "reg": "$08e",
+   "val": "3c81"
+  },
+  {
+   "addr": "0x115f8",
+   "op": "MOVE",
+   "reg": "$180",
+   "val": "0000"
+  },
+  {
+   "addr": "0x115fc",
+   "op": "MOVE",
+   "reg": "$182",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11600",
+   "op": "MOVE",
+   "reg": "$184",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11604",
+   "op": "MOVE",
+   "reg": "$186",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11608",
+   "op": "MOVE",
+   "reg": "$188",
+   "val": "0000"
+  },
+  {
+   "addr": "0x1160c",
+   "op": "MOVE",
+   "reg": "$18a",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11610",
+   "op": "MOVE",
+   "reg": "$18c",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11614",
+   "op": "MOVE",
+   "reg": "$18e",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11618",
+   "op": "MOVE",
+   "reg": "$190",
+   "val": "0000"
+  },
+  {
+   "addr": "0x1161c",
+   "op": "MOVE",
+   "reg": "$192",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11620",
+   "op": "MOVE",
+   "reg": "$194",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11624",
+   "op": "MOVE",
+   "reg": "$196",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11628",
+   "op": "MOVE",
+   "reg": "$198",
+   "val": "0000"
+  },
+  {
+   "addr": "0x1162c",
+   "op": "MOVE",
+   "reg": "$19a",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11630",
+   "op": "MOVE",
+   "reg": "$19c",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11634",
+   "op": "MOVE",
+   "reg": "$19e",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11638",
+   "op": "WAIT",
+   "vp": "0x6c",
+   "hp": "0x0",
+   "mask": "ff00"
+  },
+  {
+   "addr": "0x1163c",
+   "op": "MOVE",
+   "reg": "$0e0",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11640",
+   "op": "MOVE",
+   "reg": "$0e2",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11644",
+   "op": "MOVE",
+   "reg": "$0e4",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11648",
+   "op": "MOVE",
+   "reg": "$0e6",
+   "val": "0000"
+  },
+  {
+   "addr": "0x1164c",
+   "op": "MOVE",
+   "reg": "$0e8",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11650",
+   "op": "MOVE",
+   "reg": "$0ea",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11654",
+   "op": "MOVE",
+   "reg": "$0ec",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11658",
+   "op": "MOVE",
+   "reg": "$0ee",
+   "val": "0000"
+  },
+  {
+   "addr": "0x1165c",
+   "op": "MOVE",
+   "reg": "$102",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11660",
+   "op": "MOVE",
+   "reg": "$08e",
+   "val": "3c71"
+  },
+  {
+   "addr": "0x11664",
+   "op": "MOVE",
+   "reg": "$180",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11668",
+   "op": "MOVE",
+   "reg": "$182",
+   "val": "0000"
+  },
+  {
+   "addr": "0x1166c",
+   "op": "MOVE",
+   "reg": "$184",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11670",
+   "op": "MOVE",
+   "reg": "$186",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11674",
+   "op": "MOVE",
+   "reg": "$188",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11678",
+   "op": "MOVE",
+   "reg": "$18a",
+   "val": "0000"
+  },
+  {
+   "addr": "0x1167c",
+   "op": "MOVE",
+   "reg": "$18c",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11680",
+   "op": "MOVE",
+   "reg": "$18e",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11684",
+   "op": "MOVE",
+   "reg": "$190",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11688",
+   "op": "MOVE",
+   "reg": "$192",
+   "val": "0000"
+  },
+  {
+   "addr": "0x1168c",
+   "op": "MOVE",
+   "reg": "$194",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11690",
+   "op": "MOVE",
+   "reg": "$196",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11694",
+   "op": "MOVE",
+   "reg": "$198",
+   "val": "0000"
+  },
+  {
+   "addr": "0x11698",
+   "op": "MOVE",
+   "reg": "$19a",
+   "val": "0000"
+  },
+  {
+   "addr": "0x1169c",
+   "op": "MOVE",
+   "reg": "$19c",
+   "val": "0000"
+  },
+  {
+   "addr": "0x116a0",
+   "op": "MOVE",
+   "reg": "$19e",
+   "val": "0000"
+  },
+  {
+   "addr": "0x116a4",
+   "op": "WAIT",
+   "vp": "0xff",
+   "hp": "0xfe",
+   "mask": "fffe"
+  }
+ ],
+ "B ($116a8, displays $78000, then COPJMP2)": [
+  {
+   "addr": "0x116a8",
+   "op": "MOVE",
+   "reg": "$0e0",
+   "val": "0007"
+  },
+  {
+   "addr": "0x116ac",
+   "op": "MOVE",
+   "reg": "$0e2",
+   "val": "8000"
+  },
+  {
+   "addr": "0x116b0",
+   "op": "MOVE",
+   "reg": "$0e4",
+   "val": "0007"
+  },
+  {
+   "addr": "0x116b4",
+   "op": "MOVE",
+   "reg": "$0e6",
+   "val": "a000"
+  },
+  {
+   "addr": "0x116b8",
+   "op": "MOVE",
+   "reg": "$0e8",
+   "val": "0007"
+  },
+  {
+   "addr": "0x116bc",
+   "op": "MOVE",
+   "reg": "$0ea",
+   "val": "c000"
+  },
+  {
+   "addr": "0x116c0",
+   "op": "MOVE",
+   "reg": "$0ec",
+   "val": "0007"
+  },
+  {
+   "addr": "0x116c4",
+   "op": "MOVE",
+   "reg": "$0ee",
+   "val": "e000"
+  },
+  {
+   "addr": "0x116c8",
+   "op": "MOVE",
+   "reg": "$08a",
+   "val": "0000"
+  }
+ ],
+ "boot loader copper $766ae": [
+  {
+   "addr": "0x766ae",
+   "op": "MOVE",
+   "reg": "$0e0",
+   "val": "0007"
+  },
+  {
+   "addr": "0x766b2",
+   "op": "MOVE",
+   "reg": "$0e2",
+   "val": "8000"
+  },
+  {
+   "addr": "0x766b6",
+   "op": "MOVE",
+   "reg": "$0e4",
+   "val": "0007"
+  },
+  {
+   "addr": "0x766ba",
+   "op": "MOVE",
+   "reg": "$0e6",
+   "val": "a000"
+  },
+  {
+   "addr": "0x766be",
+   "op": "MOVE",
+   "reg": "$0e8",
+   "val": "0007"
+  },
+  {
+   "addr": "0x766c2",
+   "op": "MOVE",
+   "reg": "$0ea",
+   "val": "c000"
+  },
+  {
+   "addr": "0x766c6",
+   "op": "MOVE",
+   "reg": "$0ec",
+   "val": "0007"
+  },
+  {
+   "addr": "0x766ca",
+   "op": "MOVE",
+   "reg": "$0ee",
+   "val": "e000"
+  },
+  {
+   "addr": "0x766ce",
+   "op": "WAIT",
+   "vp": "0xff",
+   "hp": "0xfe",
+   "mask": "fffe"
+  }
+ ],
+ "monitor copper $23d4": [
+  {
+   "addr": "0x23d4",
+   "op": "MOVE",
+   "reg": "$0e0",
+   "val": "0007"
+  },
+  {
+   "addr": "0x23d8",
+   "op": "MOVE",
+   "reg": "$0e2",
+   "val": "8000"
+  },
+  {
+   "addr": "0x23dc",
+   "op": "WAIT",
+   "vp": "0xff",
+   "hp": "0xfe",
+   "mask": "fffe"
+  }
+ ]
+}

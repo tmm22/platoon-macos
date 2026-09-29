@@ -1,0 +1,53 @@
+1 poke 19f50 80 2
+1 poke 19f54 80 2
+1 poke 19f58 80 2
+1 poke 19f5c 80 2
+1 poke 19f60 80 2
+1 poke 19f64 80 2
+1 poke 19f68 80 2
+1 poke 19f6c 80 2
+1 poke 19eae 7d 2
+1 poke 19eb0 3a 2
+2 fire 1
+10 shot k10
+20 shot k20
+30 shot k30
+40 shot k40
+50 shot k50
+60 shot k60
+70 shot k70
+80 shot k80
+90 shot k90
+100 shot k100
+110 shot k110
+120 shot k120
+130 shot k130
+140 shot k140
+150 shot k150
+160 shot k160
+170 shot k170
+180 shot k180
+190 shot k190
+200 shot k200
+210 shot k210
+220 shot k220
+230 shot k230
+240 shot k240
+250 shot k250
+260 shot k260
+270 shot k270
+280 shot k280
+290 shot k290
+300 shot k300
+310 shot k310
+320 shot k320
+330 shot k330
+340 shot k340
+350 shot k350
+360 shot k360
+370 shot k370
+380 shot k380
+390 shot k390
+400 shot k400
+400 dumpr 12dde 80 a6.bin
+400 dumpr 3b220 30 v.bin

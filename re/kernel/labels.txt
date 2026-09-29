@@ -1,0 +1,403 @@
+# Platoon kernel/resident/boot labels (for tools/rdis.py). v_ = variable, d_ = data (not followed as code).
+# ============================ resident $400-$2537 (after relocation by $253c) ============================
+400 res_jt_init bra $566: resident cold init
+404 res_putchar API: print char d0 at cursor ($41c col,$41e row) with 2bpp font ($418) into both buffers $70000/$78000
+408 res_print API: print control-coded string a0 ([col,row] 0=newpos 1-4=colour $ff=end)
+40c res_keytest API: d0=raw keycode -> d0=-1 (NE) if held, 0 (EQ) if not
+410 res_joystick API: d0 = port-1 joystick: b0 down b1 right b2 up b3 left b7 fire (also $24a8)
+414 res_regdump monitor register dump
+418 v_font_ptr long: font used by $404 (kernel sets $12e54)
+41c v_cur_col word: text cursor column 0..39
+41e v_cur_row word: text cursor row 0..24
+420 res_diskload API: d0=track d1=count a0=dest -> d0=0 (crack: never fails)
+424 res_disksave API (crack STUB): saves sp in $d16, returns d0=0 without writing
+42a res_nop bra $1d08 (rts)
+42e res_getkey API: d0 = lowest raw keycode currently held, Z if none (keycode 0 also looks like none)
+566 res_init cold init: vectors, row table, drive, keyboard, then jumps to $f800 via $10b8
+582 res_restart privilege-violation entry used during init (re-runs init)
+594 res_init_rowtab build $2434 row offset table (25 x $140)
+6c6 mon_restart monitor restart (sp=$400, kbd init, banner, jump $10b8 -> go address)
+6da mon_banner_ret
+6e0 mon_cmdloop_entry
+6e8 mon_prompt prints CMND: and waits for a key
+71a mon_dispatch dispatch key d0 through table $742/$756
+742 d_mon_cmdchars "MRWDJGV\r-\x01\x02\x03\x04X\tHNBS",0
+756 d_mon_cmdtab 19 handler longs
+7a2 mon_cmd_B B: rts
+7a4 mon_cmd_H H: hunt memory (L/W/B/T)
+828 mon_cmd_N N: hunt next
+8a8 d_str_hunt "HUNT FOR L/W/B/T"
+8f8 drv_select select drive $922 (motor on)
+922 v_mon_drive word: drive number for monitor/disk
+924 mon_cmd_S S: select drive
+938 mon_cmd_W W: write track(s)
+9e6 mon_clear_eol pad line with spaces to col 39
+a12 d_disk_errtab 6 pointers to disk error strings
+a9a disksave_stub cracked $424: saves sp in $d16, d0=0
+aa4 disk_write_original dead code: original MFM track writer (unreachable)
+c4c d_sector_hdr_template
+c94 mon_cmd_R R: read track(s)
+d16 v_disk_saved_sp
+d1a disk_load read d1 tracks from d0 into a0 (no checksum check, no timeout)
+d30 disk_load_track_loop
+d46 disk_find_sync
+d7a disk_decode_long
+dbc disk_load_exit
+dca disk_seek motor on, select df0, recalibrate to track 0, choose side, step to cylinder
+df8 disk_seek_trk0
+e5e disk_wait_ready wait CIA-A PRA bit5 (/RDY) low
+e6a disk_read_raw DMA read $1f40 words MFM into $68000 (WORDSYNC $4489)
+ede disk_step_next toggle side; step in when new track even
+f0a disk_motor_off deselect/motor off
+f32 disk_short_delay 4 nops
+f3c disk_step_delay dbra $2800 loop
+1060 mon_cmd_G G: go (restores saved regs, rte to $24fc)
+10a4 v_mon_trap14
+10a6 mon_cmd_J J: jump
+10b8 mon_jump_goaddr jmp ($10d6) (= $f800 kernel)
+10d6 v_mon_goaddr long $f800
+10de mon_cmd_D D: serial download
+1188 v_serial_flag set by level-2 handler on CIA-A FLG
+118a mon_cmd_M M: memory dump
+11d4 mon_cmd_X X: edit memory
+1204 mon_cmd_TAB TAB: toggle
+121e mon_memdump 8 lines x 8 bytes + ascii
+1288 mon_print_ascii8
+12c6 mon_newline
+12e0 mon_cmd_CR
+12ee mon_cmd_minus
+12f2 mon_cmd_1
+12fa mon_cmd_2
+1304 mon_cmd_3
+130e mon_cmd_4
+1318 mon_cmd_V V: video (monitor screen) reset
+131e mon_stub_131e vestigial: pushes d1-d3/a0-a2 then falls into $1322 (monitor screen init) - broken in this build
+13b0 kbd_init install L2 $169c, CIA-A SP int, INTENA $c008, ADKCON, DMACON $8380
+1404 mon_clear_screen
+141c mon_regdump print D0-D7/A0-A7/PC/SR/IPL
+15ae mon_print_flag
+15d6 mon_hex32
+15de mon_hex16
+15e8 mon_hex8
+15f2 mon_hex4
+160e toupper
+1624 kbuf_clear
+162c kbuf_getkey wait for a key from $23e4 buffer (ESC -> $6c6)
+169c level2_handler CIA-A: SP -> keyboard matrix/buffer, FLG -> $1188; DEL -> break to $f800
+16c6 l2_key
+1706 l2_del_break DEL pressed: save regs, jump ($10d6)=$f800 (soft restart)
+1744 l2_keydown
+179a d_keymap_normal
+181a d_keymap_shift
+189a wait_anykey
+18ba d_mon_strings
+1a1e mon_print 1bpp print (monitor)
+1a5c res_print_impl
+1aa2 res_print_colour control code 1..4: slot=code-1, colour=next byte
+1adc mon_clear_regs
+1af0 exc_bus
+1b40 exc_address
+1b68 exc_illegal
+1b9a exc_div0
+1baa exc_chk
+1bba exc_trapv
+1bca exc_priv
+1bda exc_linef
+1bea exc_uninit_irq
+1bfa exc_spurious
+1c0a exc_trap
+1c1a exc_trap14
+1c30 res_joystick_impl
+1c6c res_getkey_impl
+1ca6 res_keytest_impl
+1cda mon_print_space_keepcur
+1cf4 mon_print_star_keepcur
+1d08 res_rts
+1d0a mon_putchar 1bpp 8x8 font $2094 -> $78000 plane 0
+1e46 res_putchar_impl
+1fdc res_putchar_advance
+200e res_putchar_ctrl CR ($0d) / BS ($08)
+207c d_hexdigits
+208c d_flagnames
+2094 d_monfont 96 chars 8x8 1bpp
+2394 d_colourbits 16 x 4 bytes: bit0..bit3 of colour n
+23d4 d_mon_copper
+23e2 v_mon_active
+23e4 v_keybuf count byte + 16 ascii
+2404 v_textcolour 4 planes x 4 slots (bit of colour for pixel value 0..3)
+2434 d_rowtab 25 longs row*$140
+2498 v_keymatrix 16 bytes, bit (code&7) of byte (code>>3)
+24a8 v_joy
+24aa v_saved_regs
+24fc v_saved_pc
+2500 v_saved_sr
+# ============================ $2538-$f7ff ============================
+253c reloc_stub copies $404..$2537 down to $400 then jmp $400
+2800 mus_play music driver: play tune d0 (audio module)
+280e mus_tick music driver vblank tick
+281c mus_stop music driver: stop
+2838 mus_fx music driver: sound effect d0 (bits 8-9 = channel)
+2d98 v_mus_volume master music volume 0..$40
+4012 v_mus_ch0busy
+# ============================ kernel $f800-$12dde ============================
+f800 jt00_init
+f804 jt01_hud_compass
+f808 jt02_hud_icons
+f80c jt03_add_score
+f810 jt04_print_hiscore1
+f814 jt05_print_score
+f818 jt06_hud_wounds
+f81c jt07_hex32
+f820 jt08_hex16
+f824 jt09_hex8
+f828 jt10_hex4
+f82c jt11_queue_text
+f830 jt12_hud_init
+f834 jt13_hud_update
+f838 jt14_draw_bar
+f83c jt15_draw_cell
+f840 jt16_clear_screens
+f844 jt17_wait_frames
+f848 jt18_wait_vbl
+f84c jt19_swap
+f850 jt20_random
+f854 jt21_fill_longs
+f858 jt22_fill_words
+f85c jt23_wait_swap
+f860 jt24_display_init
+f864 jt25_game_over
+f868 jt26_music
+f86c jt27_fx
+f870 jt28_fade_in
+f874 jt29_next_section
+f878 jt30_set_top_pal
+f87c jt31_set_hud_pal
+f880 jt32_set_split
+f884 d_exp_hudgfx dc.l $13254 (HUD cell graphics base)
+f888 d_exp_topdiw dc.l $115f6 (copper DIWSTRT value word of game window)
+f88c d_exp_hudscroll dc.l $1165e (copper BPLCON1 value word of HUD)
+f890 k_init cold/warm kernel init (jt00)
+f95a k_title_start
+f95e k_title_loop credits -> hiscores -> attract forever
+f96c k_credits
+f98a k_title_show clear displayed lower area, credits palette, scroll in, hold 100 frames, scroll out
+f9b0 k_hiscores
+f9fc k_attract
+fa82 k_blit_copy4 4-plane A->D copy (a0 src, a1 dst, d0 D-modulo, d1 BLTSIZE)
+faa6 k_blit_copy1
+fad2 k_blit_wait
+fade k_fade_in jt28: a0 target palette, a3 -> palette pointer var, a4 = setter; 16 steps x 2 frames from black
+fb72 k_wait_text_title
+fb8a k_clear_disp_lower
+fbb2 k_clear_both_lower
+fbec k_scroll_in
+fc3c k_scroll_out
+fc80 k_wait_fire_click wait fire released then pressed
+fc8c k_wait_fire_press
+fc9a k_title_poll fire -> start new game; else cheat keys
+fcc8 k_section_start ENTERING THE COMBAT ZONE, set game display, jmp $17000
+fd4e k_set_split jt32: d0 = split line (HUD starts at line d0+1)
+fdd8 k_put_bplpt
+fdee k_fade_out_hud
+fe38 k_fade_out_both
+fea8 k_pal_dec_step
+fed6 k_music_fade_step
+fee8 k_game_over jt25
+ff6e k_hs_shift
+ffa0 k_hs_insert
+fffc k_name_loop
+10062 k_name_fire
+100a2 k_name_done
+1013c k_save_hiscores 5 tries via $424 (stubbed)
+101d0 k_load_retry 5 tries via $420; prints DISK ERROR, waits fire
+1024a k_wait_joy_release
+1025a k_wait_joy_input
+1026e k_name_tick
+1028a k_print_hs_table_unused dead code
+102d2 k_rle_decode kernel RLE: a1 src (word N + 4 planes), a2 dest (planes $2000 apart)
+10416 k_show_logo
+10454 k_display_reset
+10484 k_logo_cycle_reset
+104aa k_clear_screens jt16
+104c6 k_hud_compass jt01
+104de k_hud_compass_chg
+104f0 k_hud_compass_frame
+1051c d_compass_frames 4 longs
+1052c k_hud_soundicons
+1058a k_hud_icons jt02
+105f8 k_draw_icon 3x3 cells, a0 src, a1 dst, Z=1 -> blank
+10638 k_add_score jt03
+10656 k_hud_wounds jt06
+1069e v_wound_flag
+106a0 k_print_hiscore1 jt04
+106b4 k_force_score
+106b8 k_print_score jt05
+106d0 k_hex32 jt07
+106da k_hex16 jt08
+106e4 k_hex8 jt09
+106ee k_hex4 jt10
+1070c k_queue_text jt11
+10732 k_text_start
+107b2 k_rts shared rts
+107b4 k_text_tick
+10824 k_text_colour
+1084a k_hud_init jt12
+108a0 k_hud_update jt13
+10906 k_hud_topbar
+1093c k_hud_ammobar
+10956 k_hud_moralebar
+10968 k_draw_bar jt14
+109be k_draw_cell jt15
+109c8 k_draw_cell_body
+10acc k_wait_frames jt17
+10ad6 k_wait_vbl jt18
+10ae2 k_swap jt19
+10b14 k_wait_swap jt23
+10b1e k_display_init jt24
+10bcc k_random jt20
+10c00 k_music jt26
+10c3a k_music_stop
+10c50 k_fx jt27
+10c92 k_fx_call
+10ca2 k_onoff_text
+10cfe k_logo_cycle
+10dbe v_logo_cnt
+10dc0 v_logo_state
+10dc2 k_pause_sm
+10e14 k_cheat_check
+10e7c k_cheat_reset
+10ea2 v_cheat_held
+10ea4 v_cheat_ptr
+10ea8 v_pause_colour
+10eaa v_pause
+10eac level3_vblank
+10f0e vbl_timer
+10f4a vbl_common
+10f92 vbl_f10_released
+10f98 vbl_exit
+10fa6 d_bcd_zero 4 zero bytes used as SBCD source
+10faa level6_raster CIA-B TOD alarm at split line
+11000 k_set_hud_pal jt31
+11010 k_set_top_pal jt30
+1101e k_pal_to_copper
+11062 k_fill_longs jt21
+1106c k_fill_words jt22
+11076 k_next_section jt29
+11102 k_load_sec0
+11120 k_load_fail
+1112a k_load_sec1
+11148 k_load_sec2
+11166 d_sec_loaders
+11172 d_str_loading
+1118a d_sec_names
+11196 d_str_sec0
+111b7 d_str_sec1
+111d6 d_str_sec2
+111f7 d_hexdigits
+11207 d_cheat1 HAMBURGER
+11211 d_cheat2 KP- H I L L
+11217 d_str_score_hdr
+11220 d_str_hiscore_hdr
+11229 d_str_text_hdr
+11232 d_str_hud_labels
+11267 d_str_time_hdr
+11272 d_str_disk_error
+1129a d_str_fatal
+112c3 d_str_saving
+112da d_str_loading_hs
+112f1 d_str_blank22
+1131e d_bar_masks
+1133e d_textcol_cyan
+1135e d_textcol_red
+1137e d_pal_logo
+1139e d_pal_text
+113be d_pal_black
+113de d_pal_credits
+113fe d_pal_attract
+1141e d_kernel_texts
+114a1 d_str_credits
+115a6 d_str_muzak_onoff
+115b0 d_str_fx_onoff
+115b3 v_cheat1_flag doubles as string terminator
+115b4 d_str_cheat
+115c2 v_cheat2_flag doubles as string terminator
+115c3 d_str_megacheat
+115d0 d_copper_A bitplanes $70000 then falls into common part
+115f0 d_copper_common COP2LC
+115f2 v_cop_top_bplcon1
+115f6 v_cop_top_diwstrt
+115fa v_cop_top_palette
+11638 v_cop_split_wait
+1163c d_cop_hud_bplpt
+1165e v_cop_hud_bplcon1
+11662 v_cop_hud_diwstrt
+11666 v_cop_hud_palette
+11686 v_cop_col8
+1168a v_cop_col9
+116a4 d_cop_end
+116a8 d_copper_B bitplanes $78000 then COPJMP2
+116cc v_hiscore_track track 77 image ($1600 bytes)
+116e5 v_hs_entries 10 strings x 25 bytes
+117e0 v_hs_offsets 10 longs offset of entry string from $116e5
+11808 v_hs_scores 10 BCD longs
+11830 v_hs_nameline name entry print string
+11836 v_hs_namebuf 16 chars
+1184b v_hs_erase_col
+1184f v_hs_cursor_col
+12ccc v_f10_debounce
+12cce v_cur_tune
+12cd0 v_fadebuf_top
+12cf0 v_fadebuf_hud
+12d1e v_retry_count
+12d20 v_retry_args d0/d1/a0/a1
+12d60 v_junk
+12d62 v_cache_morale_hud3 cache of $28(a6)
+12d64 v_cache_24
+12d66 v_cache_2c
+12d68 v_cache_26
+12d6a v_cache_2a
+12d6c v_cache_time
+12d6e v_cache_onoff
+12d6f v_cache_sndicons
+12d70 v_rng
+12d74 v_swap_pending
+12d76 v_next_cop
+12d7a v_rowtab 25 longs row*$140
+12dde v_a6 global variable block (a6)
+12e52 v_first_boot $74(a6)
+12e54 d_font 64 glyphs x 16 bytes 2bpp
+13254 d_hud_heart
+13274 d_hud_bullet
+13294 d_hud_grenade
+132b4 d_hud_woundmark
+132d4 d_hud_flare
+132f4 d_icon_compass0
+13414 d_icon_compass1
+13534 d_icon_compass2
+13654 d_icon_compass3
+13774 d_icon_map $24(a6)
+13894 d_icon_tnt $28(a6)
+139b4 d_icon_wound
+13ad4 d_icon_gun $2c(a6)
+13bf4 d_icon_music_on
+13d14 d_icon_fx_on
+13e34 d_icon_music_off
+13f54 d_icon_fx_off
+14074 d_rle_logo
+14ec4 d_rle_attract
+# ============================ boot loader $76000 ============================
+7613a boot_entry
+76148 boot_main
+761c6 boot_load
+761dc boot_decode_picture ByteRun1 -> $78000 4 planes interleaved rows
+76224 boot_putbyte
+7629c boot_drive_select
+762e2 boot_diskload same as resident $d1a
+76392 boot_seek
+76432 boot_read_raw
+765d8 boot_kbd_off
+76614 boot_display_init
+766ae d_boot_copper
+766d2 d_boot_palette
+766f2 v_boot_drive
+1322 mon_screen_init monitor screen: 1 plane white bg, copper $23d4, kbd init

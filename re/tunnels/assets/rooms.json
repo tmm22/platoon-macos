@@ -1,0 +1,1049 @@
+[
+ {
+  "index": 0,
+  "entry_cell": [
+   8,
+   3
+  ],
+  "type": 0,
+  "picture": "2a220",
+  "hotspots": [
+   {
+    "rects_x1y1x2y2": [
+     [
+      26,
+      17,
+      48,
+      40
+     ]
+    ],
+    "item_word_addr": "19a60",
+    "item": 1,
+    "message": "A PLAN OF THE TUNNEL SYSTEM."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      17,
+      62,
+      30,
+      69
+     ]
+    ],
+    "item_word_addr": "19a62",
+    "item": 3,
+    "message": "A BOOK OF VIETNAMESE POETRY BY M.T. KATO"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      15,
+      83,
+      36,
+      89
+     ]
+    ],
+    "item_word_addr": "19a64",
+    "item": 4,
+    "message": "YOU HAVE FOUND A BOX OF FLARES"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      57,
+      83,
+      78,
+      89
+     ]
+    ],
+    "item_word_addr": "19a66",
+    "item": 5,
+    "message": "SOME SECRET DOCUMENTS - TAKEN."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      40,
+      69,
+      46,
+      74
+     ]
+    ],
+    "item_word_addr": "19a68",
+    "item": 2,
+    "message": "A CUP OF COLD, PUTRID TEA."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      59,
+      56,
+      88,
+      68
+     ]
+    ],
+    "item_word_addr": "19a6a",
+    "item": 6,
+    "message": "EMPTY"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      106,
+      67,
+      141,
+      105
+     ]
+    ],
+    "item_word_addr": "19a6c",
+    "item": 7,
+    "message": "A BOX OF VIET CONG BOOTS"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      124,
+      122,
+      141,
+      125
+     ]
+    ],
+    "item_word_addr": "19a6e",
+    "item": 0,
+    "message": "GET GOING !"
+   }
+  ],
+  "has_guard": true
+ },
+ {
+  "index": 1,
+  "entry_cell": [
+   36,
+   3
+  ],
+  "type": 1,
+  "picture": "2fc24",
+  "hotspots": [
+   {
+    "rects_x1y1x2y2": [
+     [
+      19,
+      16,
+      52,
+      47
+     ]
+    ],
+    "item_word_addr": "19a70",
+    "item": 12,
+    "message": "VIET CONG AMMUNITION"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      19,
+      48,
+      39,
+      73
+     ],
+     [
+      39,
+      48,
+      51,
+      86
+     ]
+    ],
+    "item_word_addr": "19a72",
+    "item": 12,
+    "message": "VIET CONG AMMUNITION"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      5,
+      74,
+      37,
+      106
+     ]
+    ],
+    "item_word_addr": "19a74",
+    "item": 13,
+    "message": "MEDICAL SUPPLIES"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      77,
+      37,
+      117,
+      60
+     ]
+    ],
+    "item_word_addr": "19a76",
+    "item": 14,
+    "message": "VIET CONG WEAPONS."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      105,
+      58,
+      136,
+      84
+     ]
+    ],
+    "item_word_addr": "19a78",
+    "item": 6,
+    "message": "EMPTY"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      61,
+      60,
+      109,
+      92
+     ]
+    ],
+    "item_word_addr": "19a7a",
+    "item": 13,
+    "message": "MEDICAL SUPPLIES"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      124,
+      122,
+      141,
+      125
+     ]
+    ],
+    "item_word_addr": "19a7c",
+    "item": 0,
+    "message": "GET GOING !"
+   }
+  ],
+  "has_guard": false
+ },
+ {
+  "index": 2,
+  "entry_cell": [
+   7,
+   10
+  ],
+  "type": 2,
+  "picture": "2cf22",
+  "hotspots": [
+   {
+    "rects_x1y1x2y2": [
+     [
+      40,
+      37,
+      98,
+      52
+     ],
+     [
+      100,
+      49,
+      107,
+      61
+     ]
+    ],
+    "item_word_addr": "19a7e",
+    "item": 8,
+    "message": "SORRY, IT DOESN'T APPEAR TO WORK"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      75,
+      18,
+      97,
+      39
+     ]
+    ],
+    "item_word_addr": "19a80",
+    "item": 1,
+    "message": "A PLAN OF THE TUNNEL SYSTEM."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      52,
+      56,
+      65,
+      63
+     ]
+    ],
+    "item_word_addr": "19a82",
+    "item": 9,
+    "message": "LOOKS LIKE A DIARY"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      30,
+      72,
+      63,
+      78
+     ]
+    ],
+    "item_word_addr": "19a84",
+    "item": 10,
+    "message": "YOU HAVE FOUND SOME ROTTEN FOOD."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      83,
+      72,
+      114,
+      78
+     ]
+    ],
+    "item_word_addr": "19a86",
+    "item": 11,
+    "message": "NOTHING IN THIS DRAWER"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      124,
+      122,
+      141,
+      125
+     ]
+    ],
+    "item_word_addr": "19a88",
+    "item": 0,
+    "message": "GET GOING !"
+   }
+  ],
+  "has_guard": false
+ },
+ {
+  "index": 3,
+  "entry_cell": [
+   19,
+   6
+  ],
+  "type": 3,
+  "picture": "32926",
+  "hotspots": [
+   {
+    "rects_x1y1x2y2": [
+     [
+      3,
+      87,
+      44,
+      120
+     ]
+    ],
+    "item_word_addr": "19a8a",
+    "item": 12,
+    "message": "VIET CONG AMMUNITION"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      78,
+      54,
+      112,
+      80
+     ]
+    ],
+    "item_word_addr": "19a8c",
+    "item": 13,
+    "message": "MEDICAL SUPPLIES"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      104,
+      73,
+      140,
+      104
+     ]
+    ],
+    "item_word_addr": "19a8e",
+    "item": 14,
+    "message": "VIET CONG WEAPONS."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      56,
+      70,
+      93,
+      98
+     ]
+    ],
+    "item_word_addr": "19a90",
+    "item": 6,
+    "message": "EMPTY"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      106,
+      0,
+      126,
+      73
+     ]
+    ],
+    "item_word_addr": "19a92",
+    "item": 15,
+    "message": "WELL DONE. YOU HAVE FOUND AN EXIT,"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      124,
+      122,
+      141,
+      125
+     ]
+    ],
+    "item_word_addr": "19a94",
+    "item": 0,
+    "message": "GET GOING !"
+   }
+  ],
+  "has_guard": false
+ },
+ {
+  "index": 4,
+  "entry_cell": [
+   31,
+   6
+  ],
+  "type": 0,
+  "picture": "2a220",
+  "hotspots": [
+   {
+    "rects_x1y1x2y2": [
+     [
+      26,
+      17,
+      48,
+      40
+     ]
+    ],
+    "item_word_addr": "19a96",
+    "item": 1,
+    "message": "A PLAN OF THE TUNNEL SYSTEM."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      17,
+      62,
+      30,
+      69
+     ]
+    ],
+    "item_word_addr": "19a98",
+    "item": 16,
+    "message": "A MEDICAL HANDBOOK"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      15,
+      83,
+      36,
+      89
+     ]
+    ],
+    "item_word_addr": "19a9a",
+    "item": 17,
+    "message": "YOU HAVE FOUND A COMPASS"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      57,
+      83,
+      78,
+      89
+     ]
+    ],
+    "item_word_addr": "19a9c",
+    "item": 5,
+    "message": "SOME SECRET DOCUMENTS - TAKEN."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      40,
+      69,
+      46,
+      74
+     ]
+    ],
+    "item_word_addr": "19a9e",
+    "item": 2,
+    "message": "A CUP OF COLD, PUTRID TEA."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      59,
+      56,
+      88,
+      68
+     ]
+    ],
+    "item_word_addr": "19aa0",
+    "item": 6,
+    "message": "EMPTY"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      106,
+      67,
+      141,
+      105
+     ]
+    ],
+    "item_word_addr": "19aa2",
+    "item": 13,
+    "message": "MEDICAL SUPPLIES"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      124,
+      122,
+      141,
+      125
+     ]
+    ],
+    "item_word_addr": "19aa4",
+    "item": 0,
+    "message": "GET GOING !"
+   }
+  ],
+  "has_guard": false
+ },
+ {
+  "index": 5,
+  "entry_cell": [
+   39,
+   10
+  ],
+  "type": 1,
+  "picture": "2fc24",
+  "hotspots": [
+   {
+    "rects_x1y1x2y2": [
+     [
+      19,
+      16,
+      52,
+      47
+     ]
+    ],
+    "item_word_addr": "19aa6",
+    "item": 12,
+    "message": "VIET CONG AMMUNITION"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      19,
+      48,
+      39,
+      73
+     ],
+     [
+      39,
+      48,
+      51,
+      86
+     ]
+    ],
+    "item_word_addr": "19aa8",
+    "item": 14,
+    "message": "VIET CONG WEAPONS."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      5,
+      74,
+      37,
+      106
+     ]
+    ],
+    "item_word_addr": "19aaa",
+    "item": 13,
+    "message": "MEDICAL SUPPLIES"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      77,
+      37,
+      117,
+      60
+     ]
+    ],
+    "item_word_addr": "19aac",
+    "item": 13,
+    "message": "MEDICAL SUPPLIES"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      105,
+      58,
+      136,
+      84
+     ]
+    ],
+    "item_word_addr": "19aae",
+    "item": 14,
+    "message": "VIET CONG WEAPONS."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      61,
+      60,
+      109,
+      92
+     ]
+    ],
+    "item_word_addr": "19ab0",
+    "item": 13,
+    "message": "MEDICAL SUPPLIES"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      124,
+      122,
+      141,
+      125
+     ]
+    ],
+    "item_word_addr": "19ab2",
+    "item": 0,
+    "message": "GET GOING !"
+   }
+  ],
+  "has_guard": false
+ },
+ {
+  "index": 6,
+  "entry_cell": [
+   22,
+   19
+  ],
+  "type": 0,
+  "picture": "2a220",
+  "hotspots": [
+   {
+    "rects_x1y1x2y2": [
+     [
+      26,
+      17,
+      48,
+      40
+     ]
+    ],
+    "item_word_addr": "19ab4",
+    "item": 1,
+    "message": "A PLAN OF THE TUNNEL SYSTEM."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      17,
+      62,
+      30,
+      69
+     ]
+    ],
+    "item_word_addr": "19ab6",
+    "item": 18,
+    "message": "THE RISE & FALL OF THE ROMAN EMPIRE.."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      15,
+      83,
+      36,
+      89
+     ]
+    ],
+    "item_word_addr": "19ab8",
+    "item": 11,
+    "message": "NOTHING IN THIS DRAWER"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      57,
+      83,
+      78,
+      89
+     ]
+    ],
+    "item_word_addr": "19aba",
+    "item": 19,
+    "message": "A DECK OF CARDS."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      40,
+      69,
+      46,
+      74
+     ]
+    ],
+    "item_word_addr": "19abc",
+    "item": 2,
+    "message": "A CUP OF COLD, PUTRID TEA."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      59,
+      56,
+      88,
+      68
+     ]
+    ],
+    "item_word_addr": "19abe",
+    "item": 6,
+    "message": "EMPTY"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      106,
+      67,
+      141,
+      105
+     ]
+    ],
+    "item_word_addr": "19ac0",
+    "item": 6,
+    "message": "EMPTY"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      124,
+      122,
+      141,
+      125
+     ]
+    ],
+    "item_word_addr": "19ac2",
+    "item": 0,
+    "message": "GET GOING !"
+   }
+  ],
+  "has_guard": false
+ },
+ {
+  "index": 7,
+  "entry_cell": [
+   31,
+   26
+  ],
+  "type": 2,
+  "picture": "2cf22",
+  "hotspots": [
+   {
+    "rects_x1y1x2y2": [
+     [
+      40,
+      37,
+      98,
+      52
+     ],
+     [
+      100,
+      49,
+      107,
+      61
+     ]
+    ],
+    "item_word_addr": "19ac4",
+    "item": 8,
+    "message": "SORRY, IT DOESN'T APPEAR TO WORK"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      75,
+      18,
+      97,
+      39
+     ]
+    ],
+    "item_word_addr": "19ac6",
+    "item": 1,
+    "message": "A PLAN OF THE TUNNEL SYSTEM."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      52,
+      56,
+      65,
+      63
+     ]
+    ],
+    "item_word_addr": "19ac8",
+    "item": 20,
+    "message": "A COMBAT MANUAL."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      30,
+      72,
+      63,
+      78
+     ]
+    ],
+    "item_word_addr": "19aca",
+    "item": 10,
+    "message": "YOU HAVE FOUND SOME ROTTEN FOOD."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      83,
+      72,
+      114,
+      78
+     ]
+    ],
+    "item_word_addr": "19acc",
+    "item": 11,
+    "message": "NOTHING IN THIS DRAWER"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      124,
+      122,
+      141,
+      125
+     ]
+    ],
+    "item_word_addr": "19ace",
+    "item": 0,
+    "message": "GET GOING !"
+   }
+  ],
+  "has_guard": false
+ },
+ {
+  "index": 8,
+  "entry_cell": [
+   14,
+   35
+  ],
+  "type": 1,
+  "picture": "2fc24",
+  "hotspots": [
+   {
+    "rects_x1y1x2y2": [
+     [
+      19,
+      16,
+      52,
+      47
+     ]
+    ],
+    "item_word_addr": "19ad0",
+    "item": 4,
+    "message": "YOU HAVE FOUND A BOX OF FLARES"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      19,
+      48,
+      39,
+      73
+     ],
+     [
+      39,
+      48,
+      51,
+      86
+     ]
+    ],
+    "item_word_addr": "19ad2",
+    "item": 6,
+    "message": "EMPTY"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      5,
+      74,
+      37,
+      106
+     ]
+    ],
+    "item_word_addr": "19ad4",
+    "item": 13,
+    "message": "MEDICAL SUPPLIES"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      77,
+      37,
+      117,
+      60
+     ]
+    ],
+    "item_word_addr": "19ad6",
+    "item": 14,
+    "message": "VIET CONG WEAPONS."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      105,
+      58,
+      136,
+      84
+     ]
+    ],
+    "item_word_addr": "19ad8",
+    "item": 13,
+    "message": "MEDICAL SUPPLIES"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      61,
+      60,
+      109,
+      92
+     ]
+    ],
+    "item_word_addr": "19ada",
+    "item": 6,
+    "message": "EMPTY"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      124,
+      122,
+      141,
+      125
+     ]
+    ],
+    "item_word_addr": "19adc",
+    "item": 0,
+    "message": "GET GOING !"
+   }
+  ],
+  "has_guard": false
+ },
+ {
+  "index": 9,
+  "entry_cell": [
+   39,
+   30
+  ],
+  "type": 3,
+  "picture": "32926",
+  "hotspots": [
+   {
+    "rects_x1y1x2y2": [
+     [
+      3,
+      87,
+      44,
+      120
+     ]
+    ],
+    "item_word_addr": "19ade",
+    "item": 14,
+    "message": "VIET CONG WEAPONS."
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      78,
+      54,
+      112,
+      80
+     ]
+    ],
+    "item_word_addr": "19ae0",
+    "item": 6,
+    "message": "EMPTY"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      104,
+      73,
+      140,
+      104
+     ]
+    ],
+    "item_word_addr": "19ae2",
+    "item": 12,
+    "message": "VIET CONG AMMUNITION"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      56,
+      70,
+      93,
+      98
+     ]
+    ],
+    "item_word_addr": "19ae4",
+    "item": 13,
+    "message": "MEDICAL SUPPLIES"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      106,
+      0,
+      126,
+      73
+     ]
+    ],
+    "item_word_addr": "19ae6",
+    "item": 21,
+    "message": "AND THIS ONE'S CLEAR"
+   },
+   {
+    "rects_x1y1x2y2": [
+     [
+      124,
+      122,
+      141,
+      125
+     ]
+    ],
+    "item_word_addr": "19ae8",
+    "item": 0,
+    "message": "GET GOING !"
+   }
+  ],
+  "has_guard": false
+ }
+]

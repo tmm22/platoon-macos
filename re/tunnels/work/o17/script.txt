@@ -1,0 +1,116 @@
+1 poke 3b237 ff 1
+5 poke 12de2 1 2
+5 poke 12de0 64 2
+5 poke 1a0b0 1f07 2
+5 poke 12e08 0 2
+17 up 1
+27 up 0
+57 poke 19d34 1b 2
+57 poke 19d36 12 2
+59 fire 1
+67 fire 0
+73 shot map
+73 dumpr 12dde 80 map.bin
+273 poke 19d34 10 2
+273 poke 19d36 54 2
+275 fire 1
+283 fire 0
+289 shot compass
+289 dumpr 12dde 80 compass.bin
+301 poke 3b237 ff 1
+389 poke 19d34 6e 2
+389 poke 19d36 46 2
+391 fire 1
+399 fire 0
+405 shot medic
+405 dumpr 12dde 80 medic.bin
+505 poke 19d34 82 2
+505 poke 19d36 7b 2
+507 fire 1
+515 fire 0
+521 shot exit1
+521 dumpr 12dde 80 exit1.bin
+601 poke 3b237 ff 1
+621 poke 1a0b0 1307 2
+621 poke 12e08 0 2
+633 up 1
+643 up 0
+673 poke 19d34 4 2
+673 poke 19d36 58 2
+675 fire 1
+683 fire 0
+689 shot ammo
+689 dumpr 12dde 80 ammo.bin
+789 poke 19d34 6e 2
+789 poke 19d36 a 2
+791 fire 1
+799 fire 0
+805 shot blocked
+805 dumpr 12dde 80 blocked.bin
+901 poke 3b237 ff 1
+905 poke 19d34 82 2
+905 poke 19d36 7b 2
+907 fire 1
+915 fire 0
+921 shot exit2
+921 dumpr 12dde 80 exit2.bin
+1021 poke 1a0b0 70b 2
+1021 poke 12e08 0 2
+1033 up 1
+1043 up 0
+1073 poke 19d34 1f 2
+1073 poke 19d36 49 2
+1075 fire 1
+1083 fire 0
+1089 shot food
+1089 dumpr 12dde 80 food.bin
+1189 poke 19d34 1f 2
+1189 poke 19d36 49 2
+1191 fire 1
+1199 fire 0
+1201 poke 3b237 ff 1
+1205 shot food2
+1205 dumpr 12dde 80 food2.bin
+1305 poke 19d34 82 2
+1305 poke 19d36 7b 2
+1307 fire 1
+1315 fire 0
+1321 shot exit3
+1321 dumpr 12dde 80 exit3.bin
+1421 poke 1a0b0 1713 2
+1421 poke 12e08 3 2
+1433 up 1
+1443 up 0
+1473 poke 19d34 12 2
+1473 poke 19d36 3f 2
+1475 fire 1
+1483 fire 0
+1489 shot roman
+1489 dumpr 12dde 80 roman.bin
+1501 poke 3b237 ff 1
+1589 poke 19d34 82 2
+1589 poke 19d36 7b 2
+1591 fire 1
+1599 fire 0
+1605 shot exit4
+1605 dumpr 12dde 80 exit4.bin
+1705 poke 1a0b0 1503 2
+1705 poke 12e08 0 2
+1717 up 1
+1737 up 0
+1747 dumpr 1a0b0 2 wall.bin
+1747 shot wall
+1801 poke 3b237 ff 1
+2101 poke 3b237 ff 1
+2401 poke 3b237 ff 1
+2701 poke 3b237 ff 1
+3001 poke 3b237 ff 1
+3301 poke 3b237 ff 1
+3601 poke 3b237 ff 1
+3901 poke 3b237 ff 1
+4201 poke 3b237 ff 1
+4501 poke 3b237 ff 1
+4801 poke 3b237 ff 1
+5101 poke 3b237 ff 1
+5401 poke 3b237 ff 1
+5701 poke 3b237 ff 1

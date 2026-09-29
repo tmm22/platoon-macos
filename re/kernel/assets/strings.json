@@ -1,0 +1,727 @@
+{
+ "LOADING...": {
+  "addr": "0x11172",
+  "end": "0x11189",
+  "parts": [
+   {
+    "col": 15,
+    "row": 10,
+    "ops": [
+     [
+      "slot0",
+      0
+     ],
+     [
+      "slot1",
+      2
+     ],
+     [
+      "slot2",
+      3
+     ],
+     [
+      "text",
+      "LOADING..."
+     ],
+     [
+      "slot1",
+      6
+     ],
+     [
+      "slot2",
+      4
+     ]
+    ],
+    "text": "LOADING..."
+   }
+  ]
+ },
+ "section 0 name": {
+  "addr": "0x11196",
+  "end": "0x111b7",
+  "parts": [
+   {
+    "col": 5,
+    "row": 13,
+    "ops": [
+     [
+      "text",
+      "THE JUNGLE & VILLAGE SECTIONS."
+     ]
+    ],
+    "text": "THE JUNGLE & VILLAGE SECTIONS."
+   }
+  ]
+ },
+ "section 1 name": {
+  "addr": "0x111b7",
+  "end": "0x111d6",
+  "parts": [
+   {
+    "col": 6,
+    "row": 13,
+    "ops": [
+     [
+      "text",
+      "THE TUNNEL & FLARE SECTIONS."
+     ]
+    ],
+    "text": "THE TUNNEL & FLARE SECTIONS."
+   }
+  ]
+ },
+ "section 2 name": {
+  "addr": "0x111d6",
+  "end": "0x111f7",
+  "parts": [
+   {
+    "col": 5,
+    "row": 13,
+    "ops": [
+     [
+      "text",
+      "THE JUNGLE & FOXHOLE SECTIONS."
+     ]
+    ],
+    "text": "THE JUNGLE & FOXHOLE SECTIONS."
+   }
+  ]
+ },
+ "score header": {
+  "addr": "0x11217",
+  "end": "0x11220",
+  "parts": [
+   {
+    "col": 16,
+    "row": 24,
+    "ops": [
+     [
+      "slot0",
+      0
+     ],
+     [
+      "slot1",
+      5
+     ],
+     [
+      "slot2",
+      0
+     ]
+    ],
+    "text": ""
+   }
+  ]
+ },
+ "hiscore header": {
+  "addr": "0x11220",
+  "end": "0x11229",
+  "parts": [
+   {
+    "col": 16,
+    "row": 22,
+    "ops": [
+     [
+      "slot0",
+      0
+     ],
+     [
+      "slot1",
+      5
+     ],
+     [
+      "slot2",
+      0
+     ]
+    ],
+    "text": ""
+   }
+  ]
+ },
+ "queued text header (colours 8/9)": {
+  "addr": "0x11229",
+  "end": "0x11232",
+  "parts": [
+   {
+    "col": 0,
+    "row": 0,
+    "ops": [
+     [
+      "slot0",
+      0
+     ],
+     [
+      "slot1",
+      8
+     ],
+     [
+      "slot2",
+      9
+     ]
+    ],
+    "text": ""
+   }
+  ]
+ },
+ "HUD labels": {
+  "addr": "0x11232",
+  "end": "0x11267",
+  "parts": [
+   {
+    "col": 4,
+    "row": 22,
+    "ops": [
+     [
+      "slot0",
+      0
+     ],
+     [
+      "slot3",
+      0
+     ],
+     [
+      "slot2",
+      0
+     ],
+     [
+      "slot1",
+      7
+     ],
+     [
+      "text",
+      "TIME "
+     ],
+     [
+      "slot1",
+      6
+     ],
+     [
+      "text",
+      "00:00"
+     ]
+    ],
+    "text": "TIME 00:00"
+   },
+   {
+    "col": 28,
+    "row": 22,
+    "ops": [
+     [
+      "slot1",
+      7
+     ],
+     [
+      "text",
+      "AMMO:"
+     ]
+    ],
+    "text": "AMMO:"
+   },
+   {
+    "col": 6,
+    "row": 23,
+    "ops": [
+     [
+      "text",
+      "MORALE:    SCORE:"
+     ]
+    ],
+    "text": "MORALE:    SCORE:"
+   }
+  ]
+ },
+ "TIME header": {
+  "addr": "0x11267",
+  "end": "0x11272",
+  "parts": [
+   {
+    "col": 9,
+    "row": 22,
+    "ops": [
+     [
+      "slot0",
+      0
+     ],
+     [
+      "slot3",
+      0
+     ],
+     [
+      "slot2",
+      0
+     ],
+     [
+      "slot1",
+      6
+     ]
+    ],
+    "text": ""
+   }
+  ]
+ },
+ "DISK ERROR": {
+  "addr": "0x11272",
+  "end": "0x1129a",
+  "parts": [
+   {
+    "col": 7,
+    "row": 22,
+    "ops": [
+     [
+      "slot1",
+      3
+     ],
+     [
+      "slot2",
+      4
+     ],
+     [
+      "text",
+      "DISK ERROR #00, PRESS FIRE"
+     ]
+    ],
+    "text": "DISK ERROR #00, PRESS FIRE"
+   },
+   {
+    "col": 19,
+    "row": 22,
+    "ops": [
+     [
+      "slot1",
+      11
+     ],
+     [
+      "slot2",
+      12
+     ]
+    ],
+    "text": ""
+   }
+  ]
+ },
+ "FATAL DISK ERROR": {
+  "addr": "0x1129a",
+  "end": "0x112c3",
+  "parts": [
+   {
+    "col": 3,
+    "row": 22,
+    "ops": [
+     [
+      "slot1",
+      13
+     ],
+     [
+      "slot2",
+      14
+     ],
+     [
+      "text",
+      "THERE HAS BEEN A FATAL DISK ERROR!"
+     ]
+    ],
+    "text": "THERE HAS BEEN A FATAL DISK ERROR!"
+   }
+  ]
+ },
+ "SAVING HISCORES": {
+  "addr": "0x112c3",
+  "end": "0x112da",
+  "parts": [
+   {
+    "col": 12,
+    "row": 22,
+    "ops": [
+     [
+      "slot1",
+      11
+     ],
+     [
+      "slot2",
+      12
+     ],
+     [
+      "text",
+      "SAVING HISCORES."
+     ]
+    ],
+    "text": "SAVING HISCORES."
+   }
+  ]
+ },
+ "LOADING HISCORES": {
+  "addr": "0x112da",
+  "end": "0x112f1",
+  "parts": [
+   {
+    "col": 12,
+    "row": 22,
+    "ops": [
+     [
+      "slot1",
+      11
+     ],
+     [
+      "slot2",
+      12
+     ],
+     [
+      "text",
+      "LOADING HISCORES"
+     ]
+    ],
+    "text": "LOADING HISCORES"
+   }
+  ]
+ },
+ "blank line row 22": {
+  "addr": "0x112f1",
+  "end": "0x1131e",
+  "parts": [
+   {
+    "col": 0,
+    "row": 22,
+    "ops": [
+     [
+      "slot0",
+      0
+     ],
+     [
+      "text",
+      "                                        "
+     ]
+    ],
+    "text": "                                        "
+   }
+  ]
+ },
+ "credits page": {
+  "addr": "0x114a1",
+  "end": "0x115b4",
+  "parts": [
+   {
+    "col": 4,
+    "row": 8,
+    "ops": [
+     [
+      "slot0",
+      0
+     ],
+     [
+      "slot1",
+      1
+     ],
+     [
+      "slot2",
+      2
+     ],
+     [
+      "slot3",
+      0
+     ],
+     [
+      "text",
+      "(C)1986 HEMDALE FILM CORPORATION"
+     ]
+    ],
+    "text": "(C)1986 HEMDALE FILM CORPORATION"
+   },
+   {
+    "col": 10,
+    "row": 9,
+    "ops": [
+     [
+      "text",
+      "ALL RIGHTS RESERVED."
+     ]
+    ],
+    "text": "ALL RIGHTS RESERVED."
+   },
+   {
+    "col": 7,
+    "row": 11,
+    "ops": [
+     [
+      "slot1",
+      3
+     ],
+     [
+      "slot2",
+      4
+     ],
+     [
+      "text",
+      "CRACKED BY HANSWURST OF 68 DARC                      "
+     ]
+    ],
+    "text": "CRACKED BY HANSWURST OF 68 DARC                      "
+   },
+   {
+    "col": 3,
+    "row": 15,
+    "ops": [
+     [
+      "slot1",
+      7
+     ],
+     [
+      "slot2",
+      8
+     ],
+     [
+      "text",
+      "PROGRAMMED BY"
+     ]
+    ],
+    "text": "PROGRAMMED BY"
+   },
+   {
+    "col": 23,
+    "row": 15,
+    "ops": [
+     [
+      "text",
+      "SEAN PEARCE"
+     ]
+    ],
+    "text": "SEAN PEARCE"
+   },
+   {
+    "col": 23,
+    "row": 16,
+    "ops": [
+     [
+      "text",
+      "COLIN GORDON"
+     ]
+    ],
+    "text": "COLIN GORDON"
+   },
+   {
+    "col": 3,
+    "row": 18,
+    "ops": [
+     [
+      "slot1",
+      9
+     ],
+     [
+      "slot2",
+      10
+     ],
+     [
+      "text",
+      "GRAPHICS BY"
+     ]
+    ],
+    "text": "GRAPHICS BY"
+   },
+   {
+    "col": 23,
+    "row": 18,
+    "ops": [
+     [
+      "text",
+      "SHARON BEATTIE"
+     ]
+    ],
+    "text": "SHARON BEATTIE"
+   },
+   {
+    "col": 3,
+    "row": 20,
+    "ops": [
+     [
+      "slot1",
+      11
+     ],
+     [
+      "slot2",
+      12
+     ],
+     [
+      "text",
+      "MUZAK & FX BY"
+     ]
+    ],
+    "text": "MUZAK & FX BY"
+   },
+   {
+    "col": 23,
+    "row": 20,
+    "ops": [
+     [
+      "text",
+      "DAVID WHITTAKER"
+     ]
+    ],
+    "text": "DAVID WHITTAKER"
+   },
+   {
+    "col": 3,
+    "row": 22,
+    "ops": [
+     [
+      "slot1",
+      13
+     ],
+     [
+      "slot2",
+      14
+     ],
+     [
+      "text",
+      "MUZAK: OFF"
+     ]
+    ],
+    "text": "MUZAK: OFF"
+   },
+   {
+    "col": 23,
+    "row": 22,
+    "ops": [
+     [
+      "text",
+      "FX: OFF"
+     ]
+    ],
+    "text": "FX: OFF"
+   }
+  ]
+ },
+ "kernel text table $1141e (jt11)": [
+  {
+   "index": 0,
+   "addr": "0x11432",
+   "end": "0x11453",
+   "parts": [
+    {
+     "col": 5,
+     "row": 14,
+     "ops": [
+      [
+       "text",
+       " THE FIRST CASUALTY OF WAR ..."
+      ]
+     ],
+     "text": " THE FIRST CASUALTY OF WAR ..."
+    }
+   ]
+  },
+  {
+   "index": 1,
+   "addr": "0x11453",
+   "end": "0x11462",
+   "parts": [
+    {
+     "col": 14,
+     "row": 24,
+     "ops": [
+      [
+       "text",
+       "IS INNOCENCE"
+      ]
+     ],
+     "text": "IS INNOCENCE"
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "addr": "0x11462",
+   "end": "0x11481",
+   "parts": [
+    {
+     "col": 6,
+     "row": 10,
+     "ops": [
+      [
+       "text",
+       "ENTERING THE COMBAT ZONE...."
+      ]
+     ],
+     "text": "ENTERING THE COMBAT ZONE...."
+    }
+   ]
+  },
+  {
+   "index": 3,
+   "addr": "0x11481",
+   "end": "0x11494",
+   "parts": [
+    {
+     "col": 12,
+     "row": 9,
+     "ops": [
+      [
+       "text",
+       "ENTER YOUR NAME:"
+      ]
+     ],
+     "text": "ENTER YOUR NAME:"
+    }
+   ]
+  },
+  {
+   "index": 4,
+   "addr": "0x11494",
+   "end": "0x114a1",
+   "parts": [
+    {
+     "col": 15,
+     "row": 9,
+     "ops": [
+      [
+       "text",
+       "GAME OVER."
+      ]
+     ],
+     "text": "GAME OVER."
+    }
+   ]
+  }
+ ],
+ "credits tail (shown when cheat flags cleared)": [
+  {
+   "addr": "0x115b4",
+   "end": "0x115c3",
+   "parts": [
+    {
+     "col": 16,
+     "row": 24,
+     "ops": [
+      [
+       "slot1",
+       14
+      ],
+      [
+       "slot2",
+       13
+      ],
+      [
+       "text",
+       "CHEAT!!!"
+      ]
+     ],
+     "text": "CHEAT!!!"
+    }
+   ]
+  },
+  {
+   "addr": "0x115c3",
+   "end": "0x115d0",
+   "parts": [
+    {
+     "col": 15,
+     "row": 24,
+     "ops": [
+      [
+       "text",
+       "MEGA CHEAT"
+      ]
+     ],
+     "text": "MEGA CHEAT"
+    }
+   ]
+  }
+ ]
+}

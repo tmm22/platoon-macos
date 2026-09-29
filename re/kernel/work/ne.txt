@@ -1,0 +1,22 @@
+300 fire 1
+305 fire 0
+600 fire 1
+605 fire 0
+900 fire 1
+905 fire 0
+1000 save re/states/kernel_hs_play.state
+1005 poke 12e2c 00012345 4
+1006 poke 12e0c 0001 2
+1300 shot n1300
+1400 right 1
+1404 right 0
+1420 right 1
+1424 right 0
+1440 fire 1
+1444 fire 0
+1460 left 1
+1464 left 0
+1480 fire 1
+1484 fire 0
+1500 shot n1500
+1510 regs

@@ -1,0 +1,528 @@
+{
+ "message_table_189e0": [
+  {
+   "n": 0,
+   "addr": "0x18a24",
+   "col": 15,
+   "row": 18,
+   "text": "GET GOING!"
+  },
+  {
+   "n": 1,
+   "addr": "0x18a31",
+   "col": 14,
+   "row": 18,
+   "text": "KEEP MOVING!"
+  },
+  {
+   "n": 2,
+   "addr": "0x18a40",
+   "col": 13,
+   "row": 18,
+   "text": "GOOD SHOOTING!"
+  },
+  {
+   "n": 3,
+   "addr": "0x18a40",
+   "col": 13,
+   "row": 18,
+   "text": "GOOD SHOOTING!"
+  },
+  {
+   "n": 4,
+   "addr": "0x18a51",
+   "col": 16,
+   "row": 18,
+   "text": "GOT YA !"
+  },
+  {
+   "n": 5,
+   "addr": "0x18a5c",
+   "col": 7,
+   "row": 18,
+   "text": "NOT LONG BEFORE THE NAPALM"
+  },
+  {
+   "n": 6,
+   "addr": "0x18a79",
+   "col": 15,
+   "row": 18,
+   "text": "GO GET 'EM"
+  },
+  {
+   "n": 7,
+   "addr": "0x18a86",
+   "col": 15,
+   "row": 18,
+   "text": "STAY ALERT"
+  },
+  {
+   "n": 8,
+   "addr": "0x18a93",
+   "col": 8,
+   "row": 18,
+   "text": "THAT'S THE WAY TO DO IT!"
+  },
+  {
+   "n": 9,
+   "addr": "0x18aae",
+   "col": 12,
+   "row": 18,
+   "text": "KILLED IN ACTION"
+  },
+  {
+   "n": 10,
+   "addr": "0x18ac1",
+   "col": 15,
+   "row": 18,
+   "text": "YOU'RE HIT"
+  },
+  {
+   "n": 11,
+   "addr": "0x18ace",
+   "col": 9,
+   "row": 18,
+   "text": "A COMPASS WOULD HELP !"
+  },
+  {
+   "n": 12,
+   "addr": "0x18ae7",
+   "col": 10,
+   "row": 18,
+   "text": "JUNGLE CONFRONTATION"
+  },
+  {
+   "n": 13,
+   "addr": "0x18afe",
+   "col": 5,
+   "row": 18,
+   "text": "KILL BARNES WITH THE GRENADES."
+  },
+  {
+   "n": 14,
+   "addr": "0x18b1f",
+   "col": 14,
+   "row": 18,
+   "text": "DIRECT HIT !"
+  },
+  {
+   "n": 15,
+   "addr": "0x18b2e",
+   "col": 14,
+   "row": 18,
+   "text": "YOU GOT HIM!"
+  },
+  {
+   "n": 16,
+   "addr": "0x18b3d",
+   "col": 8,
+   "row": 18,
+   "text": "GET TO THE BUNKER - NOW!"
+  }
+ ],
+ "print_strings": {
+  "intro_18c6d": {
+   "addr": "0x18c6d",
+   "end": "0x18ce6",
+   "ops": [
+    {
+     "pos": [
+      14,
+      3
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 6
+    },
+    {
+     "slot": 2,
+     "colour": 7
+    },
+    {
+     "text": "!THE JUNGLE!"
+    },
+    {
+     "pos": [
+      6,
+      5
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 4
+    },
+    {
+     "slot": 2,
+     "colour": 5
+    },
+    {
+     "text": "YOU HAVE TWO  MINUTES BEFORE"
+    },
+    {
+     "pos": [
+      13,
+      7
+     ]
+    },
+    {
+     "text": "THE AIRSTRIKE."
+    },
+    {
+     "pos": [
+      12,
+      10
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 2
+    },
+    {
+     "slot": 2,
+     "colour": 3
+    },
+    {
+     "text": "FIND THE BUNKER!"
+    },
+    {
+     "pos": [
+      9,
+      17
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 8
+    },
+    {
+     "slot": 2,
+     "colour": 9
+    },
+    {
+     "text": "PRESS FIRE WHEN READY"
+    }
+   ]
+  },
+  "win_18b5f": {
+   "addr": "0x18b5f",
+   "end": "0x18bb7",
+   "ops": [
+    {
+     "pos": [
+      14,
+      5
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 6
+    },
+    {
+     "slot": 2,
+     "colour": 7
+    },
+    {
+     "text": "YOU MADE IT!"
+    },
+    {
+     "pos": [
+      9,
+      10
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 2
+    },
+    {
+     "slot": 2,
+     "colour": 3
+    },
+    {
+     "text": "A HUEY IS ON IT'S WAY,"
+    },
+    {
+     "pos": [
+      3,
+      14
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 4
+    },
+    {
+     "slot": 2,
+     "colour": 5
+    },
+    {
+     "text": "TO TAKE YOU BACK TO THE FIREBASE !"
+    }
+   ]
+  },
+  "napalm_18bb8": {
+   "addr": "0x18bb8",
+   "end": "0x18c13",
+   "ops": [
+    {
+     "pos": [
+      10,
+      5
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 6
+    },
+    {
+     "slot": 2,
+     "colour": 7
+    },
+    {
+     "text": "YOU DIDN'T MAKE IT!"
+    },
+    {
+     "pos": [
+      4,
+      10
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 2
+    },
+    {
+     "slot": 2,
+     "colour": 3
+    },
+    {
+     "text": "YOUR PLATOON HAS BEEN DESTROYED,"
+    },
+    {
+     "pos": [
+      10,
+      14
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 4
+    },
+    {
+     "slot": 2,
+     "colour": 5
+    },
+    {
+     "text": "BY A NAPALM STRIKE !"
+    }
+   ]
+  },
+  "withdrawn_18c14_unused": {
+   "addr": "0x18c14",
+   "end": "0x18c6c",
+   "ops": [
+    {
+     "pos": [
+      10,
+      3
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 2
+    },
+    {
+     "slot": 2,
+     "colour": 3
+    },
+    {
+     "text": "YOU DIDN'T MAKE IT !"
+    },
+    {
+     "pos": [
+      1,
+      5
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 4
+    },
+    {
+     "slot": 2,
+     "colour": 5
+    },
+    {
+     "text": "YOUR PLATOON HAS WITHDRAWN FROM ACTION"
+    },
+    {
+     "pos": [
+      15,
+      8
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 6
+    },
+    {
+     "slot": 2,
+     "colour": 7
+    },
+    {
+     "text": "PRESS FIRE"
+    }
+   ]
+  },
+  "destroyed_18ce7": {
+   "addr": "0x18ce7",
+   "end": "0x18d2b",
+   "ops": [
+    {
+     "pos": [
+      5,
+      3
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 4
+    },
+    {
+     "slot": 2,
+     "colour": 5
+    },
+    {
+     "text": "YOUR PLATOON HAS BEEN DESTROYED!"
+    },
+    {
+     "pos": [
+      9,
+      10
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 8
+    },
+    {
+     "slot": 2,
+     "colour": 9
+    },
+    {
+     "text": "PRESS FIRE TO CONTINUE."
+    }
+   ]
+  },
+  "second_chance_18d2c": {
+   "addr": "0x18d2c",
+   "end": "0x18dee",
+   "ops": [
+    {
+     "pos": [
+      10,
+      1
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 2
+    },
+    {
+     "slot": 2,
+     "colour": 3
+    },
+    {
+     "text": "YOU DIDN'T MAKE IT !"
+    },
+    {
+     "pos": [
+      6,
+      4
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 4
+    },
+    {
+     "slot": 2,
+     "colour": 5
+    },
+    {
+     "text": "ONE OF YOUR PLATOON MEMBERS"
+    },
+    {
+     "pos": [
+      6,
+      6
+     ]
+    },
+    {
+     "text": "FOLLOWED YOU TO THE EDGE OF"
+    },
+    {
+     "pos": [
+      15,
+      8
+     ]
+    },
+    {
+     "text": "THE JUNGLE"
+    },
+    {
+     "pos": [
+      8,
+      11
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 6
+    },
+    {
+     "slot": 2,
+     "colour": 7
+    },
+    {
+     "text": "YOU HAVE ONE MORE CHANCE"
+    },
+    {
+     "pos": [
+      8,
+      14
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 8
+    },
+    {
+     "slot": 2,
+     "colour": 9
+    },
+    {
+     "text": "TAKE CONTROL OF YOUR MAN"
+    },
+    {
+     "pos": [
+      9,
+      20
+     ]
+    },
+    {
+     "slot": 1,
+     "colour": 6
+    },
+    {
+     "slot": 2,
+     "colour": 7
+    },
+    {
+     "text": "PRESS FIRE TO CONTINUE"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,10 @@
+10 key 0x40 1
+14 key 0x40 0
+142 dumpr 19e0a 124 obj142.bin
+142 dumpr 70000 10000 scr142.bin
+142 dumpr 12dde 80 a6_142.bin
+142 shot v142
+170 dumpr 19e0a 124 obj170.bin
+170 dumpr 70000 10000 scr170.bin
+170 dumpr 12dde 80 a6_170.bin
+170 shot v170

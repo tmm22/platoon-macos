@@ -1,0 +1,52 @@
+[f761 v006] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f785 v006] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f785 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f817 v004] AUD0 start ptr=008834 len=32 per=595 vol=64
+[f817 v008] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f817 v011] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f825 v005] AUD1 start ptr=004310 len=2403 per=664 vol=64
+[f833 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f841 v005] AUD1 start ptr=004310 len=2403 per=704 vol=64
+[f849 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f849 v009] AUD3 start ptr=008018 len=1000 per=222 vol=16
+[f857 v005] AUD1 start ptr=004310 len=2403 per=1054 vol=64
+[f862 v005] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f862 v010] AUD1 start ptr=008834 len=32 per=749 vol=64
+[f862 v014] AUD2 start ptr=0088ba len=64 per=374 vol=48
+[f862 v016] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f868 v010] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f874 v009] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f874 v011] AUD1 start ptr=008834 len=32 per=749 vol=64
+[f874 v013] AUD2 start ptr=0088ba len=64 per=374 vol=48
+[f874 v015] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f880 v009] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f885 v222] WATCH write16 0176ce=0 pc=010836
+[f885 v222] WATCH write16 0176d0=0 pc=010836
+[f886 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f886 v006] AUD1 start ptr=008834 len=32 per=374 vol=64
+[f886 v008] AUD2 start ptr=0088ba len=64 per=280 vol=48
+[f886 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f886 v181] WATCH write16 0176ce=200 pc=010836
+[f886 v181] WATCH write16 0176d0=2 pc=010836
+[f887 v259] WATCH write16 0176ce=400 pc=010836
+[f887 v259] WATCH write16 0176d0=202 pc=010836
+[f889 v259] WATCH write16 0176ce=600 pc=010836
+[f889 v259] WATCH write16 0176d0=204 pc=010836
+[f891 v259] WATCH write16 0176ce=800 pc=010836
+[f891 v259] WATCH write16 0176d0=404 pc=010836
+[f892 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f893 v259] WATCH write16 0176ce=a00 pc=010836
+[f893 v259] WATCH write16 0176d0=406 pc=010836
+[f895 v259] WATCH write16 0176ce=c00 pc=010836
+[f895 v259] WATCH write16 0176d0=606 pc=010836
+[f897 v259] WATCH write16 0176ce=f00 pc=010836
+[f897 v259] WATCH write16 0176d0=608 pc=010836
+[f898 v006] AUD1 start ptr=008834 len=32 per=749 vol=64
+[f898 v008] AUD2 start ptr=0088ba len=64 per=374 vol=48
+[f898 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f904 v004] AUD0 start ptr=008834 len=32 per=374 vol=48
+[f904 v006] AUD1 start ptr=008834 len=32 per=421 vol=64
+[f904 v008] AUD2 start ptr=0088ba len=64 per=236 vol=48
+[f904 v010] AUD3 start ptr=008018 len=1000 per=222 vol=24
+[f911 v313] shot w1/pic5.png
+[f911 v313] done: 911 frames, 452 blits, pc=0109c0

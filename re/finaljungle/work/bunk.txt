@@ -1,0 +1,37 @@
+1 poke 17d68 4e75 2
+2 up 1
+12 up 0
+20 fire 1
+23 fire 0
+28 shot g0a
+36 shot g0b
+50 fire 1
+53 fire 0
+58 shot g1a
+66 shot g1b
+80 fire 1
+83 fire 0
+88 shot g2a
+96 shot g2b
+110 fire 1
+113 fire 0
+118 shot g3a
+126 shot g3b
+140 fire 1
+143 fire 0
+148 shot g4a
+156 shot g4b
+170 fire 1
+173 fire 0
+178 shot g5a
+186 shot g5b
+200 fire 1
+203 fire 0
+208 shot g6a
+216 shot g6b
+230 dumpr 57e22 120 slots.bin
+230 up 1
+290 shot walk
+310 up 0
+350 shot won
+530 shot won2

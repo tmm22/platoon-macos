@@ -773,6 +773,7 @@ void emu_instr_hook(unsigned int pc) {
         uint32_t fr = (uint32_t)S.frame; fwrite(&fr, 4, 1, tickdumps[t].f);
         for (uint32_t k = 0; k < tickdumps[t].len; k++) fputc(S.chip[(tickdumps[t].lo + k) & (CHIP_SIZE - 1)], tickdumps[t].f);
     }
+    if (deterministic && pc == 0x17000) { S.chip[0x12d70] = 0x31; S.chip[0x12d71] = 0x41; S.chip[0x12d72] = 0x59; S.chip[0x12d73] = 0x26; }
     if (pc == breakdump_pc && !breakdump_hit) { breakdump_hit = 1; dump_ram(breakdump_file); }
     if (pc == breaksave_pc && !breaksave_hit) { breaksave_hit = 1; elog("breaksave hit at %06x\n", pc); m68k_end_timeslice(); }
     if (trace_count > 0 && pclog) {
@@ -930,7 +931,8 @@ static void usage(void) {
         "  --pchist LO HI FILE   pc histogram over range\n"
         "  --slowram             enable 512K slow RAM at $C00000\n"
         "  --tickdump PC LO LEN FILE  append [u32 frame][LEN bytes of RAM at LO] each time PC executes (max 8)\n"
-        "  --deterministic       NOP the vblank RNG term 'add.l d1,$12d70' at $10ede (port: --deterministic)\n"
+        "  --deterministic       NOP both vblank RNG terms (add.l d1 / addi.l #1 at $10ede-$10eed) and reset the seed\n"
+        "                        $12d70 := $31415926 whenever section code starts ($17000). Port: --deterministic\n"
         "  --hash HEXLO HEXLEN   print FNV-1a hash of RAM region after every frame (lockstep vs platoon-headless)\n"
         "script cmds: up/down/left/right/fire/fire0 0|1, key CODE 0|1, shot NAME, save PATH, dump FILE,\n"
         "  chipdump FILE (chip RAM + custom regs for platoon-headless --chipdump),\n  dumpr HEXADDR HEXLEN FILE, poke HEXADDR HEXVAL SIZE, trace N, tracer N (with regs), regs,\n"
@@ -996,7 +998,7 @@ int main(int argc, char **argv) {
     uint64_t start = S.frame;
     while ((long)(S.frame - start) < frames && !stop_emulation) {
         while (ev_i < n_evs && evs[ev_i].frame <= S.frame - start) do_event(&evs[ev_i++]);
-        if (deterministic && S.chip[0x10ede] == 0xd3 && S.chip[0x10edf] == 0xb9) { static const uint8_t nops[6] = { 0x4e, 0x71, 0x4e, 0x71, 0x4e, 0x71 }; memcpy(&S.chip[0x10ede], nops, 6); }
+        if (deterministic && S.chip[0x10ede] == 0xd3 && S.chip[0x10edf] == 0xb9) { for (int k = 0; k < 16; k += 2) { S.chip[0x10ede + k] = 0x4e; S.chip[0x10edf + k] = 0x71; } }
         if (stop_emulation) break;
         run_frame();
         if (hash_len) { uint64_t h = 0xcbf29ce484222325ULL; for (uint32_t k = 0; k < hash_len; k++) { h ^= S.chip[(hash_lo + k) & (CHIP_SIZE - 1)]; h *= 0x100000001b3ULL; } printf("frame %llu hash %016llx\n", (unsigned long long)(S.frame - start), (unsigned long long)h); }

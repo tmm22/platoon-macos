@@ -82,9 +82,11 @@ Every module is an `extension Platoon { ... }` so all routines can call each oth
 From an interrupt handler running on the host thread use `m.requestJump { ... }`.
 
 ## Lockstep tools
-- `--deterministic` (emu and platoon-headless): removes the unreproducible `add.l d1,$12d70` term of the vblank RNG
-  (emu NOPs it at $10ede; the port's vblank handler must skip it when `config.deterministicRNG`). With it, the RNG
-  sequence depends only on call order, so logic can be compared exactly.
+- `--deterministic` (emu and platoon-headless): removes BOTH per-vblank RNG terms (`add.l d1,$12d70` and
+  `addi.l #1,$12d70`; emu NOPs $10ede-$10eed) and sets the seed `$12d70 := $31415926` when section code starts
+  (emu: whenever PC hits $17000; port: at the start of `sectionN_start()` when `config.deterministicRNG`). The port's
+  vblank handler must skip both terms in that mode. Then the RNG depends only on call order, so logic can be
+  compared exactly regardless of frame pacing.
 - `--tickdump HEXPC HEXLO HEXLEN FILE` (both tools): append `[u32 frame][LEN bytes at LO]` each time the original PC
   executes (emu) / translated code calls `tickPoint(PC)` (port). Put `tickPoint(0x....)` at the head of every main
   loop with the ORIGINAL address. Compare with `tools/tickcmp.py A B HEXLEN --base HEXLO` — ticks are aligned by index,

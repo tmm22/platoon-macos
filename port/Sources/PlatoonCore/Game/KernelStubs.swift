@@ -1,6 +1,8 @@
 // TEMPORARY stubs for the kernel/resident API. The kernel translation replaces this file.
 
 extension Platoon {
+    /// Boot chain (bootblock, loading picture, main program load, resident init) -> k_init / startSection.
+    func boot() { while true { m.waitVBlank() } }
     func k_init_impl() -> Never { fatalError("k_init_impl not translated yet") }
     func k_hud_compass_impl() { fatalError("k_hud_compass_impl not translated yet") }
     func k_hud_icons_impl() { fatalError("k_hud_icons_impl not translated yet") }

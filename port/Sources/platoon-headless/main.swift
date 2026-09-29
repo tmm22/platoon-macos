@@ -8,8 +8,12 @@ import PlatoonCore
 func usage() -> Never {
     print("""
     platoon-headless [--adf FILE] [--frames N] [--script FILE] [--out DIR] [--shot-every N] [--wav FILE]
-                     [--hash HEXLO HEXLEN] [--chipdump FILE]
+                     [--hash HEXLO HEXLEN] [--chipdump FILE] [--start-section N] [--deterministic]
+                     [--tickdump HEXPC HEXLO HEXLEN FILE]
       --hash      print an FNV hash of a RAM region after every frame (lockstep comparison)
+      --start-section N  skip the title and start a new game in load section N (0,1,2)
+      --deterministic    no 'interrupted d1' term in the vblank RNG (pair with emu --deterministic)
+      --tickdump  append [u32 frame][LEN bytes at LO] whenever translated code calls tickPoint(PC)
       --chipdump  test mode: load an emulator chip snapshot (emu 'chipdump' cmd) and just run the copper/display
     """)
     exit(1)
@@ -18,6 +22,7 @@ func usage() -> Never {
 var args = Array(CommandLine.arguments.dropFirst())
 var adfPath = "../re/platoon_port.adf", frames = 500, scriptPath: String?, outDir = "out", shotEvery = 0
 var wavPath: String?, hashRange: (UInt32, Int)?, chipdump: String?
+var config = GameConfig()
 while !args.isEmpty {
     let a = args.removeFirst()
     func next() -> String { guard !args.isEmpty else { usage() }; return args.removeFirst() }
@@ -30,6 +35,12 @@ while !args.isEmpty {
     case "--wav": wavPath = next()
     case "--hash": hashRange = (UInt32(next(), radix: 16) ?? 0, Int(next(), radix: 16) ?? 0)
     case "--chipdump": chipdump = next()
+    case "--start-section": config.startSection = Int(next())
+    case "--deterministic": config.deterministicRNG = true
+    case "--tickdump":
+        let pc = UInt32(next(), radix: 16) ?? 0, lo = UInt32(next(), radix: 16) ?? 0, len = Int(next(), radix: 16) ?? 0, f = next()
+        FileManager.default.createFile(atPath: f, contents: nil)
+        if let h = FileHandle(forWritingAtPath: f) { config.tickDumps.append((pc, lo, len, h)) }
     default: usage()
     }
 }
@@ -64,7 +75,7 @@ if let cd = chipdump {
     m.chip.intena = intena & 0x3fff // no handlers in test mode
     m.start { mm in while true { mm.waitVBlank() } }
 } else {
-    m.start(PlatoonGame.main)
+    m.start { PlatoonGame.main($0, config: config) }
 }
 
 var ei = 0

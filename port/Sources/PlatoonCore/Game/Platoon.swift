@@ -9,6 +9,7 @@ public final class Platoon {
     public let input: Input
     /// Host-side enhancement switches (default = original behaviour).
     public var enhancements = Enhancements()
+    public var config = GameConfig()
     /// Code addresses that the original stores as data (jump tables, state pointers) -> translation.
     var dispatchTable: [UInt32: () -> Void] = [:]
     public var log: (String) -> Void = { _ in }

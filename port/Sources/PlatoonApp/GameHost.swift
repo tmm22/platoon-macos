@@ -17,7 +17,17 @@ final class GameHost {
         self.disk = disk
         machine = Machine(disk: disk)
         wire()
-        machine.start(PlatoonGame.main)
+        machine.start { PlatoonGame.main($0, config: GameHost.gameConfig()) }
+    }
+
+    static func gameConfig() -> GameConfig {
+        var c = GameConfig()
+        if let sup = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            let dir = sup.appendingPathComponent("Platoon", isDirectory: true)
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            c.hiscoreURL = dir.appendingPathComponent("hiscores.bin")
+        }
+        return c
     }
 
     private func wire() {
@@ -37,7 +47,7 @@ final class GameHost {
         machine = Machine(disk: disk)
         wire()
         audio.flush()
-        machine.start(PlatoonGame.main)
+        machine.start { PlatoonGame.main($0, config: GameHost.gameConfig()) }
         acc = 0; last = 0
     }
 

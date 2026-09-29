@@ -412,6 +412,7 @@ extension Platoon {
 
     /// $179fa obj_player: handler of slot 0 (a3 = $57e22). `d0` = the d0 low word left by the object loop.
     func s2_obj_player(_ a3: UInt32, d0 d0In: UInt16) {
+        s2_pacePlayer()
         mem.w32(S2.vPlayerSaved, mem.r32(a3 &+ 2))            // saved for blocking objects
         mem.w16(S2.vPathWSaved, mem.r16(S2.vPathW))
         if mem.r8(S2.vExits) == 0 {                           // bunker room
@@ -723,6 +724,7 @@ extension Platoon {
     /// (fade_wait_loop) only start after it. `cycles` is the exact Musashi cycle count of the decoder for this
     /// picture (emulator: 17604 -> 1764e = decoder lines + 184..198 interrupt lines for all 10 pictures).
     func s2_decode_delay(cycles: Int) {
+        s2_dbg("decode cycles \(cycles)")
         cpu(cycles)
         settleCPU()
     }
@@ -1010,6 +1012,26 @@ let s2PaceFrames: [UInt32] = {
 }()
 var s2PaceIndex = 0
 
+/// Verification aid (off by default): S2PACEPL=<file of u32 beam positions (frame*313+line) of the emulator's obj_player
+/// ($179fa) calls> additionally holds each obj_player call until the emulator's, so that the joystick is sampled in the
+/// same frame as on the A500 (used with S2PACE for frame-by-frame input scripts).
+let s2PacePlayer: [UInt32] = {
+    guard let path = ProcessInfo.processInfo.environment["S2PACEPL"], let d = FileManager.default.contents(atPath: path) else { return [] }
+    let b = [UInt8](d)
+    var r: [UInt32] = []
+    var i = 0
+    while i + 4 <= b.count {
+        var v = UInt32(b[i + 3]) << 24
+        v |= UInt32(b[i + 2]) << 16
+        v |= UInt32(b[i + 1]) << 8
+        v |= UInt32(b[i])
+        r.append(v)
+        i += 4
+    }
+    return r
+}()
+var s2PacePlayerIndex = 0
+
 extension Platoon {
     /// settleCPU(), except in the S2PACE verification mode where the emulator's measured pacing replaces the
     /// CPU-time model (pending cycles are dropped).
@@ -1018,6 +1040,18 @@ extension Platoon {
 }
 
 extension Platoon {
+    /// S2PACEPL verification aid: wait until the emulator's beam position of this obj_player call.
+    func s2_pacePlayer() {
+        guard !s2PacePlayer.isEmpty else { return }
+        cpuCycles = 0
+        if s2PacePlayerIndex < s2PacePlayer.count {
+            let t = UInt64(s2PacePlayer[s2PacePlayerIndex])
+            while UInt64(m.frameCount) < t / 313 { m.waitVBlank() }
+            if UInt64(m.frameCount) == t / 313 && UInt64(m.beamLine) < t % 313 { m.waitLine(Int(t % 313)) }
+        }
+        s2PacePlayerIndex += 1
+    }
+
     /// Called before k_swap of tick n: waits until the emulator's head position of tick n+1 (the swap request
     /// is what decides the pacing of the next tick).
     func s2_paceToReference() {

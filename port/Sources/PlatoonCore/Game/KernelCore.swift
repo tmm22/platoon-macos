@@ -120,6 +120,7 @@ extension Platoon {
 
     /// $10ad6 k_wait_vbl (jt18): clr.b $56(a6); wait until the vblank handler sets it.
     func k_wait_vbl_impl() {
+        tickPoint(0x10ad6)
         settleCPU()
         mem.w8(a6 + KV.frameFlag, 0)
         while mem.r8(a6 + KV.frameFlag) == 0 { m.waitVBlank() }
@@ -135,6 +136,7 @@ extension Platoon {
     /// $10b14 k_wait_swap (jt23): spin until the level-6 handler latched the scheduled copper list. The handler
     /// fires when CIA-B TOD (restarted at each vblank, counting lines) reaches the alarm $58(a6)+1.
     func k_wait_swap_impl() {
+        tickPoint(0x10b14)
         settleCPU()
         if mem.r8(KA.swapPending) == 0 { return }
         while mem.r8(KA.swapPending) != 0 {
@@ -147,6 +149,7 @@ extension Platoon {
 
     /// $10ae2 k_swap (jt19): flip the draw buffer and schedule the copper list of the buffer just drawn.
     func k_swap_impl() {
+        tickPoint(0x10ae2)
         settleCPU()                                                      // the level-6 handler latches the request
         mem.w32(a6 + KV.drawBuf, mem.r32(a6 + KV.drawBuf) ^ 0x8000)
         if mem.r32(KA.nextCop) == KA.copperA { mem.w32(KA.nextCop, KA.copperB) } else { mem.w32(KA.nextCop, KA.copperA) }
@@ -204,6 +207,7 @@ extension Platoon {
 
     /// $10bcc k_random (jt20): 8 steps of a Galois LFSR (taps $0076b553, rol) on $12d70; returns the top byte.
     func k_random_impl() -> UInt32 {
+        tickPoint(0x10bcc)
         var d0 = mem.r32(KA.rng)
         for _ in 0..<8 {
             if Int32(bitPattern: d0) < 0 { d0 ^= 0x0076b553 }
@@ -328,6 +332,7 @@ extension Platoon {
 
     /// $10c00 k_music (jt26): current tune := d0; start it if music is on ($66 bit0) else stop; volume := $40.
     func k_music_impl(_ d0: UInt16) {
+        tickPoint(0x10c00)
         cpu(2300)                                                        // movem + driver init_song (emu: ~5 lines)
         mem.w16(KA.curTune, d0)
         if mem.r8(a6 + KV.soundFlags) & 1 != 0 { md_initSong(UInt8(truncatingIfNeeded: d0)); musicPlaying = true } else { md_stop(); musicPlaying = false }
@@ -350,17 +355,27 @@ extension Platoon {
     /// $10c50 k_fx (jt27): if fx are on ($66 bit1): effects < $80 on channel 0 (2 if the music uses channel 0),
     /// $80/$81 on channels 1+3, >= $82 on channels 0+2 (bits 8-9 of the driver's d0 = channel).
     func k_fx_impl(_ d0in: UInt16) {
+        tickPoint(0x10c50)
+        cpu(40)                                                          // btst/beq (+ andi/btst/tst below)
         if mem.r8(a6 + KV.soundFlags) & 2 == 0 { return }
         var d0 = d0in & 0xff
         if d0 & 0x80 == 0 {
             if mem.r8(KA.musCh0Busy) != 0 { d0 |= 0x200 }
-            md_sfx(d0)
+            k_fx_call(d0)
         } else if d0 >= 0x82 {
-            md_sfx(d0)
-            md_sfx(d0 | 0x200)
+            k_fx_call(d0)
+            k_fx_call(d0 | 0x200)
         } else {
-            md_sfx(d0 | 0x100)
-            md_sfx(d0 | 0x300)
+            k_fx_call(d0 | 0x100)
+            k_fx_call(d0 | 0x300)
         }
+    }
+
+    /// $10c92 k_fx_call: movem.l d0-d7/a0-a6,-(a7) ; jsr $2838 ; movem.l (a7)+,d0-d7/a0-a6 ; rts.
+    func k_fx_call(_ d0: UInt16) {
+        cpu(150)                                                         // movem (15 regs) + jsr
+        md_sfx(d0)
+        cpu(150)                                                         // movem back + rts
+        tickPoint(0x10ca0)
     }
 }

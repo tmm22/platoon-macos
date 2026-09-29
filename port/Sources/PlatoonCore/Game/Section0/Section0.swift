@@ -67,7 +67,10 @@ extension Platoon {
     // MARK: timing helpers (host side)
 
     /// Debug trace (env S0DEBUG): original address + beam position, for timing comparisons with the emulator.
-    func s0Dbg(_ what: String) { if s0Debug { print("\(what) f\(m.frameCount) v\(m.beamLine)") } }
+    /// (v = modeled beam line: current line + CPU time not yet paid; may exceed the frame.)
+    func s0Dbg(_ what: String) {
+        if s0Debug { print("\(what) f\(m.frameCount) v\(m.beamLine + cpuCycles / Platoon.cyclesPerLine)") }
+    }
 
     /// Absolute beam position in lines since power-on (game-thread view).
     var s0Now: Int { Int(m.frameCount) * Chipset.linesPerFrame + m.beamLine }
@@ -105,8 +108,14 @@ extension Platoon {
     @inline(__always) func s0Abs(_ d0: UInt16) -> UInt16 { Int16(bitPattern: d0) < 0 ? 0 &- d0 : d0 }
     /// Current man record (a5 = $1e(a6)): +0 grenades, +2 ammo, +4 hits.
     var s0Man: UInt32 { v0.manPtr }
-    /// $19f82 sfx: jmp kernel $f86c.
-    @inline(__always) func s0Sfx(_ d0: UInt16) { k_fx(d0) }
+    /// $19f82 sfx: jmp kernel $f86c. The CPU time of the tick so far is paid first so that the effect starts
+    /// at the beam position (frame) where the A500 calls it (the driver's register writes are timestamped).
+    @inline(__always) func s0Sfx(_ d0: UInt16) {
+        s0Settle()
+        let c0 = cpuCycles
+        k_fx(d0)
+        if s0Debug { print("sfx \(String(d0, radix: 16)) cost \(cpuCycles - c0) cycles f\(m.frameCount) v\(m.beamLine)") }
+    }
 
     // MARK: dispatch table (code addresses stored in RAM at $1aaa4 / $1aad0)
 
@@ -210,6 +219,7 @@ extension Platoon {
             s0ReadInput()
             if v0.noise < 8 { v0.noise = 8 }
             v0.noise = v0.noise &- 1                 // spawn chance decays to minimum 7
+            s0Dbg("0171aa")
             if r_keytest(0x64) && v0.estate == 0 {   // Left-Alt: voluntary change of soldier
                 s0DissolveOut(a1: Platoon.s0DissolveA1AfterHudUpdate, d4: Platoon.s0DissolveD4AfterHudUpdate)
                 s0ManSelect()
@@ -225,6 +235,7 @@ extension Platoon {
             // ml_frame $17266
             r_print(0x1a967)                          // text attribute reset string
             k_wait_swap()
+            s0Dbg("017276")
             v0.dx = 0
             call(s0TableLong(Platoon.s0PlayerStateTable, v0.pstate))
             s0PlayerFireInput()
@@ -238,7 +249,9 @@ extension Platoon {
                 if w >= 0x181 && w < 0x2aa { d2 = 0x70 }         // level 0 village street
             }
             v0.prioLine = d2
+            s0Dbg("0172f8")
             _ = s0DrawTiles()
+            s0Dbg("0172fc")
             s0TrapSpawn()
             s0ExplosivesPickup()
             s0BridgeLogic()
@@ -246,12 +259,16 @@ extension Platoon {
             s0TrapUpdate()
             s0BombUpdate()
             s0CrateUpdate()
+            s0Dbg("017318")
             s0DrawEnemy()
+            s0Dbg("01731c")
             s0BulletsUpdate()
             s0ExplosionUpdate()
+            s0Dbg("017324")
             s0DrawPlayer()
             cpu(Platoon.s0CyclesTickOther)
             s0Settle()                               // CPU time of the tick on the A500 (see file comment)
+            s0Dbg("017328")
             k_swap()
             v0.bplcon1 = (v0.hscroll &<< 4) | v0.hscroll
             if v0.morale == 0 { s0Exit() }

@@ -179,6 +179,7 @@ extension Platoon {
     /// or Y (without torch: message $d and return; with torch: bonus, dissolve, next section).
     func s0TrapdoorPrompt() {
         while true {
+            tickPoint(0x17dae)
             s0ReadInput()
             if v0.msgCount == 0 { k_queue_text(0xb) }
             k_wait_swap()
@@ -188,6 +189,7 @@ extension Platoon {
             s0DrawPlayer()
             s0Settle()
             k_swap()
+            s0Dbg("017de4")
             if r_keytest(0x36) { s0WaitMessages(); return }     // N
             if !r_keytest(0x15) { continue }                     // Y?
             if v0.torch == 0 { k_queue_text(0xd); return }      // YOU NEED TO FIND A TORCH
@@ -214,6 +216,7 @@ extension Platoon {
     /// $17e52 wait_messages: every 3 vblanks read input until the message queue is empty.
     func s0WaitMessages() {
         repeat {
+            tickPoint(0x17e52)
             k_wait_vbl(); k_wait_vbl(); k_wait_vbl()
             s0ReadInput()
         } while v0.msgCount != 0

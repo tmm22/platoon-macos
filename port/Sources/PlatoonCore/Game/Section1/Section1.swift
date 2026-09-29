@@ -128,8 +128,10 @@ enum S1Cyc {
     static let mapRow = 196, mapFixed = 330
     /// $1853e draw_roompic per 16-pixel group (4 words) and per line; fixed part (emulator: 241 lines).
     static let roomWord = 73, roomLine = 29, roomFixed = 110
-    /// $18d6c copy_background per row (10 x 4 longs + dbra).
-    static let bgRow = 1050
+    /// $18d6c copy_background per row (10 x 4 longs + dbra): emulator 95 rows in 214 raster lines
+    /// (dbra at $18e34, frame without interrupt) = 1023 cycles; the level-3 handler that runs during the
+    /// copy (~10 lines with music) is charged separately by the kernel (irqCharge).
+    static let bgRow = 1023
     /// $18adc fade_out_and_clear per iteration (8 x clr.l, 4 longs of each buffer).
     static let clearIter = 194
     /// $177c4 / $1781c object loop per slot: inactive, active (handler call + bob address, excl. handler/blit).
@@ -289,6 +291,9 @@ extension Platoon {
                 k_wait_vbl()
                 s1dbg("hud")
                 k_hud_update()
+                // $6a is decremented by the vblank handler: the test runs only after the CPU time of f834
+                // (e.g. a queued message starting, ~300 lines) has elapsed, as in the original.
+                settleCPU()
             } while mem.s16(a6 + 0x6a) >= 0
             tickPoint(0x171d8)
             if S1DBG { FileHandle.standardError.write("tick f\(m.frameCount) v\(m.beamLine) debt \(cpuCycles)\n".data(using: .utf8)!) }

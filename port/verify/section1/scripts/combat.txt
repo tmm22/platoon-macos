@@ -1,0 +1,96 @@
+300 fire 1
+305 fire 0
+350 poke 12e4c 1 2
+600 fire 1
+605 fire 0
+900 fire 1
+905 fire 0
+936 up 1
+968 up 0
+968 left 1
+976 left 0
+979 poke 19d34 46 2
+979 poke 19d36 28 2
+981 fire 1
+993 fire 0
+993 shot A_fired
+1073 shot A_dead
+1075 poke 3b237 ff 1
+1113 up 1
+1121 up 0
+1127 up 1
+1135 up 0
+1141 up 1
+1149 up 0
+1155 up 1
+1163 up 0
+1179 poke 3b237 1 1
+1190 shot B_spawn
+1191 poke 19d34 28 2
+1191 poke 19d36 37 2
+1195 fire 1
+1207 fire 0
+1287 shot B_dead
+1291 poke 3b237 ff 1
+1311 poke 1a0b0 0d03 2
+1311 poke 12e08 1 2
+1311 poke 3b237 1 1
+1322 shot C_spawn
+1323 poke 19d34 6e 2
+1323 poke 19d36 37 2
+1327 fire 1
+1339 fire 0
+1419 shot C_dead
+1423 poke 3b237 ff 1
+1443 poke 1a0b0 0503 2
+1443 poke 12e08 3 2
+1443 poke 3b237 1 1
+1448 shot D_spawn
+1448 up 1
+1468 up 0
+1468 fire 1
+1480 fire 0
+1560 shot D_dead
+1563 poke 3b237 ff 1
+1583 poke 1a0b0 1503 2
+1583 poke 12e08 3 2
+1583 poke 3b237 1 1
+1671 poke 19d34 46 2
+1671 poke 19d36 28 2
+1673 fire 1
+1678 fire 0
+1678 shot E_killed_after_fire
+1739 poke 3b237 1 1
+1747 shot E_new_enemy
+1751 shot E_erased
+1873 shot E_after_hit
+1874 poke 3b237 ff 1
+1894 poke 1a0b0 1103 2
+1894 poke 12e08 3 2
+1894 poke 3b237 1 1
+2154 shot F_after_hit
+2157 poke 3b237 ff 1
+2177 poke 1a0b0 0503 2
+2177 poke 12e08 3 2
+2177 poke 3b237 1 1
+2374 shot G_after_hit
+2376 poke 3b237 ff 1
+2407 fire 1
+2420 poke 1a0b0 1503 2
+2420 poke 12e08 3 2
+2420 poke 3b237 1 1
+2420 poke 12de0 1 2
+2420 poke 19d34 46 2
+2420 poke 19d36 28 2
+2423 fire 0
+2423 shot H_ammo0
+2424 poke 19d34 46 2
+2424 poke 19d36 28 2
+2428 fire 1
+2444 fire 0
+2744 shot H_after
+3000 shot KIA_text
+3000 fire 1
+3006 fire 0
+3011 poke 3b237 ff 1
+3306 shot man2

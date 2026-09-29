@@ -33,6 +33,7 @@ extension Platoon {
     /// $1070c k_queue_text (jt11): append message d0 (& $ff) to the queue $3c(a6) (max 4 pending, else ignored);
     /// if the queue was empty the message starts at once.
     func k_queue_text_impl(_ d0in: UInt16) {
+        tickPoint(0x1070c)
         let d1 = mem.r16(a6 + KV.textN)
         if d1 == 4 { return }
         let d0 = d0in & 0xff                                          // andi.l #$ff,d0
@@ -47,6 +48,7 @@ extension Platoon {
     /// set colours 8/9 for step 0, clear its 8-line text row in both buffers, print the colour header $11229
     /// (slot0=0, slot1=8, slot2=9) and the message.
     func k_text_start(_ d0: UInt16) {
+        tickPoint(0x10732)
         let a0 = mem.r32(mem.r32(a6 + KV.textTable) &+ UInt32(d0 << 2))   // (a0, d0.w) - d0 < $40 always
         mem.w16(a6 + KV.textStep, 0)
         mem.w16(a6 + KV.textPeriod, 2)

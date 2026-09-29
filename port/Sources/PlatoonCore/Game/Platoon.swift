@@ -59,4 +59,8 @@ public struct Enhancements {
     public init() {}
     public var infiniteMorale = false
     public var infiniteAmmo = false
+    /// Credits page: restore the original Ocean lines "GAME DESIGN (C)1988 OCEAN." / "CONVERSION BY CHOICE" that
+    /// the Darc crack overwrote with "CRACKED BY HANSWURST OF 68 DARC" (Resident.swift, applied after the main
+    /// program load). Default on; false = the crack's text exactly as on the disk image.
+    public var originalCredits = true
 }

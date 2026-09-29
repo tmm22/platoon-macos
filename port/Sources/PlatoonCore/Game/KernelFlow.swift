@@ -184,6 +184,7 @@ extension Platoon {
         } while mem.r16(a6 + KV.textN) != 0
         k_music_stop()
         k_clear_both_lower()
+        settleCPU()                                 // the clear runs while the music is stopped (short vblank handlers)
         // rank search: cmp.l (a1)+,d6 ; dbcc d1
         let d6 = mem.r32(a6 + KV.score)
         var a1 = KA.hsScores
@@ -246,6 +247,7 @@ extension Platoon {
             let col = UInt8(truncatingIfNeeded: 0x16 &- d1)
             mem.w8(KA.hsCursorCol, col)
             r_print(KA.hsNameLine)
+            settleCPU()                                                 // (RAM write after the print's CPU time)
             mem.w8(KA.hsEraseCol, col)
             k_hex32_impl(mem.r32(a6 + KV.score))
             let d0 = k_wait_joy_input()

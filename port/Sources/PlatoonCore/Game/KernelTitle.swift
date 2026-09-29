@@ -45,7 +45,9 @@ extension Platoon {
             mem.w8(a6 + KV.section, 0xff)
             k_set_hud_pal_impl(KA.palCredits)
             k_music_impl(0)
-            _ = k_load_retry(track: 0x4d, count: 1, dest: KA.hiscoreTrack, name: KA.strLoadingHs)
+            // move.w #$4d,d0: the upper word of d0 is left over from k_show_logo/k_music (emu: $0007); it only
+            // shows in the saved retry arguments at $12d20.
+            _ = k_load_retry(track: 0x0007_004d, count: 1, dest: KA.hiscoreTrack, name: KA.strLoadingHs)
             loadHiscores()                                               // port: persisted table (if any)
         }
         k_title_start()
@@ -182,31 +184,41 @@ extension Platoon {
     }
 
     /// $fb8a k_clear_disp_lower: clear lines 48..199 of the displayed buffer ($62 ^ $8000), 4 planes.
+    /// The clear progresses with the beam (visible e.g. when TAB pause colours COLOR00 on the title): each pair of
+    /// iterations is written after its CPU time.
     func k_clear_disp_lower() {
         var a0 = (mem.r32(a6 + KV.drawBuf) ^ 0x8000) &+ 0x780
-        for _ in 0...0x5ef {
+        cpu(500)                                                       // emu: 336 lines in total
+        for i in 0...0x5ef {
+            if i & 1 == 0 { cpu(200); settleCPU() }
             mem.w32(a0 &+ 0x2000, 0); mem.w32(a0 &+ 0x4000, 0); mem.w32(a0 &+ 0x6000, 0); mem.w32(a0, 0)
             a0 &+= 4
         }
-        cpu(0x5f0 * 100 + 500)                                         // emu: 336 lines
     }
 
     /// $fbb2 k_clear_both_lower: clear lines 48..199 (+ $28 longs) of both buffers, 4 planes.
     func k_clear_both_lower() {
         var a1 = mem.r32(a6 + KV.drawBuf) &+ 0x780
         var a0 = a1 ^ 0x8000
-        for _ in 0...0x5f9 {
+        for i in 0...0x5f9 {                                           // emu: 647 lines; paced with the beam
+            if i & 1 == 0 { cpu(2 * 192); settleCPU() }                //   like k_clear_disp_lower
             for o: UInt32 in [0x2000, 0x4000, 0x6000] { mem.w32(a0 &+ o, 0); mem.w32(a1 &+ o, 0) }
             mem.w32(a0, 0); mem.w32(a1, 0)
             a0 &+= 4; a1 &+= 4
         }
-        cpu(0x5fa * 192)                                               // emu: 647 lines
     }
 
     /// $104aa k_clear_screens (jt16): clear $70000-$7ffff (both buffers).
+    /// The clear progresses with the beam like the original loop (clr.l (a0)+ ; clr.l (a1)+ ; dbra: 878 lines in
+    /// the emu for $2000 iterations): 512 steps of 16 iterations, each written after its CPU time.
     func k_clear_screens_impl() {
-        mem.fill(0x70000, count: 0x10000)
-        cpu(398_600)                                                   // emu: 878 lines
+        let total = 398_600, steps = 512
+        for i in 0..<steps {
+            cpu(total * (i + 1) / steps - total * i / steps)
+            settleCPU()
+            mem.fill(0x70000 + UInt32(i * 64), count: 64)               // 16 longs at $70000+
+            mem.fill(0x78000 + UInt32(i * 64), count: 64)               // 16 longs at $78000+
+        }
     }
 
     /// $fbec k_scroll_in: the drawn page (draw buffer from line 56) rises from the bottom of the displayed
@@ -341,6 +353,7 @@ extension Platoon {
     /// $10ca2 k_onoff_text: when $66(a6) changed, patch "ON "/"OFF" after "MUZAK: " ($115a6, bit0) and
     /// "FX: " ($115b0, bit1) in the credits string.
     func k_onoff_text() {
+        settleCPU()                                                      // (RAM patch after the preceding clear's CPU time)
         let f = mem.r8(a6 + KV.soundFlags)
         if mem.r8(KA.cacheOnOff) == f { return }
         mem.w8(KA.cacheOnOff, f)

@@ -171,7 +171,22 @@ extension Platoon {
         chip.write(0x09a, 0x7fff)
         for i in 0..<0x84d { mem.w32(0x400 + UInt32(4 * i), mem.r32(0x404 + UInt32(4 * i))) }
         cpu(62_650)                                         // $84d x move.l (a0)+,(a1)+ ; dbra (emu: 138 lines)
+        if enhancements.originalCredits { restoreOriginalCredits() }   // ENHANCEMENT hook (default on)
         res_init()
+    }
+
+    /// ENHANCEMENT (enhancements.originalCredits): the Darc crack replaced two lines of the credits page
+    /// ($114a1: `[7,11] "GAME DESIGN (C)1988 OCEAN." [10,13] slot1=5 slot2=6 "CONVERSION BY CHOICE"`) with
+    /// `"CRACKED BY HANSWURST OF 68 DARC"` + 22 spaces - the same 53 bytes. This puts the original bytes (as on
+    /// re/platoon_b.adf, whose own crack line is elsewhere) back at $114e9; nothing else moves. Only done if the
+    /// image holds exactly the Darc text.
+    func restoreOriginalCredits() {
+        let at: UInt32 = 0x114e9
+        let crack = Array("CRACKED BY HANSWURST OF 68 DARC".utf8) + [UInt8](repeating: 0x20, count: 22)
+        guard mem.slice(at, crack.count) == crack else { return }
+        let original = Array("GAME DESIGN (C)1988 OCEAN.".utf8) + [0x00, 0x0a, 0x0d, 0x02, 0x05, 0x03, 0x06]
+            + Array("CONVERSION BY CHOICE".utf8)
+        mem.load(original, at: at)
     }
 
     // MARK: - resident init
@@ -321,6 +336,7 @@ extension Platoon {
     /// $1a5c res_print_impl: control-coded string: [col,row], 0 -> new [col,row], 1..4 -> colour slot, $ff end,
     /// $80-$fe -> last char (b & $7f). Returns the address after the terminator.
     func r_print_impl(_ a0in: UInt32) -> UInt32 {
+        tickPoint(0x1a5c)
         var a0 = a0in
         cpu(40)
         newPos: while true {
@@ -353,10 +369,14 @@ extension Platoon {
     /// $1e46 res_putchar_impl: 8x8 2bpp glyph from the font at ($418) into both screen buffers ($70000 and
     /// $78000) at the cursor; pixel value v -> colour of slot v ($2404 table). Then advance the cursor.
     func res_putchar_impl(_ c: UInt8) {
+        tickPoint(0x1e46)
         let col = UInt32(mem.r16(RA.curCol) & 0x3f), row = UInt32(mem.r16(RA.curRow) & 0x1f)
         if Int8(bitPattern: c) < 0x20 { res_putchar_ctrl(c); return }   // cmpi.b #$20 / blt (signed)
         settleCPU()
-        cpu(Platoon.putcharCycles)
+        // CPU time: setup, then each glyph row is written at the end of its (8-pixel) computation, so the glyph
+        // appears row by row with the beam as on the A500.
+        let rowCycles = 900, setupCycles = 300
+        cpu(setupCycles)
         var glyph = mem.r32(RA.fontPtr) &+ UInt32(c &- 0x20) * 16
         let d2 = mem.r32(RA.rowTab + row * 4) &+ col &+ 0x70000
         var a1 = d2, a2 = d2 ^ 0x8000
@@ -371,12 +391,14 @@ extension Platoon {
                 p0 = (p0 << 1) | tc[v]; p1 = (p1 << 1) | tc[4 + v]
                 p2 = (p2 << 1) | tc[8 + v]; p3 = (p3 << 1) | tc[12 + v]
             }
+            cpu(rowCycles); settleCPU()
             mem.w8(a1, p0); mem.w8(a2, p0)
             mem.w8(a1 &+ 0x2000, p1); mem.w8(a2 &+ 0x2000, p1)
             mem.w8(a1 &+ 0x4000, p2); mem.w8(a2 &+ 0x4000, p2)
             mem.w8(a1 &+ 0x6000, p3); mem.w8(a2 &+ 0x6000, p3)
             a1 &+= 0x28; a2 &+= 0x28
         }
+        cpu(Platoon.putcharCycles - setupCycles - 8 * rowCycles)       // movem back, cursor update
         mem.w16(RA.curCol, mem.r16(RA.curCol) &+ 1)
         res_putchar_advance()
     }

@@ -269,12 +269,20 @@ extension Platoon {
 
     /// $17676 clear_play_and_pal: clear rows 0..143 of the 4 planes of both buffers, game + HUD palettes.
     func s2_clear_play_and_pal() {
-        cpu(32 + 0x5a0 * 194 + 4)                   // CPU time: 6 x clr.l d16(An) (24) + 2 x clr.l (An)+ (20) + dbra
+        // CPU time: 6 x clr.l d16(An) (24) + 2 x clr.l (An)+ (20) + dbra = 194 cycles per long (~615 raster lines).
+        // tools/amiga/emu runs 454 cycles per line but drops each line's instruction overshoot, so this loop takes
+        // 607..612 lines there (measured: $17654->$176a6 minus the vblank handlers); 192 per long reproduces that.
+        // The clear runs while the displayed buffer is being cleared, so the memory is written in step with the beam
+        // (the frames shown during the clear match the partly cleared picture of the original).
+        cpu(32)
         var a0: UInt32 = 0x70000, a1: UInt32 = 0x78000
         for _ in 0...0x59f {
             mem.w32(a0 &+ 0x2000, 0); mem.w32(a0 &+ 0x4000, 0); mem.w32(a0 &+ 0x6000, 0); mem.w32(a0, 0); a0 &+= 4
             mem.w32(a1 &+ 0x2000, 0); mem.w32(a1 &+ 0x4000, 0); mem.w32(a1 &+ 0x6000, 0); mem.w32(a1, 0); a1 &+= 4
+            cpu(192)
+            if cpuCycles >= Platoon.cyclesPerLine { settleCPU() }
         }
+        cpu(4)
         k_set_top_pal(S2.palGame)
         k_set_hud_pal(S2.palHud)
     }
@@ -330,10 +338,12 @@ extension Platoon {
         // which must not happen here (it would wait for the beam from inside the interrupt). Park the main
         // program's debt during the call; the handler's own cost is added to it (interrupt time is stolen from
         // the interrupted program).
+        // k_set_top_pal's own cpu() cost is part of s2FadeHookCycles: discard it (it must not become main-program
+        // debt a second time).
         let parked = cpuCycles
         cpuCycles = 0
         k_set_top_pal(S2.workPalette)
-        cpuCycles += parked
+        cpuCycles = parked
         irqCharge(Platoon.s2FadeHookCycles)
         irqDepth -= 1
         chain?()

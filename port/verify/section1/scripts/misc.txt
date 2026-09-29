@@ -1,0 +1,127 @@
+300 fire 1
+305 fire 0
+350 poke 12e4c 1 2
+600 fire 1
+605 fire 0
+900 fire 1
+905 fire 0
+906 up 1
+911 poke 3b237 ff 1
+914 up 0
+920 up 1
+928 up 0
+934 up 1
+942 up 0
+948 up 1
+956 up 0
+962 up 1
+970 up 0
+976 up 1
+984 up 0
+990 up 1
+998 up 0
+1004 up 1
+1012 up 0
+1018 up 1
+1026 up 0
+1032 up 1
+1040 up 0
+1046 left 1
+1052 left 0
+1058 up 1
+1066 up 0
+1072 up 1
+1080 up 0
+1086 up 1
+1094 up 0
+1100 up 1
+1108 up 0
+1114 right 1
+1120 right 0
+1126 up 1
+1134 up 0
+1140 up 1
+1148 up 0
+1154 up 1
+1162 up 0
+1168 up 1
+1176 up 0
+1182 up 1
+1190 up 0
+1196 up 1
+1204 up 0
+1210 up 1
+1218 up 0
+1224 up 1
+1232 up 0
+1238 right 1
+1244 right 0
+1250 up 1
+1258 up 0
+1264 up 1
+1272 up 0
+1278 up 1
+1286 up 0
+1292 up 1
+1300 up 0
+1306 right 1
+1312 right 0
+1318 up 1
+1326 up 0
+1332 up 1
+1340 up 0
+1346 up 1
+1354 up 0
+1360 up 1
+1368 up 0
+1374 up 1
+1382 up 0
+1400 shot g_in
+1714 poke 3b237 ff 1
+1844 shot g_thrown_out
+1844 up 1
+1852 up 0
+1870 shot g_reenter
+1870 poke 19d34 23 2
+1870 poke 19d36 28 2
+1875 fire 1
+1885 fire 0
+1945 shot g_killed
+1946 poke 19d34 25 2
+1946 poke 19d36 1c 2
+1950 fire 1
+1956 fire 0
+2016 shot g_map
+2017 poke 19d34 7e 2
+2017 poke 19d36 7b 2
+2021 fire 1
+2027 fire 0
+2077 right 1
+2083 right 0
+2089 right 1
+2095 right 0
+2101 up 1
+2109 up 0
+2135 shot g_body_stays
+2137 poke 19d34 25 2
+2137 poke 19d36 1c 2
+2140 fire 1
+2146 fire 0
+2206 shot g_map_again
+2206 poke 19d34 7e 2
+2206 poke 19d36 7b 2
+2211 fire 1
+2217 fire 0
+2270 poke 12de2 3 2
+2270 poke 3b237 1 1
+2967 shot kia_text
+2967 fire 1
+2973 fire 0
+3173 shot life2
+3174 poke 3b237 ff 1
+3213 poke 12e0c c00 2
+3214 poke 3b237 1 1
+3913 shot withdrawn_text
+3913 fire 1
+3919 fire 0
+4319 shot after_gameover

@@ -1,0 +1,37 @@
+300 fire 1
+305 fire 0
+350 poke 12e4c 1 2
+600 fire 1
+605 fire 0
+900 fire 1
+905 fire 0
+911 poke 3b237 ff 1
+927 poke 1a0b0 271f 2
+927 poke 12e08 0 2
+938 up 1
+946 up 0
+972 shot x_in
+975 poke 19d34 74 2
+975 poke 19d36 24 2
+977 fire 1
+983 fire 0
+1133 shot x_noflares
+1135 poke 12e0a 6 2
+1143 poke 19d34 74 2
+1143 poke 19d36 24 2
+1146 fire 1
+1152 fire 0
+1302 shot x_moreflares
+1303 poke 12e0a 8 2
+1311 poke 19d34 74 2
+1311 poke 19d36 24 2
+1315 fire 1
+1321 fire 0
+1331 shot x_go
+1531 poke 12e0c c00 2
+1534 poke 3b237 ff 1
+2434 poke 3b237 ff 1
+2731 shot fl_withdrawn
+2731 fire 1
+2737 fire 0
+3137 shot fl_gameover

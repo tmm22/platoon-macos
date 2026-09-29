@@ -1,0 +1,249 @@
+360 key 0x25 1
+364 key 0x25 0
+370 key 0x20 1
+374 key 0x20 0
+380 key 0x37 1
+384 key 0x37 0
+390 key 0x35 1
+394 key 0x35 0
+400 key 0x16 1
+404 key 0x16 0
+410 key 0x13 1
+414 key 0x13 0
+420 key 0x24 1
+424 key 0x24 0
+430 key 0x12 1
+434 key 0x12 0
+440 key 0x13 1
+444 key 0x13 0
+470 key 0x4a 1
+474 key 0x4a 0
+480 key 0x25 1
+484 key 0x25 0
+490 key 0x17 1
+494 key 0x17 0
+500 key 0x28 1
+504 key 0x28 0
+510 key 0x28 1
+514 key 0x28 0
+560 fire 1
+565 fire 0
+600 poke 12e4c 1 2
+1100 fire 1
+1105 fire 0
+1200 key 0x5f 1
+1210 key 0x5f 0
+1761 fire 1
+1765 fire 0
+1841 poke 19eae 86 2
+1841 poke 19eb0 47 2
+1841 fire 1
+1845 fire 0
+1911 poke 19eae 106 2
+1911 poke 19eb0 44 2
+1911 fire 1
+1915 fire 0
+1981 poke 19eae a6 2
+1981 poke 19eb0 44 2
+1981 fire 1
+1985 fire 0
+2051 poke 19eae 106 2
+2051 poke 19eb0 47 2
+2051 fire 1
+2055 fire 0
+2121 poke 19eae 106 2
+2121 poke 19eb0 49 2
+2121 fire 1
+2125 fire 0
+2129 key 0x40 1
+2135 key 0x40 0
+2191 poke 19eae 106 2
+2191 poke 19eb0 4a 2
+2191 fire 1
+2195 fire 0
+2261 poke 19eae e6 2
+2261 poke 19eb0 43 2
+2261 fire 1
+2265 fire 0
+2331 poke 19eae 46 2
+2331 poke 19eb0 4a 2
+2331 fire 1
+2335 fire 0
+2401 poke 19eae e6 2
+2401 poke 19eb0 47 2
+2401 fire 1
+2405 fire 0
+2471 poke 19eae c6 2
+2471 poke 19eb0 4a 2
+2471 fire 1
+2475 fire 0
+2479 key 0x40 1
+2485 key 0x40 0
+2541 poke 19eae a6 2
+2541 poke 19eb0 43 2
+2541 fire 1
+2545 fire 0
+2611 poke 19eae a6 2
+2611 poke 19eb0 44 2
+2611 fire 1
+2615 fire 0
+2681 poke 19eae 46 2
+2681 poke 19eb0 4a 2
+2681 fire 1
+2685 fire 0
+2751 poke 19eae 86 2
+2751 poke 19eb0 46 2
+2751 fire 1
+2755 fire 0
+2821 poke 19eae 86 2
+2821 poke 19eb0 43 2
+2821 fire 1
+2825 fire 0
+2829 key 0x40 1
+2835 key 0x40 0
+2891 poke 19eae 26 2
+2891 poke 19eb0 4a 2
+2891 fire 1
+2895 fire 0
+2961 poke 19eae c6 2
+2961 poke 19eb0 49 2
+2961 fire 1
+2965 fire 0
+3031 poke 19eae 106 2
+3031 poke 19eb0 47 2
+3031 fire 1
+3035 fire 0
+3101 poke 19eae 26 2
+3101 poke 19eb0 49 2
+3101 fire 1
+3105 fire 0
+3109 poke 19eae 46 2
+3109 poke 19eb0 45 2
+3109 fire 1
+3113 fire 0
+3171 poke 19eae a6 2
+3171 poke 19eb0 47 2
+3171 fire 1
+3175 fire 0
+3179 key 0x40 1
+3185 key 0x40 0
+3241 poke 19eae 26 2
+3241 poke 19eb0 46 2
+3241 fire 1
+3245 fire 0
+3311 poke 19eae 106 2
+3311 poke 19eb0 4a 2
+3311 fire 1
+3315 fire 0
+3381 poke 19eae c6 2
+3381 poke 19eb0 49 2
+3381 fire 1
+3385 fire 0
+3451 poke 19eae 46 2
+3451 poke 19eb0 49 2
+3451 fire 1
+3455 fire 0
+3521 poke 19eae e6 2
+3521 poke 19eb0 47 2
+3521 fire 1
+3525 fire 0
+3529 poke 19eae 86 2
+3529 poke 19eb0 43 2
+3529 fire 1
+3533 fire 0
+3537 key 0x40 1
+3543 key 0x40 0
+3591 poke 19eae a6 2
+3591 poke 19eb0 43 2
+3591 fire 1
+3595 fire 0
+3661 poke 19eae 86 2
+3661 poke 19eb0 43 2
+3661 fire 1
+3665 fire 0
+3731 poke 19eae 106 2
+3731 poke 19eb0 4a 2
+3731 fire 1
+3735 fire 0
+3801 poke 19eae 66 2
+3801 poke 19eb0 48 2
+3801 fire 1
+3805 fire 0
+3871 poke 19eae 106 2
+3871 poke 19eb0 4a 2
+3871 fire 1
+3875 fire 0
+3879 poke 19eae a6 2
+3879 poke 19eb0 45 2
+3879 fire 1
+3883 fire 0
+3887 key 0x40 1
+3893 key 0x40 0
+3941 poke 19eae 46 2
+3941 poke 19eb0 45 2
+3941 fire 1
+3945 fire 0
+4011 poke 19eae 26 2
+4011 poke 19eb0 45 2
+4011 fire 1
+4015 fire 0
+4081 poke 19eae c6 2
+4081 poke 19eb0 44 2
+4081 fire 1
+4085 fire 0
+4089 poke 19eae 106 2
+4089 poke 19eb0 44 2
+4089 fire 1
+4093 fire 0
+4151 poke 19eae 66 2
+4151 poke 19eb0 4a 2
+4151 fire 1
+4155 fire 0
+4221 poke 19eae 26 2
+4221 poke 19eb0 4a 2
+4221 fire 1
+4225 fire 0
+4229 key 0x40 1
+4235 key 0x40 0
+4291 poke 19eae 46 2
+4291 poke 19eb0 44 2
+4291 fire 1
+4295 fire 0
+4361 poke 19eae e6 2
+4361 poke 19eb0 46 2
+4361 fire 1
+4365 fire 0
+4369 poke 19eae c6 2
+4369 poke 19eb0 45 2
+4369 fire 1
+4373 fire 0
+4431 poke 19eae 86 2
+4431 poke 19eb0 45 2
+4431 fire 1
+4435 fire 0
+4501 poke 19eae c6 2
+4501 poke 19eb0 43 2
+4501 fire 1
+4505 fire 0
+4571 poke 19eae 66 2
+4571 poke 19eb0 49 2
+4571 fire 1
+4575 fire 0
+4579 key 0x40 1
+4585 key 0x40 0
+4641 poke 19eae 26 2
+4641 poke 19eb0 4a 2
+4641 fire 1
+4645 fire 0
+4711 poke 19eae 106 2
+4711 poke 19eb0 4a 2
+4711 fire 1
+4715 fire 0
+4781 poke 19eae a6 2
+4781 poke 19eb0 45 2
+4781 fire 1
+4785 fire 0
+4851 poke 19eae 86 2
+4851 poke 19eb0 46 2
+4851 fire 1
+4855 fire 0

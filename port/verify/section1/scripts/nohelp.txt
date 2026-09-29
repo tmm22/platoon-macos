@@ -1,0 +1,10 @@
+300 fire 1
+305 fire 0
+350 poke 12e4c 1 2
+600 fire 1
+605 fire 0
+900 fire 1
+905 fire 0
+906 poke 3b237 ff 1
+1000 key 0x5f 1
+1012 key 0x5f 0

@@ -1,0 +1,171 @@
+300 fire 1
+305 fire 0
+350 poke 12e4c 1 2
+600 fire 1
+605 fire 0
+900 fire 1
+905 fire 0
+906 poke 3b237 ff 1
+906 up 1
+914 up 0
+920 shot w_20_3_3
+920 up 1
+928 up 0
+934 shot w_19_3_3
+934 up 1
+942 up 0
+948 shot w_18_3_3
+948 up 1
+956 up 0
+962 shot w_17_3_3
+962 up 1
+970 up 0
+976 shot w_16_3_3
+976 up 1
+984 up 0
+990 shot w_15_3_3
+990 up 1
+998 up 0
+1004 shot w_14_3_3
+1004 up 1
+1012 up 0
+1018 shot w_13_3_3
+1018 up 1
+1026 up 0
+1032 shot w_12_3_3
+1032 up 1
+1040 up 0
+1046 shot w_11_3_3
+1046 left 1
+1052 left 0
+1058 up 1
+1066 up 0
+1072 shot w_11_4_2
+1072 up 1
+1080 up 0
+1086 shot w_11_5_2
+1086 up 1
+1094 up 0
+1100 shot w_11_6_2
+1100 up 1
+1108 up 0
+1114 shot w_11_7_2
+1114 right 1
+1120 right 0
+1126 up 1
+1134 up 0
+1140 shot w_10_7_3
+1140 up 1
+1148 up 0
+1154 shot w_9_7_3
+1154 up 1
+1162 up 0
+1168 shot w_8_7_3
+1168 up 1
+1176 up 0
+1182 shot w_7_7_3
+1182 up 1
+1190 up 0
+1196 shot w_6_7_3
+1196 up 1
+1204 up 0
+1210 shot w_5_7_3
+1210 up 1
+1218 up 0
+1224 shot w_4_7_3
+1224 up 1
+1232 up 0
+1238 shot w_3_7_3
+1238 right 1
+1244 right 0
+1250 up 1
+1258 up 0
+1264 shot w_3_6_0
+1264 up 1
+1272 up 0
+1278 shot w_3_5_0
+1278 up 1
+1286 up 0
+1292 shot w_3_4_0
+1292 up 1
+1300 up 0
+1306 shot w_3_3_0
+1306 right 1
+1312 right 0
+1318 up 1
+1326 up 0
+1332 shot w_4_3_1
+1332 up 1
+1340 up 0
+1346 shot w_5_3_1
+1346 up 1
+1354 up 0
+1360 shot w_6_3_1
+1360 up 1
+1368 up 0
+1374 shot w_7_3_1
+1374 up 1
+1382 up 0
+1408 shot room0_in
+1408 poke 19d34 23 2
+1408 poke 19d36 28 2
+1413 fire 1
+1423 fire 0
+1453 shot guard_dead
+1493 poke 19d34 1c 2
+1493 poke 19d36 13 2
+1498 fire 1
+1504 fire 0
+1564 shot item0
+1564 poke 19d34 13 2
+1564 poke 19d36 3f 2
+1569 fire 1
+1570 poke 3b237 ff 1
+1575 fire 0
+1635 shot item1
+1635 poke 19d34 11 2
+1635 poke 19d36 54 2
+1640 fire 1
+1646 fire 0
+1706 shot item2
+1706 poke 19d34 3b 2
+1706 poke 19d36 54 2
+1711 fire 1
+1717 fire 0
+1777 shot item3
+1777 poke 19d34 29 2
+1777 poke 19d36 46 2
+1782 fire 1
+1788 fire 0
+1848 shot item4
+1848 poke 19d34 3d 2
+1848 poke 19d36 3a 2
+1853 fire 1
+1859 fire 0
+1919 shot item5
+1919 poke 19d34 6c 2
+1919 poke 19d36 46 2
+1924 fire 1
+1930 fire 0
+1990 shot item6
+1990 poke 19d34 1c 2
+1990 poke 19d36 13 2
+1995 fire 1
+2001 fire 0
+2061 shot again0
+2061 poke 19d34 11 2
+2061 poke 19d36 54 2
+2066 fire 1
+2072 fire 0
+2132 shot again1
+2132 poke 19d34 3b 2
+2132 poke 19d36 54 2
+2137 fire 1
+2143 fire 0
+2203 shot again2
+2203 poke 19d34 7e 2
+2203 poke 19d36 7b 2
+2208 fire 1
+2210 poke 3b237 ff 1
+2214 fire 0
+2264 shot left

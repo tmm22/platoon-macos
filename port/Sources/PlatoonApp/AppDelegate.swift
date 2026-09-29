@@ -112,6 +112,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
         game.addItem(item("Pause", #selector(togglePause(_:)), "p"))
         game.addItem(item("Reset", #selector(resetGame(_:)), "r"))
         game.addItem(item("Turbo Speed", #selector(toggleTurbo(_:)), "t"))
+        let startItem = NSMenuItem(title: "Start New Game At", action: nil, keyEquivalent: "")
+        let startMenu = NSMenu()
+        for (i, t) in ["The Jungle & Village", "The Tunnels & Flare", "The Jungle & Foxhole"].enumerated() {
+            startMenu.addItem(item(t, #selector(startAtSection(_:)), tag: i))
+        }
+        startItem.submenu = startMenu
+        game.addItem(startItem)
         game.addItem(.separator())
         game.addItem(item("In-game Pause (TAB)", #selector(sendAmigaKey(_:)), tag: 0x42))
         game.addItem(item("Cycle Music / Sound FX (F10)", #selector(sendAmigaKey(_:)), tag: 0x59))
@@ -168,6 +175,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
     @objc func togglePause(_ s: Any?) { host?.paused.toggle(); window.title = host?.paused == true ? "Platoon — Paused" : "Platoon" }
     @objc func resetGame(_ s: Any?) { host?.reset() }
     @objc func toggleTurbo(_ s: Any?) { host?.turbo.toggle() }
+    @objc func startAtSection(_ s: NSMenuItem) { host?.reset(startSection: s.tag) }
     @objc func sendAmigaKey(_ s: NSMenuItem) { host?.tapKey(UInt8(s.tag)) }
     @objc func saveScreenshot(_ s: Any?) {
         guard let h = host else { return }

@@ -1,0 +1,7 @@
+300 fire 1
+305 fire 0
+350 poke 12e4c 2 2
+600 fire 1
+605 fire 0
+900 fire 1
+905 fire 0

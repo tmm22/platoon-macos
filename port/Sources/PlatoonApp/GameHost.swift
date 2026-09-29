@@ -49,12 +49,14 @@ final class GameHost {
         machine.input.key(code, down: false)
     }
 
-    func reset() {
+    func reset(startSection: Int? = nil) {
         machine.stop()
         machine = Machine(disk: disk)
         wire()
         audio.flush()
-        machine.start { PlatoonGame.main($0, config: GameHost.gameConfig()) }
+        var cfg = GameHost.gameConfig()
+        cfg.startSection = startSection
+        machine.start { PlatoonGame.main($0, config: cfg) }
         acc = 0; last = 0
     }
 

@@ -389,12 +389,17 @@ extension Platoon {
     // MARK: screen copies
 
     /// $194fa clear_buf_78000: clear the playfield part (4 x $1680 bytes) of buffer $78000.
+    /// The buffer may be on display (choose-your-man screen), so the CPU clear is paced: 16 chunks, each
+    /// cleared at the beam time the 68000 loop reaches it (the display is rendered line by line).
     func s0ClearBuf78000() {
-        cpu(Platoon.s0CyclesClearPlayfield)
         var a0: UInt32 = 0x78000
-        for _ in 0...0x59f {
-            mem.w32(a0 &+ 0x2000, 0); mem.w32(a0 &+ 0x4000, 0); mem.w32(a0 &+ 0x6000, 0); mem.w32(a0, 0)
-            a0 &+= 4
+        for _ in 0..<16 {
+            s0Settle()
+            for _ in 0..<90 {                // 16 x 90 = $5a0 longs per plane
+                mem.w32(a0 &+ 0x2000, 0); mem.w32(a0 &+ 0x4000, 0); mem.w32(a0 &+ 0x6000, 0); mem.w32(a0, 0)
+                a0 &+= 4
+            }
+            cpu(Platoon.s0CyclesClearPlayfield / 16)
         }
     }
 

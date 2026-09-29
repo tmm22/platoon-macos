@@ -7,6 +7,7 @@ final class InputManager {
     weak var input: Input?
     private var keysDown = Set<UInt16>()
     private var padUp = false, padDown = false, padLeft = false, padRight = false, padFire = false
+    private var padMenu = false, padOptions = false
 
     // Mac virtual keycodes used for the joystick
     static let joyUp: Set<UInt16> = [0x7e], joyDown: Set<UInt16> = [0x7d], joyLeft: Set<UInt16> = [0x7b], joyRight: Set<UInt16> = [0x7c]
@@ -40,6 +41,11 @@ final class InputManager {
             let y = max(-1, min(1, g.dpad.yAxis.value + g.leftThumbstick.yAxis.value))
             self.padLeft = x < -0.4; self.padRight = x > 0.4; self.padUp = y > 0.4; self.padDown = y < -0.4
             self.padFire = g.buttonA.isPressed || g.buttonB.isPressed || g.rightTrigger.isPressed || g.rightShoulder.isPressed
+            // Menu = in-game pause (TAB), Options = cycle music/fx (F10)
+            let menu = g.buttonMenu.isPressed
+            if menu != self.padMenu { self.padMenu = menu; self.input?.key(0x42, down: menu) }
+            let opt = g.buttonOptions?.isPressed ?? false
+            if opt != self.padOptions { self.padOptions = opt; self.input?.key(0x59, down: opt) }
             self.sync()
         }
     }

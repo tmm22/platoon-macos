@@ -1,0 +1,92 @@
+300 fire 1
+305 fire 0
+350 poke 12e4c 1 2
+600 fire 1
+605 fire 0
+900 fire 1
+905 fire 0
+906 up 1
+911 poke 3b237 ff 1
+914 up 0
+920 up 1
+928 up 0
+934 up 1
+942 up 0
+948 up 1
+956 up 0
+962 up 1
+970 up 0
+976 up 1
+984 up 0
+990 up 1
+998 up 0
+1004 up 1
+1012 up 0
+1018 up 1
+1026 up 0
+1032 up 1
+1040 up 0
+1046 left 1
+1052 left 0
+1058 up 1
+1066 up 0
+1072 up 1
+1080 up 0
+1086 up 1
+1094 up 0
+1100 up 1
+1108 up 0
+1114 right 1
+1120 right 0
+1126 up 1
+1134 up 0
+1140 up 1
+1148 up 0
+1154 up 1
+1162 up 0
+1168 up 1
+1176 up 0
+1182 up 1
+1190 up 0
+1196 up 1
+1204 up 0
+1210 up 1
+1218 up 0
+1224 up 1
+1232 up 0
+1238 right 1
+1244 right 0
+1250 up 1
+1258 up 0
+1264 up 1
+1272 up 0
+1278 up 1
+1286 up 0
+1292 up 1
+1300 up 0
+1306 right 1
+1312 right 0
+1318 up 1
+1326 up 0
+1332 up 1
+1340 up 0
+1346 up 1
+1354 up 0
+1360 up 1
+1368 up 0
+1374 up 1
+1382 up 0
+1411 poke 19d34 23 2
+1411 poke 19d36 28 2
+1413 fire 1
+1423 fire 0
+1483 poke 12e0c fe00 2
+1491 poke 19d34 43 2
+1491 poke 19d36 56 2
+1496 fire 1
+1502 fire 0
+1702 shot wrap_after
+1702 poke 3b237 ff 1
+1702 fire 1
+1708 fire 0
+2008 shot wrap_gameover

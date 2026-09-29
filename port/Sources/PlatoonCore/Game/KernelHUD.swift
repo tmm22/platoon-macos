@@ -38,6 +38,7 @@ extension Platoon {
     /// $1058a k_hud_icons (jt02): compass, then gun ($2c), map ($24), TNT ($28) icons - nonzero = drawn,
     /// 0 = blanked, only on change.
     func k_hud_icons_impl() {
+        tickPoint(0x1058a)
         k_hud_compass_impl()
         var d0 = mem.r16(a6 + KV.gunCount)
         if d0 != mem.r16(KA.cache2c) {
@@ -109,6 +110,7 @@ extension Platoon {
     /// $10656 k_hud_wounds (jt06): wound splats for the current man ((man)+4 of them, the flag byte $1069e
     /// selects drawn/blank) in the 4 slots $797c0+4k; the remaining slots are blanked.
     func k_hud_wounds_impl() {
+        tickPoint(0x10656)
         var d1: UInt16 = 0
         let a2 = mem.r32(a6 + KV.curMan)
         var d0 = mem.r16(a2 &+ 4)
@@ -135,6 +137,7 @@ extension Platoon {
     /// $1084a k_hud_init (jt12): invalidate the HUD caches ($1357 / $ff), print the labels, score, best score,
     /// wounds, then a full jt13 and jt02.
     func k_hud_init_impl() {
+        tickPoint(0x1084a)
         for c in [KA.cache28, KA.cache24, KA.cache2c, KA.cache26, KA.cache2a, KA.cacheTime] { mem.w16(c, 0x1357) }
         mem.w8(KA.cacheSndIcons, 0xff)
         r_print(KA.strHudLabels)
@@ -149,6 +152,7 @@ extension Platoon {
     /// game is paused ($10eaa != 0: the original spins here without waiting, so a message on screen finishes
     /// instantly) - then "TIME mm:ss" if the timer is on and the minutes/seconds changed.
     func k_hud_update_impl() {
+        tickPoint(0x108a0)
         repeat {
             k_print_score_impl()
             k_text_tick()
@@ -157,7 +161,11 @@ extension Platoon {
             k_hud_topbar()
             k_hud_ammobar()
             k_hud_moralebar()
-            if mem.r16(KA.pause) != 0 { settleCPU() }                  // spin: let the beam advance by the loop's CPU time
+            tickPoint(0x108bc)
+            // The pause word and the timer are changed by the vblank handler: test them only when the CPU time
+            // of the HUD work has elapsed (e.g. TAB pressed while the bars are drawn -> this update already
+            // loops; the timer decremented by a vblank during the bars -> TIME shows the new value now).
+            settleCPU()
         } while mem.r16(KA.pause) != 0
         if mem.r16(a6 + KV.timerOn) == 0 { return }
         let d0 = mem.r16(a6 + KV.timerMin)                              // word: minutes:seconds
@@ -172,6 +180,7 @@ extension Platoon {
     /// $10906 k_hud_topbar: grenades of the current man x8 ($54 = 0, gfx $13294) or flares $2c x8 (gfx $132d4)
     /// at $79cda.
     func k_hud_topbar() {
+        tickPoint(0x10906)
         if mem.r16(a6 + KV.topBarMode) != 0 {
             k_draw_bar_impl(value: mem.r16(a6 + KV.gunCount) << 3, gfx: KA.hudFlare, dest: 0x79cda)
         } else {
@@ -182,12 +191,14 @@ extension Platoon {
 
     /// $1093c k_hud_ammobar: ammo of the current man >> 1 at $79e1a (gfx $13274).
     func k_hud_ammobar() {
+        tickPoint(0x1093c)
         let a5 = mem.r32(a6 + KV.curMan)
         k_draw_bar_impl(value: mem.r16(a5 &+ 2) >> 1, gfx: KA.hudBullet, dest: 0x79e1a)
     }
 
     /// $10956 k_hud_moralebar: morale high byte >> 1 (lsr.b) at $79e05 (gfx $13254 hearts).
     func k_hud_moralebar() {
+        tickPoint(0x10956)
         k_draw_bar_impl(value: UInt16(mem.r8(a6 + KV.morale) >> 1), gfx: KA.hudHeart, dest: 0x79e05)
     }
 

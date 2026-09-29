@@ -14,6 +14,8 @@ public struct GameConfig {
     public var hiscoreURL: URL?
     /// Tick dumps: when translated code passes `tickPoint(pc)`, append [u32 frame][len bytes at lo] to the file.
     public var tickDumps: [(pc: UInt32, lo: UInt32, len: Int, file: FileHandle)] = []
+    /// Enhancement switches for this run (copied into Platoon.enhancements at start).
+    public var enhancements = Enhancements()
 }
 
 /// Entry point of the translated game.
@@ -22,11 +24,35 @@ public enum PlatoonGame {
     public static func main(_ m: Machine, config: GameConfig = GameConfig()) {
         let p = Platoon(machine: m)
         p.config = config
+        p.enhancements = config.enhancements
+        p.applyEnvironmentOverrides()
         p.boot()
     }
 }
 
 extension Platoon {
+    /// Verification overrides from the environment (used with platoon-headless, whose command line has no
+    /// options for these):
+    ///   PLATOON_ENH="originalCredits=0,infiniteAmmo=1,..."  enhancement switches
+    ///   PLATOON_HISCORES=/path/file                          config.hiscoreURL (persisted hiscore track)
+    ///   PLATOON_CARRY=/path/file                             config.carry (a6 block image, $76 bytes)
+    func applyEnvironmentOverrides() {
+        let env = ProcessInfo.processInfo.environment
+        if let e = env["PLATOON_ENH"] {
+            for item in e.split(separator: ",") {
+                let kv = item.split(separator: "="), on = kv.count < 2 || kv[1] != "0"
+                switch kv.first.map(String.init) ?? "" {
+                case "originalCredits": enhancements.originalCredits = on
+                case "infiniteAmmo": enhancements.infiniteAmmo = on
+                case "infiniteMorale": enhancements.infiniteMorale = on
+                default: break
+                }
+            }
+        }
+        if config.hiscoreURL == nil, let h = env["PLATOON_HISCORES"] { config.hiscoreURL = URL(fileURLWithPath: h) }
+        if config.carry == nil, let c = env["PLATOON_CARRY"], let d = FileManager.default.contents(atPath: c) { config.carry = [UInt8](d) }
+    }
+
     /// Debug: PLATOON_TRACE=1 prints every tickPoint with frame/line (same format as the emulator's --bp log).
     static let traceTicks = ProcessInfo.processInfo.environment["PLATOON_TRACE"] != nil
 

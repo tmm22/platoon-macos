@@ -1,0 +1,18 @@
+300 fire 1
+305 fire 0
+350 poke 12e4c 2 2
+600 fire 1
+605 fire 0
+880 poke 18f0d 0e 1
+900 fire 1
+905 fire 0
+930 up 1
+945 up 0
+1000 up 1
+1010 up 0
+1050 left 1
+1080 left 0
+1080 up 1
+1110 up 0
+1110 right 1
+1125 right 0

@@ -105,10 +105,12 @@ extension Platoon {
             var d0: UInt16 = 0
             waitRelease: while true {
                 repeat {
+                    tickPoint(0x19758)
                     k_wait_vbl(); k_wait_vbl()
                     s0ReadInput()
                 } while r_joystick() != 0
                 while true {
+                    tickPoint(0x19772)
                     k_wait_vbl(); k_wait_vbl()
                     s0ReadInput()
                     let j = r_joystick()
@@ -159,10 +161,12 @@ extension Platoon {
     /// $19850 wait_fire_press: wait (every 2 vblanks) for fire released, then pressed.
     func s0WaitFirePress() {
         repeat {
+            tickPoint(0x19850)
             k_wait_vbl(); k_wait_vbl()
             s0ReadInput()
         } while r_joystick() & 0x80 != 0
         repeat {
+            tickPoint(0x1986c)
             k_wait_vbl(); k_wait_vbl()
             s0ReadInput()
         } while r_joystick() & 0x80 == 0

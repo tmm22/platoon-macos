@@ -362,11 +362,15 @@ public final class Chipset {
         copperRun(line: v, hposLimit: 0x30)
         spritesLine(v)
         renderLine(v)
+        // CIA-B TOD counts HSYNC pulses: the count for line v arrives at the start of line v, after the copper's
+        // early-line moves (e.g. the HUD palette MOVEs right after the split WAIT) - so a TOD-alarm (level-6)
+        // handler writing a colour register overrides the copper's value from the next line, as in
+        // tools/amiga/emu (kernel pause: HUD COLOR00 cycling from split+1).
+        ciaB.todTick()
     }
     /// Rest of the line after the CPU slot: copper, CIA clocks, audio.
     func endLine(_ v: Int) {
         copperRun(line: v, hposLimit: 0xe2)
-        ciaB.todTick()
         ciaTickAcc += 709379.0 / (50.0 * Double(Chipset.linesPerFrame))
         let t = Int(ciaTickAcc); ciaTickAcc -= Double(t)
         ciaA.tick(t); ciaB.tick(t)

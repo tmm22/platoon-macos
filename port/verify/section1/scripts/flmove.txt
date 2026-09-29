@@ -1,0 +1,99 @@
+360 key 0x25 1
+364 key 0x25 0
+370 key 0x20 1
+374 key 0x20 0
+380 key 0x37 1
+384 key 0x37 0
+390 key 0x35 1
+394 key 0x35 0
+400 key 0x16 1
+404 key 0x16 0
+410 key 0x13 1
+414 key 0x13 0
+420 key 0x24 1
+424 key 0x24 0
+430 key 0x12 1
+434 key 0x12 0
+440 key 0x13 1
+444 key 0x13 0
+470 key 0x4a 1
+474 key 0x4a 0
+480 key 0x25 1
+484 key 0x25 0
+490 key 0x17 1
+494 key 0x17 0
+500 key 0x28 1
+504 key 0x28 0
+510 key 0x28 1
+514 key 0x28 0
+560 fire 1
+565 fire 0
+600 poke 12e4c 1 2
+1100 fire 1
+1105 fire 0
+1200 key 0x5f 1
+1210 key 0x5f 0
+1770 up 1
+1770 left 1
+1770 shot m1770
+1790 up 0
+1790 left 0
+1800 up 1
+1800 right 1
+1800 shot m1800
+1820 up 0
+1820 right 0
+1830 down 1
+1830 left 1
+1830 shot m1830
+1850 down 0
+1850 left 0
+1860 down 1
+1860 right 1
+1860 shot m1860
+1880 down 0
+1880 right 0
+1890 left 1
+1890 shot m1890
+1920 left 0
+1930 up 1
+1930 shot m1930
+1960 up 0
+1970 right 1
+1970 shot m1970
+2030 right 0
+2040 down 1
+2040 shot m2040
+2100 down 0
+2110 fire 1
+2110 shot m2110
+2122 fire 0
+2132 up 1
+2132 fire 1
+2132 shot m2132
+2148 up 0
+2148 fire 0
+2158 key 0x40 1
+2164 key 0x40 0
+2178 key 0x40 1
+2184 key 0x40 0
+2198 shot c2198
+2218 shot c2218
+2238 shot c2238
+2258 shot c2258
+2278 shot c2278
+2298 shot c2298
+2318 shot c2318
+2338 shot c2338
+2358 shot c2358
+2378 shot c2378
+2398 shot c2398
+2418 shot c2418
+2438 shot c2438
+2458 shot c2458
+2478 shot c2478
+2498 shot c2498
+2518 shot c2518
+2538 shot c2538
+2558 shot c2558
+2578 shot c2578

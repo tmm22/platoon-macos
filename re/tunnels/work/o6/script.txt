@@ -1,0 +1,320 @@
+5 poke 3b237 ff 1
+5 poke 1a0b0 1b09 2
+5 poke 12e08 0 2
+25 shot t00
+29 poke 3b237 ff 1
+29 poke 1a0b0 140f 2
+29 poke 12e08 0 2
+49 shot t01
+53 poke 3b237 ff 1
+53 poke 1a0b0 b1b 2
+53 poke 12e08 3 2
+73 shot t02
+77 poke 3b237 ff 1
+77 poke 1a0b0 31a 2
+77 poke 12e08 3 2
+97 shot t03
+101 poke 3b237 ff 1
+101 poke 1a0b0 1127 2
+101 poke 12e08 1 2
+121 shot t04
+125 poke 3b237 ff 1
+125 poke 1a0b0 f07 2
+125 poke 12e08 3 2
+145 shot t05
+149 poke 3b237 ff 1
+149 poke 1a0b0 1403 2
+149 poke 12e08 3 2
+169 shot t06
+173 poke 3b237 ff 1
+173 poke 1a0b0 1f17 2
+173 poke 12e08 0 2
+193 shot t07
+197 poke 3b237 ff 1
+197 poke 1a0b0 1623 2
+197 poke 12e08 3 2
+217 shot t08
+221 poke 3b237 ff 1
+221 poke 1a0b0 1d0f 2
+221 poke 12e08 1 2
+241 shot t09
+245 poke 3b237 ff 1
+245 poke 1a0b0 e1f 2
+245 poke 12e08 0 2
+265 shot t10
+269 poke 3b237 ff 1
+269 poke 1a0b0 c13 2
+269 poke 12e08 0 2
+289 shot t11
+293 poke 3b237 ff 1
+293 poke 1a0b0 1103 2
+293 poke 12e08 0 2
+313 shot t12
+317 poke 3b237 ff 1
+317 poke 1a0b0 1f21 2
+317 poke 12e08 0 2
+337 shot t13
+341 poke 3b237 ff 1
+341 poke 1a0b0 1315 2
+341 poke 12e08 1 2
+361 shot t14
+365 poke 3b237 ff 1
+365 poke 1a0b0 1417 2
+365 poke 12e08 0 2
+385 shot t15
+389 poke 3b237 ff 1
+389 poke 1a0b0 251b 2
+389 poke 12e08 1 2
+409 shot t16
+413 poke 3b237 ff 1
+413 poke 1a0b0 2726 2
+413 poke 12e08 3 2
+433 shot t17
+437 poke 3b237 ff 1
+437 poke 1a0b0 b1b 2
+437 poke 12e08 1 2
+457 shot t18
+461 poke 3b237 ff 1
+461 poke 1a0b0 1d13 2
+461 poke 12e08 1 2
+481 shot t19
+485 poke 3b237 ff 1
+485 poke 1a0b0 923 2
+485 poke 12e08 1 2
+505 shot t20
+509 poke 3b237 ff 1
+509 poke 1a0b0 1726 2
+509 poke 12e08 3 2
+529 shot t21
+533 poke 3b237 ff 1
+533 poke 1a0b0 711 2
+533 poke 12e08 0 2
+553 shot t22
+557 poke 3b237 ff 1
+557 poke 1a0b0 1117 2
+557 poke 12e08 0 2
+577 shot t23
+581 poke 3b237 ff 1
+581 poke 1a0b0 210b 2
+581 poke 12e08 2 2
+601 shot t24
+605 poke 3b237 ff 1
+605 poke 1a0b0 1b08 2
+605 poke 12e08 2 2
+625 shot t25
+629 poke 3b237 ff 1
+629 poke 1a0b0 2623 2
+629 poke 12e08 3 2
+649 shot t26
+653 poke 3b237 ff 1
+653 poke 1a0b0 111b 2
+653 poke 12e08 1 2
+673 shot t27
+677 poke 3b237 ff 1
+677 poke 1a0b0 2712 2
+677 poke 12e08 2 2
+697 shot t28
+701 poke 3b237 ff 1
+701 poke 1a0b0 c1f 2
+701 poke 12e08 3 2
+721 shot t29
+725 poke 3b237 ff 1
+725 poke 1a0b0 101b 2
+725 poke 12e08 3 2
+745 shot t30
+749 poke 3b237 ff 1
+749 poke 1a0b0 d1f 2
+749 poke 12e08 0 2
+769 shot t31
+773 poke 3b237 ff 1
+773 poke 1a0b0 171a 2
+773 poke 12e08 1 2
+793 shot t32
+797 poke 3b237 ff 1
+797 poke 1a0b0 b25 2
+797 poke 12e08 3 2
+817 shot t33
+821 poke 3b237 ff 1
+821 poke 1a0b0 1017 2
+821 poke 12e08 1 2
+841 shot t34
+845 poke 3b237 ff 1
+845 poke 1a0b0 314 2
+845 poke 12e08 2 2
+865 shot t35
+869 poke 3b237 ff 1
+869 poke 1a0b0 807 2
+869 poke 12e08 3 2
+889 shot t36
+893 poke 3b237 ff 1
+893 poke 1a0b0 1b22 2
+893 poke 12e08 0 2
+913 shot t37
+917 poke 3b237 ff 1
+917 poke 1a0b0 c27 2
+917 poke 12e08 1 2
+937 shot t38
+941 poke 3b237 ff 1
+941 poke 1a0b0 1b1b 2
+941 poke 12e08 3 2
+961 shot t39
+965 poke 3b237 ff 1
+965 poke 1a0b0 1314 2
+965 poke 12e08 3 2
+985 shot t40
+989 poke 3b237 ff 1
+989 poke 1a0b0 1724 2
+989 poke 12e08 0 2
+1009 shot t41
+1013 poke 3b237 ff 1
+1013 poke 1a0b0 2719 2
+1013 poke 12e08 0 2
+1033 shot t42
+1037 poke 3b237 ff 1
+1037 poke 1a0b0 413 2
+1037 poke 12e08 3 2
+1057 shot t43
+1061 poke 3b237 ff 1
+1061 poke 1a0b0 1b21 2
+1061 poke 12e08 1 2
+1081 shot t44
+1085 poke 3b237 ff 1
+1085 poke 1a0b0 150b 2
+1085 poke 12e08 1 2
+1105 shot t45
+1109 poke 3b237 ff 1
+1109 poke 1a0b0 c03 2
+1109 poke 12e08 1 2
+1129 shot t46
+1133 poke 3b237 ff 1
+1133 poke 1a0b0 f1c 2
+1133 poke 12e08 1 2
+1153 shot t47
+1157 poke 3b237 ff 1
+1157 poke 1a0b0 817 2
+1157 poke 12e08 2 2
+1177 shot t48
+1181 poke 3b237 ff 1
+1181 poke 1a0b0 1f1e 2
+1181 poke 12e08 2 2
+1201 shot t49
+1205 poke 3b237 ff 1
+1205 poke 1a0b0 719 2
+1205 poke 12e08 2 2
+1225 shot t50
+1229 poke 3b237 ff 1
+1229 poke 1a0b0 b22 2
+1229 poke 12e08 0 2
+1249 shot t51
+1253 poke 3b237 ff 1
+1253 poke 1a0b0 1b15 2
+1253 poke 12e08 1 2
+1273 shot t52
+1277 poke 3b237 ff 1
+1277 poke 1a0b0 1a1b 2
+1277 poke 12e08 1 2
+1297 shot t53
+1301 poke 3b237 ff 1
+1301 poke 1a0b0 1617 2
+1301 poke 12e08 0 2
+1321 shot t54
+1325 poke 3b237 ff 1
+1325 poke 1a0b0 1b1a 2
+1325 poke 12e08 2 2
+1345 shot t55
+1349 poke 3b237 ff 1
+1349 poke 1a0b0 b1e 2
+1349 poke 12e08 1 2
+1369 shot t56
+1373 poke 3b237 ff 1
+1373 poke 1a0b0 101b 2
+1373 poke 12e08 3 2
+1393 shot t57
+1397 poke 3b237 ff 1
+1397 poke 1a0b0 31b 2
+1397 poke 12e08 2 2
+1417 shot t58
+1421 poke 3b237 ff 1
+1421 poke 1a0b0 1017 2
+1421 poke 12e08 2 2
+1441 shot t59
+1445 poke 3b237 ff 1
+1445 poke 1a0b0 303 2
+1445 poke 12e08 2 2
+1465 shot t60
+1469 poke 3b237 ff 1
+1469 poke 1a0b0 319 2
+1469 poke 12e08 0 2
+1489 shot t61
+1493 poke 3b237 ff 1
+1493 poke 1a0b0 1c27 2
+1493 poke 12e08 1 2
+1513 shot t62
+1517 poke 3b237 ff 1
+1517 poke 1a0b0 2320 2
+1517 poke 12e08 1 2
+1537 shot t63
+1541 poke 3b237 ff 1
+1541 poke 1a0b0 31d 2
+1541 poke 12e08 1 2
+1561 shot t64
+1565 poke 3b237 ff 1
+1565 poke 1a0b0 a07 2
+1565 poke 12e08 2 2
+1585 shot t65
+1589 poke 3b237 ff 1
+1589 poke 1a0b0 1603 2
+1589 poke 12e08 0 2
+1609 shot t66
+1613 poke 3b237 ff 1
+1613 poke 1a0b0 607 2
+1613 poke 12e08 0 2
+1633 shot t67
+1637 poke 3b237 ff 1
+1637 poke 1a0b0 1718 2
+1637 poke 12e08 0 2
+1657 shot t68
+1661 poke 3b237 ff 1
+1661 poke 1a0b0 726 2
+1661 poke 12e08 2 2
+1681 shot t69
+1685 poke 3b237 ff 1
+1685 poke 1a0b0 e0f 2
+1685 poke 12e08 2 2
+1705 shot t70
+1709 poke 3b237 ff 1
+1709 poke 1a0b0 2307 2
+1709 poke 12e08 1 2
+1729 shot t71
+1733 poke 3b237 ff 1
+1733 poke 1a0b0 1d13 2
+1733 poke 12e08 2 2
+1753 shot t72
+1757 poke 3b237 ff 1
+1757 poke 1a0b0 f05 2
+1757 poke 12e08 1 2
+1777 shot t73
+1781 poke 3b237 ff 1
+1781 poke 1a0b0 d0b 2
+1781 poke 12e08 2 2
+1801 shot t74
+1805 poke 3b237 ff 1
+1805 poke 1a0b0 251b 2
+1805 poke 12e08 1 2
+1825 shot t75
+1829 poke 3b237 ff 1
+1829 poke 1a0b0 722 2
+1829 poke 12e08 2 2
+1849 shot t76
+1853 poke 3b237 ff 1
+1853 poke 1a0b0 1b21 2
+1853 poke 12e08 2 2
+1873 shot t77
+1877 poke 3b237 ff 1
+1877 poke 1a0b0 1b18 2
+1877 poke 12e08 2 2
+1897 shot t78
+1901 poke 3b237 ff 1
+1901 poke 1a0b0 c1b 2
+1901 poke 12e08 3 2
+1921 shot t79

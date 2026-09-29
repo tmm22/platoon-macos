@@ -1,0 +1,70 @@
+[f1593 v010] AUD0 start ptr=008c00 len=64 per=2112 vol=4
+[f1595 v313] shot fl/s2.png
+[f1595 v313] shot fl/s6.png
+[f1595 v313] shot fl/s10.png
+[f1595 v313] shot fl/s14.png
+[f1599 v313] shot fl/s18.png
+[f1601 v006] AUD1 start ptr=008834 len=32 per=374 vol=48
+[f1603 v313] shot fl/s22.png
+[f1607 v313] shot fl/s26.png
+[f1611 v313] shot fl/s30.png
+[f1615 v313] shot fl/s34.png
+[f1619 v313] shot fl/s38.png
+[f1623 v313] shot fl/s42.png
+[f1625 v004] AUD0 start ptr=0088ba len=64 per=374 vol=24
+[f1625 v008] AUD1 start ptr=008834 len=32 per=374 vol=48
+[f1625 v013] AUD2 start ptr=008834 len=32 per=749 vol=64
+[f1627 v313] shot fl/s46.png
+[f1631 v313] shot fl/s50.png
+[f1635 v313] shot fl/s54.png
+[f1639 v313] shot fl/s58.png
+[f1643 v313] shot fl/s62.png
+[f1647 v313] shot fl/s66.png
+[f1651 v313] shot fl/s70.png
+[f1655 v313] shot fl/s74.png
+[f1659 v313] shot fl/s78.png
+[f1661 v006] AUD1 start ptr=008834 len=32 per=374 vol=48
+[f1663 v313] shot fl/s82.png
+[f1667 v313] shot fl/s86.png
+[f1671 v313] shot fl/s90.png
+[f1675 v313] shot fl/s94.png
+[f1679 v313] shot fl/s98.png
+[f1683 v313] shot fl/s102.png
+[f1687 v313] shot fl/s106.png
+[f1691 v313] shot fl/s110.png
+[f1695 v313] shot fl/s114.png
+[f1697 v006] AUD1 start ptr=008834 len=32 per=374 vol=48
+[f1699 v313] shot fl/s118.png
+[f1703 v313] shot fl/s122.png
+[f1707 v313] shot fl/s126.png
+[f1711 v313] shot fl/s130.png
+[f1712 v248] AUD0 start ptr=00ee94 len=1145 per=357 vol=64
+[f1712 v274] AUD2 start ptr=00ee94 len=1145 per=357 vol=64
+[f1715 v313] shot fl/s134.png
+[f1719 v313] shot fl/s138.png
+[f1721 v008] AUD1 start ptr=008834 len=32 per=374 vol=48
+[f1723 v313] shot fl/s142.png
+[f1727 v313] shot fl/s146.png
+[f1728 v248] AUD0 start ptr=00d3f4 len=3405 per=357 vol=64
+[f1728 v273] AUD2 start ptr=00d3f4 len=3405 per=357 vol=64
+[f1731 v313] shot fl/s150.png
+[f1735 v313] shot fl/s154.png
+[f1739 v313] shot fl/s158.png
+[f1743 v313] shot fl/s162.png
+[f1744 v248] AUD0 start ptr=00d3f4 len=3405 per=357 vol=64
+[f1744 v274] AUD2 start ptr=00d3f4 len=3405 per=357 vol=64
+[f1747 v313] shot fl/s166.png
+[f1751 v313] shot fl/s170.png
+[f1755 v313] shot fl/s174.png
+[f1757 v006] AUD1 start ptr=008834 len=32 per=374 vol=48
+[f1759 v313] shot fl/s178.png
+[f1760 v248] AUD0 start ptr=00d3f4 len=3405 per=357 vol=64
+[f1760 v274] AUD2 start ptr=00d3f4 len=3405 per=357 vol=64
+[f1763 v313] shot fl/s182.png
+[f1767 v313] shot fl/s186.png
+[f1771 v313] shot fl/s190.png
+[f1775 v313] shot fl/s194.png
+[f1776 v248] AUD0 start ptr=00d3f4 len=3405 per=357 vol=64
+[f1776 v274] AUD2 start ptr=00d3f4 len=3405 per=357 vol=64
+[f1779 v313] shot fl/s198.png
+[f1781 v313] done: 1781 frames, 1999 blits, pc=010b1a

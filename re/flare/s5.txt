@@ -1,3 +1,3 @@
-420 save /Users/deborahmangan/Projects/Platoon/re/states/flare_play.state
-420 dump ram_flare_play.bin
-420 shot play420
+560 save /Users/deborahmangan/Projects/Platoon/re/states/flare_play.state
+560 dump ram_flare_play.bin
+560 shot play560

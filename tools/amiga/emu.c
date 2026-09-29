@@ -75,6 +75,7 @@ static int keyq[256], keyq_n = 0;
 static FILE *reglog; /* optional custom register write log */
 static uint32_t watch_lo = 0, watch_hi = 0; /* memory write watch range */
 static FILE *eventlog;
+static uint32_t hash_lo, hash_len;
 
 static void elog(const char *fmt, ...) {
     va_list ap; va_start(ap, fmt);
@@ -916,6 +917,7 @@ static void usage(void) {
         "  --watch LO HI         log CPU writes in [LO,HI)\n"
         "  --pchist LO HI FILE   pc histogram over range\n"
         "  --slowram             enable 512K slow RAM at $C00000\n"
+        "  --hash HEXLO HEXLEN   print FNV-1a hash of RAM region after every frame (lockstep vs platoon-headless)\n"
         "script cmds: up/down/left/right/fire/fire0 0|1, key CODE 0|1, shot NAME, save PATH, dump FILE,\n"
         "  chipdump FILE (chip RAM + custom regs for platoon-headless --chipdump),\n  dumpr HEXADDR HEXLEN FILE, poke HEXADDR HEXVAL SIZE, trace N, tracer N (with regs), regs,\n"
         "  breaksave HEXPC PATH (save state+stop when pc hit; note: saved mid-line), quit\n");
@@ -938,6 +940,7 @@ int main(int argc, char **argv) {
         else if (!strcmp(argv[i], "--watch")) { watch_lo = strtoul(argv[++i], NULL, 16); watch_hi = strtoul(argv[++i], NULL, 16); }
         else if (!strcmp(argv[i], "--pchist")) { pc_hist_lo = strtoul(argv[++i], NULL, 16); pc_hist_hi = strtoul(argv[++i], NULL, 16); histfile = argv[++i]; pc_hist = calloc((pc_hist_hi - pc_hist_lo) / 2 + 1, 4); }
         else if (!strcmp(argv[i], "--slowram")) slowram = 1;
+        else if (!strcmp(argv[i], "--hash")) { hash_lo = strtoul(argv[++i], NULL, 16); hash_len = strtoul(argv[++i], NULL, 16); }
         else { usage(); return 1; }
     }
     if (!adfpath) { usage(); return 1; }
@@ -975,6 +978,7 @@ int main(int argc, char **argv) {
         while (ev_i < n_evs && evs[ev_i].frame <= S.frame - start) do_event(&evs[ev_i++]);
         if (stop_emulation) break;
         run_frame();
+        if (hash_len) { uint64_t h = 0xcbf29ce484222325ULL; for (uint32_t k = 0; k < hash_len; k++) { h ^= S.chip[(hash_lo + k) & (CHIP_SIZE - 1)]; h *= 0x100000001b3ULL; } printf("frame %llu hash %016llx\n", (unsigned long long)(S.frame - start), (unsigned long long)h); }
         if (shot_every && (S.frame - start) % shot_every == 0) {
             char path[1024]; snprintf(path, sizeof path, "%s/f%06llu.png", outdir, (unsigned long long)(S.frame - start));
             write_png(path, canvas, CANVAS_W, CANVAS_H, 2);

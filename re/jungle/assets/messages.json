@@ -1,0 +1,177 @@
+[
+ {
+  "id": 0,
+  "addr": "1a742",
+  "x": 13,
+  "y": 18,
+  "text": "A FOOD PACKAGE"
+ },
+ {
+  "id": 1,
+  "addr": "1a753",
+  "x": 12,
+  "y": 18,
+  "text": "A SACK OF FLOUR."
+ },
+ {
+  "id": 2,
+  "addr": "1a766",
+  "x": 9,
+  "y": 18,
+  "text": "YOU HAVE FOUND A TORCH"
+ },
+ {
+  "id": 3,
+  "addr": "1a77f",
+  "x": 13,
+  "y": 18,
+  "text": "A POT OF RICE."
+ },
+ {
+  "id": 4,
+  "addr": "1a790",
+  "x": 16,
+  "y": 18,
+  "text": "RUBBISH."
+ },
+ {
+  "id": 5,
+  "addr": "1a79b",
+  "x": 16,
+  "y": 18,
+  "text": "A STOOL."
+ },
+ {
+  "id": 6,
+  "addr": "1a7a6",
+  "x": 17,
+  "y": 18,
+  "text": "EMPTY."
+ },
+ {
+  "id": 7,
+  "addr": "1a7af",
+  "x": 16,
+  "y": 18,
+  "text": "A TABLE."
+ },
+ {
+  "id": 8,
+  "addr": "1a7ba",
+  "x": 10,
+  "y": 18,
+  "text": "YOU HAVE FOUND A MAP"
+ },
+ {
+  "id": 9,
+  "addr": "1a7d1",
+  "x": 15,
+  "y": 18,
+  "text": "PROVISIONS"
+ },
+ {
+  "id": 10,
+  "addr": "1a7de",
+  "x": 13,
+  "y": 18,
+  "text": "A POT OF WATER"
+ },
+ {
+  "id": 11,
+  "addr": "1a7ef",
+  "x": 1,
+  "y": 18,
+  "text": "HERE IS A TRAP DOOR.... GO DOWN (Y/N)?"
+ },
+ {
+  "id": 12,
+  "addr": "1a818",
+  "x": 12,
+  "y": 18,
+  "text": "MEDICAL SUPPLIES"
+ },
+ {
+  "id": 13,
+  "addr": "1a82b",
+  "x": 8,
+  "y": 18,
+  "text": "YOU NEED TO FIND A TORCH"
+ },
+ {
+  "id": 14,
+  "addr": "1a846",
+  "x": 15,
+  "y": 18,
+  "text": "YOU'RE HIT"
+ },
+ {
+  "id": 15,
+  "addr": "1a853",
+  "x": 8,
+  "y": 18,
+  "text": "A VIET CONG BOOBY TRAP!!"
+ },
+ {
+  "id": 16,
+  "addr": "1a86e",
+  "x": 5,
+  "y": 18,
+  "text": "YOU HAVE FOUND SOME EXPLOSIVES"
+ },
+ {
+  "id": 17,
+  "addr": "1a88f",
+  "x": 4,
+  "y": 18,
+  "text": "SET THE EXPLOSIVES ON THE BRIDGE"
+ },
+ {
+  "id": 18,
+  "addr": "1a8b2",
+  "x": 12,
+  "y": 18,
+  "text": "KILLED IN ACTION"
+ },
+ {
+  "id": 19,
+  "addr": "1a8c5",
+  "x": 5,
+  "y": 18,
+  "text": "A BOX OF VIET CONG AMMUNITION."
+ },
+ {
+  "id": 20,
+  "addr": "1a8e6",
+  "x": 14,
+  "y": 18,
+  "text": "AN EMPTY BOX"
+ },
+ {
+  "id": 21,
+  "addr": "1a8f5",
+  "x": 6,
+  "y": 18,
+  "text": "TAKE CONTROL OF YOUR MAN...."
+ },
+ {
+  "id": 22,
+  "addr": "1a914",
+  "x": 17,
+  "y": 18,
+  "text": "CHEAT!"
+ },
+ {
+  "id": 23,
+  "addr": "1a91d",
+  "x": 1,
+  "y": 18,
+  "text": "YOU SHOULDN'T SHOOT INNOCENT VILLAGERS"
+ },
+ {
+  "id": 24,
+  "addr": "1a946",
+  "x": 5,
+  "y": 18,
+  "text": "PLEASE DON'T ATTEMPT SUICIDE!!"
+ }
+]

@@ -1,0 +1,6 @@
+5 poke 3b237 ff 1
+5 poke 12e02 1 2
+5 poke 3b3f8 0 4
+5 poke 3b3fe a 4
+30 shot m1
+30 dump map1.bin

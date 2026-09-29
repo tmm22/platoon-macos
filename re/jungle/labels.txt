@@ -1,31 +1,189 @@
-17000 start section 0 entry
-177ca pl_st0_walk player state 0
-17918 pl_st1 player state 1
-17986 pl_st2 player state 2
-179e6 pl_st3 player state 3
-17abc pl_st4 player state 4
-17bc4 pl_st5 player state 5
-17e72 pl_st6 player state 6
-17ee8 pl_st7 player state 7
-17f56 pl_st8 player state 8
-18050 pl_st9 player state 9
-18076 pl_st10 player state 10
-180da en_st0 enemy state 0
-182c0 en_st1 enemy state 1
-182f2 en_st2 enemy state 2
-1856e en_st3 enemy state 3
-1864c en_st4 enemy state 4
-18696 en_st5 enemy state 5
-18706 en_st6 enemy state 6
-18722 en_st7 enemy state 7
-187c6 en_st8 enemy state 8
-1768e hit_a2_1768e
-1770e hit_a2_1770e
-1772a hit_a2_1772a
-19f88 misc_19f88
-19002 dead_19002 unreachable code after bra
+# re/jungle labels for rdis (section 0 code $17000-$19fd8)
+17000 sec0_start section 0 entry: stack, DIWSTRT patch, clear vars, man table, tables, first screen
+17026 sec0_clrvars
+17070 sec0_restart (re)start at position long $1a6da (x tile, level); also used by F1-F4 cheat warps
+170ae sec0_init_men 5 men x 6 bytes at a6+0: grenades=9, ammo=$90, hits=0
+17186 main_loop one iteration per displayed frame pair (25 Hz)
+171a4 ml_after_music
+171c6 ml_cheat_keys F1-F6 only when $70(a6)!=0 (MEGA CHEAT)
+17266 ml_frame logic+render part of the main loop
+172f2 ml_set_priority_line
+17350 sec0_exit clear invincibility, jmp kernel $f864 (game over / next section)
+1735c morale_sub subtract d0 from morale $2e(a6), clamp at 0
+1736a player_fire_input fire button (bullet) / space (grenade)
+1739c pf_fire
+173d6 pf_spawn_bullet
+1744e noise_add add d0 to enemy-spawn chance $60cae (clamp $ff)
+1746a pf_grenade
+174c8 align_clear_c32
+174d2 bullets_update move+draw player bullets, grenade, enemy bullet
+17524 bu_normal
+175b6 bullet_move_one a0=bullet(x,y,dx) a2=hit handler d1=bob
+17610 bullet_draw
+17644 bullet_kill a0=bullet; grenade: start explosion
+17680 bullet_zero
+1768e hit_pbullet player bullet touched enemy x-range
+176bc enemy_shot
+176c4 enemy_killed_common
+176f2 hit_pb_state5
+1770e hit_grenade grenade touched enemy x-range
+1772a hit_ebullet enemy bullet touched player x-range
+17750 player_hit player hit: state 8 (skip if invincible $60ca0)
+17788 bullet_xrange_test d7=$ff if segment [$60c8c,$60c90] overlaps [$60c88,$60c88+$18)
+177ca pl_st0_walk player state 0: stand/walk, path change, jump
+17824 pl_start_down
+17846 pl_crouch
+17850 pl_up_path
+17878 pl_start_up
+17896 pl_start_jump
+178ae pl_horizontal
+178b4 pl_horiz_dir
+178ce pl_keep_walking finish walk to 8px alignment in last direction
+178d8 pl_stand_frame
+178e2 pl_up_pressed
+17918 pl_st1_jump player state 1: jump (16 steps of arc $1a194)
+17942 pj_arc
+17986 pl_st2_down player state 2: walk down a side path into next level (+1)
+179e6 pl_st3_up player state 3: walk up a side path into previous level (-1)
+17a3c pl_level_changed
+17a48 level_enter set colour 6, reload palette, compute pos, build attr map
+17a62 le_setcol
+17a88 kill_player_bullets
+17aa4 pl_path_done
+17abc pl_st4_enter_hut player state 4 (village): walk up into hut
+17b2c hut_setup_enemy villager/enemy inside hut depending on door
+17b96 hut_setup_door2
+17bc4 pl_st5_in_hut player state 5 (village): inside hut (level 5)
+17c20 ih_input
+17c4c ih_search_held
+17c5c ih_no_vert
+17c66 ih_down_leave
+17c80 ih_start_leave
+17c9c hut_search search item table $1aafa at player column
+17d0c item_booby_trap
+17d46 item_food
+17d74 item_map
+17dae trapdoor_prompt Y/N loop for message $b
+17e12 trapdoor_yes end of section (kernel $f874)
+17e52 wait_messages
+17e72 pl_st6_leave_hut player state 6 (village): walk down out of hut back to level 0
+17ee8 pl_st7_throw player state 7: grenade throw animation
+17f28 grenade_launch
+17f56 pl_st8_hit player state 8: hit / dying animation
+17f86 ph_arc
+17fc2 ph_done
+17fda ph_lose_man
+18008 ph_morale
+18050 pl_st9_blocked player state 9: stopped at the bridge (not blown)
+18064 p9_land
+18076 pl_st10_plant player state 10: planting explosives
+180a0 p10_wait
+180c0 p10_done
+180da en_st0_spawn enemy state 0: no enemy; maybe spawn one
+18126 es_spawn_try
+18162 es_roll
+181bc es_try_trap
+18220 es_soldier
+18270 es_soldier2
+182c0 en_st1_drop enemy state 1: dropping from a tree
+182f2 en_st2_walk enemy state 2: walking soldier
+18300 ew_step
+18352 ew_probe_r
+1835e ew_probe_l
+1837a ew_probe
+18388 ew_move
+183ee ew_face
+18428 ew_offscreen
+18440 en_maybe_turn random 1/16 turn
+1844e en_turn
+18458 en_try_shoot
+18494 ets_not5
+184ca en_fire enemy bullet $60c60
+1850e en_drop_grenade enemy grenade burst (village tunnel VC)
+1856e en_st3_jumpdown enemy state 3
+185e2 e3_land
+18632 e3_hut
+1864c en_st4_in_hut enemy state 4 (village, inside hut)
+1866e enemy_score score for killing enemy
+18696 en_st5_trap enemy state 5: booby trap / tripwire anim
+186e0 enemy_clear
+18706 en_st6_crouchfire enemy state 6: kneel & fire pause
+18722 en_st7_blown enemy state 7: blown back by grenade
+187c6 en_st8_runner enemy state 8: running VC (village)
+1880e hut_door_check d7=0 if player at a hut door column
+1884a abs_d0
+18854 enemy_reset clear enemy + enemy bullet
+18870 explosion_update grenade explosion animation
+188aa explosion_draw
+188d6 save_backbuf_to_68000
+1896c rts_common shared rts
+1896e pl_move d0=joy dir bits; d6=4 px
+18980 calc_player_pos derive $60c28/$60c2a/$60c2c/$60c30/$60cb2/$60c32
+189fe scroll_step
+18a3e scroll_right
+18a80 sr_move
+18aa4 sr_scroll
+18b46 scroll_left_chk
+18b7e scroll_left
+18bc0 sl_move
+18be4 sl_scroll
+18c7c toggle_facing
+18c86 build_attr_map build $600b4 7x3 tiles
+18caa attr_copy_cols a0=dest, a1=map, d0=(cols<<16|rows)
+18cf4 draw_tiles clear back buffer and blit 3 rows of tiles
+18f82 trap_update object $60c76 (booby trap / tripwire)
+19028 trap_draw
+1903c trap_exploding
+19066 trap_clear
+19074 trap_expl_draw
+19094 bomb_update planted explosives $60c7c
+190ca crate_update object $60c84 (supply box)
+190fa crate_clear
+19102 draw_enemy
+19146 de_normal
+191ae de_draw
+191be draw_player
+191d4 draw_frame d0=(x<<16|y) d1=frame; flip if $60c36
+191ee df_loop
+1920a draw_bob d0=(x<<16|y) d1=bob index
+19432 db_lower
+19462 db_cookie
+194fa clear_buf_78000
+19518 man_select after death: choose-your-man screen
+1959c ms_draw
+19626 ms_text
+19710 ms_loop
+19758 ms_wait_release
+19772 ms_wait_input
+1982e man_alive d7=$ff if man d0 is dead (hits==4)
+19850 wait_fire_press
+1988a copy_backbuf_to_68000
+19926 dissolve_in
+19936 dissolve_out
+19946 dissolve
 19b1a unused_19b1a unreferenced routine
+19b72 trap_spawn possibly spawn booby trap $60c76
+19c18 explosives_pickup
+19c9e ep_start_anim
+19caa bomb_clear
+19cb2 bridge_logic
+19d52 bridge_end
+19d8c all_dead platoon wiped out
+19dd0 bridge_blow
+19e0a crate_open
+19e72 crate_done
+19e8c crate_empty
+19e98 crate_ammo
+19ec0 crate_other
+19ed2 solid_at d7=$ff if attr cell at ($60c94,$60c96) is solid
+19f34 read_input $60cc1 = joy&$8f | space<<4; CHEAT message
+19f82 sfx jmp kernel sound effect
+19f88 unused_kernel_stubs
+19002 dead_19002 unreachable code after bra
 19f92 misc_19f92
 19f9c misc_19f9c
 19fa6 misc_19fa6
 19fba misc_19fba
+1aaa4 d_player_state_table 11 longs
+1aad0 d_enemy_state_table 9 longs
+1768e hit_pbullet

@@ -1,0 +1,8 @@
+500 key 0x46 1
+505 key 0x46 0
+1000 fire 1
+1005 fire 0
+1900 key 0x46 1
+1905 key 0x46 0
+2400 fire 1
+2405 fire 0

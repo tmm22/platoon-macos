@@ -44,5 +44,17 @@ final class AudioOutput {
         os_unfair_lock_unlock(&lock)
     }
 
+    /// As `push`, scaled by `gain` (fast-forward ducking).
+    func push(_ s: UnsafeBufferPointer<Float>, gain: Float) {
+        guard gain > 0 else { return }
+        os_unfair_lock_lock(&lock)
+        if fill > targetFill * 3 { os_unfair_lock_unlock(&lock); return }
+        for v in s {
+            ring[writePos] = v * gain; writePos = (writePos + 1) % ring.count
+            if fill < ring.count { fill += 1 } else { readPos = (readPos + 1) % ring.count }
+        }
+        os_unfair_lock_unlock(&lock)
+    }
+
     func flush() { os_unfair_lock_lock(&lock); fill = 0; readPos = writePos; os_unfair_lock_unlock(&lock) }
 }

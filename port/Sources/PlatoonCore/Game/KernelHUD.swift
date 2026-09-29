@@ -82,6 +82,7 @@ extension Platoon {
             mem.w8(a1, r); x = c
         }
         cpu(150)
+        if config.probe != nil { probeScore(after: a0in) }             // F2 observer (read-only)
     }
 
     /// $106a0 k_print_hiscore1 (jt04): header $11220 (col 16 row 22) + best score $11808.

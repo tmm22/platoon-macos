@@ -213,6 +213,7 @@ extension Platoon {
     /// $17186-$1734e main_loop: one tick per 2 frames. Returns only for a cheat warp (F1-F4).
     func s0MainLoop() {
         while true {
+            snapshotPoint(0x17186)                    // savestate point (Game/Snapshot; no-op unless a host asked)
             tickPoint(0x17186)
             s0Dbg("017186")
             v0.tick = v0.tick &+ 1

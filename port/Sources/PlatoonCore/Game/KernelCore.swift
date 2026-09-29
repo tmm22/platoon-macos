@@ -45,6 +45,8 @@ extension Platoon {
         }
         if mem.r16(a6 + KV.timerOn) == 0 { return }
         mem.w16(a6 + KV.timerVbl, 0x31)
+        // ENHANCEMENT S9h (kernel.timerStopsAtZero, default off): no wrap from 00:00 to 59:59
+        if enhancements.kernel.timerStopsAtZero && mem.r16(a6 + KV.timerMin) == 0 { return }
         let (s, c) = Platoon.sbcd(mem.r8(a6 + KV.timerSec), mem.r8(KA.bcdZero + 3), x: x)
         mem.w8(a6 + KV.timerSec, s)
         if !c { return }
@@ -64,8 +66,11 @@ extension Platoon {
             if mem.r16(KA.f10Debounce) == 0 {
                 mem.w8(KA.f10Debounce, 0xff)
                 mem.w8(a6 + KV.soundFlags, (mem.r8(a6 + KV.soundFlags) &+ 1) & 3)
+                inF10 = true                                        // (host flag: F2 does not report this fx)
                 k_music_impl(mem.r16(KA.curTune))
                 k_fx_impl(0)
+                inF10 = false
+                if config.probe != nil { probeSoundFlags() }
             }
         } else {
             mem.w16(KA.f10Debounce, 0)
@@ -100,7 +105,7 @@ extension Platoon {
             chip.writeL(0x080, mem.r32(KA.nextCop))
             mem.w8(KA.swapPending, 0)
         }
-        if mem.r16(KA.pause) != 0 {
+        if mem.r16(KA.pause) != 0 && !enhancements.kernel.steadyPauseColour {   // ENHANCEMENT S17 (default: strobe)
             chip.write(0x180, mem.r16(KA.pauseColour))
             mem.w16(KA.pauseColour, mem.r16(KA.pauseColour) &+ 1)
         }
@@ -125,6 +130,7 @@ extension Platoon {
         mem.w8(a6 + KV.frameFlag, 0)
         while mem.r8(a6 + KV.frameFlag) == 0 { m.waitVBlank() }
         irqCatchUp()
+        if textScreenPending { probeVbl() }                              // F2 (host state only)
     }
 
     /// $10acc k_wait_frames (jt17): d0+1 vblanks (dbra).
@@ -356,6 +362,7 @@ extension Platoon {
     /// $80/$81 on channels 1+3, >= $82 on channels 0+2 (bits 8-9 of the driver's d0 = channel).
     func k_fx_impl(_ d0in: UInt16) {
         tickPoint(0x10c50)
+        if config.probe != nil { probeFx(d0in) }                         // F2 observer (read-only)
         cpu(40)                                                          // btst/beq (+ andi/btst/tst below)
         if mem.r8(a6 + KV.soundFlags) & 2 == 0 { return }
         var d0 = d0in & 0xff

@@ -105,3 +105,42 @@ From an interrupt handler running on the host thread use `m.requestJump { ... }`
   file you don't own, wait and retry; do not fix it.
 - Do not run git commands that modify the repo (no commit/add/stash/checkout); the coordinator commits.
 - Progress/handoff notes: append to `port/STATUS.md` ("[module] ..."), e.g. when a milestone works.
+
+## Regression gate (tools/regress_all.sh)
+One command checks the "all options at defaults = byte-identical game" rule:
+```sh
+tools/regress_all.sh --bin /tmp/pbuild-<agent>/release/platoon-headless > /tmp/enh-<agent>/regress.log 2>&1   # run in the background
+tools/regress_all.sh --only 's0_|k_hs' ...     # regex subset;  --skip REGEX;  --list;  --jobs N;  --no-emu
+```
+- 62 scenarios: kernel/boot/title/hiscores/DEL/continue (`k_*`, scripts in `tools/regress/kernel/`), section 0
+  (`s0_*`, `port/verify/section0/harness/sc`, port started with `--start-section 0` and the harness's 114-frame
+  offset / tick-aligned `.port.txt` inputs), section 1 (`s1_*`, `port/verify/section1/scripts`), section 2
+  (`s2_*`, `port/verify/section2/*.txt`) - the harness scripts with the harnesses' tick-dump PCs and RAM regions.
+- Each scenario runs in three tools with `--deterministic` and `PLATOON_ENH=originalCredits=0` (three `k_*` scenarios
+  use true defaults / PLATOON_HISCORES / PLATOON_CARRY): `tools/amiga/emu`, the **baseline** port built from the
+  pinned pre-enhancement commit `4fe3ae2` (`git archive`, built once into `/tmp/regress-cache/baseline-4fe3ae2`), and the
+  binary under test. Emulator and baseline outputs are cached in `/tmp/regress-cache` (keyed by script/args/binary).
+- **PASS** = the binary under test is byte-identical to the baseline: all tick dumps (RAM + frame numbers), the FNV
+  hash of all 512 KB of RAM after every frame, every screenshot and every dumped file. **FAIL** prints the first
+  difference (tick/frame/address) plus the lockstep numbers against the emulator for diagnosis.
+- The emulator line after each verdict (`emu lockstep: RAM n/n ticks identical; shots ...`) is information: the
+  translation's known residuals (frame pacing, dissolves) are listed in port/verify/*.md.
+- Timing: ~10 min cold (baseline build + emulator), ~3-5 min warm with 6 jobs. Without `--bin` the current tree is
+  built into /tmp/pbuild-regress. Outputs: `--out DIR` (default /tmp/regress/run-*), `summary.txt` there. Exit 0/1.
+- A deliberate change of default behaviour (a bug fix in translated code) would fail the gate by design: it needs the
+  coordinator's decision and a new BASE commit in tools/regress_all.sh.
+
+## Enhancement foundations (core, Game/Enhance/)
+- **Registry** (`Registry.swift`): `Enhancements` = root options + typed groups `kernel`, `game`, `section0..2`, `audio`,
+  `assist` (one file per owner: `Enhance/<Group>Options.swift`). String access `set(key, value)`, `apply("k=v,...")`,
+  `catalog`, `changed`, `assistReasons`; used by PLATOON_ENH, `platoon-headless --enh k=v` (`--enh list`) and the app.
+  Hooks in translated code read `enhancements.<group>.<field>` at `// ENHANCEMENT <ID>` sites.
+- **Difficulty (M10)** (`Difficulty.swift`): `difficulty=original|recruit|veteran|custom`; knobs are Optionals in each
+  group's `<Group>Difficulty` (nil = original literal), resolved at game start.
+- **F1 context / F2 events / F4 taint** (`GameContext.swift`, `GameProbe.swift`, `ProbeHooks.swift`): put a
+  `GameProbe` in `GameConfig.probe`; its `context` (screen, area, section, men, items, section RAM views) is refreshed and
+  its observers (`onMessage`, `onFx`, `onScore`, `onDeath`, `onManSelect`, `onSectionStart/End`, `onGameOver`,
+  `onHiscore`, `addObserver`) are called in Machine.frameHook (host thread, game parked). Debug: `PLATOON_EVENTS=file`.
+  `probe.markAssisted(reason)` / `PlatoonGame.markAssisted(machine, reason)` taint the current run.
+- **Hiscore integrity (S5)** (`Hiscores.swift`): assisted runs rank in `hiscores-<mode>.bin` (recruit / veteran /
+  custom / assisted) next to `GameConfig.hiscoreURL`; the original table is never written by them.

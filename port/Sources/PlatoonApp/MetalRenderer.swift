@@ -19,6 +19,10 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
     var curvature = true
     /// Debug: save the next presented frame to this PNG path.
     var capturePath: String?
+    /// Debug: called (on a Metal completion thread) with the next presented frame's pixels (0xAARRGGBB, w x h).
+    var captureHandler: ((_ pixels: [UInt32], _ width: Int, _ height: Int) -> Void)?
+    /// Where the game image was drawn in the last frame, in drawable pixels (origin top-left). Overlays use it.
+    private(set) var lastContentRect = CGRect.zero
 
     /// Source crop in canvas coordinates (hires x, lines).
     var crop: (x: Int, y: Int, w: Int, h: Int) {
@@ -64,10 +68,8 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
         var mode: Int32; var scanline: Float; var curvature: Float; var pad: Float = 0
     }
 
-    func draw(in view: MTKView) {
-        guard let rpd = view.currentRenderPassDescriptor, let drawable = view.currentDrawable,
-              let cb = queue.makeCommandBuffer(), let enc = cb.makeRenderCommandEncoder(descriptor: rpd) else { return }
-        let vs = view.drawableSize
+    /// The rect (drawable pixels, origin top-left) the game image occupies for a drawable of size `vs`.
+    func contentRect(drawableSize vs: CGSize) -> CGRect {
         let c = crop
         // logical size in lowres pixels: w/2 x h ; PAL pixel aspect ~ 1.0 when shown 320x256 at 4:3 => width scale 1.0667
         let lw = Double(c.w) / 2, lh = Double(c.h)
@@ -77,6 +79,17 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
         if integerScale && scale >= 1 { scale = floor(scale) }
         let dw = contentW * scale, dh = contentH * scale
         let dx = (Double(vs.width) - dw) / 2, dy = (Double(vs.height) - dh) / 2
+        return CGRect(x: dx, y: dy, width: dw, height: dh)
+    }
+
+    func draw(in view: MTKView) {
+        guard let rpd = view.currentRenderPassDescriptor, let drawable = view.currentDrawable,
+              let cb = queue.makeCommandBuffer(), let enc = cb.makeRenderCommandEncoder(descriptor: rpd) else { return }
+        let vs = view.drawableSize
+        let c = crop
+        let r = contentRect(drawableSize: vs)
+        lastContentRect = r
+        let dw = Double(r.width), dh = Double(r.height), dx = Double(r.minX), dy = Double(r.minY)
         var u = Uniforms(srcOrigin: SIMD2(Float(c.x), Float(c.y)), srcSize: SIMD2(Float(c.w), Float(c.h)),
                          texSize: SIMD2(Float(Chipset.canvasWidth), Float(Chipset.canvasHeight)),
                          dstOrigin: SIMD2(Float(dx), Float(dy)), dstSize: SIMD2(Float(dw), Float(dh)),
@@ -90,15 +103,19 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
         enc.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
         enc.endEncoding()
         cb.present(drawable)
-        if let path = capturePath {
-            capturePath = nil
+        if capturePath != nil || captureHandler != nil {
+            let path = capturePath, handler = captureHandler
+            capturePath = nil; captureHandler = nil
             let tex = drawable.texture
             cb.addCompletedHandler { _ in
                 let w = tex.width, h = tex.height
                 var buf = [UInt32](repeating: 0, count: w * h)
                 tex.getBytes(&buf, bytesPerRow: w * 4, from: MTLRegionMake2D(0, 0, w, h), mipmapLevel: 0)
-                let png = ImageIO.png(width: w, height: h) { x, y in let p = buf[y * w + x]; return p } // BGRA little-endian -> 0xAARRGGBB
-                try? png.write(to: URL(fileURLWithPath: path))
+                if let path {
+                    let png = ImageIO.png(width: w, height: h) { x, y in let p = buf[y * w + x]; return p } // BGRA little-endian -> 0xAARRGGBB
+                    try? png.write(to: URL(fileURLWithPath: path))
+                }
+                handler?(buf, w, h)
             }
         }
         cb.commit()

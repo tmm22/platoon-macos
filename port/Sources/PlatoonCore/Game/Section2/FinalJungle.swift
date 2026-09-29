@@ -88,6 +88,7 @@ extension Platoon {
     /// $17118 main_loop: one iteration per buffer swap (normally 50 Hz; paced by k_wait_swap).
     func s2_main_loop() -> Never {
         while true {
+            snapshotPoint(0x17118)                   // savestate point (Game/Snapshot; no-op unless a host asked)
             tickPoint(0x17118)
             s2PaceIndex += 1                         // verification aid only (see s2_paceToReference)
             s2_dbg("head")

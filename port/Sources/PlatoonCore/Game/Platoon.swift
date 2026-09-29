@@ -40,6 +40,27 @@ public final class Platoon {
     var irqPreempted = 0
     var irqBusyUntil = 0
 
+    // MARK: host-side enhancement state (Enhance/*.swift; never part of the RAM image)
+
+    /// F4/S5: reasons that apply to every game of this session (gameplay options, GameConfig.assistedReasons)
+    /// and the ones marked during the current game (trainer, host features, start section). Guarded by assistLock
+    /// (markAssisted may be called from the host thread).
+    var sessionAssist = Set<String>()
+    var runAssist = Set<String>()
+    let assistLock = NSLock()
+    /// S5 per-mode hiscore tables: the original table image while a mode table is swapped into RAM, the mode,
+    /// the track-77 image as loaded from disk, and in-memory mode tables (no hiscoreURL).
+    var hsSavedOriginal: [UInt8]?
+    var hsActiveMode: String?
+    var hsPristine: [UInt8]?
+    var hsModeTables: [String: [UInt8]] = [:]
+    /// F2: k_fx(0) issued by the F10 handler (not a game sound effect).
+    var inF10 = false
+    /// F2: a section text screen was printed since the last k_wait_vbl (one textScreen event per screen).
+    var textScreenPending = false
+    /// F2: k_text_start is printing a HUD message (not part of a text screen).
+    var inTextStart = false
+
     public init(machine: Machine) {
         m = machine; mem = machine.memory; chip = machine.chip; disk = machine.disk; input = machine.input
     }
@@ -53,14 +74,4 @@ public final class Platoon {
         }
         f()
     }
-}
-
-public struct Enhancements {
-    public init() {}
-    public var infiniteMorale = false
-    public var infiniteAmmo = false
-    /// Credits page: restore the original Ocean lines "GAME DESIGN (C)1988 OCEAN." / "CONVERSION BY CHOICE" that
-    /// the Darc crack overwrote with "CRACKED BY HANSWURST OF 68 DARC" (Resident.swift, applied after the main
-    /// program load). Default on; false = the crack's text exactly as on the disk image.
-    public var originalCredits = true
 }

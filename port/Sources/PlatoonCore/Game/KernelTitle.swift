@@ -17,6 +17,8 @@ extension Platoon {
     /// $f890 k_init (jt00): cold/warm restart. Display reset, interrupt vectors, font, row table, logo, title
     /// tune; on the first boot also sound flags, the hiscore track (77) load; then the title loop forever.
     func k_init_impl() -> Never {
+        hsLeaveRunTable()                                                // F4/S5: original table back after an assisted run
+        probeInit()
         tickPoint(0xf890)
         irqDepth = 0; cpuBusy = false                                    // (entered by jumps out of handlers: DEL)
         chip.ipl = 7                                                     // ori.w #$700,sr ; sp = $400
@@ -41,6 +43,9 @@ extension Platoon {
         if mem.r16(KA.firstBootFlag) == 0 {
             mem.w8(KA.firstBootFlag, 0xff)
             mem.w8(a6 + KV.soundFlags, 3)
+            if let f = enhancements.kernel.soundFlagsAtBoot {              // ENHANCEMENT S12 (default nil = 3)
+                mem.w8(a6 + KV.soundFlags, UInt8(f & 3))
+            }
             mem.w8(KA.cacheSndIcons, 0xff)
             mem.w8(a6 + KV.section, 0xff)
             k_set_hud_pal_impl(KA.palCredits)
@@ -48,6 +53,7 @@ extension Platoon {
             // move.w #$4d,d0: the upper word of d0 is left over from k_show_logo/k_music (emu: $0007); it only
             // shows in the saved retry arguments at $12d20.
             _ = k_load_retry(track: 0x0007_004d, count: 1, dest: KA.hiscoreTrack, name: KA.strLoadingHs)
+            hsPristine = mem.slice(KA.hiscoreTrack, Disk.trackSize)     // (S5: seed of new mode tables)
             loadHiscores()                                               // port: persisted table (if any)
         }
         k_title_start()
@@ -57,6 +63,7 @@ extension Platoon {
     /// Port hook (GameConfig.startSection): the first time through, act as if fire had been pressed on the title.
     func k_title_start() -> Never {
         tickPoint(0xf95a)
+        probeScreen(.title)
         k_logo_cycle_reset()
         if let n = config.startSection, !startSectionDone {
             startSectionDone = true
@@ -76,9 +83,10 @@ extension Platoon {
         if let carry = config.carry {
             for (i, b) in carry.prefix(0x76).enumerated() { mem.w8(a6 + UInt32(i), b) }
         } else {
-            mem.w16(a6 + KV.morale, 0x9000)
+            mem.w16(a6 + KV.morale, k_newGameMorale())
             mem.w32(a6 + KV.score, 0)
         }
+        beginRun(section: n, fromConfig: true)
         mem.w16(a6 + KV.section, UInt16(truncatingIfNeeded: n))
         k_next_section_impl()
     }
@@ -212,6 +220,7 @@ extension Platoon {
     /// The clear progresses with the beam like the original loop (clr.l (a0)+ ; clr.l (a1)+ ; dbra: 878 lines in
     /// the emu for $2000 iterations): 512 steps of 16 iterations, each written after its CPU time.
     func k_clear_screens_impl() {
+        if config.probe != nil { probeClearScreens() }
         let total = 398_600, steps = 512
         for i in 0..<steps {
             cpu(total * (i + 1) / steps - total * i / steps)
@@ -374,10 +383,16 @@ extension Platoon {
         if r_joystick() & 0x80 == 0 { k_cheat_check(); return }
         while r_joystick() & 0x80 != 0 { busyWaitYield() }              // busy-wait for the release (no vblank)
         tickPoint(0xfcb6)
-        mem.w16(a6 + KV.morale, 0x9000)
+        beginRun(section: 0, fromConfig: false)
+        mem.w16(a6 + KV.morale, k_newGameMorale())
         mem.w32(a6 + KV.score, 0)
         mem.w16(a6 + KV.section, 0)
         k_next_section_impl()                                            // bra jt29 (stack not unwound)
+    }
+
+    /// `move.w #$9000,$2e(a6)` of a new game. ENHANCEMENT M10 (kernel.diff.startMorale, default nil = $9000).
+    @inline(__always) func k_newGameMorale() -> UInt16 {
+        UInt16(truncatingIfNeeded: enhancements.kernel.difficulty.startMorale ?? 0x9000)
     }
 
     /// $fc80 k_wait_fire_click: wait until fire is released, then pressed.

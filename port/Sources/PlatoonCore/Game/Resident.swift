@@ -337,6 +337,7 @@ extension Platoon {
     /// $80-$fe -> last char (b & $7f). Returns the address after the terminator.
     func r_print_impl(_ a0in: UInt32) -> UInt32 {
         tickPoint(0x1a5c)
+        if config.probe != nil { probePrint(a0in) }                      // F2 text-screen capture (read-only)
         var a0 = a0in
         cpu(40)
         newPos: while true {

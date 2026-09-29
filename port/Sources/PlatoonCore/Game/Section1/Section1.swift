@@ -287,6 +287,7 @@ extension Platoon {
     func s1_tunnelMainLoop() {
         while true {
             repeat {
+                snapshotPoint(0x171c6)                // savestate point (Game/Snapshot; no-op unless a host asked)
                 tickPoint(0x171c6)
                 k_wait_vbl()
                 s1dbg("hud")

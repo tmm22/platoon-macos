@@ -1,0 +1,20 @@
+300 fire 1
+305 fire 0
+312 poke 12e4c 2 2
+1000 fire 1
+1005 fire 0
+1300 poke 12e2c 00009000 4
+1300 poke 12e4a 0003 2
+1900 fire 1
+1905 fire 0
+2100 right 1
+2106 right 0
+2120 right 1
+2126 right 0
+2140 fire 1
+2146 fire 0
+2160 left 1
+2166 left 0
+2180 fire 1
+2186 fire 0
+2185 shot ne2185

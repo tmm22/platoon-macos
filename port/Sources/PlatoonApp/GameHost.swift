@@ -8,33 +8,112 @@ final class GameHost {
     private(set) var machine: Machine
     let audio = AudioOutput()
     let inputManager = InputManager()
+    /// F1 context probe + F2 game events + F4 assisted marking (core, Enhance/GameProbe.swift). One per host,
+    /// reused across resets, so observers registered on it stay valid. `probe.context` is refreshed every frame.
+    let probe = GameProbe()
+
+    // MARK: pause (S4)
+    /// The game runs only while no reason is set.
+    private(set) var pauseReasons = Set<PauseReason>()
+    /// Compatibility switch: true adds the `.user` reason; false clears every reason.
+    var paused: Bool {
+        get { !pauseReasons.isEmpty }
+        set { if newValue { pause(.user) } else { resumeAll() } }
+    }
+    func pause(_ r: PauseReason) {
+        let was = paused
+        pauseReasons.insert(r)
+        if !was { didChangePause() }
+    }
+    func resume(_ r: PauseReason) {
+        guard pauseReasons.remove(r) != nil, !paused else { return }
+        didChangePause()
+    }
+    func resumeAll() {
+        guard paused else { return }
+        pauseReasons.removeAll()
+        didChangePause()
+    }
+    private func didChangePause() {
+        if paused { inputManager.suspend(); audio.flush() } else { inputManager.resume() }
+        last = 0
+        AppServices.shared.dispatchPause(paused)
+    }
+
+    // MARK: speed (S11)
+    /// Sticky turbo (⌘T; not persisted).
     var turbo = false
-    var paused = false { didSet { if paused { inputManager.releaseAll() }; last = 0 } }
+    /// Momentary fast-forward: true while the fast-forward key / button is held.
+    var fastForwardHeld = false
+    /// Emulated frames per real frame while fast-forwarding or in turbo.
+    var fastForwardSpeed: Int { max(2, min(8, Prefs.int(BuiltinPrefs.ffSpeed))) }
+    var isFastForwarding: Bool { (fastForwardHeld || turbo) && !paused }
+
     private var last: CFTimeInterval = 0
     private var acc: Double = 0
     static let frameTime = 1.0 / 50.0
+
+    // MARK: run state (host-side, main thread)
+    /// Load section currently being played (probe context), nil on the title / loading / game over.
+    var currentSection: Int? { probe.context.section }
+    /// The a6 globals at the start of the current section (for "Restart section").
+    private(set) var sectionStartCarry: [UInt8]?
+    /// Host-side reasons why the current run is assisted (F4/S5), in addition to the core's own
+    /// (enhancements, trainer, start section) which are in `probe.context.assistReasons`.
+    private var hostAssistedReasons: [String] = []
+    var assistedReasons: [String] { Array(Set(hostAssistedReasons + probe.context.assistReasons)).sorted() }
+    var isAssisted: Bool { !assistedReasons.isEmpty }
+    /// The enhancements of the current run (as passed at game start).
+    private(set) var runEnhancements = Enhancements()
+    /// Values of restart-only prefs when this run started (for the "applies after restart" hint).
+    private(set) var runPrefsSnapshot: [String: String] = [:]
+    /// Section-start reports from the game thread, delivered on the main thread at the next frame boundary.
+    private var pendingSectionStarts: [(Int, [UInt8])] = []
+    private let pendingLock = NSLock()
 
     init(disk: Disk) {
         self.disk = disk
         machine = Machine(disk: disk)
         wire()
-        machine.start { PlatoonGame.main($0, config: GameHost.gameConfig()) }
+        let cfg = makeConfig()
+        machine.start { PlatoonGame.main($0, config: cfg) }
     }
 
-    static func gameConfig() -> GameConfig {
+    /// The GameConfig for a new run: hiscores, section-start reporting, and every pref's enhancement / config
+    /// plumbing from the Preferences registry.
+    func makeConfig(startSection: Int? = nil, carry: [UInt8]? = nil) -> GameConfig {
         var c = GameConfig()
         if let sup = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
             let dir = sup.appendingPathComponent("Platoon", isDirectory: true)
             try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
             c.hiscoreURL = dir.appendingPathComponent("hiscores.bin")
         }
-        c.onSectionStart = { section, a6 in
+        c.startSection = startSection
+        c.carry = carry
+        c.onSectionStart = { [weak self] section, a6 in
+            // game thread: the host thread is blocked in runFrame, so this is serialized with the main thread
             // Section 0 re-initialises the platoon, so only the later sections are worth continuing from.
-            guard section > 0 else { return }
-            Settings.shared.continueSection = section
-            Settings.shared.continueCarry = Data(a6)
+            if section > 0 {
+                Settings.shared.continueSection = section
+                Settings.shared.continueCarry = Data(a6)
+            }
+            guard let self else { return }
+            self.pendingLock.lock(); self.pendingSectionStarts.append((section, a6)); self.pendingLock.unlock()
         }
+        hostAssistedReasons = PrefsRegistry.apply(to: &c)
+        // host-only gameplay prefs without an enhancement key taint through the core's F4 flag too
+        c.assistedReasons.formUnion(hostAssistedReasons)
+        c.probe = probe
+        runEnhancements = c.enhancements
+        runPrefsSnapshot = PrefsRegistry.restartSnapshot()
         return c
+    }
+
+    /// Marks the run as assisted (F4/S5). The core's tainted-run flag is set through the enhancement registry
+    /// when it exists; until then the host keeps the reasons for display.
+    func markAssisted(_ reason: String) {
+        if !hostAssistedReasons.contains(reason) { hostAssistedReasons.append(reason) }
+        probe.markAssisted(reason)
     }
 
     static func applyCheats(_ m: Machine) {
@@ -42,11 +121,40 @@ final class GameHost {
         Trainer(infiniteAmmo: s.cheatAmmo, infiniteMorale: s.cheatMorale, invulnerable: s.cheatInvulnerable).apply(to: m)
     }
 
+    /// Audio of the current emulated frame is kept (false = dropped: fast-forward keeps only the last frame of
+    /// each batch so the output stays real-time instead of overrunning the ring buffer).
+    private var keepAudio = true
+    private var audioGain: Float = 1
+
     private func wire() {
-        machine.frameHook = { GameHost.applyCheats($0) }
-        machine.chip.paula.output = { [audio] in audio.push($0) }
+        machine.frameHook = { [weak self] m in
+            GameHost.applyCheats(m)          // the core marks trainer runs assisted itself
+            guard let self else { return }
+            // S18: while the name is typed on the keyboard, letter keys / Space must not also press fire
+            self.inputManager.keyboardFireSuppressed = self.runEnhancements.kernel.keyboardNameEntry && self.probe.context.screen == .nameEntry
+            self.deliverSectionStarts()
+            AppServices.shared.dispatchFrame(self)
+        }
+        machine.chip.paula.output = { [weak self, audio] buf in
+            guard let self, self.keepAudio else { return }
+            if self.audioGain == 1 { audio.push(buf) } else { audio.push(buf, gain: self.audioGain) }
+        }
         inputManager.input = machine.input
         applyAudioSettings()
+        applyInputSettings()
+    }
+
+    /// Host input options on the current machine (M25 faster key delivery; 2 = original pacing).
+    func applyInputSettings() {
+        machine.input.keyGapFrames = Prefs.bool(BuiltinPrefs.fastKeys) ? 0 : 2
+    }
+
+    private func deliverSectionStarts() {
+        pendingLock.lock(); let p = pendingSectionStarts; pendingSectionStarts.removeAll(); pendingLock.unlock()
+        for (s, a6) in p {
+            sectionStartCarry = a6
+            AppServices.shared.dispatchSection(s)
+        }
     }
 
     func applyAudioSettings() {
@@ -66,11 +174,39 @@ final class GameHost {
         machine = Machine(disk: disk)
         wire()
         audio.flush()
-        var cfg = GameHost.gameConfig()
-        cfg.startSection = startSection
-        cfg.carry = carry
+        sectionStartCarry = nil; hostAssistedReasons = []
+        pendingLock.lock(); pendingSectionStarts.removeAll(); pendingLock.unlock()
+        let cfg = makeConfig(startSection: startSection, carry: carry)
         machine.start { PlatoonGame.main($0, config: cfg) }
         acc = 0; last = 0
+        inputManager.releaseAll()
+        AppServices.shared.dispatchReset(self)
+    }
+
+    /// Replaces the running game with a restored one (snapshot agent: savestates / checkpoints / rewind).
+    /// `start` receives a fresh Machine and the current config and must start the game thread on it
+    /// (e.g. `{ m, cfg in PlatoonGame.resume(m, from: snap, config: cfg) }`). The run is marked assisted.
+    func restoreGame(section: Int, reason: String, _ start: (Machine, GameConfig) -> Void) {
+        machine.stop()
+        machine = Machine(disk: disk)
+        wire()
+        audio.flush()
+        pendingLock.lock(); pendingSectionStarts.removeAll(); pendingLock.unlock()
+        let cfg = makeConfig()
+        sectionStartCarry = nil
+        start(machine, cfg)
+        markAssisted(reason)
+        acc = 0; last = 0
+        inputManager.releaseAll()
+        AppServices.shared.dispatchReset(self)
+    }
+
+    private func runFrames(_ n: Int) {
+        for k in 0..<n {
+            keepAudio = n == 1 || k == n - 1
+            machine.runFrame()
+        }
+        keepAudio = true
     }
 
     /// Runs as many emulated frames as are due. Returns true if a new frame was produced.
@@ -79,22 +215,25 @@ final class GameHost {
         defer { last = now }
         guard !paused, last > 0 else { return false }
         let dt = min(0.25, now - last)
-        let perTick = turbo ? 4 : 1
+        let perTick = isFastForwarding ? fastForwardSpeed : 1
+        audioGain = perTick > 1 ? Float(Prefs.double(BuiltinPrefs.ffVolume)) : 1
         // Display running at ~50 Hz (e.g. a variable-refresh display): one Amiga frame per display frame,
         // so every frame is shown exactly once and scrolling stays perfectly smooth.
         if abs(dt - GameHost.frameTime) < GameHost.frameTime * 0.15 {
-            for _ in 0..<perTick { machine.runFrame() }
+            runFrames(perTick)
             acc = 0
             return true
         }
         acc += dt
         var ran = false, n = 0
         while acc >= GameHost.frameTime && n < 5 {
-            for _ in 0..<perTick { machine.runFrame() }
+            runFrames(perTick)
             acc -= GameHost.frameTime; ran = true; n += 1
         }
         if n == 5 { acc = 0 }
         return ran
     }
 
+    /// Runs exactly one emulated frame regardless of pacing/pause (debug scripts).
+    func stepFrame() { runFrames(1) }
 }

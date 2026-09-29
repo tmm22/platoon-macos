@@ -5,6 +5,8 @@ public final class Input {
     public var fire0 = false         // port 1 fire / left mouse (bit 6)
     var keyQueue: [UInt8] = []       // raw Amiga keycodes, bit 7 = release
     var keyDelay = 0
+    /// Frames between two delivered key events (2 = the original pacing; M25 "faster key delivery" sets 0).
+    public var keyGapFrames = 2
 
     public init() {}
 

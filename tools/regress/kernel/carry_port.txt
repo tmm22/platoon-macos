@@ -1,0 +1,4 @@
+886 fire 1
+891 fire 0
+1186 shot s1300
+1486 shot s1600

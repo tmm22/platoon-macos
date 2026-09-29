@@ -1,0 +1,27 @@
+300 fire 1
+305 fire 0
+900 poke 12e2c 00000002 4
+900 poke 12e0c 0001 2
+1100 left 1
+1106 left 0
+1120 fire 1
+1126 fire 0
+1700 dumpr 116cc 1600 t1.bin
+1800 fire 1
+1805 fire 0
+2400 poke 12e2c 00008520 4
+2400 poke 12e0c 0001 2
+2600 right 1
+2606 right 0
+2620 fire 1
+2626 fire 0
+2640 left 1
+2646 left 0
+2660 fire 1
+2666 fire 0
+3200 dumpr 116cc 1600 t2.bin
+3300 fire 1
+3305 fire 0
+3900 poke 12e2c 00000001 4
+3900 poke 12e0c 0001 2
+4300 dumpr 116cc 1600 t3.bin

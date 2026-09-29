@@ -15,6 +15,7 @@ func usage() -> Never {
       --start-section N  skip the title and start a new game in load section N (0,1,2)
       --trainer LIST     ammo,morale,invulnerable (host-side trainer, as in the app)
       --deterministic    no 'interrupted d1' term in the vblank RNG (pair with emu --deterministic)
+      --enh K=V[,K=V]    enhancement options (repeatable; same keys as PLATOON_ENH); --enh list prints them all
       --tickdump  append [u32 frame][LEN bytes at LO] whenever translated code calls tickPoint(PC)
       --music-test SONG  audio test mode: load the main program, run only the music driver (vblank md_play),
                          start song SONG (0..6) before frame 0. Script cmds: music N, musicoff, stop, fade, sfx ID (hex, kernel routing),
@@ -24,6 +25,7 @@ func usage() -> Never {
       --reglog FILE      log every custom register write of the music driver ("W f<frame> v<line> CPU reg=val")
       --wav-rate HZ      Paula output rate for --wav (default 48000); --no-filter: disable the A500 low-pass
       --chipdump  test mode: load an emulator chip snapshot (emu 'chipdump' cmd) and just run the copper/display
+    \(HeadlessSnapshots.usage)
     """)
     exit(1)
 }
@@ -34,6 +36,7 @@ var wavPath: String?, hashRange: (UInt32, Int)?, chipdump: String?
 var config = GameConfig()
 var trainer = Trainer()
 var musicTest: Int?, sfxTest: Int?, audioTestMode = false, reglogPath: String?, wavRate = 48000, noFilter = false
+let snapshots = HeadlessSnapshots()   // savestate test modes (Snapshots.swift)
 while !args.isEmpty {
     let a = args.removeFirst()
     func next() -> String { guard !args.isEmpty else { usage() }; return args.removeFirst() }
@@ -48,6 +51,10 @@ while !args.isEmpty {
     case "--chipdump": chipdump = next()
     case "--start-section": config.startSection = Int(next())
     case "--deterministic": config.deterministicRNG = true
+    case "--enh":                                   // enhancement registry key=value[,key=value] (core, Enhance/Registry.swift)
+        let v = next()
+        if v == "list" { print(Enhancements.catalogText()); exit(0) }
+        do { try config.enhancements.apply(v) } catch { print("--enh: \(error)"); exit(1) }
     case "--trainer": for t in next().split(separator: ",") { switch t { case "ammo": trainer.infiniteAmmo = true; case "morale": trainer.infiniteMorale = true; case "invulnerable": trainer.invulnerable = true; default: usage() } }
     case "--tickdump":
         let pc = UInt32(next(), radix: 16) ?? 0, lo = UInt32(next(), radix: 16) ?? 0, len = Int(next(), radix: 16) ?? 0, f = next()
@@ -59,13 +66,14 @@ while !args.isEmpty {
     case "--reglog": reglogPath = next()
     case "--wav-rate": wavRate = Int(next()) ?? 48000
     case "--no-filter": noFilter = true
-    default: usage()
+    default: if !snapshots.parse(a, next) { usage() }
     }
 }
 try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirectories: true)
 let disk: Disk
 do { disk = try Disk(contentsOf: URL(fileURLWithPath: adfPath)) } catch { print("cannot load ADF \(adfPath): \(error)"); exit(1) }
-let m = Machine(disk: disk)
+var m = Machine(disk: disk)   // var: savestate round trips continue in a restored Machine
+let firstFrame = snapshots.prepare(m, disk: disk)
 if trainer.isActive { m.frameHook = { trainer.apply(to: $0) } }
 var wav: ImageIO.WAVWriter?
 if let w = wavPath {
@@ -111,12 +119,18 @@ if let cd = chipdump {
     m.start { mm in while true { mm.waitVBlank() } }
     if let n = musicTest { at.music(n) }
     if let id = sfxTest { at.sfx(id) }
+} else if let snap = snapshots.loaded {
+    PlatoonGame.resume(m, from: snap, config: config, assisted: nil)   // verification: exact continuation
 } else {
     m.start { PlatoonGame.main($0, config: config) }
 }
 
-var ei = 0
-for f in 0..<frames {
+var ei = events.firstIndex { $0.frame > firstFrame } ?? events.count
+if firstFrame == 0 { ei = 0 }
+var f = firstFrame
+let eventFrames = events.map { $0.frame }
+while f < frames {
+    defer { f += 1 }
     while ei < events.count && events[ei].frame <= f {
         let e = events[ei]; ei += 1
         let on = (e.arg.first ?? "1") != "0"
@@ -148,7 +162,9 @@ for f in 0..<frames {
         default: print("unknown script command \(e.cmd)")
         }
     }
+    snapshots.beforeFrame(f)
     m.runFrame()
+    snapshots.afterFrame(&m, &f, &ei, eventFrames: eventFrames, disk: disk, config: config)
     if let (lo, len) = hashRange { print(String(format: "frame %d hash %016llx", f + 1, m.memory.hash(lo, len))) }
     if shotEvery > 0 && (f + 1) % shotEvery == 0 { savePNG(String(format: "f%06d", f + 1)) }
     if m.gameFinished { print("game thread finished at frame \(f + 1)"); break }

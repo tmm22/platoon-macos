@@ -35,6 +35,7 @@ extension Platoon {
     func k_queue_text_impl(_ d0in: UInt16) {
         tickPoint(0x1070c)
         let d1 = mem.r16(a6 + KV.textN)
+        if config.probe != nil { probeMessage(d0in, dropped: d1 == 4) }   // F2 observer (read-only)
         if d1 == 4 { return }
         let d0 = d0in & 0xff                                          // andi.l #$ff,d0
         mem.w16(a6 + KV.textQueue + UInt32(d1) * 2, d0)
@@ -66,8 +67,10 @@ extension Platoon {
             p0 &+= 4; p1 &+= 4
         }
         cpu(0x50 * 194 + 200)
+        inTextStart = true                                             // (host flag for the F2 text capture)
         r_print(KA.strTextHdr)
         r_print(a0)
+        inTextStart = false
     }
 
     /// $107b4 k_text_tick (once per game frame via jt13; every 2 vblanks in the kernel's own loops):

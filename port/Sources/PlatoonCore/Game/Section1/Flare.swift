@@ -68,6 +68,7 @@ extension Platoon {
     /// the blits charge their 68000 cycles, which are paid before the swap / palette writes and in f85c.
     func s1_flareMainLoop() -> Never {
         while true {
+            snapshotPoint(0x18bd8)                    // savestate point (Game/Snapshot; no-op unless a host asked)
             tickPoint(0x18bd8)
             if mem.r8(a6 + 0x71) & 2 != 0 && s1_keytest(0x5f) { s1_flareWin() }
             k_wait_swap()

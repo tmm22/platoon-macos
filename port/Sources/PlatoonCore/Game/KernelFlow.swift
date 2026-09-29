@@ -17,6 +17,7 @@ extension Platoon {
     /// $6e(a6) to $17000 through the loader table $11166, $6e += 1, then k_section_start. Never returns.
     func k_next_section_impl() -> Never {
         tickPoint(0x11076)
+        if config.probe != nil { probeNextSection() }
         k_music_impl(3)
         mem.w32(a6 + KV.textTable, KA.kernelTexts)
         mem.w16(a6 + KV.textN, 0)
@@ -81,6 +82,7 @@ extension Platoon {
 
     func k_section_start_body() -> Never {
         tickPoint(0xfcc8)
+        probeScreen(.entering)
         config.onSectionStart?(loadedSection, mem.slice(a6, 0x76))
         k_fade_out_both()
         mem.w32(a6 + KV.textTable, KA.kernelTexts)
@@ -103,7 +105,15 @@ extension Platoon {
         k_display_init_impl()
         mem.w32(a6 + KV.curMan, a6)                                     // lea 0(a6),a5 ; move.l a5,$1e(a6)
         mem.w16(a6 + KV.manIndex, 0)
+        if enhancements.game.fullPlatoon {                              // ENHANCEMENT M15 (default off)
+            // the carried-over platoon: start with the first living man
+            if let i = (0..<5).first(where: { mem.r16(a6 + UInt32(6 * $0) + 4) < 4 }) {
+                mem.w32(a6 + KV.curMan, a6 + UInt32(6 * i))
+                mem.w16(a6 + KV.manIndex, UInt16(i))
+            }
+        }
         settleCPU()
+        if config.probe != nil { probeSectionStart() }
         tickPoint(KA.sectionEntry)
         switch loadedSection {                                          // jmp $17000
         case 0: section0_start()
@@ -173,6 +183,7 @@ extension Platoon {
     /// rank above) the entry is inserted, the name entered, the table shown and saved; then k_init.
     func k_game_over_impl() -> Never {
         tickPoint(0xfee8)
+        if config.probe != nil { probeGameOver() }
         k_fade_out_both()
         k_clear_screens_impl()
         k_display_reset()
@@ -186,6 +197,7 @@ extension Platoon {
         k_music_stop()
         k_clear_both_lower()
         settleCPU()                                 // the clear runs while the music is stopped (short vblank handlers)
+        hsEnterRunTable()                           // F4/S5: assisted runs rank in their own table (host-side swap)
         // rank search: cmp.l (a1)+,d6 ; dbcc d1
         let d6 = mem.r32(a6 + KV.score)
         var a1 = KA.hsScores
@@ -208,7 +220,11 @@ extension Platoon {
         mem.copy(from: KA.hsNameBuf, to: nameAddr, count: 16)
         k_set_hud_pal_impl(KA.palText)
         mem.w32(a6 + KV.textRamp, KA.rampRed)
+        probeScreen(.nameEntry)
+        if enhancements.kernel.keyboardNameEntry { mem.w8(RA.keyBuf, 0) }   // ENHANCEMENT S18: drop old typing
         k_name_entry(name: nameAddr)
+        probeScreen(.gameOver)
+        if config.probe != nil { probeHiscore(rank: Int(d0), score: d6, nameAddr: nameAddr) }
         // $100a2 k_name_done
         r_print(KA.hsNameLine)
         k_fade_out_hud()
@@ -251,7 +267,33 @@ extension Platoon {
             settleCPU()                                                 // (RAM write after the print's CPU time)
             mem.w8(KA.hsEraseCol, col)
             k_hex32_impl(mem.r32(a6 + KV.score))
-            let d0 = k_wait_joy_input()
+            let d0: UInt8
+            if enhancements.kernel.keyboardNameEntry {                  // ENHANCEMENT S18 (default off)
+                switch k_wait_name_input() {
+                case .joy(let j): d0 = j
+                case .glyph(let g):                                     // typed character: set it, then as FIRE
+                    mem.w8(a1, g); mem.w8(a2, g)
+                    a1 &+= 1; a2 &+= 1
+                    d1 &-= 1
+                    if d1 == 0xffff { return }
+                    continue
+                case .back:                                             // Backspace: as FIRE on the DEL glyph
+                    if d1 == 0x0f { continue }
+                    mem.w8(a1, 0x5f); mem.w8(a2, 0x5f)
+                    a1 &-= 1; a2 &-= 1
+                    d1 &+= 1
+                    continue
+                case .end:                                              // Return: as FIRE on the END glyph
+                    while true {
+                        mem.w8(a1, 0x20); a1 &+= 1; mem.w8(a2, 0x20); a2 &+= 1
+                        d1 &-= 1
+                        if d1 == 0xffff { break }
+                    }
+                    return
+                }
+            } else {
+                d0 = k_wait_joy_input()
+            }
             if d0 & 0x80 != 0 {                                         // k_name_fire
                 let c = mem.r8(a1)
                 if c == 0x5d {
@@ -293,6 +335,35 @@ extension Platoon {
         return d0
     }
 
+    /// ENHANCEMENT S18: name-entry input from the keyboard (ASCII buffer of the level-2 handler, $23e4) or the
+    /// joystick (as k_wait_joy_input).
+    enum NameInput { case joy(UInt8), glyph(UInt8), back, end }
+
+    func k_wait_name_input() -> NameInput {
+        repeat { k_name_tick(); if let k = k_name_key() { return k } } while r_joystick() != 0
+        var d0: UInt8
+        repeat { k_name_tick(); if let k = k_name_key() { return k }; d0 = r_joystick() } while d0 == 0
+        return .joy(d0)
+    }
+
+    /// Pops one character of the resident's keyboard ASCII buffer (count byte + 16 chars).
+    func k_name_key() -> NameInput? {
+        while true {
+            let n = mem.r8(RA.keyBuf)
+            guard n > 0 else { return nil }
+            let c = mem.r8(RA.keyBuf + 1)
+            for i in 1..<16 { mem.w8(RA.keyBuf + UInt32(i), mem.r8(RA.keyBuf + UInt32(i) + 1)) }
+            mem.w8(RA.keyBuf, n &- 1)
+            switch c {
+            case 0x61...0x7a: return .glyph(c &- 0x20)                // a-z -> A-Z
+            case 0x41...0x5a, 0x30...0x39, 0x20, 0x21, 0x2e, 0x2d: return .glyph(c)
+            case 0x08: return .back
+            case 0x0d, 0x0a: return .end
+            default: continue                                           // other keys: ignored
+            }
+        }
+    }
+
     /// $1026e k_name_tick: 2 vblanks, text tick; re-queue "ENTER YOUR NAME:" whenever the queue is empty.
     func k_name_tick() {
         k_wait_vbl_impl(); k_wait_vbl_impl()
@@ -319,7 +390,7 @@ extension Platoon {
 
     /// Port: the $424 disk save of track 77 (a no-op stub in the crack) writes the table image to hiscoreURL.
     func saveHiscores() {
-        guard let url = config.hiscoreURL else { return }
+        guard let url = hiscoreSaveURL else { return }                  // (the mode file for assisted runs, S5)
         try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         do { try Data(mem.slice(KA.hiscoreTrack, Disk.trackSize)).write(to: url) } catch { log("hiscore save failed: \(error)") }
     }

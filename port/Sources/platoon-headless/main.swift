@@ -13,6 +13,7 @@ func usage() -> Never {
                      [--music-test SONG] [--sfx-test ID] [--audio-test] [--reglog FILE] [--wav-rate HZ] [--no-filter]
       --hash      print an FNV hash of a RAM region after every frame (lockstep comparison)
       --start-section N  skip the title and start a new game in load section N (0,1,2)
+      --trainer LIST     ammo,morale,invulnerable (host-side trainer, as in the app)
       --deterministic    no 'interrupted d1' term in the vblank RNG (pair with emu --deterministic)
       --tickdump  append [u32 frame][LEN bytes at LO] whenever translated code calls tickPoint(PC)
       --music-test SONG  audio test mode: load the main program, run only the music driver (vblank md_play),
@@ -31,6 +32,7 @@ var args = Array(CommandLine.arguments.dropFirst())
 var adfPath = "../re/platoon_port.adf", frames = 500, scriptPath: String?, outDir = "out", shotEvery = 0
 var wavPath: String?, hashRange: (UInt32, Int)?, chipdump: String?
 var config = GameConfig()
+var trainer = Trainer()
 var musicTest: Int?, sfxTest: Int?, audioTestMode = false, reglogPath: String?, wavRate = 48000, noFilter = false
 while !args.isEmpty {
     let a = args.removeFirst()
@@ -46,6 +48,7 @@ while !args.isEmpty {
     case "--chipdump": chipdump = next()
     case "--start-section": config.startSection = Int(next())
     case "--deterministic": config.deterministicRNG = true
+    case "--trainer": for t in next().split(separator: ",") { switch t { case "ammo": trainer.infiniteAmmo = true; case "morale": trainer.infiniteMorale = true; case "invulnerable": trainer.invulnerable = true; default: usage() } }
     case "--tickdump":
         let pc = UInt32(next(), radix: 16) ?? 0, lo = UInt32(next(), radix: 16) ?? 0, len = Int(next(), radix: 16) ?? 0, f = next()
         FileManager.default.createFile(atPath: f, contents: nil)
@@ -63,6 +66,7 @@ try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirecto
 let disk: Disk
 do { disk = try Disk(contentsOf: URL(fileURLWithPath: adfPath)) } catch { print("cannot load ADF \(adfPath): \(error)"); exit(1) }
 let m = Machine(disk: disk)
+if trainer.isActive { m.frameHook = { trainer.apply(to: $0) } }
 var wav: ImageIO.WAVWriter?
 if let w = wavPath {
     m.chip.paula.sampleRate = Double(wavRate)

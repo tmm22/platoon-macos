@@ -81,6 +81,7 @@ extension Platoon {
 
     func k_section_start_body() -> Never {
         tickPoint(0xfcc8)
+        config.onSectionStart?(loadedSection, mem.slice(a6, 0x76))
         k_fade_out_both()
         mem.w32(a6 + KV.textTable, KA.kernelTexts)
         k_clear_screens_impl()

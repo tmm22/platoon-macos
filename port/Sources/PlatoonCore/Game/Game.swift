@@ -10,6 +10,9 @@ public struct GameConfig {
     public var carry: [UInt8]?
     /// Drop the unreproducible "interrupted d1" term from the vblank RNG update (pair with emu --deterministic).
     public var deterministicRNG = false
+    /// Called (on the game thread) when a load section starts: (section index 0/1/2, a6 globals block $76 bytes).
+    /// The app uses it to offer "continue from this section" with `carry`.
+    public var onSectionStart: ((Int, [UInt8]) -> Void)?
     /// Where hiscores are persisted (nil = keep in memory only).
     public var hiscoreURL: URL?
     /// Tick dumps: when translated code passes `tickPoint(pc)`, append [u32 frame][len bytes at lo] to the file.

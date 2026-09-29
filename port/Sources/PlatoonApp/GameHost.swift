@@ -28,10 +28,22 @@ final class GameHost {
             try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
             c.hiscoreURL = dir.appendingPathComponent("hiscores.bin")
         }
+        c.onSectionStart = { section, a6 in
+            // Section 0 re-initialises the platoon, so only the later sections are worth continuing from.
+            guard section > 0 else { return }
+            Settings.shared.continueSection = section
+            Settings.shared.continueCarry = Data(a6)
+        }
         return c
     }
 
+    static func applyCheats(_ m: Machine) {
+        let s = Settings.shared
+        Trainer(infiniteAmmo: s.cheatAmmo, infiniteMorale: s.cheatMorale, invulnerable: s.cheatInvulnerable).apply(to: m)
+    }
+
     private func wire() {
+        machine.frameHook = { GameHost.applyCheats($0) }
         machine.chip.paula.output = { [audio] in audio.push($0) }
         inputManager.input = machine.input
         applyAudioSettings()
@@ -49,13 +61,14 @@ final class GameHost {
         machine.input.key(code, down: false)
     }
 
-    func reset(startSection: Int? = nil) {
+    func reset(startSection: Int? = nil, carry: [UInt8]? = nil) {
         machine.stop()
         machine = Machine(disk: disk)
         wire()
         audio.flush()
         var cfg = GameHost.gameConfig()
         cfg.startSection = startSection
+        cfg.carry = carry
         machine.start { PlatoonGame.main($0, config: cfg) }
         acc = 0; last = 0
     }

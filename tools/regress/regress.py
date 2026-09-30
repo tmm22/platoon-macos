@@ -28,7 +28,7 @@ EMU = f'{ROOT}/tools/amiga/emu'
 ADF = f'{ROOT}/re/platoon_port.adf'
 V = f'{ROOT}/port/verify'
 RK = f'{ROOT}/tools/regress/kernel'
-BASE_COMMIT = '4fe3ae2'
+BASE_COMMIT = '716172f'
 CACHE = '/tmp/regress-cache'
 PORT_HASH = ('0', '80000')          # full RAM, every frame (port only; golden comparison)
 

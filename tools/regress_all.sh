@@ -17,7 +17,7 @@
 # Details: port/PORTING.md "Regression gate".
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-BASE=4fe3ae2
+BASE=716172f
 CACHE=/tmp/regress-cache
 BIN=""; ARGS=()
 while [ $# -gt 0 ]; do

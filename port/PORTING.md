@@ -118,7 +118,7 @@ tools/regress_all.sh --only 's0_|k_hs' ...     # regex subset;  --skip REGEX;  -
   (`s2_*`, `port/verify/section2/*.txt`) - the harness scripts with the harnesses' tick-dump PCs and RAM regions.
 - Each scenario runs in three tools with `--deterministic` and `PLATOON_ENH=originalCredits=0` (three `k_*` scenarios
   use true defaults / PLATOON_HISCORES / PLATOON_CARRY): `tools/amiga/emu`, the **baseline** port built from the
-  pinned pre-enhancement commit `4fe3ae2` (`git archive`, built once into `/tmp/regress-cache/baseline-4fe3ae2`), and the
+  pinned pre-enhancement commit `716172f` (`git archive`, built once into `/tmp/regress-cache/baseline-716172f`), and the
   binary under test. Emulator and baseline outputs are cached in `/tmp/regress-cache` (keyed by script/args/binary).
 - **PASS** = the binary under test is byte-identical to the baseline: all tick dumps (RAM + frame numbers), the FNV
   hash of all 512 KB of RAM after every frame, every screenshot and every dumped file. **FAIL** prints the first

@@ -38,7 +38,7 @@ tools/regress_all.sh > /tmp/regress.log 2>&1          # default-settings lockste
   translated logic only at `// ENHANCEMENT <ID>` sites guarded by an option. Gameplay-changing options must mark the
   run as assisted (separate hiscore table; see `Game/Enhance/Hiscores.swift`).
 - **Gate:** after any change under `PlatoonCore`, `tools/regress_all.sh` must print ALL PASS (byte-identical to the
-  pinned baseline commit `4fe3ae2`, which it builds from git history — keep that commit reachable).
+  pinned baseline commit `716172f`, which it builds from git history — keep that commit reachable).
 - Never busy-wait in translated code: use `m.waitVBlank()`, `m.waitFrames(n)`, `m.waitLine(v)`; non-returning jumps
   use `m.jump { }` / `m.requestJump { }`. CPU-time pacing uses the cost model in `KernelSupport.swift`.
 - The CPU-bound pacing, RNG (`--deterministic`) and tick-dump lockstep tooling are documented in `port/PORTING.md`.

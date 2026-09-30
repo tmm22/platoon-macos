@@ -7,7 +7,7 @@
 # Takes ~1-2 min; run it in the background.
 NEW=$1; OUT=$2; EXTRA=${3:-}
 [ -z "$NEW" ] || [ -z "$OUT" ] && { echo "usage: wavcmp.sh NEWBIN OUTDIR [EXTRA_ENH]"; exit 2; }
-BASE=${BASEBIN:-/tmp/regress-cache/baseline-4fe3ae2/build/release/platoon-headless}
+BASE=${BASEBIN:-/tmp/regress-cache/baseline-716172f/build/release/platoon-headless}
 R=$(cd "$(dirname "$0")/../../.." && pwd)
 H=$R/port/verify/audio
 ADF=$R/re/platoon_port.adf

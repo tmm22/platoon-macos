@@ -1,7 +1,7 @@
 import AppKit
 import PlatoonCore
 
-// presentation: [presentation] agent — renderer, shaders, framing looks (S13, S14, S16, S17, M19, M20, M21, M24).
+// presentation: [presentation] agent — renderer, shaders, framing looks (S13 incl. the sniper cue, S14, S16, S17, M19, M20, M21, M24).
 // Only the owner edits this file.
 //  - `videoMenus`: View-menu items (CRT preset, backdrop, accessibility looks) and the M24 recording commands.
 //  - `videoInstall`: starts VideoFX (per-frame effect state), the REC badge and the pause-menu recording item.
@@ -44,6 +44,7 @@ extension MenuRegistry {
             MenuContribution(menu: .view, order: 51, items: [
                 toggle("Brighten Night Scenes", VideoKeys.nightLift),
                 toggle("Reduce Flashing", VideoKeys.reduceFlashing),
+                toggle("Show Sniper Side (Final Jungle)", SniperCue.key),
                 choiceMenu("Colour Vision", VideoKeys.colourVision, ColourVision.allCases.map { ($0.rawValue, $0.title) }),
                 toggle("HUD Magnifier", VideoKeys.hudMagnifier, onValue: 1),
             ]),
@@ -55,6 +56,12 @@ extension MenuRegistry {
 extension FeatureHooks {
     static func videoInstall(_ app: AppServices) {
         VideoFX.shared.install(app)
+        SniperCue.shared.install(app)
+        // M24: the app's Game ▸ Save Screenshot (⌘S) goes through VideoCommands.saveScreenshot (same PNG and file
+        // name as before; folder / clipboard from the prefs). No AppDelegate edit: the menu item is retargeted.
+        if VideoMenuTarget.retargetScreenshotItems() == 0 {
+            DispatchQueue.main.async { VideoMenuTarget.retargetScreenshotItems() }
+        }
         let badge = RecordingBadgePanel()
         app.overlay.add(badge)
         app.addPauseMenuItem(PauseMenuItem(id: "presentation.record", title: {
@@ -63,6 +70,30 @@ extension FeatureHooks {
             VideoCommands.toggle(VideoRecorder.shared.kind ?? .movie)
             return true                                   // close the menu: recording starts with the game
         }))
+    }
+}
+
+/// Target of the retargeted Save Screenshot menu item.
+final class VideoMenuTarget: NSObject {
+    static let shared = VideoMenuTarget()
+    @objc func saveScreenshotM24(_ s: Any?) {
+        guard let h = AppServices.shared.host else { return }
+        VideoCommands.saveScreenshot(h.machine.chip)
+    }
+    /// Points every main-menu item whose action is `saveScreenshot:` at VideoCommands.saveScreenshot.
+    @discardableResult
+    static func retargetScreenshotItems(_ menu: NSMenu? = NSApp.mainMenu) -> Int {
+        guard let menu else { return 0 }
+        var n = 0
+        for item in menu.items {
+            if item.action == NSSelectorFromString("saveScreenshot:") {
+                item.target = shared
+                item.action = #selector(saveScreenshotM24(_:))
+                n += 1
+            }
+            if let sub = item.submenu { n += retargetScreenshotItems(sub) }
+        }
+        return n
     }
 }
 

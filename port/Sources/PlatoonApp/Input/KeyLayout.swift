@@ -75,8 +75,9 @@ enum KeyLayout {
     /// The keycode that types `c` on the current layout (nil if no main-block key types it unshifted).
     static func code(for c: Character) -> UInt16? {
         let lc = c.lowercased().first ?? c
-        if let k = chars.first(where: { $0.value == lc })?.key { return k }
-        return nil
+        // deterministic if several keys type it: the US position first, then the lowest keycode
+        if let us = usCharToCode[lc], chars[us] == lc { return us }
+        return chars.filter { $0.value == lc }.keys.min()
     }
 
     /// The US-position keycode whose Amiga key types the same character as Mac key `code` on the current layout,

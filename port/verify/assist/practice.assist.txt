@@ -1,0 +1,5 @@
++20 practice bridge
++400 state state.txt
++300 state state.txt
++10 practice barnes
++400 state state.txt

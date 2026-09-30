@@ -16,6 +16,10 @@ final class ReplayController {
     private(set) var recorder: InputRecorder?
     private(set) var player: InputPlayer?
     var isPlaying: Bool { player != nil }
+    /// A replayed game (not counted in the service record / personal bests). False for test input fed with
+    /// `inject … game`, which stands in for a player.
+    var isReplayGame: Bool { player != nil && !injectedAsPlayer }
+    private var injectedAsPlayer = false
     /// The replay being started (consumed by the next reset).
     private var pendingPlayback: InputReplay?
     private var startConfigKnown = false
@@ -42,6 +46,7 @@ final class ReplayController {
         if let r = pendingPlayback {
             pendingPlayback = nil
             player = InputPlayer(r)
+            injectedAsPlayer = false
             finishedToastShown = false
             h.machine.input.keyGapFrames = 0         // queued keys are delivered at their recorded frame
             header = r.header
@@ -75,6 +80,7 @@ final class ReplayController {
             header.startSection = cfg.startSection
             header.carry = cfg.carry
             header.enhancements = cfg.enhancements.changed
+            header.deterministic = cfg.deterministic
             if cfg.enhancements.section1.directAim { header.warnings.append("s1.directAim: pointer aiming is not in the input stream") }
         }
         rec.observe(m)
@@ -158,7 +164,7 @@ final class ReplayController {
 
     /// Game over of a recorded (not replayed) game: keep last.plreplay and, for a new best score, best.plreplay.
     func gameEnded(score: Int) {
-        guard player == nil, case .success(let r) = currentReplay() else { return }
+        guard !isReplayGame, case .success(let r) = currentReplay() else { return }
         let dir = ReplayController.directory
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         try? write(r, to: dir.appendingPathComponent("last.\(ReplayController.fileExtension)"))
@@ -213,6 +219,7 @@ final class ReplayController {
             _ = c.enhancements.apply(r.header.enhancements)
             c.startSection = r.header.startSection
             c.carry = r.header.carry
+            c.deterministicRNG = r.header.deterministic   // headless-made replays (verification scripts)
             c.hiscoreURL = nil                          // never write a hiscore file from a replay
             c.assistedReasons.insert("Replay")           // survives the replayed game's own new-game start
             m.start { PlatoonGame.main($0, config: c) }
@@ -221,12 +228,13 @@ final class ReplayController {
     }
 
     /// Tests: feeds a replay's input into the running game from its current frame (no restart).
-    func inject(url: URL) {
+    func inject(url: URL, asPlayer: Bool = false) {
         guard let h = AppServices.shared.host, let t = try? String(contentsOf: url, encoding: .utf8),
               let r = try? InputReplay.decode(t) else { AppServices.shared.toast("inject: can't read \(url.path)"); return }
         mute(h)
         h.machine.input.keyGapFrames = 0
         player = InputPlayer(r)
+        injectedAsPlayer = asPlayer
         finishedToastShown = false
     }
 
@@ -238,6 +246,7 @@ final class ReplayController {
 
     private func endPlayback(_ h: GameHost, toast: String?) {
         player = nil
+        injectedAsPlayer = false
         unmute(h)
         h.applyInputSettings()
         if let t = savedTrainer {

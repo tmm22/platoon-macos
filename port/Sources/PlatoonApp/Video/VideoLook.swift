@@ -13,6 +13,7 @@ enum VideoKeys {
     static let crtSharpness = "presentation.crt.sharpness"
     static let crtColour = "presentation.crt.colour1084"
     static let srgbTag = "presentation.srgb"
+    static let mmpxSharpHud = "presentation.mmpx.sharpHud"
     static let backdrop = "presentation.backdrop"
     static let backdropBrightness = "presentation.backdropBrightness"
     static let shake = "presentation.shake"
@@ -122,6 +123,8 @@ struct VideoLook: Equatable {
     var hudMagnification: Float = 2
     /// M20: tag the drawable as sRGB (colour-managed on wide-gamut displays).
     var srgbTag = false
+    /// M19: the upscaler leaves the HUD (status bar) sharp.
+    var mmpxSharpHud = true
 
     static func load() -> VideoLook {
         var l = VideoLook()
@@ -141,6 +144,7 @@ struct VideoLook: Equatable {
         l.hudMagnifier = Prefs.int(VideoKeys.hudMagnifier) != 0
         l.hudMagnification = Float(Prefs.double(VideoKeys.hudMagnification))
         l.srgbTag = Prefs.bool(VideoKeys.srgbTag)
+        l.mmpxSharpHud = Prefs.bool(VideoKeys.mmpxSharpHud)
         return l
     }
 }

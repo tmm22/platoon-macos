@@ -11,7 +11,7 @@ import PlatoonCore
 //                           directory of canvas PNGs (384x290, the platoon-headless --shot-every / ⌘S format) or a
 //                           comma list of files; `name=file` entries name them. Without it the title screen is used.
 //   PLATOON_VIDEO_SCRIPT=FILE  app-level script ("WHEN command args", WHEN = emulated frame or +N displayed frames):
-//                           record movie|gif, stop, copyshot, log TEXT, look k=v,... (Prefs overrides). The recorder
+//                           record movie|gif, stop, copyshot, menushot (⌘S menu item), log TEXT, look k=v,... (Prefs overrides). The recorder
 //                           checks every finished file (frames, size, audio, first frame against the canvas) and logs
 //                           to $PLATOON_DEBUG_CAPTURE/video.log. Use with PLATOON_DEBUG_SCRIPT for resets / quitting.
 
@@ -174,6 +174,25 @@ enum VideoSelfTest {
             r.check("MMPX: only source colours", foreign == 0, "\(foreign) pixels with other colours")
             r.check("MMPX: smooths edges", differs > 0, "\(differs) pixels differ from nearest neighbour")
             writePNG(out, 1280, 1024, dir + "/\(pic.name)_mmpx_4x.png")
+        }
+        // 3b. M19 sharp HUD: with the option on, every row from the HUD split down is nearest neighbour; off, the
+        //     upscaler may touch it (and the game window rows are the same either way above the split)
+        do {
+            var c = Config(name: "mmpxhud", filter: .mmpx, aspect: false, integer: true)
+            c.fx.splitCanvasY = 180; c.fx.hudActive = true
+            let on = render(rd, pic, c, 1280, 1024)
+            c.look.mmpxSharpHud = false
+            let off = render(rd, pic, c, 1280, 1024)
+            let firstHud = (180 - rd.crop.y) * 4
+            var bad = 0, changed = 0, above = 0
+            for y in 0..<1024 { for x in 0..<1280 {
+                let p = on[y * 1280 + x] & 0xffffff
+                if y >= firstHud { if p != src.px[(y / 4) * src.w + x / 4] { bad += 1 }; if off[y * 1280 + x] & 0xffffff != p { changed += 1 } }
+                else if y < firstHud - 16 && off[y * 1280 + x] & 0xffffff != p { above += 1 }
+            } }
+            r.check("MMPX sharp HUD: HUD rows = nearest neighbour", bad == 0, "\(bad) differing pixels")
+            r.check("MMPX sharp HUD: game window unchanged by the option", above == 0, "\(above) pixels above the split differ")
+            r.note("MMPX on the HUD (option off) changes \(changed) HUD pixels")
         }
         // 4. colour vision
         do {
@@ -582,6 +601,24 @@ final class VideoScript {
             VideoCommands.copyScreenshot()
             let ok = NSPasteboard.general.data(forType: .png) != nil
             write("copyshot: clipboard png=\(ok)")
+        case "menushot":
+            // ⌘S through the real main-menu item (checks the M24 retarget): the file must land in the screenshot folder
+            func find(_ m: NSMenu?) -> NSMenuItem? {
+                for i in m?.items ?? [] {
+                    if i.keyEquivalent == "s" && i.keyEquivalentModifierMask == .command { return i }
+                    if let f = find(i.submenu) { return f }
+                }
+                return nil
+            }
+            let dir = VideoCommands.screenshotFolder
+            let before = Set((try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? [])
+            guard let item = find(NSApp.mainMenu), let menu = item.menu else { write("menushot: FAIL no ⌘S item"); return }
+            menu.performActionForItem(at: menu.index(of: item))
+            let after = Set((try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? [])
+            let new = after.subtracting(before).filter { $0.hasSuffix(".png") }
+            let size = new.first.flatMap { try? Data(contentsOf: dir.appendingPathComponent($0)) }.map(\.count) ?? 0
+            write("menushot: \(new.count == 1 && size > 0 ? "ok" : "FAIL") target=\(item.target.map { String(describing: type(of: $0)) } ?? "nil") "
+                  + "new=\(new.sorted()) bytes=\(size) clipboard png=\(NSPasteboard.general.data(forType: .png) != nil)")
         case "look":
             Prefs.applyOverrides(a.dropFirst().joined(separator: " "))
             PrefsModel.shared.bump()

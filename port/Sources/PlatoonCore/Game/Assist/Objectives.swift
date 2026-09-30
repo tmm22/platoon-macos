@@ -143,7 +143,7 @@ public final class ObjectiveTracker {
                                    state: c.compass ? .done : .todo, optional: true))
                 o.append(Objective(id: "s1.map", title: "Have the tunnel map",
                                    detail: d("From the village hut, or a plan in one of the rooms.",
-                                             randomisedTunnels ? nil : "Hut 2 in the village, or room 0 here."),
+                                             randomisedTunnels ? nil : "Hut 2 in the village; down here rooms 0, 2, 4, 6 and 7 have one (lost if the soldier dies)."),
                                    state: c.map ? .done : .todo, optional: true))
                 o.append(Objective(id: "s1.exit", title: "Find the exit",
                                    detail: d("One room has a way out. It opens only with 8 flares.",

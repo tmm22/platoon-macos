@@ -106,7 +106,7 @@ final class VideoFX {
         }
     }
 
-    private func note(_ s: String) {
+    func note(_ s: String) {
         log?.write("\(AppServices.shared.host?.machine.frameCount ?? 0) \(s)\n".data(using: .utf8)!)
     }
 

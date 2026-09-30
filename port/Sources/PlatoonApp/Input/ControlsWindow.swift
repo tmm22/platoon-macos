@@ -9,13 +9,16 @@ import PlatoonCore
 // UserDefaults ("input.bindings.v1"). The game is paused while the window is open.
 
 final class ControlsModel: ObservableObject {
-    enum Slot: Equatable { case key(Int), pad }
+    enum Slot: Equatable { case key(Int), pad, padAdd }
     @Published var bindings: BindingSet
     @Published var capturing: (action: InputAction, slot: Slot)? = nil
     @Published var message: String? = nil
     @Published var revision = 0
 
     init() { bindings = InputSettings.load() }
+    /// The InputManager whose controller presses are captured (the running host's; tests may set their own).
+    var managerOverride: InputManager?
+    private var manager: InputManager? { managerOverride ?? AppServices.shared.host?.inputManager }
 
     var visibleActions: [InputAction] {
         InputAction.allCases.filter { a in
@@ -36,16 +39,21 @@ final class ControlsModel: ObservableObject {
 
     func startCapture(_ a: InputAction, _ s: Slot) {
         capturing = (a, s)
-        message = s == .pad ? "Press a controller button for \(a.title) (Esc cancels)" : "Press a key for \(a.title) (Esc cancels, Backspace in this window clears)"
-        if s == .pad {
-            AppServices.shared.host?.inputManager.capturePad = { [weak self] b in
-                DispatchQueue.main.async { self?.finishPad(b) }
+        switch s {
+        case .pad: message = "Press a controller button for \(a.title) (replaces its buttons; Esc cancels)"
+        case .padAdd: message = "Press a controller button to add to \(a.title) (a button it already has is removed; Esc cancels)"
+        case .key: message = "Press a key for \(a.title) (Esc cancels, Backspace in this window clears)"
+        }
+        if case .key = s {} else {
+            manager?.capturePad = { [weak self] b in
+                // controller handlers run on the main queue; the binding change re-enters the InputManager safely
+                if Thread.isMainThread { self?.finishPad(b) } else { DispatchQueue.main.async { self?.finishPad(b) } }
             }
         }
     }
     func cancelCapture() {
         capturing = nil; message = nil
-        AppServices.shared.host?.inputManager.capturePad = nil
+        manager?.capturePad = nil
     }
 
     /// A key was pressed while capturing (keycode incl. modifier keys).
@@ -67,9 +75,15 @@ final class ControlsModel: ObservableObject {
     }
 
     func finishPad(_ b: PadButton) {
-        guard let c = capturing, c.slot == .pad else { return }
+        guard let c = capturing, c.slot == .pad || c.slot == .padAdd else { return }
         capturing = nil
-        bindings[c.action].pad = [b]
+        if c.slot == .padAdd {
+            var p = bindings[c.action].pad
+            if let i = p.firstIndex(of: b) { p.remove(at: i) } else { p.append(b) }
+            bindings[c.action].pad = p
+        } else {
+            bindings[c.action].pad = [b]
+        }
         message = ["l3": "L3 is fast-forward while that preference is on (General ▸ Fast-forward).",
                    "r3": "R3 is hold-to-rewind while rewind is on (General ▸ Save states)."][b.rawValue]
         commit(customPad: true)
@@ -148,7 +162,12 @@ struct ControlsView: View {
                             Text(a.title).frame(width: 190, alignment: .leading)
                             cell(model.keyTitle(a, 0), model.isCapturing(a, .key(0))) { model.startCapture(a, .key(0)) }
                             cell(model.keyTitle(a, 1), model.isCapturing(a, .key(1))) { model.startCapture(a, .key(1)) }
-                            cell(model.padTitle(a), model.isCapturing(a, .pad), width: 170) { model.startCapture(a, .pad) }
+                            HStack(spacing: 2) {
+                                cell(model.padTitle(a), model.isCapturing(a, .pad), width: 150) { model.startCapture(a, .pad) }
+                                Button { model.startCapture(a, .padAdd) } label: {
+                                    Image(systemName: model.isCapturing(a, .padAdd) ? "plus.circle.fill" : "plus.circle")
+                                }.buttonStyle(.borderless).help("Add or remove one controller button for \(a.title)")
+                            }
                             Button { model.clear(a) } label: { Image(systemName: "xmark.circle") }.buttonStyle(.borderless).help("Unbind \(a.title)")
                         }
                     }
@@ -187,7 +206,7 @@ struct ControlsView: View {
     private var presetLine: String {
         let k = Prefs.int(InputSettings.keyboardPresetKey), p = Prefs.int(InputSettings.padPresetKey)
         let kt = BindingSet.KeyboardPreset(rawValue: k)?.title ?? "Custom", pt = BindingSet.PadPreset(rawValue: p)?.title ?? "Custom"
-        return "Keyboard: \(kt)  ·  Controller: \(pt). Click a cell, then press a key or controller button. Keys that are not bound to an action type their Amiga key."
+        return "Keyboard: \(kt)  ·  Controller: \(pt). Click a cell, then press a key or controller button (⊕ adds or removes one controller button). Keys that are not bound to an action type their Amiga key."
     }
 
     static let fixedHelp = """
@@ -238,7 +257,7 @@ final class ControlsWindowController: NSObject, NSWindowDelegate {
         guard monitor == nil else { return }
         monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .flagsChanged]) { [weak self] e in
             guard let self, e.window === self.window, self.model.capturing != nil else { return e }
-            if case .pad = self.model.capturing!.slot {
+            if case .key = self.model.capturing!.slot {} else {
                 if e.type == .keyDown && e.keyCode == 0x35 { self.model.cancelCapture(); return nil }
                 return e
             }

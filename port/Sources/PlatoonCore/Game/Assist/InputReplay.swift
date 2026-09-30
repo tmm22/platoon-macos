@@ -30,6 +30,8 @@ public struct ReplayHeader: Equatable {
     public var trainer: [String] = []
     /// Input.keyGapFrames while recording (2 = original pacing).
     public var keyGap = 2
+    /// GameConfig.deterministicRNG of the recorded game (headless --deterministic; the app plays with false).
+    public var deterministic = false
     /// Frames recorded (the run's length) and the score / section at the end.
     public var frames: UInt64 = 0
     public var score = 0
@@ -68,6 +70,7 @@ public struct InputReplay: Equatable {
         if !h.enhancements.isEmpty { s += "# enh \(h.enhancements.joined(separator: ","))\n" }
         if !h.trainer.isEmpty { s += "# trainer \(h.trainer.joined(separator: ","))\n" }
         s += "# keyGap \(h.keyGap)\n"
+        if h.deterministic { s += "# deterministic 1\n" }
         for w in h.warnings { s += "# warning \(w)\n" }
         if !h.note.isEmpty { s += "# note \(h.note.replacingOccurrences(of: "\n", with: " "))\n" }
         s += "# headless: \(headlessCommand(adf: "ADF", script: "THIS_FILE"))\n"
@@ -129,6 +132,7 @@ public struct InputReplay: Equatable {
                 case "enh": r.header.enhancements = v.split(separator: ",").map(String.init)
                 case "trainer": r.header.trainer = v.split(separator: ",").map(String.init)
                 case "keyGap": r.header.keyGap = Int(v) ?? 2
+                case "deterministic": r.header.deterministic = v != "0"
                 case "warning": r.header.warnings.append(v)
                 case "note": r.header.note = v
                 default: break
@@ -169,6 +173,7 @@ public struct InputReplay: Equatable {
     public func headlessCommand(adf: String, script: String) -> String {
         var c = "platoon-headless --adf \(adf) --script \(script) --frames \(header.frames)"
         if let s = header.startSection { c += " --start-section \(s)" }
+        if header.deterministic { c += " --deterministic" }
         if !header.enhancements.isEmpty { c += " --enh \(header.enhancements.joined(separator: ","))" }
         if !header.trainer.isEmpty { c += " --trainer \(header.trainer.joined(separator: ","))" }
         if header.carry != nil { c = "PLATOON_CARRY=<carry file> " + c }
@@ -293,8 +298,9 @@ public final class InputPlayer {
 extension PlatoonGame {
     /// Start configuration of the game running on `m` (start section, carry, enhancements as passed by the host),
     /// nil before the game thread has set it up (the first frame). Host thread.
-    public static func runConfiguration(_ m: Machine) -> (startSection: Int?, carry: [UInt8]?, enhancements: Enhancements)? {
+    public static func runConfiguration(_ m: Machine) -> (startSection: Int?, carry: [UInt8]?, enhancements: Enhancements,
+                                                          deterministic: Bool)? {
         guard let p = platoon(for: m) else { return nil }
-        return (p.config.startSection, p.config.carry, p.config.enhancements)
+        return (p.config.startSection, p.config.carry, p.config.enhancements, p.config.deterministicRNG)
     }
 }

@@ -292,10 +292,14 @@ enum InputSelfTest {
 
         // U7: rumble mapping
         do {
-            let m = [Rumble.pulse(for: .fx(id: 0x85, enabled: true))?.1, Rumble.pulse(for: .fx(id: 0x81, enabled: false))?.1,
-                     Rumble.pulse(for: .fx(id: 0, enabled: true))?.1, Rumble.pulse(for: .death(man: 1))?.1]
-            r.check("S13 rumble mapping ($85 explosion, $81 hit with FX off, fx 0 ignored, death)",
-                    m == ["explosion", "hit", nil, "death"], "\(m)")
+            let m = [Rumble.pulse(for: .fx(id: 0x85, enabled: true), section: 0)?.1, Rumble.pulse(for: .fx(id: 0x81, enabled: false), section: 0)?.1,
+                     Rumble.pulse(for: .fx(id: 0, enabled: true), section: 0)?.1, Rumble.pulse(for: .death(man: 1), section: 1)?.1,
+                     Rumble.pulse(for: .fx(id: 0x80, enabled: true), section: 1, area: .tunnels)?.1,
+                     Rumble.pulse(for: .fx(id: 0x81, enabled: true), section: 1, area: .tunnels)?.1,
+                     Rumble.pulse(for: .fx(id: 0x81, enabled: true), section: 2, area: .bunker)?.1,
+                     Rumble.pulse(for: .fx(id: 0x81, enabled: true), section: 2, area: .finalJungle)?.1]
+            r.check("S13 rumble mapping per section ($85 explosion, jungle $81 hit with FX off, fx 0 ignored, death, tunnel $80 hit / $81 kill, foxhole $81)",
+                    m == ["explosion", "hit", nil, "death", "hit", "kill", "barnes hit", nil], "\(m)")
         }
 
         // U8: persistence + presets
@@ -339,6 +343,29 @@ enum InputSelfTest {
         }
         scan(NSApp.mainMenu)
         r.check("M7 Game ▸ Controls… opens the Controls & Bindings window (menu item retargeted)", !retargeted.isEmpty, retargeted.joined(separator: ", "))
+        // controller capture: the real pad path (InputManager.capturePad) replaces, ⊕ adds / removes one button
+        do {
+            let model = w.model
+            let im = AppServices.shared.host?.inputManager ?? InputManager()
+            model.managerOverride = im
+            func pad(_ b: PadButton) {
+                im.injectPad(b, down: true); im.injectPad(b, down: false)
+                RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+            }
+            model.startCapture(.fire, .padAdd); pad(.lb)
+            let added = model.bindings[.fire].pad
+            model.startCapture(.fire, .padAdd); pad(.a)
+            let removed = model.bindings[.fire].pad
+            model.startCapture(.space, .pad); pad(.y)
+            let replaced = model.bindings[.space].pad
+            let persisted = InputSettings.load()[.fire].pad
+            model.resetAll()
+            model.managerOverride = nil
+            let back = InputSettings.load() == .standard && (AppServices.shared.host.map { $0.inputManager.bindings == .standard } ?? true)
+            r.check("M7 controller capture: ⊕ adds / removes one button, the cell replaces, persisted, Restore Defaults",
+                    added == [.a, .b, .rt, .rb, .lb] && removed == [.b, .rt, .rb, .lb] && replaced == [.y] && persisted == removed && back,
+                    "added \(added.map(\.rawValue)) removed \(removed.map(\.rawValue)) replaced \(replaced.map(\.rawValue)) back \(back)")
+        }
         w.window?.close()
         let p = ControllerHintPanel()
         let c = ctx(.trapDoorPrompt)
@@ -487,6 +514,11 @@ enum InputSelfTest {
             let fx1 = g.count { if case .fx(0x0a, _) = $0 { return true }; return false }
             r.check("S2 pad X = Amiga SPACE: jungle grenade thrown", ok && ready && sawSpace && fx1 > fx0,
                     "playing \(ok), ready \(ready), SPACE in key matrix \(sawSpace), grenade sfx \(fx0)->\(fx1), grenades \(gren0)->\(g.ctx.man?.grenades ?? -1)")
+            // S13: the real event stream of that throw maps to rumble pulses (throw tick, then the explosion)
+            g.run(120)
+            let pulses = g.events.compactMap { Rumble.pulse(for: $0.event, section: 0, area: .jungle)?.1 }
+            r.check("S13 rumble from the game's events: grenade throw + explosion in the jungle",
+                    pulses.contains("throw") && pulses.contains("explosion"), pulses.suffix(8).joined(separator: ", "))
             // Left-Alt is only honoured with no enemy on screen (estate 0)
             let calm = g.runUntil(3000) { g.m.memory.r16(0x5f888) == 0 && g.m.memory.r16(0x5f89a) == 0 && g.m.memory.r8(0x60c42) == 0 }
             g.shot("s2_before_y")

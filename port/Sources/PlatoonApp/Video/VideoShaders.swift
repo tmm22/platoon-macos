@@ -123,7 +123,9 @@ enum VideoShaders {
     }
 
     // ---------------------------------------------------------------- MMPX (M19)
-    struct MU { int2 lowSize; };
+    // splitY: first canvas line of the HUD kept sharp (M19 option), or the texture height = none. Rows above it
+    // never look at the HUD rows (the game window's last line isn't smoothed against the status bar).
+    struct MU { int2 lowSize; int splitY; int pad; };
     static uint pk(float4 c) { uint3 v = uint3(round(saturate(c.rgb) * 255.0)); return (v.r << 16) | (v.g << 8) | v.b; }
     static uint SRCP(texture2d<float> t, int2 sz, int x, int y) {
         x = clamp(x, 0, sz.x - 1); y = clamp(y, 0, sz.y - 1);
@@ -139,7 +141,9 @@ enum VideoShaders {
     fragment float4 fmmpx(V in [[stage_in]], constant MU &u [[buffer(0)]], texture2d<float> t [[texture(0)]]) {
         int2 o = int2(in.pos.xy);
         int sx = o.x >> 1, sy = o.y >> 1;
-        #define S(dx, dy) SRCP(t, u.lowSize, sx + (dx), sy + (dy))
+        if (sy >= u.splitY) { uint e = SRCP(t, u.lowSize, sx, sy); return float4(float((e >> 16) & 255), float((e >> 8) & 255), float(e & 255), 255.0) / 255.0; }
+        int2 lim = int2(u.lowSize.x, min(u.lowSize.y, u.splitY));
+        #define S(dx, dy) SRCP(t, lim, sx + (dx), sy + (dy))
         uint A = S(-1,-1), B = S(0,-1), C = S(1,-1), D = S(-1,0), E = S(0,0), F = S(1,0), G = S(-1,1), H = S(0,1), I = S(1,1);
         uint J = E, K = E, L = E, M = E;
         if (((A ^ E) | (B ^ E) | (C ^ E) | (D ^ E) | (F ^ E) | (G ^ E) | (H ^ E) | (I ^ E)) != 0) {

@@ -8,7 +8,8 @@ import PlatoonCore
 //   3 + guide      - "take the LEFT exit" towards the nearest bunker (BFS over (room, heading), exact
 //                    trans_left/trans_right rules, validated against re/finaljungle/assets/maze_graph.json), the
 //                    number of rooms left, "walk to the far end first", Barnes' remaining hits in the bunker.
-//                    Level 3 marks the run as assisted (F4/S5); levels 1-2 only show what the player has seen.
+//                    Level 3 marks the run as assisted (F4/S5); levels 1-2 do too while the player has no compass
+//                    (the heading is then hidden by the game), otherwise they only show what the player has seen.
 // Model: PlatoonCore FinalJungleMaze / FinalJungleLive (Game/Section2/FinalNavigator.swift).
 
 /// Per-run navigator state (host side), updated every emulated frame.
@@ -38,10 +39,11 @@ final class FinalNavigatorModel {
     private var lastDepthZone = false
     private var lastBarnes = -1
     private var markedGuide = false
+    private var markedHeading = false
 
     func reset() {
         active = false; live = nil; maze = nil; visited = []; visitedSet = []; route = nil; lastRoom = nil
-        markedGuide = false; version += 1
+        markedGuide = false; markedHeading = false; version += 1
     }
 
     /// Called in onFrame (every emulated frame).
@@ -50,7 +52,8 @@ final class FinalNavigatorModel {
         let inS2 = g.inGame && g.loadedSection == 2 && g.section == 2 && g.screen == .playing
         if FinalNavigatorModel.debug, ctx.frame % 50 == 0 {
             NSLog("[s2nav] f\(ctx.frame) inGame=\(g.inGame) loaded=\(g.loadedSection) section=\(g.section.map(String.init) ?? "-") "
-                  + "screen=\(g.screen) level=\(level.rawValue) hidden=\(userHidden) active=\(active) rooms=\(visited.count)")
+                  + "screen=\(g.screen) level=\(level.rawValue) hidden=\(userHidden) active=\(active) rooms=\(visited.count) "
+                  + "assisted=[\((AppServices.shared.host?.assistedReasons ?? []).joined(separator: "; "))]")
         }
         if !g.inGame && (!visited.isEmpty || active) { reset(); return }   // title / game over: forget the run
         if inS2 != active { active = inS2; version += 1 }
@@ -67,11 +70,18 @@ final class FinalNavigatorModel {
         }
         let zone = l.atFarEnd
         if zone != lastDepthZone || l.barnesHP != lastBarnes { lastDepthZone = zone; lastBarnes = l.barnesHP; version += 1 }
-        if level == .guide && !markedGuide {
+        // F4/S5: the route guide is an assist; so is the heading while the player has no compass (the game's HUD
+        // hides it then; roadmap M5: "labelled a mild assist", like s2.compassAssist). Only while the panel is
+        // actually shown (level on, not hidden with N). Marked once per run; the reasons stay for the whole run.
+        let shown = level != .off && !userHidden
+        if shown && level == .guide && !markedGuide {
             markedGuide = true
             AppServices.shared.markAssisted("Final-jungle route guide")
         }
-        if level != .guide { markedGuide = false }
+        if shown && !l.hasCompass && !markedHeading {
+            markedHeading = true
+            AppServices.shared.markAssisted("Final-jungle heading without the compass")
+        }
     }
 }
 

@@ -157,6 +157,32 @@ public struct SpeedrunRecords: Codable, Equatable {
         return true
     }
 
+    /// LiveSplit splits file (.lss) of a category's personal best, in game time (the timer counts game frames), with
+    /// the gold segments as best segment times. nil if the category has no completed run.
+    public func liveSplit(_ category: String) -> String? {
+        guard let b = best[category] else { return nil }
+        func t(_ frames: Int) -> String {
+            let cs = frames * 2, s = cs / 100
+            return String(format: "%02d:%02d:%02d.%02d00000", s / 3600, s / 60 % 60, s % 60, cs % 100)
+        }
+        func esc(_ s: String) -> String {
+            s.replacingOccurrences(of: "&", with: "&amp;").replacingOccurrences(of: "<", with: "&lt;").replacingOccurrences(of: ">", with: "&gt;")
+        }
+        var x = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Run version=\"1.7.0\">\n"
+        x += "  <GameIcon />\n  <GameName>Platoon (Amiga)</GameName>\n  <CategoryName>\(esc(category))</CategoryName>\n"
+        x += "  <Metadata><Run id=\"\" /><Platform usesEmulator=\"False\">Amiga</Platform><Region /><Variables /></Metadata>\n"
+        x += "  <Offset>00:00:00</Offset>\n  <AttemptCount>0</AttemptCount>\n  <AttemptHistory />\n  <Segments>\n"
+        for sp in b.splits {
+            x += "    <Segment>\n      <Name>\(esc(sp.name))</Name>\n      <Icon />\n      <SplitTimes>\n"
+            x += "        <SplitTime name=\"Personal Best\"><GameTime>\(t(sp.frames))</GameTime></SplitTime>\n      </SplitTimes>\n"
+            if let g = golds[category]?[sp.id] { x += "      <BestSegmentTime><GameTime>\(t(g))</GameTime></BestSegmentTime>\n" }
+            else { x += "      <BestSegmentTime />\n" }
+            x += "      <SegmentHistory />\n    </Segment>\n"
+        }
+        x += "  </Segments>\n  <AutoSplitterSettings />\n</Run>\n"
+        return x
+    }
+
     /// Plain-text splits table of a category (export / clipboard).
     public func text(_ category: String) -> String {
         guard let b = best[category] else { return "No completed run in category \(category)." }
@@ -232,6 +258,8 @@ public final class ServiceRecorder {
     private var bunkerGrenades: (man: Int, count: Int, hits: Int)?
     private var lastTimer = 0
     private var dirty = false
+    /// Sections completed in this run (the win ends the game without a section-end event for section 2).
+    private var runSections = Set<Int>()
 
     /// Medals count in unassisted runs and runs with a difficulty preset (not with assists, rewinds, practice ...).
     private var medalsAllowed: Bool { last.hiscoreMode != "assisted" }
@@ -271,6 +299,7 @@ public final class ServiceRecorder {
         switch e {
         case .newGame(let s):
             inRun = true; runStart = s; runFrames = 0; runDeaths = 0; runWon = false; flareClean = nil; bunkerGrenades = nil
+            runSections = []
             record.gamesStarted += 1; changed()
         case .death:
             guard inRun else { return }
@@ -289,7 +318,7 @@ public final class ServiceRecorder {
             if t.contains("ROMAN EMPIRE") { earn("scholar") }
             if t.contains("ATTEMPT SUICIDE") { earn("dontDoIt") }
         case .sectionEnd(let s):
-            guard inRun, (0...2).contains(s) else { return }
+            guard inRun, (0...2).contains(s), runSections.insert(s).inserted else { return }
             record.sectionsCompleted[s] += 1
             if s == 0 && last.men.count == 5 && last.men.allSatisfy({ $0.alive }) { earn("bandOfBrothers") }
             if s == 1 && flareClean == true { earn("nightOwl") }
@@ -312,6 +341,7 @@ public final class ServiceRecorder {
     private func won() {
         runWon = true
         record.gamesWon += 1
+        if runSections.insert(2).inserted { record.sectionsCompleted[2] += 1 }
         let mode = last.hiscoreMode
         if runStart == 0, runFrames < record.fastestWin[mode] ?? Int.max { record.fastestWin[mode] = runFrames }
         earn("complete")

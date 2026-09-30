@@ -12,8 +12,9 @@ extension PrefsRegistry {
     static var gameplaySection2Sections: [PrefSection] {
         [
             PrefSection(tab: .assist, title: "Final jungle navigator (M5)",
-                        footer: "Read-only overlay beside or on the game picture, shown in the final jungle. The route guide "
-                            + "marks the game as assisted (separate hiscore table).", order: 150, items: [
+                        footer: "Read-only overlay beside or on the game picture, shown in the final jungle. The route guide, "
+                            + "and the heading while you carry no compass, mark the game as assisted (separate hiscore "
+                            + "table).", order: 150, items: [
                 .choice("section2.navigator", "Navigator", default: 0,
                         [(0, "Off"), (1, "Heading and exits"), (2, "Heading + map of visited rooms"), (3, "Heading + map + route guide")],
                         help: "Heading shows which way you face (N/E/S/W) even without the compass, and which side exits the room "

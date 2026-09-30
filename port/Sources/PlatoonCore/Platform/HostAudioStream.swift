@@ -45,6 +45,9 @@ public final class HostAudioStream {
     private var hL: Float = 0, hR: Float = 0              // the frame before readPos (x[-1])
     private var corr = 0.0, integ = 0.0, eFilt = 0.0
     private var estSpeed = 1.0, estFrames = 0, estStart = -1.0, lastPush = -1.0
+    // near-real-time producers (90-99 %, e.g. an overloaded host): the estimate is trusted only after repeated
+    // underruns prove it (an idle host measures ~100 % and never gets here), and until it is back at >= 99 %
+    private var trustNear = false, rendered = 0, lastUnderrunAt = Int.min / 2
 
     public init(rate: Double = 48000, seconds: Double = 1.0, mode: Mode = .legacy) {
         self.rate = rate
@@ -61,7 +64,7 @@ public final class HostAudioStream {
 
     private func resetLocked() {
         fill = 0; readPos = writePos; priming = true; frac = 0; hL = 0; hR = 0; corr = 0; integ = 0; eFilt = 0
-        estFrames = 0; estStart = -1
+        estFrames = 0; estStart = -1; trustNear = false; lastUnderrunAt = Int.min / 2
     }
 
     /// Empties the buffer (pause, reset).
@@ -126,12 +129,15 @@ public final class HostAudioStream {
         if priming {
             if fill >= target { priming = false; frac = 0 } else {
                 for i in 0..<n { l[i] = 0; r[i] = 0 }
+                rendered &+= n
                 return
             }
         }
         // rate: producer speed x fill correction (+-0.5 %)
-        // (an estimate within 10 % of real time is jitter / lost frames: the fill control and re-priming handle it)
-        var speed = _speedHint ?? (estSpeed < 0.9 ? estSpeed : 1)
+        // (an estimate within 10 % of real time is normally jitter / lost frames: the fill control and re-priming
+        // handle it; but when underruns keep coming (two within 6 s) the host really is that slow: follow it)
+        if estSpeed >= 0.99 { trustNear = false }
+        var speed = _speedHint ?? (estSpeed < 0.9 || trustNear ? estSpeed : 1)
         speed = min(1.25, max(0.2, speed))
         // PI control of the fill: the integral term absorbs a constant clock offset (the fill then settles at
         // the target instead of wherever the proportional term alone balances it), both limited to +-0.5 %.
@@ -150,6 +156,8 @@ public final class HostAudioStream {
             if fill < 6 {                                  // underrun: silence, re-prime
                 while i < n { l[i] = 0; r[i] = 0; i += 1 }
                 priming = true; _stats.underruns += 1
+                if rendered + i - lastUnderrunAt < Int(rate * 6) && estSpeed < 0.99 { trustNear = true }
+                lastUnderrunAt = rendered + i
                 break
             }
             let p1 = (readPos + 2) % cap, p2 = (readPos + 4) % cap
@@ -164,6 +172,7 @@ public final class HostAudioStream {
                 readPos = (readPos + 2) % cap; fill -= 2
             }
         }
+        rendered &+= n
     }
 
     @inline(__always) static func hermite(_ xm1: Float, _ x0: Float, _ x1: Float, _ x2: Float, _ t: Float) -> Float {

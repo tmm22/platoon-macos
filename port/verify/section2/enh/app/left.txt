@@ -1,0 +1,34 @@
+pref section2.navigator=3,section2.roomSlide=1,section2.roomSlideFrames=12
+answer 0
+frame 1026
+key 7e down
+key 7b down
+frame 1100
+key 7b up
+key 7e up
+frame 1106
+capture room2
+frame 1110
+key 7e down
+key 7c down
+frame 1200
+key 7c up
+key 7e up
+frame 1210
+capture room3
+log room3
+key 2d tap
+wait 3
+capture hidden
+key 2d tap
+pref section2.navigatorPlace=1,section2.navigator=2
+wait 5
+capture inside
+pref section2.navigator=1
+wait 5
+capture level1
+pausemenu
+wait 5
+menurows
+capture pause
+quit

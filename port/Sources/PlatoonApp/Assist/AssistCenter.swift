@@ -18,6 +18,9 @@ final class AssistCenter {
     let timer = RunTimer()
     let recorder = ServiceRecorder()
     var records = SpeedrunRecords()
+    /// The personal bests as they were when the current run started (the live deltas compare against these, so a
+    /// run that just set a new PB still shows how much it gained).
+    private(set) var comparison = SpeedrunRecords()
     let speech = AssistSpeech()
     let replays = ReplayController()
     let practice = PracticeController()
@@ -127,6 +130,7 @@ final class AssistCenter {
         case .newGame:
             messageLog.clear(); logPanel.refresh()
             objectives.reset()
+            comparison = records
         default: break
         }
         if case .gameOver(let score, _) = e { replays.gameEnded(score: Platoon.bcdValue(score)) }
@@ -137,7 +141,7 @@ final class AssistCenter {
     }
 
     /// The service record counts real games only (not practice drills or replays).
-    private var recording: Bool { Prefs.bool(AssistPrefs.serviceRecord) && practice.drill == nil && !replays.isPlaying }
+    private var recording: Bool { Prefs.bool(AssistPrefs.serviceRecord) && practice.drill == nil && !replays.isReplayGame }
 
     // MARK: display
 
@@ -150,7 +154,7 @@ final class AssistCenter {
         objectivesPanel.refresh(c)
         hudPanel.refresh(c)
         briefingPanel.refresh(c, memory: ctx.memory)
-        timerPanel.refresh(timer, records: records)
+        timerPanel.refresh(timer, records: comparison)
         practiceBadge.refresh(practice)
         difficultyBadge.refresh(c)
         replays.display(ctx)
@@ -171,7 +175,7 @@ final class AssistCenter {
     private func loadRecords() {
         let dec = JSONDecoder(); dec.dateDecodingStrategy = .iso8601
         if let d = try? Data(contentsOf: recordURL), let r = try? dec.decode(ServiceRecord.self, from: d) { recorder.record = r }
-        if let d = try? Data(contentsOf: splitsURL), let r = try? dec.decode(SpeedrunRecords.self, from: d) { records = r }
+        if let d = try? Data(contentsOf: splitsURL), let r = try? dec.decode(SpeedrunRecords.self, from: d) { records = r; comparison = r }
     }
     func saveRecords() {
         let enc = JSONEncoder(); enc.dateEncodingStrategy = .iso8601; enc.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -180,11 +184,11 @@ final class AssistCenter {
         if let d = try? enc.encode(records) { try? d.write(to: splitsURL, options: .atomic) }
     }
     func resetServiceRecord() { recorder.record = ServiceRecord(); saveRecords() }
-    func resetSpeedrunRecords() { records = SpeedrunRecords(); saveRecords() }
+    func resetSpeedrunRecords() { records = SpeedrunRecords(); comparison = records; saveRecords() }
 
     private func runFinished(won: Bool) {
         // practice drills and replays are not runs
-        guard practice.drill == nil, !replays.isPlaying else { return }
+        guard practice.drill == nil, !replays.isReplayGame else { return }
         let pb = records.record(category: timer.category, frames: timer.frames, splits: timer.splits, won: won)
         if pb && Prefs.bool(AssistPrefs.timer) { AppServices.shared.toast("New personal best: \(RunSplits.clock(timer.frames))", seconds: 4) }
         saveRecords()

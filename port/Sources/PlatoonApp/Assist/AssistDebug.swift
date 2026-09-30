@@ -7,11 +7,14 @@ import PlatoonCore
 //   play PATH               play a replay / headless input script (M17 player; also the generic input driver)
 //   stopreplay              hand the controls over
 //   inject PATH             feed a script's input into the RUNNING game from its current frame (no restart; events
-//                           at absolute frames, e.g. the rest of a verify script after a practice drill start)
+//                           at absolute frames, e.g. the rest of a verify script after a practice drill start);
+//                           "inject PATH game": the input stands in for a player (the game counts in the service
+//                           record and personal bests, unlike a replay)
 // A line "+N command" waits N displayed frames after the previous command instead of an emulated frame.
 //   savereplay PATH         write the current game's replay (no dialog)
 //   practice ID             start a practice drill (jungle bridge village tunnels flare final barnes)
 //   practicestop
+//   newgame S [det]         new game at start section S (det: the headless --deterministic RNG)
 //   openlog / closelog      message log panel
 //   dumplog PATH            message log as text
 //   dumpspeech PATH         every line the speech feature said (PLATOON_ASSIST_SILENT=1: nothing is spoken aloud)
@@ -71,7 +74,7 @@ final class AssistDebug {
             switch a[0] {
             case "play": c.replays.play(url: path(arg))
             case "stopreplay": c.replays.stopPlayback()
-            case "inject": c.replays.inject(url: path(arg))
+            case "inject": c.replays.inject(url: path(arg), asPlayer: a.count > 2 && a[2] == "game")
             case "savereplay":
                 switch c.replays.currentReplay() {
                 case .success(let r): try? c.replays.write(r, to: path(arg))
@@ -79,6 +82,16 @@ final class AssistDebug {
                 }
             case "practice": if let d = PracticeDrills.drill(arg) { c.practice.start(d) } else { NSLog("assist debug: no drill \(arg)") }
             case "practicestop": c.practice.stop()
+            case "newgame":
+                // a new game at a start section with the headless --deterministic RNG (so verification scripts can
+                // be injected as the player: "newgame 2 det" + "inject FILE game")
+                let sec = Int(arg) ?? 0, det = a.count > 2 && a[2] == "det"
+                if let h = c.host {
+                    h.restoreGame(section: sec, reason: "Test start") { m, cfg in
+                        var k = cfg; k.startSection = sec; k.deterministicRNG = det
+                        m.start { PlatoonGame.main($0, config: k) }
+                    }
+                }
             case "openlog": c.showLog()
             case "closelog": c.logPanel.close()
             case "dumplog": try? c.messageLog.exportText().write(to: path(arg), atomically: true, encoding: .utf8)

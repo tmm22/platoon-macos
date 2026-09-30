@@ -68,7 +68,8 @@ enum GameplayPrefs {
         return r.changed.filter { !$0.hasPrefix("difficulty=") }.compactMap { kv in
             let parts = kv.split(separator: "=", maxSplits: 1).map(String.init)
             guard parts.count == 2 else { return nil }
-            return "\(knobTitle(parts[0])): \(pretty(parts[0], parts[1]))\(originalText(parts[0]))"
+            let orig = originalText(parts[0])
+            return "\(knobTitle(parts[0])): \(pretty(parts[0], parts[1], hex: orig.hasPrefix(" (original $")))\(orig)"
         }
     }
 
@@ -79,12 +80,19 @@ enum GameplayPrefs {
         var tail = info.help[r.upperBound...].trimmingCharacters(in: CharacterSet(charactersIn: " :"))
         if let end = tail.firstIndex(where: { $0 == ")" || $0 == ";" }) { tail = String(tail[..<end]) }
         if tail.hasSuffix(".") { tail.removeLast() }
-        return tail.isEmpty ? "" : " (original \(tail))"
+        guard !tail.isEmpty else { return "" }
+        // "$c00" -> "$C00" (same case as the value)
+        if tail.hasPrefix("$") {
+            let digits = tail.dropFirst().prefix { $0.isHexDigit }
+            tail = "$" + digits.uppercased() + tail.dropFirst(1 + digits.count)
+        }
+        return " (original \(tail))"
     }
 
-    static func pretty(_ key: String, _ v: String) -> String {
+    /// A knob value in the notation of its original literal (hex where the help text gives "$..").
+    static func pretty(_ key: String, _ v: String, hex: Bool = false) -> String {
         guard let n = Int(v) else { return v }
-        if key.hasSuffix("Morale") || key.hasSuffix("startMorale") || key.hasSuffix("shootMask") { return String(format: "$%X", n) }
+        if hex || key.hasSuffix("Morale") || key.hasSuffix("shootMask") { return String(format: "$%X", n) }
         if key.hasSuffix("rifleKillsSpider") || key.hasSuffix("trapsWound") || key.hasSuffix("bridgeFailsafe") || key.hasSuffix("noMap") {
             return n != 0 ? "on" : "off"
         }

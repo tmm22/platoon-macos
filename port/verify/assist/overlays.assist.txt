@@ -1,0 +1,13 @@
++20 newgame 2 det
++3 inject VERIFY/final_s2.plreplay game
+300 state state.txt
+1000 state state.txt
+1300 state state.txt
+2090 state state.txt
+2250 state state.txt
+2560 state state.txt
+2560 dumplog log.txt
+2560 dumpspeech speech.txt
+2570 savereplay rec.plreplay
+2580 record record.json
+2600 openlog

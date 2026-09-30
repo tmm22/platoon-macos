@@ -10,7 +10,7 @@ import Foundation
 
 enum PracticeScripts {
     /// Drill start frames (the snapshot is taken at the first main-loop head at or after them).
-    static let s0BridgeFrame = 7700
+    static let s0BridgeFrame = 6800      // level 4, explosives carried since f2610; bridge ~f7900
     static let s0VillageFrame = 8800
     static let s1FlareFrame = 1250
     static let s2BunkerFrame = 2195

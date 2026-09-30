@@ -6,8 +6,8 @@
 # 2. PLATOON_VIDEO_TEST: offscreen renderer + recorder tests in the app -> OUTDIR/selftest/report.txt (PASS/FAIL),
 #    look_*.png / zoom_*.png (every filter and CRT preset at 1080p/1440p/2160p) for visual review;
 # 3. app runs from the snapshots with S13/S16/S17 on (and off for comparison) -> OUTDIR/<run>/*_game.png,
-#    OUTDIR/<run>_fx.log (effect events), and a recording run (M24) whose files are verified -> OUTDIR/rec/video.log.
-# Takes about 6 minutes. Run it in the background.
+#    OUTDIR/<run>_fx.log (effect events), the final-jungle sniper cue on/off, and a recording run (M24) whose files are verified -> OUTDIR/rec/video.log.
+# Takes about 8 minutes. Run it in the background.
 set -u
 APP=$1; HL=$2; OUT=${3:-/tmp/enh-presentation/verify}
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
@@ -44,12 +44,19 @@ for s in hit flare napalm; do
   run "$s" 90 PLATOON_DEBUG_SAVESTATES="$OUT/${s}_ss.txt" PLATOON_DEBUG_SCRIPT="$OUT/${s}_dbg.txt" PLATOON_VIDEO_LOG="$OUT/${s}_fx.log" PLATOON_PREFS=$ON
   run "${s}_off" 90 PLATOON_DEBUG_SAVESTATES="$OUT/${s}_ss.txt" PLATOON_DEBUG_SCRIPT="$OUT/${s}_dbg.txt"
 done
-scr rec_vid.txt '+200 record movie' '+250 stop' '+60 record gif' '+120 stop' '+60 copyshot'
+# S13 sniper cue: section 2 from the start, fire through the intro text, stand still until the idle shot
+{ echo "wait 30"; echo "reset 2"; echo "frame 800"; echo "key 31 tap"; echo "frame 900"; echo "key 31 tap"
+  echo "frame 1195"; echo "capture s1195"; echo "frame 1300"; echo "capture s1300"; echo quit; } > "$OUT/sniper_dbg.txt"
+run sniper 100 PLATOON_DEBUG_SCRIPT="$OUT/sniper_dbg.txt" PLATOON_VIDEO_LOG="$OUT/sniper_fx.log" PLATOON_PREFS=presentation.sniperCue=1
+run sniper_off 100 PLATOON_DEBUG_SCRIPT="$OUT/sniper_dbg.txt" PLATOON_VIDEO_LOG="$OUT/sniper_off_fx.log"
+scr rec_vid.txt '+200 record movie' '+250 stop' '+60 record gif' '+120 stop' '+60 copyshot' '+20 menushot'
 scr rec_dbg.txt 'wait 800' 'quit'
-run rec 60 PLATOON_RECORD_DIR="$OUT/rec/files" PLATOON_DEBUG_SCRIPT="$OUT/rec_dbg.txt" PLATOON_VIDEO_SCRIPT="$OUT/rec_vid.txt"
+run rec 60 PLATOON_RECORD_DIR="$OUT/rec/files" PLATOON_SCREENSHOT_DIR="$OUT/rec/shots" PLATOON_DEBUG_SCRIPT="$OUT/rec_dbg.txt" PLATOON_VIDEO_SCRIPT="$OUT/rec_vid.txt"
 
 echo "== selftest"; cat "$OUT/selftest/report.txt"
 for s in hit flare napalm; do echo "== $s: $(grep -c . "$OUT/${s}_fx.log" 2>/dev/null) effect events"; head -3 "$OUT/${s}_fx.log" 2>/dev/null; done
+echo "== sniper cue: on $(grep -c 'sniper cue' "$OUT/sniper_fx.log" 2>/dev/null) / off $(grep -c 'sniper cue' "$OUT/sniper_off_fx.log" 2>/dev/null) events"
 echo "== recording"; cat "$OUT/rec/video.log"
-grep -q "ALL PASS" "$OUT/selftest/report.txt" && ! grep -q FAIL "$OUT/rec/video.log" && [ -s "$OUT/hit_fx.log" ] && [ -s "$OUT/napalm_fx.log" ] \
+grep -q "ALL PASS" "$OUT/selftest/report.txt" && ! grep -q FAIL "$OUT/rec/video.log" && grep -q "menushot: ok" "$OUT/rec/video.log" && [ -s "$OUT/hit_fx.log" ] && [ -s "$OUT/napalm_fx.log" ] \
+  && grep -q "sniper cue" "$OUT/sniper_fx.log" && ! grep -q "sniper cue" "$OUT/sniper_off_fx.log" \
   && echo "PRESENTATION SELFTEST PASS" || { echo "PRESENTATION SELFTEST FAIL"; exit 1; }

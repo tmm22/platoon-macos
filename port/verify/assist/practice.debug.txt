@@ -1,0 +1,32 @@
+resize 1400 820
+pref assist.objectives=1,assist.objectivesTier=2,assist.hud=1
+wait 700
+capture bridge
+wait 300
+capture bridge2
+wait 600
+capture barnes
+pausemenu
+wait 5
+menurows
+menu x.assist.practice
+wait 10
+capture chooser
+key 7d tap
+wait 3
+key 35 tap
+wait 5
+key 35 tap
+wait 5
+prefs gameplay
+wait 10
+prefshot gameplay
+pref gameplay.difficulty=1
+wait 10
+prefshot gameplay_recruit
+prefs assist
+wait 10
+prefshot assist
+closeprefs
+wait 10
+quit

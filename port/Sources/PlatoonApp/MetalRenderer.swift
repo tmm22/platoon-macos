@@ -333,10 +333,12 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
         var mode = filter.rawValue
         if filter == .mmpx {
             if newFrame || colourPassNeeded {
-                var u = SIMD2<Int32>(Int32(Chipset.canvasWidth / 2), Int32(Chipset.canvasHeight))
+                // M19 option: keep the status bar sharp (text and bars are not pixel art)
+                let split = look.mmpxSharpHud && fx.hudActive ? fx.splitCanvasY : Chipset.canvasHeight
+                var u = SIMD4<Int32>(Int32(Chipset.canvasWidth / 2), Int32(Chipset.canvasHeight), Int32(split), 0)
                 offscreen(cb, mmpxTex) { enc in
                     enc.setRenderPipelineState(mmpxPipeline)
-                    enc.setFragmentBytes(&u, length: MemoryLayout<SIMD2<Int32>>.stride, index: 0)
+                    enc.setFragmentBytes(&u, length: MemoryLayout<SIMD4<Int32>>.stride, index: 0)
                     enc.setFragmentTexture(source, index: 0)
                 }
             }

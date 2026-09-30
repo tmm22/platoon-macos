@@ -45,6 +45,9 @@ public struct PracticeDrill: Equatable {
     /// RAM written into the snapshot: undoes what the verification scripts used to get there quickly (the jungle
     /// route's invincibility poke $60ca0, the tunnel cheat's flags $70(a6)) and sets the flare count.
     let fixups: [(addr: UInt32, bytes: [UInt8])]
+    /// Heal the living men (the scripted routes arrive with a badly wounded soldier: one more hit would end the
+    /// drill at once) and blank the HUD wound splats to match.
+    var heal = false
 
     public static func == (a: PracticeDrill, b: PracticeDrill) -> Bool { a.id == b.id }
 
@@ -64,12 +67,12 @@ public enum PracticeDrills {
     public static let all: [PracticeDrill] = [
         PracticeDrill(id: "jungle", title: "The Jungle", detail: "From the start of the game.", section: 0,
                       start: .section(0), goal: .bridge, fixups: []),
-        PracticeDrill(id: "bridge", title: "The Bridge", detail: "On the front strip with the explosives, before the bridge.",
+        PracticeDrill(id: "bridge", title: "The Bridge", detail: "Deep in the jungle with the explosives: get them to the bridge.",
                       section: 0, start: .script(name: "s0", startSection: 0, frame: PracticeScripts.s0BridgeFrame, loop: .jungle),
-                      goal: .bridge, fixups: noInvincibility),
+                      goal: .bridge, fixups: noInvincibility, heal: true),
         PracticeDrill(id: "village", title: "The Village", detail: "On the village street: torch, map, trap door.",
                       section: 0, start: .script(name: "s0", startSection: 0, frame: PracticeScripts.s0VillageFrame, loop: .jungle),
-                      goal: .trapDoor, fixups: noInvincibility),
+                      goal: .trapDoor, fixups: noInvincibility, heal: true),
         PracticeDrill(id: "tunnels", title: "The Tunnels", detail: "From the tunnel entrance.", section: 1,
                       start: .section(1), goal: .tunnelExit, fixups: []),
         PracticeDrill(id: "flare", title: "The Flare Night", detail: "In the foxhole with 8 flares.", section: 1,
@@ -79,7 +82,7 @@ public enum PracticeDrills {
                       start: .section(2), goal: .bunker, fixups: []),
         PracticeDrill(id: "barnes", title: "Sgt Barnes", detail: "At the bunker.", section: 2,
                       start: .script(name: "s2", startSection: nil, frame: PracticeScripts.s2BunkerFrame, loop: .finalJungle),
-                      goal: .huey, fixups: []),
+                      goal: .huey, fixups: [], heal: true),
     ]
     /// Section 0 scripts walk with the invincibility poke (cheat F5 without the cheat flag): clear it.
     static let noInvincibility: [(addr: UInt32, bytes: [UInt8])] = [(0x60ca0, [0, 0])]
@@ -106,6 +109,8 @@ public enum PracticeDrills {
         switch d.start {
         case .section(let s):
             cfg.startSection = s; target = 0
+            // the section's intro text screen waits for fire: tap it (1 frame in 100) until play starts
+            events = stride(from: 150, to: 3000, by: 100).flatMap { [($0, ["fire", "1"]), ($0 + 2, ["fire", "0"])] }
         case .script(let name, let ss, let frame, let l):
             cfg.startSection = ss; target = frame; loop = l
             events = PracticeScripts.events(PracticeScripts.script(name))
@@ -136,10 +141,26 @@ public enum PracticeDrills {
         m.stop()
         guard var s = snap else { throw Failure.noSnapshot("no loop head reached by frame \(f)") }
         for (a, b) in d.fixups { for (i, v) in b.enumerated() { s.machine.memory[Int(a) + i] = v } }
+        if d.heal { heal(&s.machine.memory) }
         s.info.label = d.title
         s.info.assisted = true
         progress?(1)
         return s
+    }
+
+    /// Sets every living man's wounds (a6 + 6*i + 4, 4 = dead) to 0 and clears the 4 HUD wound slots that
+    /// k_hud_wounds ($10656) draws at $797c0 + 4k (3x3 cells of 8 lines, 4 planes $2000 apart, rows $28 bytes).
+    static func heal(_ mem: inout [UInt8]) {
+        for i in 0..<5 {
+            let w = Int(Platoon.a6) + 6 * i + 4
+            if mem[w] == 0 && mem[w + 1] < 4 { mem[w + 1] = 0 }
+        }
+        for k in 0..<4 {
+            let base = 0x797c0 + 4 * k
+            for br in 0..<3 { for c in 0..<3 { for y in 0..<8 { for p in 0..<4 {
+                mem[base + br * 0x140 + c + y * 0x28 + p * 0x2000] = 0
+            } } } }
+        }
     }
 
     static func apply(_ p: [String], to m: Machine) {

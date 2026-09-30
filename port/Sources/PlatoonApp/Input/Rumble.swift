@@ -4,10 +4,17 @@ import CoreHaptics
 import PlatoonCore
 
 // OWNER: [input]. S13 (controller half): rumble on game events, host-only (F2 observers; nothing touches the game).
-//   $85 explosion = strong, $81 player hit = medium, $84 enemy fire / $80 enemy death = light, $82/$83 shots and
-//   $0a grenade/flare throw = a short tick; a wound = medium, a death = strong and long; bridge blown ($60c9c -> 2)
-//   and the final-jungle napalm strike (timer runs out) = strong and long. fx(0) (F10 click / menu beep) is ignored.
-//   Works with the FX muted too (the event still happens). Default off.
+//   The sound-effect ids mean different things per section (checked in the translated code: $81 is the player's
+//   hit in the jungle but the player's bullet hitting a VC in the tunnels and the grenade hitting Barnes in the
+//   foxhole; $80 is a VC kill in the jungle but the player's hit in the tunnels), so the mapping is per section:
+//     jungle/village: $85 explosion (grenade, trap) strong, $81 player hit medium, $84 enemy fire and $80 kill
+//                     light, $82 shot / $0a throw a short tick
+//     tunnels/flare:  $80 player hit medium (flare: also a VC kill, light there), $81 VC hit light, $84 enemy fire
+//                     light, $82/$83 shots / $0a flare launch a tick
+//     final jungle:   $85 grenade explosion strong, foxhole $81 Barnes hit strong, $82 shot / $0a throw a tick
+//   plus the probe's wound (medium) and death (heavy) events, the bridge blast ($60c9c -> 2) and the napalm strike
+//   (final-jungle timer runs out) from RAM. A medium pulse right after another one is merged (the fx and the wound
+//   event of the same hit). fx(0) (F10 click / menu beep) is ignored. Works with the FX muted too. Default off.
 
 final class Rumble {
     static let shared = Rumble()
@@ -26,17 +33,20 @@ final class Rumble {
     /// Every pulse played (tests / PLATOON_INPUT_TEST): (frame, name).
     var log: ((UInt64, String) -> Void)?
 
-    /// Pure mapping (tested).
-    static func pulse(for e: GameEvent) -> (Pulse, String)? {
+    /// Pure mapping (tested). `section` = the loaded section (0 jungle, 1 tunnels/flare, 2 final jungle).
+    static func pulse(for e: GameEvent, section: Int?, area: GameContext.Area = .none) -> (Pulse, String)? {
         switch e {
         case .fx(let id, _):
-            switch id {
-            case 0x85: return (.strong, "explosion")
-            case 0x81: return (.medium, "hit")
-            case 0x84: return (.light, "enemy fire")
-            case 0x80: return (.light, "enemy death")
-            case 0x82, 0x83: return (.tick, "shot")
-            case 0x0a: return (.tick, "throw")
+            switch (section ?? 0, id) {
+            case (_, 0x85): return (.strong, "explosion")
+            case (0, 0x81): return (.medium, "hit")
+            case (0, 0x84), (1, 0x84): return (.light, "enemy fire")
+            case (0, 0x80): return (.light, "kill")
+            case (1, 0x80): return area == .flare ? (.light, "flare hit") : (.medium, "hit")
+            case (1, 0x81): return (.light, "kill")
+            case (2, 0x81) where area == .bunker: return (.strong, "barnes hit")
+            case (0, 0x82), (1, 0x82), (1, 0x83), (2, 0x82): return (.tick, "shot")
+            case (_, 0x0a): return (.tick, "throw")
             default: return nil
             }
         case .wounded: return (.medium, "wounded")
@@ -50,11 +60,14 @@ final class Rumble {
     private var lastNapalm = false
     private var lastTimer = -1
     private var lastPulseTime: CFTimeInterval = 0
+    private var lastPulse: Pulse?
 
     func install(_ app: AppServices) {
         app.onHostReady { [weak self] host in
-            host.probe.addObserver { r in
-                guard let self, self.enabled, let (p, name) = Rumble.pulse(for: r.event) else { return }
+            host.probe.addObserver { [weak host] r in
+                guard let self, self.enabled, let host else { return }
+                let c = host.probe.context
+                guard let (p, name) = Rumble.pulse(for: r.event, section: c.loadedSection, area: c.area) else { return }
                 self.play(p, name: name, frame: r.frame)
             }
         }
@@ -82,7 +95,9 @@ final class Rumble {
         // several small events in one frame: keep the strongest recent one only
         let now = CACurrentMediaTime()
         if p.intensity < 0.6 && now - lastPulseTime < 0.05 { return }
-        lastPulseTime = now
+        // the fx and the polled wound event of one hit arrive a frame or two apart: one pulse
+        if p == .medium && lastPulse == .medium && now - lastPulseTime < 0.15 { return }
+        lastPulseTime = now; lastPulse = p
         for c in GCController.controllers() {
             guard let e = engine(c) else { continue }
             let ev = CHHapticEvent(eventType: .hapticContinuous, parameters: [

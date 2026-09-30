@@ -208,6 +208,17 @@ final class AudioTests: XCTestCase {
         XCTAssertEqual(st.ratio, 0.6, accuracy: 0.05)
     }
 
+    /// A host that emulates only ~95 % of real time (overloaded machine): after the first underruns prove it,
+    /// the stream follows the producer instead of re-priming every second or so.
+    func testAdaptiveNearRealTimeProducer() {
+        let (s, _, _) = simulate(mode: .adaptive, speed: 0.95, seconds: 60)
+        let st = s.stats
+        XCTAssertLessThanOrEqual(st.underruns, 8, "\(st)")
+        XCTAssertEqual(st.ratio, 0.95, accuracy: 0.012, "\(st)")
+        let (s1, _, _) = simulate(mode: .adaptive, speed: 1, seconds: 60)   // real time: pitch stays at 1
+        XCTAssertEqual(s1.stats.ratio, 1, accuracy: 0.006, "\(s1.stats)")
+    }
+
     /// Slow motion announced by the host (speedHint): no underruns at all.
     func testAdaptiveSlowMotionWithHint() {
         let s = HostAudioStream(rate: 48000, seconds: 1, mode: .adaptive)

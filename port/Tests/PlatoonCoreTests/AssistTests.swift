@@ -28,10 +28,14 @@ final class AssistTests: XCTestCase {
                        "You didn't blow up the bridge, your platoon has been wiped out!")
         XCTAssertEqual(SpeechText.readable("A COMPASS WOULD HELP !"), "A compass would help!")
         XCTAssertEqual(SpeechText.readable("HERE IS A TRAP DOOR.... GO DOWN (Y/N)?"), "Here is a trap door... Go down? Y or N.")
-        XCTAssertEqual(SpeechText.readable("A BOX OF VIET CONG AMMUNITION."), "A box of viet cong ammunition.")
+        XCTAssertEqual(SpeechText.readable("A BOX OF VIET CONG AMMUNITION."), "A box of Viet Cong ammunition.")
         XCTAssertEqual(SpeechText.readable("THE TUNNEL SYSTEM\nPRESS FIRE TO CONTINUE"), "The tunnel system. Press fire to continue")
         XCTAssertEqual(SpeechText.readable("ENTERING THE COMBAT ZONE...."), "Entering the combat zone...")
         XCTAssertEqual(SpeechText.readable("!THE JUNGLE!\nYOU HAVE TWO  MINUTES"), "!The jungle! You have two minutes")
+        XCTAssertEqual(SpeechText.readable("!THE JUNGLE!\nYOU HAVE TWO  MINUTES BEFORE\nTHE AIRSTRIKE.\nFIND THE BUNKER!\nPRESS FIRE WHEN READY"),
+                       "!The jungle! You have two minutes before the airstrike. Find the bunker! Press fire when ready")
+        XCTAssertEqual(SpeechText.readable("ONE OF YOUR PLATOON MEMBERS FOLLOWED YOU\nTO THE EDGE OF THE JUNGLE\nYOU HAVE ONE MORE CHANCE\nTAKE CONTROL OF YOUR MAN"),
+                       "One of your platoon members followed you to the edge of the jungle. You have one more chance. Take control of your man")
     }
 
     func testMessageLogFolding() {
@@ -87,10 +91,15 @@ final class AssistTests: XCTestCase {
         XCTAssertTrue(pbs.record(category: timer.category, frames: timer.frames, splits: timer.splits, won: true))
         XCTAssertFalse(pbs.record(category: timer.category, frames: timer.frames + 1, splits: timer.splits, won: true))
         XCTAssertEqual(pbs.pbSplit(timer.category, "s2.bunker"), timer.splits[0].frames)
+        let lss = try XCTUnwrap(pbs.liveSplit(timer.category))
+        XCTAssertEqual(lss.components(separatedBy: "<Segment>").count - 1, 3)
+        XCTAssertTrue(lss.contains("<Name>Huey</Name>"))
+        XCTAssertNotNil(try? XMLDocument(xmlString: lss))
         // service record: a win with > 1:00 left
         XCTAssertEqual(record.record.gamesStarted, 1)
         XCTAssertEqual(record.record.gamesWon, 1)
         XCTAssertEqual(record.record.gamesLost, 0)
+        XCTAssertEqual(record.record.sectionsCompleted, [0, 0, 1])
         XCTAssertNotNil(record.record.medals["complete"])
         XCTAssertNotNil(record.record.medals["beatTheClock"])
         XCTAssertEqual(record.record.bestScore["original"], 1500)
@@ -135,7 +144,7 @@ final class AssistTests: XCTestCase {
             hashes.append(a.memory.hash(0, 0x80000))
         }
         a.stop()
-        var h = ReplayHeader(); h.startSection = 2
+        var h = ReplayHeader(); h.startSection = 2; h.deterministic = true
         let replay = rec.replay(header: h)
         XCTAssertEqual(replay.events.filter { if case .key = $0.kind { return true }; return false }.count, 8, "8 key deliveries")
         XCTAssertEqual(replay.minKeySpacing.map { $0 >= 1 }, true)
@@ -145,6 +154,8 @@ final class AssistTests: XCTestCase {
         XCTAssertEqual(back.events, replay.events)
         XCTAssertEqual(back.header.startSection, 2)
         XCTAssertTrue(text.contains("--start-section 2"))
+        XCTAssertTrue(back.header.deterministic)
+        XCTAssertTrue(text.contains("--deterministic"))
 
         // play back (the app player: key gap 0)
         let b = Machine(disk: d)
@@ -192,6 +203,7 @@ final class AssistTests: XCTestCase {
         var c = resumeAndRun(barnes, frames: 20, disk: d)
         XCTAssertEqual(c.area, .bunker)
         XCTAssertEqual(c.finalJungle?.barnesHP, 0x32)
+        XCTAssertEqual(c.man?.hits, 0, "healed drill start")
         XCTAssertTrue(c.assisted)
 
         let flare = try PracticeDrills.prepare(try XCTUnwrap(PracticeDrills.drill("flare")), disk: d)
@@ -206,10 +218,22 @@ final class AssistTests: XCTestCase {
         c = resumeAndRun(start, frames: 20, disk: d)
         XCTAssertEqual(c.section, 1)
         XCTAssertEqual(c.tunnels.map { [$0.x, $0.y] }, [21, 3])
+
+        let final = try PracticeDrills.prepare(try XCTUnwrap(PracticeDrills.drill("final")), disk: d)
+        XCTAssertEqual(final.info.loop, .finalJungle)
+        c = resumeAndRun(final, frames: 20, disk: d)
+        XCTAssertEqual(c.area, .finalJungle)
+        XCTAssertEqual(c.finalJungle?.room, 105)
     }
 
     func testPracticeDrillsJungle() throws {
         let d = try disk()
+        let start = try PracticeDrills.prepare(try XCTUnwrap(PracticeDrills.drill("jungle")), disk: d)
+        XCTAssertEqual(start.info.loop, .jungle)
+        let c0 = resumeAndRun(start, frames: 10, disk: d)
+        XCTAssertEqual(c0.area, .jungle)
+        XCTAssertFalse(c0.explosives)
+        XCTAssertEqual(c0.men.filter(\.alive).count, 5)
         let bridge = try PracticeDrills.prepare(try XCTUnwrap(PracticeDrills.drill("bridge")), disk: d)
         XCTAssertEqual(bridge.info.loop, .jungle)
         XCTAssertEqual(bridge.machine.memory[0x60ca0], 0, "invincibility poke cleared")
@@ -217,7 +241,8 @@ final class AssistTests: XCTestCase {
         XCTAssertEqual(c.area, .jungle)
         XCTAssertTrue(c.explosives)
         XCTAssertEqual(c.jungle?.bridge, 0)
-        XCTAssertEqual(c.jungle?.level, 1)
+        XCTAssertEqual(c.jungle?.level, 4)
+        XCTAssertEqual(c.man?.hits, 0, "healed drill start")
         let o = ObjectiveTracker(); o.update(c)
         let sheet = try XCTUnwrap(o.sheet(c, tier: .goals))
         XCTAssertEqual(sheet.objectives.map { $0.state == .done }, [true, false, false, false, false, false])

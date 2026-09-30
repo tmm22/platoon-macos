@@ -1,0 +1,21 @@
+pref assist.captions=1,assist.objectives=1,assist.objectivesTier=3,assist.hud=1,assist.timer=1,assist.briefings=1,assist.speech=1,assist.captionHold=3
+resize 1400 820
+wait 60
+frame 300
+capture briefing
+frame 1000
+capture play1
+frame 1300
+capture play2
+frame 2090
+capture bunker
+frame 2250
+capture won
+frame 2600
+wait 5
+capture log
+key 35 tap
+wait 5
+frame 2700
+wait 30
+quit

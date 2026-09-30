@@ -223,7 +223,7 @@ final class PracticeChooserPanel: OverlayPanel {
         let best = owner.bestTimes
         var rows = PracticeDrills.all.map { d in
             PracticeChooserModel.Row(id: d.id, title: d.title,
-                                     detail: d.detail + " Goal: " + d.goalText.lowercased() + (best[d.id].map { " · best \(RunSplits.clock($0))" } ?? ""))
+                                     detail: d.detail + " Goal: " + d.goalText + (best[d.id].map { " · best \(RunSplits.clock($0))" } ?? ""))
         }
         if owner.drill != nil { rows.append(.init(id: "stop", title: "Stop Practice", detail: "Keep playing from here (still assisted)")) }
         rows.append(.init(id: "back", title: "Back", detail: ""))

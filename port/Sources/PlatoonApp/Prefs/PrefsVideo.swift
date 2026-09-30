@@ -25,6 +25,11 @@ extension PrefsRegistry {
                 .slider(VideoKeys.crtSharpness, "Horizontal sharpness", default: 0.6, range: 0...1, step: 0.05, format: pct).enabled(if: isCustomCRT),
                 .toggle(VideoKeys.crtColour, "1084 / PAL colour response", default: true, help: "A little more gamma and warmer whites, like a Commodore monitor.").enabled(if: isCustomCRT),
             ]),
+            PrefSection(tab: .video, title: "Pixel-art upscaler (M19)", footer: "Used when the filter is Pixel-Art Upscaler (MMPX, ⌘4).",
+                        order: 4, items: [
+                .toggle(VideoKeys.mmpxSharpHud, "Keep the status bar sharp", default: true,
+                        help: "The upscaler smooths the game window only; the HUD's digits and bars stay crisp square pixels."),
+            ]),
             PrefSection(tab: .video, title: "Around the picture", order: 10, items: [
                 .choice(VideoKeys.backdrop, "Side bars (S14)", default: 0, [(0, "Black (original)"), (1, "Ambient glow of the picture")],
                         help: "Fills the bars beside the picture with a blurred, darkened extension of the frame."),
@@ -34,6 +39,9 @@ extension PrefsRegistry {
                         help: "Explosions, the bridge blast, hits and the napalm strike shake the picture by up to 2-3 pixels. Never in screenshots or recordings."),
                 .toggle(VideoKeys.hitTint, "Red screen-edge flash when you are hit", default: false,
                         help: "A visual cue for playing without sound."),
+                .toggle(SniperCue.key, "Final jungle: show which side a sniper shot comes from", default: false,
+                        help: "A \"◀ SNIPER\" / \"SNIPER ▶\" caption while the idle shot (the punishment for standing at one depth) "
+                            + "is in flight - a visual cue for playing without sound. Display only."),
                 .toggle(VideoKeys.srgbTag, "Colour-managed output (sRGB)", default: false,
                         help: "Tags the picture as sRGB so wide-gamut (P3) displays show the Amiga colours as intended "
                             + "instead of more saturated. Off: the colour values go to the display unchanged, as before."),

@@ -90,13 +90,19 @@ public enum SpeechText {
 
     /// Readable sentence-case version of a game text (keeps line structure as spaces).
     public static func readable(_ text: String) -> String {
-        // lines of a text screen: a sentence break where a line doesn't end with punctuation
-        var t = text.split(separator: "\n").map { l -> String in
-            let x = l.trimmingCharacters(in: .whitespaces)
-            return x.last.map { ".!?,:".contains($0) } == false ? x + "." : x
-        }.joined(separator: " ")
-        if let last = text.split(separator: "\n").last?.trimmingCharacters(in: .whitespaces), let c = last.last,
-           !".!?,:".contains(c), t.hasSuffix(".") { t.removeLast() }
+        // lines of a text screen: the game wraps its sentences over several lines without punctuation
+        // ("YOU HAVE TWO MINUTES BEFORE / THE AIRSTRIKE."), so a line break only becomes a sentence break when the
+        // next line starts a new sentence (an imperative or a new subject) and the line has no punctuation.
+        let lines = text.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        let starters = ["PRESS ", "YOU ", "TAKE ", "FIND ", "ONE ", "HERE ", "ENTER ", "GO ", "PLEASE ", "YOUR ", "A HUEY"]
+        var t = ""
+        for (i, x) in lines.enumerated() {
+            t += x
+            guard i + 1 < lines.count else { break }
+            let next = lines[i + 1].uppercased()
+            if let c = x.last, !".!?,:".contains(c), starters.contains(where: { next.hasPrefix($0) }) { t += "." }
+            t += " "
+        }
         t = t.replacingOccurrences(of: "\u{232B}", with: " ").replacingOccurrences(of: "\u{21B5}", with: " ")
         for (a, b) in fixes { t = t.replacingOccurrences(of: a, with: b) }
         while t.contains("  ") { t = t.replacingOccurrences(of: "  ", with: " ") }
@@ -112,13 +118,14 @@ public enum SpeechText {
     /// "OK" as they are.
     public static func sentenceCase(_ s: String) -> String {
         let keep: Set<String> = ["VC", "OK", "Y", "N", "I", "TV", "HQ"]
+        let proper: Set<String> = ["BARNES", "ELIAS", "HUEY", "VIET", "CONG", "ROMAN", "EMPIRE", "SGT"]
         var out = "", word = "", startOfSentence = true
         func flush() {
             guard !word.isEmpty else { return }
             let letters = word.filter { $0.isLetter }
             if keep.contains(letters) && (letters != "Y" && letters != "N" || word.count <= 2) {
                 out += word
-            } else if startOfSentence, let i = word.firstIndex(where: { $0.isLetter }) {
+            } else if startOfSentence || proper.contains(letters.uppercased()), let i = word.firstIndex(where: { $0.isLetter }) {
                 out += word[..<i] + word[i...i].uppercased() + word[word.index(after: i)...].lowercased()
             } else {
                 out += word.lowercased()

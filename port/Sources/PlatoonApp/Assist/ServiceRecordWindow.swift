@@ -58,6 +58,7 @@ struct ServiceRecordView: View {
                                 let t = model.records.best.keys.sorted().map { model.records.text($0) }.joined(separator: "\n")
                                 NSPasteboard.general.clearContents(); NSPasteboard.general.setString(t, forType: .string)
                             }.disabled(model.records.best.isEmpty)
+                            Button("Export LiveSplit…") { model.exportLiveSplit() }.disabled(model.records.best.isEmpty)
                             Button("Reset Personal Bests…") { model.confirmReset(pbs: true) }
                         }
                     }.frame(maxWidth: .infinity, alignment: .leading).padding(4)
@@ -85,6 +86,19 @@ final class ServiceRecordModel: ObservableObject {
         record = AssistCenter.shared.recorder.record
         records = AssistCenter.shared.records
     }
+    /// Writes one LiveSplit .lss per category into a chosen folder.
+    func exportLiveSplit() {
+        let p = NSOpenPanel()
+        p.canChooseDirectories = true; p.canChooseFiles = false; p.canCreateDirectories = true
+        p.prompt = "Export"; p.message = "Choose a folder for the LiveSplit splits files (one per category)."
+        guard p.runModal() == .OK, let dir = p.url else { return }
+        for cat in records.best.keys.sorted() {
+            guard let x = records.liveSplit(cat) else { continue }
+            let name = "Platoon " + cat.replacingOccurrences(of: "@", with: " from section ") + ".lss"
+            try? x.write(to: dir.appendingPathComponent(name), atomically: true, encoding: .utf8)
+        }
+    }
+
     func confirmReset(pbs: Bool) {
         let a = NSAlert()
         a.messageText = pbs ? "Reset all speedrun personal bests?" : "Reset the service record (statistics and medals)?"

@@ -22,6 +22,11 @@ final class ReplayController {
     private var injectedAsPlayer = false
     /// The replay being started (consumed by the next reset).
     private var pendingPlayback: InputReplay?
+    /// Input.keyGapFrames for the pending playback: 0 for the app's own replays (they record key DELIVERIES), 2 for
+    /// plain headless scripts (their key edges are paced by the queue like in platoon-headless: a press and its
+    /// release on the same frame would otherwise reach the game within one frame and be missed).
+    private var pendingKeyGap = 0
+    static func keyGap(forFile text: String) -> Int { text.hasPrefix(ReplayHeader.magic) ? 0 : 2 }
     private var startConfigKnown = false
     private var header = ReplayHeader()
     private var trainerAtStart: [String] = []
@@ -48,7 +53,8 @@ final class ReplayController {
             player = InputPlayer(r)
             injectedAsPlayer = false
             finishedToastShown = false
-            h.machine.input.keyGapFrames = 0         // queued keys are delivered at their recorded frame
+            h.machine.input.keyGapFrames = pendingKeyGap   // replays: keys are delivered at their recorded frame
+            pendingKeyGap = 0
             header = r.header
             header.created = Date()
             startConfigKnown = true
@@ -193,14 +199,15 @@ final class ReplayController {
             if r.header.carry == nil, let c = try? Data(contentsOf: url.deletingPathExtension().appendingPathExtension("carry")) {
                 r.header.carry = [UInt8](c)
             }
-            play(r)
+            play(r, keyGap: ReplayController.keyGap(forFile: text))
         } catch {
             AppServices.shared.toast("Can't play this replay: \(error)", seconds: 4)
         }
     }
 
-    func play(_ r: InputReplay) {
+    func play(_ r: InputReplay, keyGap: Int = 0) {
         guard let h = AppServices.shared.host else { return }
+        pendingKeyGap = keyGap
         var notes: [String] = []
         if r.header.adfTag != 0 && r.header.adfTag != GameSnapshot.adfTag(h.disk) { notes.append("recorded with a different disk image") }
         if r.header.buildTag != GameSnapshot.buildTag { notes.append("recorded with another build of the app") }
@@ -232,7 +239,7 @@ final class ReplayController {
         guard let h = AppServices.shared.host, let t = try? String(contentsOf: url, encoding: .utf8),
               let r = try? InputReplay.decode(t) else { AppServices.shared.toast("inject: can't read \(url.path)"); return }
         mute(h)
-        h.machine.input.keyGapFrames = 0
+        h.machine.input.keyGapFrames = ReplayController.keyGap(forFile: t)
         player = InputPlayer(r)
         injectedAsPlayer = asPlayer
         finishedToastShown = false

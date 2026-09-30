@@ -243,7 +243,7 @@ final class TunnelMapPanel: OverlayPanel {
         if isVisible != show { isVisible = show }
         guard show else { return }
         let reveal = Prefs.bool(TunnelMapPanel.kReveal)
-        if reveal && !markedReveal { markedReveal = true; AppServices.shared.markAssisted("Tunnel map: reveal all") }
+        if reveal { AppServices.shared.markAssistedOnce("Tunnel map: reveal all") }
         let size = CGFloat(max(3, min(10, Prefs.double(TunnelMapPanel.kSize))))
         let key = "\(reveal) \(Prefs.bool(TunnelMapPanel.kItems)) \(size) \(Prefs.int(TunnelMapPanel.kPlace))"
         guard model.generation != drawnGeneration || key != drawnKey else { return }

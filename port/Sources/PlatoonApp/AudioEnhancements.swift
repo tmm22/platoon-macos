@@ -156,7 +156,15 @@ final class SoundtrackController {
     }
     func rescan() { filesScanned = nil }
 
-    func reset() { lastCue = -1; currentSong = -1; AppServices.shared.host?.audio.stopSoundtrack(); status = Prefs.bool(AudioPrefs.soundtrack) ? "idle" : "off" }
+    /// Set by `reset()`: the next update keeps a file that is still playing if the new machine plays the same tune
+    /// (a loaded save, checkpoint retry or rewind restores the game mid-tune; the file should not restart).
+    private var adopting = false
+
+    func reset() {
+        lastCue = -1; adopting = currentSong >= 0
+        if !adopting { AppServices.shared.host?.audio.stopSoundtrack() }
+        status = Prefs.bool(AudioPrefs.soundtrack) ? (adopting ? status : "idle") : "off"
+    }
 
     func hostPaused(_ p: Bool) {
         hostIsPaused = p
@@ -176,6 +184,10 @@ final class SoundtrackController {
         let playing = mem.r8(0x2d9f) != 0                        // driver: playing flag (0 after stop / F10 off)
         let song = p.cuedSong >= 0 ? p.cuedSong : Int(mem.r16(0x12cce) & 0xff)   // kernel $12cce current tune
         let cue = p.songCues
+        if adopting {
+            adopting = false
+            if playing && song == currentSong && audio.soundtrackPlaying { lastCue = cue }   // same tune: keep the file going
+        }
         if playing {
             if cue != lastCue || song != currentSong {
                 lastCue = cue; currentSong = song

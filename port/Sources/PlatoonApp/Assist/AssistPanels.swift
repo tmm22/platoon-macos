@@ -79,13 +79,28 @@ final class CaptionPanel: OverlayPanel {
         let now = CACurrentMediaTime()
         let cur = CaptionPanel.currentMessage(c, memory: memory, cache: &cache)
         cacheKey = cache.0; cacheText = cache.1
-        if let t = cur {
-            if t != shownText { shownText = t; shownAt = now; setText(t) }
-            if !isVisible { isVisible = true }
-        } else if isVisible {
-            let hold = Prefs.double(AssistPrefs.captionHold)
-            if now - shownAt >= hold || c.section == nil { isVisible = false; shownText = "" }
+        let hold = Prefs.double(AssistPrefs.captionHold)
+        guard c.section != nil else {
+            pending.removeAll()
+            if isVisible { isVisible = false; shownText = "" }
+            return
         }
+        // "Keep each caption at least `hold`": a message the game replaces sooner (the next queued message, the
+        // re-queued prompts) waits until the current caption has had its time, instead of overwriting it at once.
+        // Only the newest message waits (a caption never lags the game by more than one hold time).
+        if let t = cur, t != shownText, pending.last != t {
+            if !isVisible || now - shownAt >= hold { pending.removeAll(); show(t, now) }
+            else { pending = [t] }
+        }
+        if isVisible && now - shownAt >= hold {
+            if !pending.isEmpty { show(pending.removeFirst(), now) }
+            else if cur == nil { isVisible = false; shownText = "" }
+        }
+    }
+    private var pending: [String] = []
+    private func show(_ t: String, _ now: CFTimeInterval) {
+        shownText = t; shownAt = now; setText(t)
+        if !isVisible { isVisible = true }
     }
 
     private func setText(_ t: String) {
@@ -180,7 +195,7 @@ final class ObjectivesPanel: AssistHostingPanel<ObjectivesView> {
         let e = AssistCenter.shared.host?.runEnhancements
         let sheet = AssistCenter.shared.objectives.sheet(c, tier: tier, randomisedVillage: e?.section0.villageSeed != nil,
                                                          randomisedTunnels: (e?.section1.randomSeed ?? 0) != 0)
-        if tier == .solution && !markedSolution { markedSolution = true; AppServices.shared.markAssisted("Objectives: full solution") }
+        if tier == .solution { AppServices.shared.markAssistedOnce("Objectives: full solution") }
         if sheet != model.sheet { model.sheet = sheet; contentChanged() }
         if !isVisible { isVisible = true; contentChanged() }
     }

@@ -78,6 +78,9 @@ struct PauseMenuItem {
     /// Abort to title 900, Quit 1000. Feature panels: 200-299 suggested.
     var order: Int
     var isEnabled: () -> Bool = { true }
+    /// Hidden (not just greyed out) while this returns false, e.g. a section-specific entry outside its section
+    /// or an entry of a feature that is switched off.
+    var isShown: () -> Bool = { true }
     /// Runs on selection. Return true to close the pause menu and resume, false to keep it open.
     var action: () -> Bool
 }
@@ -115,6 +118,9 @@ final class AppServices {
     func toast(_ text: String, seconds: Double = 2.0) { overlay.toast(text, seconds: seconds) }
     /// Marks the current run as assisted/tainted (F4/S5): it must not enter the original hiscore table.
     func markAssisted(_ reason: String) { host?.markAssisted(reason) }
+    /// Same, once per game: call it every frame while an assist acts (a new game from the title or a reset
+    /// re-arms it, because the core forgets the previous game's marks then).
+    func markAssistedOnce(_ reason: String) { host?.markAssistedOnce(reason) }
 
     // MARK: observers
     private var nextID = 0
@@ -124,6 +130,7 @@ final class AppServices {
     private(set) var sectionObservers: [(Int, (Int) -> Void)] = []
     private(set) var pauseObservers: [(Int, (Bool) -> Void)] = []
     private(set) var hostObservers: [(Int, (GameHost) -> Void)] = []
+    private(set) var newGameObservers: [(Int, (GameHost) -> Void)] = []
     private(set) var pauseMenuItems: [PauseMenuItem] = []
 
     private func token() -> ObserverToken { nextID += 1; return ObserverToken(nextID, self) }
@@ -144,6 +151,10 @@ final class AppServices {
     /// the main thread at the next frame boundary (the game reports it from the game thread).
     @discardableResult func onSectionStart(_ f: @escaping (Int) -> Void) -> ObserverToken {
         let t = token(); sectionObservers.append((t.id, f)); return t
+    }
+    /// A new game started from the title screen or a start-section config (F2 newGame; no Machine reset).
+    @discardableResult func onNewGame(_ f: @escaping (GameHost) -> Void) -> ObserverToken {
+        let t = token(); newGameObservers.append((t.id, f)); return t
     }
     /// Paused state changed (true = now paused).
     @discardableResult func onPauseChange(_ f: @escaping (Bool) -> Void) -> ObserverToken {
@@ -170,6 +181,7 @@ final class AppServices {
         frameObservers.removeAll { $0.0 == t.id }; displayObservers.removeAll { $0.0 == t.id }
         resetObservers.removeAll { $0.0 == t.id }; sectionObservers.removeAll { $0.0 == t.id }
         pauseObservers.removeAll { $0.0 == t.id }; hostObservers.removeAll { $0.0 == t.id }
+        newGameObservers.removeAll { $0.0 == t.id }
     }
 
     // MARK: dispatch (called by GameHost / AppDelegate)
@@ -185,5 +197,6 @@ final class AppServices {
     func dispatchReset(_ h: GameHost) { for (_, f) in resetObservers { f(h) } }
     func dispatchSection(_ s: Int) { for (_, f) in sectionObservers { f(s) } }
     func dispatchPause(_ p: Bool) { for (_, f) in pauseObservers { f(p) } }
+    func dispatchNewGame(_ h: GameHost) { for (_, f) in newGameObservers { f(h) } }
     func dispatchHostReady(_ h: GameHost) { for (_, f) in hostObservers { f(h) } }
 }

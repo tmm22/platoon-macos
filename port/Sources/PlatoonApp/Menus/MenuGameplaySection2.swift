@@ -21,7 +21,7 @@ extension MenuRegistry {
             AppServices.shared.toast("Final jungle navigator: \(levels[v].1)")
         }
         return [
-            MenuContribution(menu: .assist, order: 150, items: [ClosureMenuItem.submenu("Final Jungle Navigator", items + [.separator(), cycle])]),
+            MenuContribution(menu: .assist, order: 16, separatorBefore: false, items: [ClosureMenuItem.submenu("Final Jungle Navigator", items + [.separator(), cycle])]),
             MenuContribution(menu: .view, order: 150, items: [
                 ClosureMenuItem("Final Jungle Room Slide", state: { Prefs.bool("section2.roomSlide") }) {
                     Prefs.set("section2.roomSlide", !Prefs.bool("section2.roomSlide"))
@@ -67,6 +67,7 @@ extension FeatureHooks {
                                            },
                                            order: 225,
                                            isEnabled: { AppServices.shared.host?.probe.context.section == 2 },
+                                           isShown: { AppServices.shared.host?.probe.context.section == 2 },
                                            action: {
                                                let m = FinalNavigatorModel.shared
                                                if m.level == .off { Prefs.set("section2.navigator", 2); m.userHidden = false }

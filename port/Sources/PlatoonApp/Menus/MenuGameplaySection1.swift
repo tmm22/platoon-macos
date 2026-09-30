@@ -38,6 +38,7 @@ extension FeatureHooks {
                                            title: { map.enabled && !map.userHidden ? "Hide Tunnel Map" : "Show Tunnel Map" },
                                            order: 220,
                                            isEnabled: { AppServices.shared.host?.probe.context.section == 1 },
+                                           isShown: { AppServices.shared.host?.probe.context.section == 1 },
                                            action: {
                                                if !map.enabled { Prefs.set(TunnelMapPanel.kEnabled, true); map.userHidden = false }
                                                else { map.userHidden.toggle() }

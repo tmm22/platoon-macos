@@ -1,74 +1,111 @@
 # Platoon: enhancements guide
 
-Everything described here is optional. With every option at its default you play the original 1988 game, byte for
-byte (checked by `tools/regress_all.sh`). Options that change what the game does are marked **gameplay**: a game
-played with any of them is an *assisted* run and its score goes to a separate hiscore table (see "Hiscores" below).
+This port plays the original 1988 game, and around it offers a set of optional extras: comfort features (pause
+menu, save states, rewind, fast-forward), help for a famously cryptic game (message log, maps, objectives,
+navigator), difficulty and rule options, accessibility, better picture and sound, practice, replays and records.
 
-Each feature owner has one section in this file and edits only that section.
+**Everything is optional.** With every setting at its default you play the original game, byte for byte: the
+translated code, its timing and its random numbers are unchanged (checked by `tools/regress_all.sh`, which compares
+62 scenarios frame by frame with the verified pre-enhancement port). Only things that don't change the game are on by default:
+presentational fixes (sharp-pixel sampling, the Ocean credits text, the status bar kept sharp by the pixel-art
+upscaler, keyboard letters following your layout) and host conveniences on keys and buttons the game never reads
+(Esc pause menu, hold-to-fast-forward, the extra controller buttons, the message log and replay recording in the
+background).
+
+## Contents
+1. [Finding things](#finding-things) - Preferences, menus, the pause menu, host keys
+2. [Assisted games and high scores](#assisted-games-and-high-scores)
+3. [The app: pause menu, preferences, fast-forward, game speed, disk import](#the-app-pause-menu-preferences-fast-forward-game-speed-disk-import)
+4. [Save states: quick save, checkpoints, rewind](#save-states-quick-save-checkpoints-rewind)
+5. [Controls: keyboard, controller, accessibility, aiming, rumble](#controls-keyboard-controller-accessibility-aiming-rumble)
+6. [Picture: filters, CRT looks, effects, accessibility, recording](#picture-filters-crt-looks-effects-accessibility-recording)
+7. [Sound: mixer, ghost voices, sound character, soundtrack, output timing](#sound-mixer-ghost-voices-sound-character-soundtrack-output-timing)
+8. [Assists: message log, captions, objectives, timer, replays, practice, difficulty page](#assists-message-log-captions-objectives-timer-replays-practice-difficulty-page)
+9. [Jungle & village: failsafes, fixes, map, widescreen](#jungle--village-failsafes-fixes-map-widescreen)
+10. [Tunnels & flare night: map, fairness, fixes](#tunnels--flare-night-map-fairness-fixes)
+11. [Final jungle & foxhole: navigator, room slide, fixes](#final-jungle--foxhole-navigator-room-slide-fixes)
+12. [Game options, difficulty presets, command line](#game-options-difficulty-presets-command-line)
+13. [For developers](#for-developers)
 
 ---
 
-## Core: options, hiscores, kernel extras (owner: core)
+## Finding things
 
-### Where options are switched on
-- **App:** Preferences (⌘,): every option listed below has a row (Gameplay / Audio / Assist tabs). Options are read
-  when a game starts, so use "Restart now" after changing one.
-- **Command line (headless runner):** `platoon-headless --enh key=value[,key=value]` (repeatable);
-  `platoon-headless --enh list` prints every option with its default and help text.
-- **Environment:** `PLATOON_ENH="key=value,key=value"` works for the app and the headless runner.
+**Preferences** (Platoon ▸ Settings…, ⌘,) has six tabs. Every option of this guide has a row there:
 
-Values: `1`/`0` (also on/off, true/false) for switches, numbers in decimal or hex (`0x4800`, `$4800`), `original`
-for "use the game's own value".
-
-### Difficulty presets (`difficulty`) - gameplay
-`difficulty=original` (default, the real game), `recruit`, `veteran`, or `custom`. Recruit and Veteran adjust a set
-of per-section values (enemy fire, wounds, timers, ...: filled in by each section owner, see their sections).
-Custom uses only the values you set yourself (keys ending in `.diff.<name>`). The core value is:
-- `kernel.diff.startMorale` - morale at the start of a new game (the original is `$9000`; Recruit `$c000`,
-  Veteran `$6c00`; "half morale" is `$4800`).
-
-### Extra soldiers (`game.lives`, `game.fullPlatoon`) - gameplay
-- `game.lives=2..5` - how many soldiers you get in the tunnels and the final jungle (the original gives you 2).
-- `game.fullPlatoon=1` - the platoon you kept alive in the jungle (wounds, ammunition, fallen men) carries over into
-  the later sections; each section then starts with your first living man.
-(The section owners implement these in their sections; see their notes for what is available.)
-
-### Kernel extras (presentational, not gameplay)
-| Option | What it does |
+| Tab | What is there |
 |---|---|
-| `originalCredits` (default **on**) | The credits page shows the original "GAME DESIGN (C)1988 OCEAN." / "CONVERSION BY CHOICE" lines instead of the cracker's text on the disk image. |
-| `kernel.soundFlagsAtBoot=0..3` | Music/FX mode at power-on (what F10 cycles through): 0 = all off, 1 = music only, 2 = sound effects only, 3 = both (the original). The app uses this to remember your last F10 choice. |
-| `kernel.steadyPauseColour=1` | The TAB pause no longer makes the background flash. |
-| `kernel.keyboardNameEntry=1` | Type your hiscore name on the keyboard: letters, digits, space; Backspace goes back one letter; Return finishes the name. The joystick still works as before. |
-| `kernel.timerStopsAtZero=1` | The mission timer stops at 00:00 instead of jumping to 59:59 while the napalm strike plays (a cosmetic original bug). |
-| `kernel.separateCheatScores=1` | Games in which the original cheat codes (HAMBURGER / MEGA CHEAT) were typed also go to the assisted hiscore table. |
+| General | pause behaviour, pause menu, fast-forward, game speed, keyboard response, game disk, title screen and high scores, save states (checkpoints, rewind) |
+| Input | keyboard and controller presets, Controls & Bindings, controller hints and dead zone, high-score name typing, motor accessibility (tap stretching, toggles, auto-fire), aiming, rumble |
+| Video | filter, CRT look, pixel-art upscaler, around the picture (glow, shake, hit flash, sniper cue), accessibility (night lift, reduced flashing, colour vision, HUD magnifier), recording, widescreen jungle, tunnel turn slide, final-jungle room slide |
+| Audio | output, F10 mode at start-up, mixer, music (ghost voices, replacement soundtrack), sound character, output timing |
+| Gameplay | difficulty preset and summary, custom difficulty knobs per section, platoon (soldiers, full platoon), jungle & village rules and bug fixes, tunnels rules and bug fixes, final-jungle bug fixes, trainer |
+| Assist | messages and captions, objectives and briefings, speedrun timer and service record, replays, practice, jungle map, tunnel map, final-jungle navigator |
 
-### Hiscores and assisted runs
-- The original table (`~/Library/Application Support/Platoon/hiscores.bin`, the one the title screen shows) only
-  receives scores from games played without any gameplay option, trainer, save-state load, rewind or
-  "Continue / Start at section".
-- Other games are ranked in their own table next to it: `hiscores-recruit.bin`, `hiscores-veteran.bin`,
-  `hiscores-custom.bin` (difficulty presets on their own) or `hiscores-assisted.bin` (everything else). Name entry
-  works as usual; your usual name is pre-filled. The title screen keeps showing the original table.
-- A trainer switched on at any moment during a game makes that game assisted. Starting a new game clears the mark
-  (unless the reason is still active).
+Rows marked **GAMEPLAY** change the game (see the next chapter); rows marked **ON RESET** are read when a new game
+starts, and the window's footer offers **Reset Game Now** while such changes are waiting. **Restore Defaults**
+resets the current tab.
 
-### For developers
-- Regression gate: `tools/regress_all.sh --bin <your platoon-headless>` (see port/PORTING.md "Regression gate").
-- Core feature tests: `tools/regress/core_features.sh <platoon-headless>`.
-- Event/context log: `PLATOON_EVENTS=/tmp/events.txt platoon-headless ...` writes every game event (messages incl.
-  dropped ones, sound effects, score, wounds, deaths, section start/end, game over, hiscores) and every screen/area
-  change, as the app's features see them.
+**Menus.** *Game*: pause, reset, continue, start at a section, trainer, save states (quick save / load, slots, retry
+from checkpoint, rewind, and the checkpoint / rewind switches), send Amiga key, screenshot, disk import and check,
+Controls & Bindings. *View*: filters, CRT look, picture effects and accessibility, recording, widescreen jungle,
+room slide. *Sound*: output, mixer, synthesis, ambience, ghost voices, replacement soundtrack. *Assist*: message log,
+the overlay switches (captions, speech, objectives, numeric HUD, timer, jungle and tunnel maps, navigator), practice,
+replays, service record. *Help*: this guide, the README, Controls & Bindings, Preferences.
+
+**Pause menu** (Esc, Game ▸ Pause Menu, or hold the controller's Menu button when that is switched on): resume,
+save / load, retry from checkpoint and rewind (when on), message log, objectives, the map or navigator of the
+section you are in, recording, practice, restart the section, Options, Controls & Bindings, abort to title, quit.
+Entries that don't apply right now (another section's map, a replay or practice drill that isn't running) are
+left out. It works with the keyboard, a controller and the mouse.
+
+**Host keys** (the game never reads them, so nothing is taken away): **Esc** pause menu, hold **`** fast-forward,
+hold **Backspace** rewind (when on), **M** hides / shows the jungle or tunnel map, **N** the final-jungle navigator.
+Controller: **L3** fast-forward, **R3** rewind, hold **Menu** pause menu (optional).
+
+**Overlays** (maps, objectives, numeric HUD, timer, captions, badges) are drawn above the game, never into it: they
+never appear in ⌘S screenshots or recordings. They sit beside the picture when the window is wide enough, otherwise
+on it, and they keep clear of each other (a panel that would cover another moves below or above it).
 
 ---
 
-## App: preferences, pause menu, fast-forward, disk import (owner: app)
+## Assisted games and high scores
 
+A game is **assisted** when anything that changes it, or helps beyond what the original offers, was used. Its score
+never enters the original high-score table (`~/Library/Application Support/Platoon/hiscores.bin`, the one the
+title screen shows); it goes to a table of its own next to it:
+
+| Table | Games |
+|---|---|
+| `hiscores.bin` (original) | games played with every gameplay option at its default and none of the aids below |
+| `hiscores-recruit.bin`, `hiscores-veteran.bin` | the Recruit / Veteran preset and nothing else |
+| `hiscores-custom.bin` | only difficulty knobs (Custom, or knobs on top of a preset) |
+| `hiscores-assisted.bin` | everything else |
+
+What makes a game assisted:
+- any row marked **GAMEPLAY** in Preferences that is not at its default (difficulty, soldiers, rules, bug fixes,
+  randomisers, compass assist, direct aiming, game speed below 100 %, trainer);
+- loading a save, retrying a checkpoint, rewinding, practice drills, replays, *Continue from Last Section* and
+  starting at the tunnels or the final jungle (starting a new game at the jungle is an ordinary game);
+- assists that act during the game, from the moment they first act: assisted aiming, auto-fire, the objectives'
+  *full solution*, the jungle map's hut contents, the booby-trap warning, the tunnel map's *reveal the whole maze*,
+  the final-jungle route guide and its heading without the compass;
+- optionally the original cheat codes (General ▸ Title screen and high scores).
+
+Not assisted: everything display- or sound-only, the message log, captions and speech, objectives (goals and hints),
+the plain maps, the navigator heading when you carry the compass, remapped controls, tap stretching and toggles,
+faster key response, fast-forward, the pause menu, taking saves or checkpoints without loading them.
+The mark is per game: a new game from the title starts clean unless a setting that marks it is still on.
+The pause menu shows **ASSISTED** under its title while the current game is marked.
+
+---
+
+## The app: pause menu, preferences, fast-forward, game speed, disk import
 None of these change the game. They are part of the Mac app around it.
 
 ### Preferences (⌘,)
-One window with tabs General, Input, Video, Audio, Gameplay and Assist. Every option in the game's enhancement
-catalogue gets a row automatically; feature owners can replace it with a custom row. Badges:
+One window with tabs General, Input, Video, Audio, Gameplay and Assist (see [Finding things](#finding-things) for
+what is where). Every option of the game's enhancement catalogue has a row. Badges:
 - **GAMEPLAY**: changes the game. Runs that use it are assisted and never enter the original hiscore table.
 - **ON RESET**: read when a new game starts. The window footer shows how many changes are waiting, with a
   **Reset Game Now** button.
@@ -82,11 +119,15 @@ Press **Esc**, or choose Game ▸ Pause Menu. On a controller you can hold **Men
 The game is frozen and silent while the menu is open. Controls: ↑/↓ or the d-pad to move, Return/Space or Ⓐ to
 choose, Esc or Ⓑ to go back. The mouse works too.
 - **Resume**.
-- **Save Game / Load Game** (slots), and any entries added by features (checkpoints, rewind, message log, maps).
+- **Save Game / Load Game** (slots), **Retry from Checkpoint** and **Rewind…** (when those are switched on),
+  **Message Log**, **Show / Hide Objectives**, the jungle map, tunnel map or navigator of the section you are in,
+  **Record Video**, **Practice…** (and **Restart Drill** / **Stop Replay** while a drill or replay runs).
 - **New Game** (jungle) or **Restart The Tunnels & Flare / The Jungle & Foxhole**. A restart begins again at the
-  start of the section, with the platoon you arrived with (the flare night restarts from the tunnels). Restarting
-  a later section marks the run assisted.
-- **Options…** (Preferences), **Controls…**, **Abort to Title…** (the original DEL), **Quit Platoon…**.
+  start of the section, with the platoon you arrived with (the flare night restarts from the tunnels). Rewinds and
+  checkpoint retries keep that platoon, also when they go back into the previous section; after loading a saved
+  game it isn't known, so the row says "with a fresh platoon (loaded game)". New Game is an ordinary game;
+  restarting a later section marks the run assisted.
+- **Options…** (Preferences), **Controls & Bindings…**, **Abort to Title…** (the original DEL), **Quit Platoon…**.
   Destructive entries ask for confirmation.
 
 Esc never reached the game: the original never reads the Amiga Esc key. You can switch "Esc opens the pause
@@ -110,6 +151,12 @@ is muted. It's useful for the flare intro, text screens and LOADING screens. The
 runs more frames per second. ⌘T is still a sticky turbo toggle; it isn't remembered between launches.
 While fast-forwarding the badge shows **▶▶ 4×**.
 
+### Game speed (M22), General ▸ Game speed - gameplay
+Slow motion for slower reactions: 100 % (original), 90, 80, 70 or 60 %. The whole game runs slower, timers
+included; the sound follows at a lower pitch without stutter (the audio output switches to rate control while a
+slower speed is active). The game itself is unchanged - it just runs fewer frames per second - but any speed below
+100 % marks the game as assisted. It combines with fast-forward.
+
 ### Music / FX mode at start-up (S12), Audio tab
 The original always starts with music and FX on. You can choose "Remember the last F10 choice", Music only,
 Sound FX only or Off. F10 still cycles the modes during play.
@@ -130,31 +177,25 @@ and the game restarts with it. Game ▸ **Check Disk…** shows the report for t
 Command line: `Platoon --check-disk A.adf [B.adf …] [--repair OUT.adf]` (exit 0 = verified, 1 = playable with
 problems, 2 = unusable).
 
+### Help menu
+**Help ▸ Platoon Enhancements Guide** opens this guide, **About This Port** the README; Controls & Bindings and
+Preferences are there too.
+
 ### Display framing (S1)
 By default the picture is cropped to the Amiga display window DIW $71..$1B1 × lines $2C..$12B (320×256 lowres).
 Checked on headless captures of the title, jungle, village, man select, tunnels, flare, final jungle and the
 ending: all of the game's pixels lie inside this window, and they touch both side edges. The previous $81 crop hid
 the leftmost 16 pixels of the HUD and playfield, for example the wound splat.
 
-### For developers (app extension API)
-- Settings: `Prefs/Prefs<Owner>.swift` (declarative `PrefSection`s). Menus and a launch hook:
-  `Menus/Menu<Owner>.swift`. Services: `AppServices.shared` (`onFrame`, `onDisplay`, `onReset`, `onSectionStart`,
-  `onPauseChange`, `onHostReady`, `probe` (F1/F2), `pause/resume`, `toast`, `markAssisted`, `addPauseMenuItem`,
-  `keyHooks`/`padHooks`, `snapshots`). Overlays (F3): `AppServices.shared.overlay.add(OverlayPanel)`.
-  Overlays never show up in ⌘S screenshots or in the Metal picture.
-- `Platoon --list-prefs` prints the registry and checks that the current settings reach the core.
-- App test driver: `PLATOON_DEBUG_SCRIPT=script PLATOON_DEBUG_CAPTURE=outdir [PLATOON_DEBUG_FRESH_PREFS=1]
-  [PLATOON_ADF=disk] [PLATOON_PREFS=k=v,…]`. The commands are listed in `DebugScript.swift`: key, pad, resign,
-  sleep, disconnect, pausemenu, menu ID, prefs, pref, reset, capture (game + overlay composited), shot, log, quit.
-
 ---
 
-## Save states: quick save, checkpoints, rewind (owner: snapshot)
-
+## Save states: quick save, checkpoints, rewind
 Platoon never had saves. The port can save the whole game while you play in the jungle and village, the tunnels,
 the flare night or the final jungle. It can't save on text screens, the man-select box, the trap-door prompt or
 loading screens. If you save there, the save is taken as soon as play continues ("Saving at the next
-opportunity…").
+opportunity…"; the pause menu goes back to its main page and says so). A save that is still waiting is dropped, with
+a message, when the game is replaced first (reset, new game, loading a save, retrying a checkpoint, rewinding), so
+a slot never receives a different game than the one you meant to save.
 
 **Quick save and slots** (always available, Game menu and pause menu)
 - **Quick Save** ⇧⌘S and **Quick Load** ⇧⌘L.
@@ -173,7 +214,7 @@ opportunity…").
   explosives).
 - "Offer a retry when a soldier dies" shows a short ⇧⌘R reminder when a man is killed.
 
-**Rewind** (Preferences › General › Save states, or Game menu; off by default)
+**Rewind** ("Keep a rewind buffer" in Preferences › General › Save states, or the Game menu; off by default)
 - The game keeps a snapshot every second, for 30 s by default ("Rewind length", 10-120 s; about 1.4 MB of memory
   per second).
 - **Hold Backspace** (or ⌘Z, or the controller's right-stick click R3). The picture goes back one second at a
@@ -181,265 +222,166 @@ opportunity…").
   ← / → to step, Return to resume there, and Esc to cancel and continue where you were. The game is paused while
   you choose.
 
+**Settings:** a loaded save, a checkpoint retry and a rewind continue with the current settings, including
+**ON RESET** changes that were still waiting (they are applied by the restore, like by a reset).
+
 **Hiscores:** loading a save, retrying a checkpoint or rewinding marks the game as *assisted*: its score goes into
 the assisted table, not the original one. Just taking saves, checkpoints or the rewind ring changes nothing.
 
-**How it works / verification** (for developers): snapshots are taken only at the four section main-loop heads,
-where the whole game state is in chip RAM, the virtual chipset (copper, CIA timers, TOD and alarm, Paula) and a few
-host variables. A restored game continues from exactly that point on a fresh game thread. `port/verify/snapshot/
-roundtrip.sh` checks that a restored game plays on byte-identically to one that was never interrupted: the full-RAM
-hash every frame, the tick dumps, the screenshots and the audio, in all four loops. It also covers rewind and
-checkpoint retry, and files saved in one process and loaded in another. Headless options: `--snapshot-save N FILE`,
-`--snapshot-load FILE`, `--roundtrip N`, `--roundtrip-every K`, `--rewind-at N BACK`, `--checkpoints`,
-`--retry-at N`.
+---
+
+## Controls: keyboard, controller, accessibility, aiming, rumble
+Everything here is on the host side: the game still reads its joystick and keyboard the way it always did. With
+the default settings the keyboard does exactly what it did before on a US keyboard, and the controller only gains
+jobs on buttons that did nothing before. Options that help you play (auto-fire, aim assist) mark the game as
+*assisted* the first time they act.
+
+### Controls & Bindings window (M7): Game ▸ Controls & Bindings… (⌘/), pause menu, or Preferences › Input
+- Every action with up to two keys and a controller button: Up/Down/Left/Right, Fire, SPACE (jungle grenade,
+  flare), Change soldier (Left Alt), Yes/No (trap door), Pause (TAB), Music/FX (F10), Abort (DEL), HELP, Keypad −,
+  Jump/Crouch (only with the jungle option "Separate jump and crouch controls") and Turbo fire.
+- Click a cell and press a key or a controller button. Modifier keys (Option, Shift, Control) work. Esc cancels,
+  Backspace clears the slot. Clicking the controller cell replaces that action's buttons; the ⊕ next to it adds one
+  button (or removes it, if the action already has it), e.g. to give Fire a fifth button. The ⓧ button unbinds an
+  action.
+- The pause menu's "Controls & Bindings…" row and Help ▸ Controls & Bindings… open this window too.
+- Presets. Keyboard: **Original** (Space is fire *and* the Amiga SPACE key, Z is fire), **Separate fire and SPACE**
+  (Z/X fire, Space is only SPACE, closer to the Amiga's separate stick button), **One-handed left** (WASD, Space
+  fire, Q SPACE, E change soldier, R yes, F no, Z/X jump/crouch, G music) and **One-handed right** (arrows, Right
+  Shift or / fire, Return SPACE, . change soldier, ; yes, ' no). Controller: **Extended** (default), **Original
+  mapping only**, **One-handed left half** (d-pad, LB fire, LT SPACE, Options change soldier) and **One-handed
+  right half** (right stick, RB/RT/A fire, X SPACE, Y change soldier).
+- Keys not bound to an action still type their Amiga key, so the cheat codes and the high-score name keep working.
+- The bottom of the window lists the current controls, generated from your bindings, and warns about keys bound
+  twice. Bindings are saved and survive restarts. Restore Defaults brings back the original set.
+
+### Controller (S2): Preferences › Input › Controller
+- **Extended** buttons (default): **X** = Amiga SPACE (jungle grenade with no direction held, flare), **Y** =
+  change soldier (sent as a short tap, so holding it doesn't reopen the choose-your-man box), **LB** = Yes,
+  **LT** = No. Unchanged: d-pad / left stick = joystick, A/B/RT/RB = fire, Menu = TAB, Options = F10.
+- **Trap door**: at the "enter the trap door?" prompt, a fresh press of **A** (or another fire button) answers
+  Yes, **B** or the SPACE button answers No. A fire button that was already held when the prompt appeared doesn't
+  answer. Switch: "Trap door: A answers Yes, B answers No".
+- **Hints**: while a controller is connected, the trap-door prompt, the choose-your-man box and the high-score name
+  entry show which of your controller's buttons to press.
+- **Stick dead zone** slider (default 40%). A controller that disconnects releases everything it was holding.
+- Buttons the app keeps for itself: L3 = hold to fast-forward, R3 = hold to rewind (when those are on), Menu held
+  0.5 s = pause menu (when that is on).
+
+### Keyboard fixes (S3): Preferences › Input › Keyboard
+- **Letter keys follow the keyboard layout** (default on). On QWERTZ the key labelled Y answers Yes and the key
+  labelled Z fires; on AZERTY A, Q, Z, W and M are taken by their labels. The digits row, arrows, F-keys and
+  keypad stay by position. On a US keyboard nothing changes. Switch it off to get the original US positions.
+- **Game ▸ Send Amiga Key**: HELP, Keypad −, SPACE, Left Alt, Y, N, TAB and F10 from the menu, for laptops where
+  F10-F12 are media keys (F11 = HELP and F12 = keypad minus still work too).
+
+### High-score name on the keyboard (S18): Preferences › Input › High-score name
+- "Type the high-score name on the keyboard" (applies after a reset): letters, digits and space type, Backspace
+  deletes, Return finishes. The joystick still works. While you type, keys that type a character type it, even if
+  they are bound to fire or another action (so Z and Space don't shoot, and Return finishes the name in the
+  right-hand preset).
+
+### Motor accessibility (S15, M13): Preferences › Input › Motor accessibility (all off by default)
+- **Stretch short taps** (S15): every press and release of the stick, fire and the Amiga keys lasts at least 2-8
+  frames (default 4), so quick taps aren't lost between the tunnels' stick reads (every 4 frames) or the jungle's
+  (every 2-3). Two quick taps still count as two. Only during play, not on the title, text or name-entry screens.
+- **Toggle fire** / **Toggle directions** (M13): tap to hold, tap again to release. A direction is also released by
+  tapping the opposite one: tap UP once to keep walking through the tunnels or the final jungle.
+- **Auto-fire** (M13): "While fire is held" or "Turbo-fire button only" (bind Turbo fire in Controls & Bindings).
+  Fire pulses on and off, at least one game tick each (automatic speed per section, or 2-6 frames). Useful for the
+  final jungle's one-shot-per-press rifle. Marks the game as assisted once it fires.
+- One-handed layouts: see the presets above.
+
+### Explicit jump and crouch (M14)
+- Turn on the gameplay option "Separate jump and crouch controls" (Preferences › Gameplay › Jungle & village,
+  `s0.explicitJumpCrouch`). Then **Jump** (X key, controller LB) and **Crouch** (C key, controller LT) work in the
+  jungle and UP/DOWN only take paths and hut doors. In the Separate preset they are C and V; rebind them in
+  Controls & Bindings. Without the option these bindings do nothing (X and C type their letters as before).
+
+### Pointer and right-stick aiming (L2): Preferences › Input › Aiming (off by default)
+- In the tunnel fights, the room searches and the flare dugout, the crosshair follows the mouse / trackpad pointer
+  over the picture, or the right stick (how far ahead it aims: "Right stick reach"). It works by pressing the
+  joystick for you, so the original crosshair speed and limits still apply; any direction you press yourself wins.
+  Left click fires, right click is SPACE (flare) in the dugout. The pointer stops steering 1.5 s after it stops
+  moving. Marks the game as assisted once it aims.
+- With the section-1 gameplay option `s1.directAim` (Preferences › Gameplay) the crosshair jumps to the pointer
+  instead.
+
+### Controller rumble (S13): Preferences › Input › Controller rumble (off by default)
+- Explosions strong (jungle grenades and traps, the foxhole grenade), being hit medium, enemy fire and hits on the
+  enemy light, your own shots, throws and flare launches a short tick; a wound medium, a death long and strong, the
+  grenade that hits Barnes strong, and the bridge blast and the napalm strike long. Strength slider. Works with the
+  sound effects switched off too. The game's sound numbers mean different things in each section (the jungle's
+  "player hit" sound is the tunnels' "enemy hit"), so the rumble follows the section you are in, and the sound and
+  the wound of the same hit give one pulse, not two.
 
 ---
 
-## Tunnels & flare night: map, fairness, fixes (owner: section1)
+## Picture: filters, CRT looks, effects, accessibility, recording
+Everything in this section is display-only: nothing reaches the emulated Amiga, so none of it makes a run
+assisted. It never shows in ⌘S screenshots or in recordings unless stated. Settings: **Preferences › Video**
+(⌘,) and the **View** menu.
 
-Everything here is off by default. Options marked **gameplay** make the game *assisted* (separate hiscore table).
-Core options are set in Preferences › Gameplay ("Tunnels & flare night (section 1)" rows), with
-`--enh key=value` on the headless runner or `PLATOON_ENH`; they take effect when a new game starts.
+### Filters - View › Sharp Pixels ⌘1 / Smooth ⌘2 / CRT ⌘3 / Pixel-Art Upscaler (MMPX) ⌘4
+- **Sharp Pixels** (default). Fixed in this release: the original port sampled between pixels, so almost every
+  pixel was shown as a 50/50 mix of its neighbours (soft, washed-out dithering). Now every pixel keeps its exact
+  Amiga colour; only the one-pixel seams at non-integer scales are blended. With Integer Scaling the image is
+  pixel-exact.
+- **Pixel-Art Upscaler (M19)**: MMPX (McGuire & Gagiu 2021), which smooths diagonal edges of the 64×48 jungle
+  tiles, sprites and the pictures without blurring the dithering and without inventing colours.
+  **Keep the status bar sharp** (Preferences › Video › Pixel-art upscaler, on by default) leaves the HUD's
+  digits and bars as square pixels and smooths only the game window.
+- **CRT** with a **CRT look** (M20, View › CRT Look or Preferences › Video › CRT look): *Classic* is the port's
+  original CRT shader. *Commodore 1084S* (slot mask, bloom, a little phosphor persistence, PAL colour response),
+  *Sony PVM* (aperture grille, sharp, strong scanlines), *A520 composite* (colour bleed from the TV modulator), and
+  *Custom* (mask type and strength, bloom, persistence, colour bleed, sharpness, 1084 colour). The mask is sized
+  to whole triads per Amiga pixel, so it never beats against the picture (no moiré at 1080p/1440p); below about
+  2.5 screen pixels per triad it switches itself off. Persistence fades per emulated frame, so it looks the same
+  under fast-forward. It is a look only: it does not smooth the 25 Hz jungle movement.
+- **Colour-managed output (sRGB)** (Video › Around the picture, off by default): wide-gamut (P3) displays show
+  the Amiga colours as intended instead of over-saturated.
 
-### Tunnel map (M3) - Preferences › Assist › Tunnel map, or Assist › Show the tunnel map
-- A map of the 43x43 maze beside the game (or in the game's top-right corner if the window is narrow). It fills in
-  as you explore: the corridors, rooms and walls you could see from where you stood. A green arrow shows where you
-  are and which way you face; the blue dot is the entrance.
-- Rooms get their number when you enter them. The list below the map shows what you took in each room (flares,
-  compass, map, ammunition, medical supplies, with a tick) and the doors you tried: "blocked exit", or
-  "EXIT (8 flares)" for the real way out (its room number turns red). Nothing you have not found yet is listed.
-- What you explored is kept when a soldier dies, after loading a save and after rewinding; it is cleared when the
-  tunnels start in a new game.
-- **M** in the tunnels hides / shows it. The pause menu has "Show / Hide Tunnel Map".
-- Options: size (3-10 points per cell), position, room list on/off, **Reveal the whole maze** (spoiler: all
-  corridors and the contents of every room; marks the run as assisted). The plain map only shows what you saw, so
-  it does not mark the run.
-- `s1.exploredMap=1` (**gameplay**, variant B): in the game itself the map window is always open and draws the
-  cells you have seen, even without the map item (the tunnel plan still reveals everything when you find it).
+### Around the picture
+- **Side bars: ambient glow (S14)** - fills the black bars beside the picture with a blurred, darkened extension
+  of the frame (brightness slider). View › Ambient Glow in the Side Bars.
+- **Screen shake (S13)** - Off / Subtle / Strong. Explosions (jungle grenades and trap, foxhole grenades), the
+  bridge blast, the napalm strike and your wounds shake the picture by up to 2-3 Amiga pixels. It decays per
+  emulated frame. Controller rumble is the input section's option.
+- **Red screen-edge flash when you are hit** - a visual cue for playing without sound.
+- **Final jungle: show which side a sniper shot comes from** (off by default) - a "◀ SNIPER" / "SNIPER ▶"
+  caption at that edge of the picture while the idle shot (fired at you when you stay at one depth too long) is in
+  flight; another cue for playing without sound.
+- **Widescreen jungle (L4)** - see the jungle section; the columns are composited by this renderer.
 
-### Fairness (M4) - gameplay
-| Option | What it does |
-|---|---|
-| `s1.keepItems=1` | When a soldier dies the next one keeps the flares, the compass, a map found in the tunnels and the emptied drawers (the original takes everything away and refills the rooms). If you die in the flare night you get back the flares you took into it, so the exit still opens. |
-| `s1.flareRetry=1` | Dying in the flare night restarts the flare night with the next soldier and the flares you brought, instead of sending him back through the whole maze. |
-| `s1.checkpointRespawn=1` | The next soldier starts in front of the last room you entered (facing away from it) instead of at the entrance. |
+### Accessibility
+- **Brighten the dark night scenes (S16)** + amount - lifts the dark tones of the game window (never the HUD,
+  black stays black) while the tunnels or the flare night are on screen. It makes enemies a little easier to spot
+  in the flare night.
+- **Reduce flashing (S17)** + flash strength - limits the red flash when you are hit in the tunnels and the
+  flare night, the napalm white-out, and the flare's sudden light-up, to the chosen strength. The picture stays
+  visible even at the peak of a flash (where the original turns every colour into the same red or white).
+  **Steady background colour while TAB-paused** switches off the pause colour cycling (core option, after a reset).
+- **Colour vision (M21)** - assist modes for deuteranopia / protanopia / tritanopia (they move the colour
+  differences you can't see into ones you can: the HUD's red and green, enemies against the jungle), plus
+  simulations of each type and greyscale, with a strength slider.
+- **HUD magnifier (M21)** - the status bar (time, score, morale, ammo) again, enlarged 1.25-3×, below the picture;
+  the picture gets smaller to make room. Empty on the title and text screens.
 
-### More soldiers (M15, core options `game.lives`, `game.fullPlatoon`) - gameplay
-- `game.lives=3..5`: after the second soldier the third (up to the fifth) takes over, each after its own
-  "ONE MORE CHANCE" screen.
-- `game.fullPlatoon=1`: the tunnels keep the platoon you brought from the jungle (wounds, ammunition, dead men)
-  and start with your first living man; every living man gets his turn.
-
-### Original bug fixes (S9) - gameplay, one switch each
-| Option | Fix |
-|---|---|
-| `s1.fixLastBullet=1` | Your last bullet can kill (the original checks the ammunition after the shot has used it). Tunnels and flare night. |
-| `s1.fixMoraleWrap=1` | Morale from room items stops at the maximum instead of wrapping round to almost nothing. |
-| `s1.fixFoodFarm=1` | The rotten food gives its 500 points once per soldier, not on every click. |
-| `s1.fixFlareSpawn=1` | Heavy firing in the flare night can no longer switch the enemy spawns off for good. |
-
-### Difficulty (M10) - gameplay
-Recruit / Veteran set these; Custom uses only the ones you set (`original` = the game's value):
-| Key | Original | Recruit | Veteran | Meaning |
-|---|---|---|---|---|
-| `s1.diff.hitMorale` | $c00 | $800 | $1000 | morale lost per wound (tunnels and flare night) |
-| `s1.diff.spawnDelay` | $10 | $20 | $08 | minimum ticks between tunnel enemies (plus 0-$31 random) |
-| `s1.diff.enemyAim` | $f | $19 | $0b | ticks a corridor enemy aims before firing |
-| `s1.diff.itemMorale` | $200 | $300 | $100 | morale gained per useful room item |
-| `s1.diff.flareSpawnBase` | $90 | $c0 | $70 | flare night enemy interval (bigger = fewer enemies) |
-| `s1.diff.flareShotSlack` | $d | 5 | $f | flare night: smaller = more time before a firing enemy hits you |
-
-### Mouse / pointer aiming (L2) - gameplay `s1.directAim=1`
-With the option on and a pointer target coming from the input settings (mouse aiming), the crosshair in tunnel
-fights, in the room search and in the flare night jumps straight to the pointer (within the original limits);
-fire, recoil and hit rules are unchanged. Without the option the input settings can still steer the crosshair
-by moving the stick for you (assisted aiming, not gameplay).
-
-### Randomiser (L3) - gameplay `s1.randomSeed=N` (1 and up; 0 = off)
-Shuffles what lies behind each hotspot between rooms of the same kind: the flare boxes, compass, maps, ammunition
-and so on move to other rooms that look alike, and the real EXIT is behind the door of either ladder room. The
-same seed always gives the same tunnels. Use the tunnel map to keep track.
-
-### Turn slide (M25) - Preferences › Video › Tunnels
-"Slide the view when turning": when you turn left or right in a corridor the old view slides out and the new one
-in over a few frames. Presentation only (the game, screenshots and recordings are not changed).
-
-### For developers
-- Hooks: `// ENHANCEMENT <ID>` sites in `Game/Section1/*.swift`; helpers in `Game/Section1/Section1Enhance.swift`
-  (state in a RAM scratch block at $3f000, so savestates/rewind capture it), `TunnelAim.swift` (L2 API:
-  `TunnelAim.setTarget(machine, x:y:)` / `clearTarget` / `info(memory, area:)`, visible-screen coordinates) and the
-  public `TunnelMaze` helpers used by the overlay.
-- Feature tests: `port/verify/enh-section1/s1test.py <platoon-headless> [outdir] [--only REGEX]` (headless,
-  deterministic; `PLATOON_S1_AIM="FRAME:X,Y;FRAME:-"` scripts the aim target),
-  `port/verify/enh-section1/roundtrip.sh <platoon-headless> [ftdir]` (the options survive savestate round trips
-  byte-identically), the unit tests `Tests/PlatoonCoreTests/Section1EnhanceTests.swift` and the app-level overlay
-  test `port/verify/enh-section1/runapp.sh <Platoon app binary>` (debug-script captures of the map and the slide).
-
-## Jungle & village: failsafes, fixes, map, widescreen (owner: section0)
-
-Everything here is off by default. Options marked **gameplay** make the game *assisted* (separate hiscore table).
-Core options (`s0.*`) are set in Preferences › Gameplay › "Jungle & village" / "Jungle & village: original bugs",
-with `--enh key=value` on the headless runner or `PLATOON_ENH`; they take effect when a new game starts.
-
-### Rules (gameplay)
-| Option | Preferences row | What it does |
-|---|---|---|
-| `s0.bridgeFailsafe=1` (S6) | Bridge failsafe | Walking right towards the bridge without having planted the explosives stops you at the last column before the point of no return, with "SET THE EXPLOSIVES ON THE BRIDGE", instead of freezing you while a runner wipes out the whole platoon. With the explosives nothing changes (they are planted automatically on the bridge). |
-| `s0.forgivingTraps=1` (S7) | Forgiving booby traps | Tripwires and the two booby-trapped drawers (huts 0 and 4) count as a normal hit: one wound and the usual morale loss, instead of killing the soldier outright. |
-| `s0.explicitJumpCrouch=1` (M14) | Separate jump and crouch controls | Jump and crouch get their own controls (bind "Jump" / "Crouch" in the Input tab; headless: Amiga keys `s0.jumpKey=0x32` / `s0.crouchKey=0x33`). Up and down then only take the paths between the jungle strips and the hut doors, so you can no longer walk onto a path by accident instead of jumping a tripwire. You can also jump on path tiles and in front of doors. |
-| `s0.villageSeed=N` (L3) | Village randomiser: off / new village at every reset / fixed village (seed) | The torch, the map and both booby traps move to other search spots in the huts (seeded: the same seed gives the same village). The map still needs the hut-2 guard dead. A toast shows the seed when the jungle starts. |
-
-### Original bug fixes (S9) - gameplay, one switch each
-| Option | Fix |
-|---|---|
-| `s0.fixMoraleWrap=1` (S9b) | Morale from supply crates, the torch and the map stops at full instead of wrapping round to almost nothing. |
-| `s0.fixHutDummy=1` (S9f) | The invisible "enemy" in the trap-door hut (hut 1) can't be shot: in the original it gave 300 points and counted as killing the hut-2 guard, so the map could be taken without a fight. |
-| `s0.fixTripwireSpawn=1` (S9g) | Tripwires always appear at the screen edge ahead of you (with some scroll positions the original put them behind you). |
-| `s0.fixTrapdoorBonus=1` (S9k) | The trap-door bonus (1000 per living soldier) counts your five soldiers; the original counts five records from the soldier in control, so with soldier 2-5 it counts game variables as soldiers. |
-
-### Difficulty (M10) - gameplay
-Recruit / Veteran set these; Custom uses only the ones you set (`original` = the game's value). Rows appear
-automatically in Preferences › Gameplay.
-| Key | Original | Recruit | Veteran | Meaning |
-|---|---|---|---|---|
-| `s0.diff.shootMask` | $1f | $3f | $0f | a walking soldier tries to shoot when random & mask = 0 (bigger = fewer shots) |
-| `s0.diff.hitMorale` | $800 | $400 | $c00 | morale lost per wound |
-| `s0.diff.villagerMorale` | $1200 | $900 | $1b00 | morale lost for shooting a villager |
-| `s0.diff.grenades` | 9 | 9 | 6 | grenades per soldier |
-| `s0.diff.ammo` | $90 | $90 | $60 | rounds per soldier (crates still refill up to $90) |
-| `s0.diff.spawnFloor` | 7 | 4 | 12 | lowest enemy spawn chance per tick (out of 256) |
-| `s0.diff.rifleKillsSpider` | 0 | 1 | 0 | 1 = rifle bullets kill the spider-hole VC (originally grenades only) |
-| `s0.diff.trapsWound` | 0 | 1 | 0 | same as `s0.forgivingTraps` |
-| `s0.diff.bridgeFailsafe` | 0 | 1 | 0 | same as `s0.bridgeFailsafe` |
-| `s0.diff.noMap` | 0 | 0 | 0 | Custom challenge: the tunnel map in hut 2 can't be found |
-(Starting morale is the core's `kernel.diff.startMorale`.) Extra soldiers (M15, `game.lives` / `game.fullPlatoon`)
-need nothing in the jungle: all five soldiers play here anyway, and with `game.fullPlatoon` the platoon you leave
-the jungle with (wounds, ammunition, dead men) is what the tunnels get.
-
-### Jungle map (M6) - Preferences › Assist › Jungle map, or Assist › Show the jungle map
-- A schematic of the six jungle strips below (or above) the game: level 0 at the top (the village street is its
-  right half), level 1 is where you start, levels 2-4 lie deeper. Dark green = trees you can't walk through,
-  yellow lines = paths between the strips, blue = the river, brown = the bridge planks, small houses = hut doors.
-  The green arrow is you (white inside a hut).
-- **Show**: layout only / + objectives (E = explosives on level 4, B = the bridge, ✕ = the point of no return
-  without explosives) / + hut contents (spoiler: torch, map, booby traps - listed per hut, with "sprung" once they
-  went off; marks the run as assisted).
-- **Only what you have explored**: columns appear once you have been near them; kept after deaths and loaded
-  games, cleared when the jungle starts in a new game.
-- **M** in the jungle hides / shows it; the pause menu has "Show / Hide Jungle Map". Size 2-8 points per column.
-- **Warn about booby-trapped drawers** (same section): inside a hut, "Something doesn't feel right here…" appears
-  while you stand at a drawer that is still booby-trapped. Marks the run as assisted when it appears.
-
-### Widescreen jungle (L4) - Preferences › Video › Widescreen jungle, or View › Widescreen Jungle
-In a window wider than the game (or full screen), the jungle scenery continues into the black side bars: the
-same trees, paths and river, scrolling exactly with the picture (up to 256 px per side, optionally fading towards
-the edges). Background only - enemies, bullets and you exist only in the middle, and the HUD keeps its width.
-Hidden during transitions and man select, inside the huts and in the other sections. The columns are drawn by the
-game renderer (same scale, screen shake, over the backdrop), but never appear in ⌘S screenshots.
-**Make room in narrow windows** (0-128 px per side) shrinks the picture so the columns also show in a 4:3 window.
-It lets you see a little further ahead, so it is off by default (it does not change the game itself).
-
-### For developers
-- Hooks: `// ENHANCEMENT <ID>` sites in `Game/Section0/*.swift`; helpers in `Game/Section0/Section0Enhance.swift`
-  (M14 host buttons `Section0HostButtons.of(machine).jump/.crouch`, S6 failsafe, S9b clamp, L3 shuffle with a
-  host PRNG so the game's random numbers are untouched).
-- Read-only models: `JungleMapModel` / `JunglePlayer` (M6) and `JungleWideLatch` + `JungleWidescreen.render`
-  (L4: the scroll state is latched when the game swaps buffers, so the sides match the displayed frame).
-- Feature tests: `port/verify/section0/enh/features.py <platoon-headless> [outdir] [--only REGEX]` (headless,
-  deterministic). `PLATOON_S0_WIDETEST=dir[,every]` makes the headless runner check the L4 renderer against the
-  real picture and write sample images (`wide_<frame>.ppm`, `wide.log`). Unit tests:
-  `Tests/PlatoonCoreTests/Section0OptionsTests.swift`. The app side of L4 (`Overlay/JungleWide.swift`) hands the
-  columns to the renderer's `SideColumnCompositor` (canvas x 33 / 337, line 36, 144 lines).
+### Recording and screenshots (M24)
+- **View › Record Video (⌥⌘R)** - H.264 + AAC movie of the game picture and Paula's sound, 50 frames per second
+  of *game time*: fast-forward is recorded at normal speed and pauses are left out. 2×/3×/4× size (nearest
+  neighbour), optionally tagged with the PAL pixel aspect so players show it 4:3. The pause menu has
+  Record Video / Stop Recording too. A REC badge shows while recording (not recorded).
+- **View › Record GIF (⌥⌘G)** - animated GIF (exact colours, 25 or 50 fps, 320×256 or 640×512, stops by itself
+  after 60 s).
+- **View › Copy Screenshot (⌥⌘C)** - the visible 320×256 picture to the clipboard.
+- Folders: recordings go to Movies ▸ Platoon (or Desktop / Pictures ▸ Platoon); **Save screenshots (⌘S) to**
+  picks the ⌘S folder (Desktop by default, as before) and can also copy them to the clipboard.
+  View › Show Recordings in Finder.
 
 ---
 
-## Final jungle & foxhole: navigator, room slide, fixes (owner: section2)
-
-Everything here is off by default. Options marked **gameplay** make the game *assisted* (separate hiscore table).
-Core options (`s2.*`) are set in Preferences › Gameplay ("Final jungle & foxhole" rows) or with `--enh key=value`
-on the headless runner / `PLATOON_ENH`; they take effect when a new game starts. The navigator and the room slide
-are display features in the app and can be switched at any time.
-
-### Final-jungle navigator (M5) - Preferences › Assist › Final jungle navigator, or Assist › Final Jungle Navigator
-The last section is a 10x12 grid of look-alike rooms whose exits are "left" and "right" relative to the way you
-face, with a 2:00 napalm timer. The navigator is a small panel beside the game (or in the playfield's top-right
-corner when the window is narrow; "Position" chooses). It never appears in screenshots or recordings.
-| Level | Shows |
-|---|---|
-| Heading | the way you face (N/E/S/W, north = up on the map) and which side(s) this room can be left by, even without the compass (without the compass from the tunnels this **marks the run as assisted**, like `s2.compassAssist`; with it, the panel only repeats the HUD) |
-| Heading + map | also a map of the rooms you have been in this game (green, the bunker red), where you are and which way you face; the start room is outlined. Rooms you have not entered stay blank (no spoiler) |
-| Heading + map + route guide | also "Go ◀ LEFT" / "Go RIGHT ▶" towards the nearest bunker and how many rooms are left, "Walk up to the far end first" (the side exits only work at the back of the room), and in the bunker Barnes' remaining grenade hits. **Marks the run as assisted** |
-
-- ⇧⌘J cycles the levels; **N** in the final jungle hides / shows the panel while the navigator is on; the pause menu
-  has "Show / Hide Final Jungle Navigator".
-- The route is a shortest path over (room, heading) computed with the game's own turning rules, checked against the
-  reverse-engineered maze graph (from the start: L R L R L R L R R L R L R L, 14 rooms).
-- `s2.compassAssist=1` (**gameplay**, Preferences row "Start with the compass (HUD heading)"): the final jungle starts
-  with the compass, so the game's own HUD shows the heading and the first hint becomes "GET GOING!" instead of
-  "A COMPASS WOULD HELP !".
-
-### Room slide (M25) - Preferences › Video › Final jungle, or View › Final Jungle Room Slide
-Instead of the fade to black between rooms, the old view slides out to the side you turned to and the next room
-slides in edge to edge ("Slide length" 6-16 frames, default 12). The game underneath fades and decodes exactly as
-before; the slide ends before the game shows the new room and holds it, then the game's own picture takes over on
-the first frame it shows the room (pixel-identical apart from what moved; never a black frame). Presentation only;
-it is not in screenshots or recordings.
-
-### More soldiers (M15, core options `game.lives`, `game.fullPlatoon`) - gameplay
-- `game.lives=3..5`: when a soldier dies the next one takes over with "ONE MORE CHANCE" and a fresh 2:00 at the start
-  room, until the last of them is killed ("YOUR PLATOON HAS BEEN DESTROYED!"). The original allows two.
-- `game.fullPlatoon=1`: the final jungle keeps the platoon you brought (wounds, grenades, ammunition, dead men)
-  instead of five fresh soldiers; it starts with your first living man and every living man gets his turn
-  (`s2.diff.grenades` then does not apply).
-
-### Original bug fixes (S9) - one switch each
-| Option | Fix |
-|---|---|
-| `s2.fixRoomTimer=1` (**gameplay**) | The airstrike timer pauses while the screen is black between rooms, as the programmer intended (the original clears the wrong address). Worth about 5 s over the shortest route. |
-| `s2.napalmStopsTimer=1` | When time is up the HUD timer stays at 00:00 instead of wrapping to 59:59 during the napalm flash. |
-| `s2.withdrawnText=1` | Running out of morale shows the intended "YOUR PLATOON HAS WITHDRAWN FROM ACTION" screen instead of "YOUR PLATOON HAS BEEN DESTROYED!". |
-| `s2.fixPhantomGrenades=1` | Once Barnes is dead your remaining grenades are no longer thrown one after another by themselves. |
-
-### Difficulty (M10) - gameplay
-Recruit / Veteran set these; Custom uses only the ones you set (`original` = the game's value):
-| Key | Original | Recruit | Veteran | Meaning |
-|---|---|---|---|---|
-| `s2.diff.timer` | 120 | 180 | 90 | airstrike timer in seconds at every (re)start of the final jungle |
-| `s2.diff.maxSoldiers` | 5 | 3 | 5 | at most this many soldiers per room visit (the game draws 0-5 at random) |
-| `s2.diff.spawnDelay` | $14 | $14 | $0c | minimum ticks between soldiers entering (+0-15 random) |
-| `s2.diff.fireCooldown` | $14 | $20 | $0e | minimum ticks between soldier shots (+0-15 random) |
-| `s2.diff.sniperDelay` | 50 | 80 | 35 | ticks you may stand at one depth before the sniper shoots (twice that after entering a room or a hit) |
-| `s2.diff.hitMorale` | $800 | $400 | $c00 | morale lost per hit |
-| `s2.diff.barnesHits` | 5 | 3 | 7 | grenade hits that kill Barnes |
-| `s2.diff.barnesCooldown` | $0a | $18 | $06 | minimum ticks between Barnes' shots (+0-15 random) |
-| `s2.diff.grenades` | 9 | 9 | 9 | grenades per man at the start of the final jungle |
-
-The random draws stay exactly where the original makes them; only the resulting numbers are bounded or offset.
-
-### For developers
-- Hooks: `// ENHANCEMENT <ID>` sites in `Game/Section2/FinalJungle.swift` and `Foxhole.swift`; helpers in
-  `Game/Section2/Section2Enhance.swift`. No new stored host state (nothing for the snapshot codec).
-- Read-only model (public, `Game/Section2/FinalNavigator.swift`): `FinalJungleMaze` (map from RAM, exact
-  trans_left/trans_right successor, BFS `route(from:)`), `FinalJungleLive.read(memory)` (room, heading, exits,
-  player depth, Barnes, transition state) and `FinalJungleRenderer` (the game's picture decoder, bob cut and depth
-  order: a room image from RAM). App overlays: `PlatoonApp/Overlay/FinalNavigator.swift`, `FinalRoomSlide.swift`,
-  wired in `Menus/MenuGameplaySection2.swift` / `Prefs/PrefsGameplaySection2.swift`.
-- Tests: `swift test --filter FinalJungleTests` (maze and routes against `re/finaljungle/assets/maze_graph.json`,
-  every picture decodes); `port/verify/section2/enh/run_enh.py [--bin platoon-headless]` (headless feature tests,
-  including the in-game check with `PLATOON_S2NAV=<log>`: the route at every room entry of the honest routes, host
-  decoder == game decoder for every room, host room image == the first drawn playfield, and the log changes nothing).
-  App level: `port/verify/section2/enh/app/run_app.sh APP HEADLESS [OUT]` (background, ~5 min) plays a left and a
-  right room exit from savestates with the navigator and the slide on and checks every slide frame
-  (`PLATOON_S2SLIDE_DUMP=<dir>` dumps the slide image and the game's playfield per emulated frame: no dark seam, the
-  hand-over frame is the game's picture and matches the last slide image) plus the assisted marks.
-  `PLATOON_S2NAV_DEBUG=1` logs the navigator state (and the run's assisted reasons) every 50 frames; a savestate made with
-  `platoon-headless --snapshot-save` in the final jungle plus `PLATOON_SAVES_DIR` / `PLATOON_DEBUG_SAVESTATES` gets the
-  app into a room within seconds for `PLATOON_DEBUG_SCRIPT` captures.
-
----
-
-## Audio: mixer, ghost voices, sound character, soundtrack, output timing (owner: audio)
-
+## Sound: mixer, ghost voices, sound character, soundtrack, output timing
 None of these options changes the game: they only change how Paula's output is mixed and played on the Mac, so
 they never make a run *assisted* and they all apply immediately (no restart). With every setting at its default the
 sound is bit-identical to the original port (checked by rendering WAVs, see "For developers").
@@ -513,218 +455,9 @@ The core options mirror the mixer for `platoon-headless` (`--enh list` shows the
 `platoon-headless --enh audio.ghostVoices=1,audio.synthesis=blep --script s.txt --frames 3000 --wav out.wav`.
 The driver test harness (`--music-test N` / `--sfx-test ID`) reads the same keys from `PLATOON_ENH`.
 
-### For developers
-- Paula (`Platform/Paula.swift`): `runLineLegacy` is the original renderer and is used whenever every mixer setting is
-  at its default; `runLineMixer` steps the DMA state machine identically (same phase arithmetic, order, interrupts)
-  and only computes the output differently. Building blocks in `Platform/PaulaMixer.swift` (BLEP bus, reverb).
-- Music driver hooks (`Game/Audio/MusicDriver.swift`, `// ENHANCEMENT M12/M25`): ghost writes via
-  `Paula.ghostWrite` (never `chip.write`), song cue counter; `Game/Audio/AudioEnhance.swift` installs the voice tagger
-  (shadow block `$4084+12*ch+$b`) and applies `enhancements.audio` once per run, and picks the auto ambience from F1.
-- M22: `Platform/HostAudioStream.swift` (ring + rate control, unit-tested); app side `PlatoonApp/AudioOutput.swift`,
-  `PlatoonApp/AudioEnhancements.swift` (pref sync, soundtrack controller).
-- M22 slow motion: a host that runs the game slower than real time sets `host.audio.stream.speedHint = speed`
-  (nil at 100 %); without a hint the stream estimates the producer speed (2 s windows, stalls ignored, used below 90 %,
-  or below 99 % once two underruns within 6 s show the host really is that slow).
-- Tests (run in the background): `port/verify/audio/wavcmp.sh BIN OUT` (default output byte-identical to the pinned
-  baseline, 9 scenarios: title, F10, section 1 combat + flare, section 2 combat, driver harness songs 0/2/4/6 with
-  sfx bursts, 44.1 kHz no-filter), `port/verify/audio/enhtests.sh BIN OUT` (RAM hash every frame and register log
-  unchanged with every audio option on; ghost / BLEP / ambience / pan / volume behaviour as numbers),
-  `swift test --filter AudioTests` (BLEP aliasing, mixer neutrality, gains/pan, ghosts, interrupt timing, stream rate
-  control, slow motion with/without hint, stalls, latency cap). App-level: `port/verify/audio/app/apptest.sh
-  PLATOON_BIN OUT` (replacement soundtrack end to end, Preferences screenshot, dropout count Original vs Smooth);
-  `PLATOON_DEBUG_AUDIO_WAV=file.wav` records the app's final mix (Paula stream + soundtrack) in any debug-script run.
-
 ---
 
-## Controls: keyboard, controller, accessibility, aiming, rumble (owner: input)
-
-Everything here is on the host side: the game still reads its joystick and keyboard the way it always did. With
-the default settings the keyboard does exactly what it did before on a US keyboard, and the controller only gains
-jobs on buttons that did nothing before. Options that help you play (auto-fire, aim assist) mark the game as
-*assisted* the first time they act.
-
-### Controls & Bindings window (M7): Game ▸ Controls & Bindings… (⌘/), pause menu, or Preferences › Input
-- Every action with up to two keys and a controller button: Up/Down/Left/Right, Fire, SPACE (jungle grenade,
-  flare), Change soldier (Left Alt), Yes/No (trap door), Pause (TAB), Music/FX (F10), Abort (DEL), HELP, Keypad −,
-  Jump/Crouch (only with the jungle option "Separate jump and crouch controls") and Turbo fire.
-- Click a cell and press a key or a controller button. Modifier keys (Option, Shift, Control) work. Esc cancels,
-  Backspace clears the slot. Clicking the controller cell replaces that action's buttons; the ⊕ next to it adds one
-  button (or removes it, if the action already has it), e.g. to give Fire a fifth button. The ⓧ button unbinds an
-  action.
-- The pause menu has "Controls & Bindings…" for this window. Its older "Controls…" row still shows the short
-  original help box until the app side routes it here.
-- Presets. Keyboard: **Original** (Space is fire *and* the Amiga SPACE key, Z is fire), **Separate fire and SPACE**
-  (Z/X fire, Space is only SPACE, closer to the Amiga's separate stick button), **One-handed left** (WASD, Space
-  fire, Q SPACE, E change soldier, R yes, F no, Z/X jump/crouch, G music) and **One-handed right** (arrows, Right
-  Shift or / fire, Return SPACE, . change soldier, ; yes, ' no). Controller: **Extended** (default), **Original
-  mapping only**, **One-handed left half** (d-pad, LB fire, LT SPACE, Options change soldier) and **One-handed
-  right half** (right stick, RB/RT/A fire, X SPACE, Y change soldier).
-- Keys not bound to an action still type their Amiga key, so the cheat codes and the high-score name keep working.
-- The bottom of the window lists the current controls, generated from your bindings, and warns about keys bound
-  twice. Bindings are saved and survive restarts. Restore Defaults brings back the original set.
-
-### Controller (S2): Preferences › Input › Controller
-- **Extended** buttons (default): **X** = Amiga SPACE (jungle grenade with no direction held, flare), **Y** =
-  change soldier (sent as a short tap, so holding it doesn't reopen the choose-your-man box), **LB** = Yes,
-  **LT** = No. Unchanged: d-pad / left stick = joystick, A/B/RT/RB = fire, Menu = TAB, Options = F10.
-- **Trap door**: at the "enter the trap door?" prompt, a fresh press of **A** (or another fire button) answers
-  Yes, **B** or the SPACE button answers No. A fire button that was already held when the prompt appeared doesn't
-  answer. Switch: "Trap door: A answers Yes, B answers No".
-- **Hints**: while a controller is connected, the trap-door prompt, the choose-your-man box and the high-score name
-  entry show which of your controller's buttons to press.
-- **Stick dead zone** slider (default 40%). A controller that disconnects releases everything it was holding.
-- Buttons the app keeps for itself: L3 = hold to fast-forward, R3 = hold to rewind (when those are on), Menu held
-  0.5 s = pause menu (when that is on).
-
-### Keyboard fixes (S3): Preferences › Input › Keyboard
-- **Letter keys follow the keyboard layout** (default on). On QWERTZ the key labelled Y answers Yes and the key
-  labelled Z fires; on AZERTY A, Q, Z, W and M are taken by their labels. The digits row, arrows, F-keys and
-  keypad stay by position. On a US keyboard nothing changes. Switch it off to get the original US positions.
-- **Game ▸ Send Amiga Key**: HELP, Keypad −, SPACE, Left Alt, Y, N, TAB and F10 from the menu, for laptops where
-  F10-F12 are media keys (F11 = HELP and F12 = keypad minus still work too).
-
-### High-score name on the keyboard (S18): Preferences › Input › High-score name
-- "Type the high-score name on the keyboard" (applies after a reset): letters, digits and space type, Backspace
-  deletes, Return finishes. The joystick still works. While you type, keys that type a character type it, even if
-  they are bound to fire or another action (so Z and Space don't shoot, and Return finishes the name in the
-  right-hand preset).
-
-### Motor accessibility (S15, M13): Preferences › Input › Motor accessibility (all off by default)
-- **Stretch short taps** (S15): every press and release of the stick, fire and the Amiga keys lasts at least 2-8
-  frames (default 4), so quick taps aren't lost between the tunnels' stick reads (every 4 frames) or the jungle's
-  (every 2-3). Two quick taps still count as two. Only during play, not on the title, text or name-entry screens.
-- **Toggle fire** / **Toggle directions** (M13): tap to hold, tap again to release. A direction is also released by
-  tapping the opposite one: tap UP once to keep walking through the tunnels or the final jungle.
-- **Auto-fire** (M13): "While fire is held" or "Turbo-fire button only" (bind Turbo fire in Controls & Bindings).
-  Fire pulses on and off, at least one game tick each (automatic speed per section, or 2-6 frames). Useful for the
-  final jungle's one-shot-per-press rifle. Marks the game as assisted once it fires.
-- One-handed layouts: see the presets above.
-
-### Explicit jump and crouch (M14)
-- Turn on the gameplay option "Separate jump and crouch controls" (Preferences › Gameplay › Jungle & village,
-  `s0.explicitJumpCrouch`). Then **Jump** (X key, controller LB) and **Crouch** (C key, controller LT) work in the
-  jungle and UP/DOWN only take paths and hut doors. In the Separate preset they are C and V; rebind them in
-  Controls & Bindings. Without the option these bindings do nothing (X and C type their letters as before).
-
-### Pointer and right-stick aiming (L2): Preferences › Input › Aiming (off by default)
-- In the tunnel fights, the room searches and the flare dugout, the crosshair follows the mouse / trackpad pointer
-  over the picture, or the right stick (how far ahead it aims: "Right stick reach"). It works by pressing the
-  joystick for you, so the original crosshair speed and limits still apply; any direction you press yourself wins.
-  Left click fires, right click is SPACE (flare) in the dugout. The pointer stops steering 1.5 s after it stops
-  moving. Marks the game as assisted once it aims.
-- With the section-1 gameplay option `s1.directAim` (Preferences › Gameplay) the crosshair jumps to the pointer
-  instead.
-
-### Controller rumble (S13): Preferences › Input › Controller rumble (off by default)
-- Explosions strong (jungle grenades and traps, the foxhole grenade), being hit medium, enemy fire and hits on the
-  enemy light, your own shots, throws and flare launches a short tick; a wound medium, a death long and strong, the
-  grenade that hits Barnes strong, and the bridge blast and the napalm strike long. Strength slider. Works with the
-  sound effects switched off too. The game's sound numbers mean different things in each section (the jungle's
-  "player hit" sound is the tunnels' "enemy hit"), so the rumble follows the section you are in, and the sound and
-  the wound of the same hit give one pulse, not two.
-
-### For developers
-- Code: `PlatoonApp/InputManager.swift` (bindings resolution, reference-counted Amiga keys, controllers, S2 context,
-  frame tick), `PlatoonApp/Input/` (Bindings, KeyLayout, InputPipeline = S15/M13, AimAssist = L2a, Rumble = S13,
-  ControlsWindow = M7, InputFeature = launch glue + controller hints, InputSelfTest), `Prefs/PrefsInput.swift`,
-  `Menus/MenuInput.swift`. No PlatoonCore code; M14 uses `Section0HostButtons`, L2 uses `TunnelAim`.
-- With every option off the joystick is written at event time exactly as before; with S15/M13/L2 on it is written
-  once per emulated frame from `Machine.frameHook`.
-- Test: `port/verify/input/run.sh [Platoon binary] [outdir]` (background, ~3 min). Unit checks (the default
-  bindings produce the original key events and joystick bits for all 86 keys and 6 modifiers, controller presets,
-  QWERTZ/AZERTY, S18, S15 stretcher, M13 toggles/auto-fire, aim steering, rumble mapping, persistence), renders of
-  the Controls window and the trap-door hint, and game runs of the translated game: pad X grenade, pad Y man
-  select, trap door answered with A / B (RAM identical to the keyboard Y / N runs of the section-0 harness scripts),
-  S15 zero-length tunnel turns, M13 toggle walking and final-jungle auto-fire, M14 jump button, L2 assisted aim in
-  tunnel combat and the flare dugout and direct aim. `PLATOON_INPUT_ONLY=s2jungle,m14,trapdoor,s15,m13toggle,
-  m13auto,l2` runs a subset. `PLATOON_KEYLAYOUT=qwertz|azerty` simulates a layout in the app.
-
----
-
-## Picture: filters, CRT looks, effects, accessibility, recording (owner: presentation)
-
-Everything in this section is display-only: nothing reaches the emulated Amiga, so none of it makes a run
-assisted. It never shows in ⌘S screenshots or in recordings unless stated. Settings: **Preferences › Video**
-(⌘,) and the **View** menu.
-
-### Filters - View › Sharp Pixels ⌘1 / Smooth ⌘2 / CRT ⌘3 / Pixel-Art Upscaler (MMPX) ⌘4
-- **Sharp Pixels** (default). Fixed in this release: the original port sampled between pixels, so almost every
-  pixel was shown as a 50/50 mix of its neighbours (soft, washed-out dithering). Now every pixel keeps its exact
-  Amiga colour; only the one-pixel seams at non-integer scales are blended. With Integer Scaling the image is
-  pixel-exact.
-- **Pixel-Art Upscaler (M19)**: MMPX (McGuire & Gagiu 2021), which smooths diagonal edges of the 64×48 jungle
-  tiles, sprites and the pictures without blurring the dithering and without inventing colours.
-  **Keep the status bar sharp** (Preferences › Video › Pixel-art upscaler, on by default) leaves the HUD's
-  digits and bars as square pixels and smooths only the game window.
-- **CRT** with a **CRT look** (M20, View › CRT Look or Preferences › Video › CRT look): *Classic* is the port's
-  original CRT shader. *Commodore 1084S* (slot mask, bloom, a little phosphor persistence, PAL colour response),
-  *Sony PVM* (aperture grille, sharp, strong scanlines), *A520 composite* (colour bleed from the TV modulator), and
-  *Custom* (mask type and strength, bloom, persistence, colour bleed, sharpness, 1084 colour). The mask is sized
-  to whole triads per Amiga pixel, so it never beats against the picture (no moiré at 1080p/1440p); below about
-  2.5 screen pixels per triad it switches itself off. Persistence fades per emulated frame, so it looks the same
-  under fast-forward. It is a look only: it does not smooth the 25 Hz jungle movement.
-- **Colour-managed output (sRGB)** (Video › Around the picture, off by default): wide-gamut (P3) displays show
-  the Amiga colours as intended instead of over-saturated.
-
-### Around the picture
-- **Side bars: ambient glow (S14)** - fills the black bars beside the picture with a blurred, darkened extension
-  of the frame (brightness slider). View › Ambient Glow in the Side Bars.
-- **Screen shake (S13)** - Off / Subtle / Strong. Explosions (jungle grenades and trap, foxhole grenades), the
-  bridge blast, the napalm strike and your wounds shake the picture by up to 2-3 Amiga pixels. It decays per
-  emulated frame. Controller rumble is the input section's option.
-- **Red screen-edge flash when you are hit** - a visual cue for playing without sound.
-- **Final jungle: show which side a sniper shot comes from** (off by default) - a "◀ SNIPER" / "SNIPER ▶"
-  caption at that edge of the picture while the idle shot (fired at you when you stay at one depth too long) is in
-  flight; another cue for playing without sound.
-- **Widescreen jungle (L4)** - see the jungle section; the columns are composited by this renderer.
-
-### Accessibility
-- **Brighten the dark night scenes (S16)** + amount - lifts the dark tones of the game window (never the HUD,
-  black stays black) while the tunnels or the flare night are on screen. It makes enemies a little easier to spot
-  in the flare night.
-- **Reduce flashing (S17)** + flash strength - limits the red flash when you are hit in the tunnels and the
-  flare night, the napalm white-out, and the flare's sudden light-up, to the chosen strength. The picture stays
-  visible even at the peak of a flash (where the original turns every colour into the same red or white).
-  **Steady background colour while TAB-paused** switches off the pause colour cycling (core option, after a reset).
-- **Colour vision (M21)** - assist modes for deuteranopia / protanopia / tritanopia (they move the colour
-  differences you can't see into ones you can: the HUD's red and green, enemies against the jungle), plus
-  simulations of each type and greyscale, with a strength slider.
-- **HUD magnifier (M21)** - the status bar (time, score, morale, ammo) again, enlarged 1.25-3×, below the picture;
-  the picture gets smaller to make room. Empty on the title and text screens.
-
-### Recording and screenshots (M24)
-- **View › Record Video (⌥⌘R)** - H.264 + AAC movie of the game picture and Paula's sound, 50 frames per second
-  of *game time*: fast-forward is recorded at normal speed and pauses are left out. 2×/3×/4× size (nearest
-  neighbour), optionally tagged with the PAL pixel aspect so players show it 4:3. The pause menu has
-  Record Video / Stop Recording too. A REC badge shows while recording (not recorded).
-- **View › Record GIF (⌥⌘G)** - animated GIF (exact colours, 25 or 50 fps, 320×256 or 640×512, stops by itself
-  after 60 s).
-- **View › Copy Screenshot (⌥⌘C)** - the visible 320×256 picture to the clipboard.
-- Folders: recordings go to Movies ▸ Platoon (or Desktop / Pictures ▸ Platoon); **Save screenshots (⌘S) to**
-  picks the ⌘S folder (Desktop by default, as before) and can also copy them to the clipboard.
-  View › Show Recordings in Finder.
-
-### For developers
-- Files: `PlatoonApp/MetalRenderer.swift` (passes, layout, offscreen rendering `renderOffscreen`),
-  `Video/VideoShaders.swift` (all Metal code), `Video/VideoLook.swift` (settings and keys), `Video/VideoFX.swift`
-  (per-frame state from the F1/F2 probe: shake, night lift, flash limiter, HUD split line), `Video/VideoRecorder.swift`
-  + `GIFWriter.swift` (M24), `Video/SniperCue.swift` (S13 final-jungle sniper caption, reads $57f60), `Video/SideColumns.swift` (L4 compositing API: `SideColumnCompositor.shared.submit /
-  clear / room / reservedWidth`, documented in the file).
-- The flash limiter reads the copper list's top palette ($115fa) and `$5a(a6)` at the frame hook; while a flash
-  is limited, the renderer maps each pixel by its palette index taken from the last canvas before the flash.
-- Tests: `port/verify/presentation/selftest.sh <Platoon> <platoon-headless> [outdir]` (background, ~6 min):
-  offscreen renderer checks (pixel-exact integer scaling, MMPX colours and sharp HUD, colour vision, night lift, flash LUT and
-  index mapping, backdrop, shake, magnifier, side columns), GIF/movie writer read-back, app runs from snapshots
-  before a tunnel hit / the flare light-up / the napalm strike with S13/S16/S17 on and off, the sniper cue on and
-  off (section 2 from its start, standing still until the idle shot), and a recording run.
-  In the app: `PLATOON_VIDEO_TEST=dir` (+ `PLATOON_VIDEO_TEST_INPUT=dir of canvas PNGs`), `PLATOON_VIDEO_SCRIPT=file`
-  (record/stop/copyshot/look/log at emulated frames), `PLATOON_VIDEO_LOG=file` (effect events),
-  `PLATOON_RECORD_DIR`, `PLATOON_SCREENSHOT_DIR`.
-
----
-
-## Assists: message log, captions, objectives, timer, replays, practice, difficulty page (owner: assist)
-
+## Assists: message log, captions, objectives, timer, replays, practice, difficulty page
 Everything in this section reads the game and draws on top of it, except practice drills (which load a prepared
 game). None of it is ever drawn into the game picture, screenshots or recordings. Switch things on in
 **Preferences › Assist** (⌘,) or from the **Assist** menu; most rows also have a menu toggle there.
@@ -739,7 +472,8 @@ are waiting.
   The game is paused while the log is open. "Copy Message Log" in the Assist menu copies it without opening it.
 - **Large captions** (default off): the current HUD message in big yellow-on-black text below the picture (or at the
   bottom / top of the picture). "Keep each caption at least" (default 2.5 s) keeps messages readable that the game
-  replaces after a single tick.
+  replaces after a single tick: a message that follows sooner waits until the current caption has had its time (only
+  the newest one waits, so a caption is never more than one hold time behind the game). Messages the game dropped are never captioned (they are in the log).
 - **Read messages aloud** (default off): every new message, and optionally the full-screen texts (section intros,
   ONE MORE CHANCE, the endings), spoken in sentence case ("DID'NT" becomes "didn't", "(Y/N)" becomes "Y or N").
   With VoiceOver running the text goes to VoiceOver instead. Nothing is spoken while fast-forwarding.
@@ -780,11 +514,14 @@ The port is deterministic: the joystick and keys of a game reproduce it exactly.
   the game restarts with the recorded settings (difficulty and other options, start section, trainer) and your own
   input is ignored. You can pause, open the pause menu and fast-forward; **Stop Replay (take over)** (Replays menu or
   pause menu) hands you the controls at that moment, and the recording carries on, so saving afterwards gives a
-  replay of both parts. A replayed game is marked assisted and never writes a high score.
+  replay of both parts. A replayed game is marked assisted and never writes a high score, and neither a replay nor a
+  practice drill moves your Game ▸ Continue from Last Section point.
 - The last finished game and your best-scoring game are kept automatically (`Play Last Game`, `Play Best Game`;
   files in `~/Library/Application Support/Platoon/replays/`).
 - Loading a save state, retrying a checkpoint or rewinding ends the recording (the game can no longer be replayed
   from its start); changing the trainer during a game does too.
+- A plain `platoon-headless --script` file (joystick and key lines, no pokes) can be played with Play Replay… too;
+  its keys are paced like the headless runner's, so a key press and release on the same frame still register.
 - A `.plreplay` is also a `platoon-headless --script`; its header lists the command line, e.g.
   `platoon-headless --adf ADF --script game.plreplay --frames 51234 --start-section 1`. A carry block, if any, is
   saved next to it as `.carry` (use `PLATOON_CARRY=file`). Replays made from headless `--deterministic` runs carry a
@@ -809,13 +546,370 @@ Preferences › **Gameplay** starts with:
 - **Difficulty**: Original / Recruit / Veteran / Custom. Below the popup, a live list shows exactly what the chosen
   preset changes, with the original values (e.g. "Jungle: morale lost per hit: $400 (original $800)").
 - **Custom difficulty** sections (all sections, jungle, tunnels, final jungle): every difficulty knob with a short
-  title and the section owner's description. A knob set here overrides the preset; with Custom only these apply.
+  title and a description of what it changes. A knob set here overrides the preset; with Custom only these apply.
 - **Platoon**: soldiers in the tunnels and the final jungle (2 = original, up to all 5) and *Full platoon* (wounds,
   ammunition and fallen men carry over from the jungle).
 All of these are gameplay options (applied when a new game starts): Recruit / Veteran / Custom games rank in their
 own high-score tables, other combinations in the assisted table.
 
-### For developers
+---
+
+## Jungle & village: failsafes, fixes, map, widescreen
+Everything here is off by default. Options marked **gameplay** make the game *assisted* (separate hiscore table).
+Core options (`s0.*`) are set in Preferences › Gameplay › "Jungle & village" / "Jungle & village: original bugs",
+with `--enh key=value` on the headless runner or `PLATOON_ENH`; they take effect when a new game starts.
+
+### Rules (gameplay)
+| Option | Preferences row | What it does |
+|---|---|---|
+| `s0.bridgeFailsafe=1` (S6) | Bridge failsafe | Walking right towards the bridge without having planted the explosives stops you at the last column before the point of no return, with "SET THE EXPLOSIVES ON THE BRIDGE", instead of freezing you while a runner wipes out the whole platoon. With the explosives nothing changes (they are planted automatically on the bridge). |
+| `s0.forgivingTraps=1` (S7) | Forgiving booby traps | Tripwires and the two booby-trapped drawers (huts 0 and 4) count as a normal hit: one wound and the usual morale loss, instead of killing the soldier outright. |
+| `s0.explicitJumpCrouch=1` (M14) | Separate jump and crouch controls | Jump and crouch get their own controls (bind "Jump" / "Crouch" in the Input tab; headless: Amiga keys `s0.jumpKey=0x32` / `s0.crouchKey=0x33`). Up and down then only take the paths between the jungle strips and the hut doors, so you can no longer walk onto a path by accident instead of jumping a tripwire. You can also jump on path tiles and in front of doors. |
+| `s0.villageSeed=N` (L3) | Village randomiser: off / new village at every reset / fixed village (seed) | The torch, the map and both booby traps move to other search spots in the huts (seeded: the same seed gives the same village). The map still needs the hut-2 guard dead. A toast shows the seed when the jungle starts. |
+
+### Original bug fixes (S9) - gameplay, one switch each
+| Option | Fix |
+|---|---|
+| `s0.fixMoraleWrap=1` (S9b) | Morale from supply crates, the torch and the map stops at full instead of wrapping round to almost nothing. |
+| `s0.fixHutDummy=1` (S9f) | The invisible "enemy" in the trap-door hut (hut 1) can't be shot: in the original it gave 300 points and counted as killing the hut-2 guard, so the map could be taken without a fight. |
+| `s0.fixTripwireSpawn=1` (S9g) | Tripwires always appear at the screen edge ahead of you (with some scroll positions the original put them behind you). |
+| `s0.fixTrapdoorBonus=1` (S9k) | The trap-door bonus (1000 per living soldier) counts your five soldiers; the original counts five records from the soldier in control, so with soldier 2-5 it counts game variables as soldiers. |
+
+### Difficulty (M10) - gameplay
+Recruit / Veteran set these; Custom uses only the ones you set (`original` = the game's value). Rows appear
+automatically in Preferences › Gameplay.
+| Key | Original | Recruit | Veteran | Meaning |
+|---|---|---|---|---|
+| `s0.diff.shootMask` | $1f | $3f | $0f | a walking soldier tries to shoot when random & mask = 0 (bigger = fewer shots) |
+| `s0.diff.hitMorale` | $800 | $400 | $c00 | morale lost per wound |
+| `s0.diff.villagerMorale` | $1200 | $900 | $1b00 | morale lost for shooting a villager |
+| `s0.diff.grenades` | 9 | 9 | 6 | grenades per soldier |
+| `s0.diff.ammo` | $90 | $90 | $60 | rounds per soldier (crates still refill up to $90) |
+| `s0.diff.spawnFloor` | 7 | 4 | 12 | lowest enemy spawn chance per tick (out of 256) |
+| `s0.diff.rifleKillsSpider` | 0 | 1 | 0 | 1 = rifle bullets kill the spider-hole VC (originally grenades only) |
+| `s0.diff.trapsWound` | 0 | 1 | 0 | same as `s0.forgivingTraps` |
+| `s0.diff.bridgeFailsafe` | 0 | 1 | 0 | same as `s0.bridgeFailsafe` |
+| `s0.diff.noMap` | 0 | 0 | 0 | Custom challenge: the tunnel map in hut 2 can't be found |
+(Starting morale is the core's `kernel.diff.startMorale`.) Extra soldiers (M15, `game.lives` / `game.fullPlatoon`)
+need nothing in the jungle: all five soldiers play here anyway, and with `game.fullPlatoon` the platoon you leave
+the jungle with (wounds, ammunition, dead men) is what the tunnels get.
+
+### Jungle map (M6) - Preferences › Assist › Jungle map, or Assist › Show the jungle map
+- A schematic of the six jungle strips below (or above) the game: level 0 at the top (the village street is its
+  right half), level 1 is where you start, levels 2-4 lie deeper. Dark green = trees you can't walk through,
+  yellow lines = paths between the strips, blue = the river, brown = the bridge planks, small houses = hut doors.
+  The green arrow is you (white inside a hut).
+- **Show**: layout only / + objectives (E = explosives on level 4, B = the bridge, ✕ = the point of no return
+  without explosives) / + hut contents (spoiler: torch, map, booby traps - listed per hut, with "sprung" once they
+  went off; marks the run as assisted).
+- **Only what you have explored**: columns appear once you have been near them; kept after deaths and loaded
+  games, cleared when the jungle starts in a new game.
+- **M** in the jungle hides / shows it; the pause menu has "Show / Hide Jungle Map". Size 2-8 points per column.
+- **Warn about booby-trapped drawers** (same section): inside a hut, "Something doesn't feel right here…" appears
+  while you stand at a drawer that is still booby-trapped. Marks the run as assisted when it appears.
+
+### Widescreen jungle (L4) - Preferences › Video › Widescreen jungle, or View › Widescreen Jungle
+In a window wider than the game (or full screen), the jungle scenery continues into the black side bars: the
+same trees, paths and river, scrolling exactly with the picture (up to 256 px per side, optionally fading towards
+the edges). Background only - enemies, bullets and you exist only in the middle, and the HUD keeps its width.
+Hidden during transitions and man select, inside the huts and in the other sections. The columns are drawn by the
+game renderer (same scale, screen shake, over the backdrop), but never appear in ⌘S screenshots.
+**Make room in narrow windows** (0-128 px per side) shrinks the picture so the columns also show in a 4:3 window.
+It lets you see a little further ahead, so it is off by default (it does not change the game itself).
+
+---
+
+## Tunnels & flare night: map, fairness, fixes
+Everything here is off by default. Options marked **gameplay** make the game *assisted* (separate hiscore table).
+Core options are set in Preferences › Gameplay ("Tunnels & flare night" and "Tunnels & flare night: original bugs"),
+with `--enh key=value` on the headless runner or `PLATOON_ENH`; they take effect when a new game starts.
+
+### Tunnel map (M3) - Preferences › Assist › Tunnel map, or Assist › Show the tunnel map
+- A map of the 43x43 maze beside the game (or in the game's top-right corner if the window is narrow). It fills in
+  as you explore: the corridors, rooms and walls you could see from where you stood. A green arrow shows where you
+  are and which way you face; the blue dot is the entrance.
+- Rooms get their number when you enter them. The list below the map shows what you took in each room (flares,
+  compass, map, ammunition, medical supplies, with a tick) and the doors you tried: "blocked exit", or
+  "EXIT (8 flares)" for the real way out (its room number turns red). Nothing you have not found yet is listed.
+- What you explored is kept when a soldier dies, after loading a save and after rewinding; it is cleared when the
+  tunnels start in a new game.
+- **M** in the tunnels hides / shows it. The pause menu has "Show / Hide Tunnel Map".
+- Options: size (3-10 points per cell), position, room list on/off, **Reveal the whole maze** (spoiler: all
+  corridors and the contents of every room; marks the run as assisted). The plain map only shows what you saw, so
+  it does not mark the run.
+- `s1.exploredMap=1` (**gameplay**, variant B; Gameplay row "The game's map window shows what you explored"): in the game itself the map window is always open and draws the
+  cells you have seen, even without the map item (the tunnel plan still reveals everything when you find it).
+
+### Fairness (M4) - gameplay
+| Option | What it does |
+|---|---|
+| `s1.keepItems=1` (Keep items when a soldier dies) | When a soldier dies the next one keeps the flares, the compass, a map found in the tunnels and the emptied drawers (the original takes everything away and refills the rooms). If you die in the flare night you get back the flares you took into it, so the exit still opens. |
+| `s1.flareRetry=1` (Flare night: retry with the next soldier) | Dying in the flare night restarts the flare night with the next soldier and the flares you brought, instead of sending him back through the whole maze. |
+| `s1.checkpointRespawn=1` (Next soldier starts at the last room) | The next soldier starts in front of the last room you entered (facing away from it) instead of at the entrance. |
+
+### More soldiers (M15, core options `game.lives`, `game.fullPlatoon`) - gameplay
+- `game.lives=3..5`: after the second soldier the third (up to the fifth) takes over, each after its own
+  "ONE MORE CHANCE" screen.
+- `game.fullPlatoon=1`: the tunnels keep the platoon you brought from the jungle (wounds, ammunition, dead men)
+  and start with your first living man; every living man gets his turn.
+
+### Original bug fixes (S9) - gameplay, one switch each
+| Option | Fix |
+|---|---|
+| `s1.fixLastBullet=1` (Your last bullet can kill) | Your last bullet can kill (the original checks the ammunition after the shot has used it). Tunnels and flare night. |
+| `s1.fixMoraleWrap=1` (Morale from room items stops at full) | Morale from room items stops at the maximum instead of wrapping round to almost nothing. |
+| `s1.fixFoodFarm=1` (Rotten food scores once) | The rotten food gives its 500 points once per soldier, not on every click. |
+| `s1.fixFlareSpawn=1` (Flare night: enemies keep coming) | Heavy firing in the flare night can no longer switch the enemy spawns off for good. |
+
+### Difficulty (M10) - gameplay
+Recruit / Veteran set these; Custom uses only the ones you set (`original` = the game's value):
+| Key | Original | Recruit | Veteran | Meaning |
+|---|---|---|---|---|
+| `s1.diff.hitMorale` | $c00 | $800 | $1000 | morale lost per wound (tunnels and flare night) |
+| `s1.diff.spawnDelay` | $10 | $20 | $08 | minimum ticks between tunnel enemies (plus 0-$31 random) |
+| `s1.diff.enemyAim` | $f | $19 | $0b | ticks a corridor enemy aims before firing |
+| `s1.diff.itemMorale` | $200 | $300 | $100 | morale gained per useful room item |
+| `s1.diff.flareSpawnBase` | $90 | $c0 | $70 | flare night enemy interval (bigger = fewer enemies) |
+| `s1.diff.flareShotSlack` | $d | 5 | $f | flare night: smaller = more time before a firing enemy hits you |
+
+### Mouse / pointer aiming (L2) - gameplay `s1.directAim=1` ("Pointer aiming moves the crosshair directly")
+With the option on and a pointer target coming from the input settings (mouse aiming), the crosshair in tunnel
+fights, in the room search and in the flare night jumps straight to the pointer (within the original limits);
+fire, recoil and hit rules are unchanged. Without the option the input settings can still steer the crosshair
+by moving the stick for you (assisted aiming, not gameplay).
+
+### Randomiser (L3) - gameplay `s1.randomSeed=N` (1 and up; 0 = off)
+Preferences › Gameplay › Tunnels & flare night › "Tunnel randomiser": off / new tunnels at every reset / fixed
+tunnels (seed). Shuffles what lies behind each hotspot between rooms of the same kind: the flare boxes, compass, maps, ammunition
+and so on move to other rooms that look alike, and the real EXIT is behind the door of either ladder room. The
+same seed always gives the same tunnels. Use the tunnel map to keep track.
+
+### Turn slide (M25) - Preferences › Video › Tunnels
+"Slide the view when turning": when you turn left or right in a corridor the old view slides out and the new one
+in over a few frames. Presentation only (the game, screenshots and recordings are not changed).
+
+---
+
+## Final jungle & foxhole: navigator, room slide, fixes
+Everything here is off by default. Options marked **gameplay** make the game *assisted* (separate hiscore table).
+Core options (`s2.*`) are set in Preferences › Gameplay ("Final jungle & foxhole: original bugs", the difficulty
+knobs) and Preferences › Assist (compass assist) or with `--enh key=value`
+on the headless runner / `PLATOON_ENH`; they take effect when a new game starts. The navigator and the room slide
+are display features in the app and can be switched at any time.
+
+### Final-jungle navigator (M5) - Preferences › Assist › Final jungle navigator, or Assist › Final Jungle Navigator
+The last section is a 10x12 grid of look-alike rooms whose exits are "left" and "right" relative to the way you
+face, with a 2:00 napalm timer. The navigator is a small panel beside the game (or in the playfield's top-right
+corner when the window is narrow; "Position" chooses). It never appears in screenshots or recordings.
+| Level | Shows |
+|---|---|
+| Heading | the way you face (N/E/S/W, north = up on the map) and which side(s) this room can be left by, even without the compass (without the compass from the tunnels this **marks the run as assisted**, like `s2.compassAssist`; with it, the panel only repeats the HUD) |
+| Heading + map | also a map of the rooms you have been in this game (green, the bunker red), where you are and which way you face; the start room is outlined. Rooms you have not entered stay blank (no spoiler) |
+| Heading + map + route guide | also "Go ◀ LEFT" / "Go RIGHT ▶" towards the nearest bunker and how many rooms are left, "Walk up to the far end first" (the side exits only work at the back of the room), and in the bunker Barnes' remaining grenade hits. **Marks the run as assisted** |
+
+- ⇧⌘J cycles the levels; **N** in the final jungle hides / shows the panel while the navigator is on; the pause menu
+  has "Show / Hide Final Jungle Navigator".
+- The route is a shortest path over (room, heading) computed with the game's own turning rules, checked against the
+  reverse-engineered maze graph (from the start: L R L R L R L R R L R L R L, 14 rooms).
+- `s2.compassAssist=1` (**gameplay**, Preferences row "Start with the compass (HUD heading)"): the final jungle starts
+  with the compass, so the game's own HUD shows the heading and the first hint becomes "GET GOING!" instead of
+  "A COMPASS WOULD HELP !".
+
+### Room slide (M25) - Preferences › Video › Final jungle, or View › Final Jungle Room Slide
+Instead of the fade to black between rooms, the old view slides out to the side you turned to and the next room
+slides in edge to edge ("Slide length" 6-16 frames, default 12). The game underneath fades and decodes exactly as
+before; the slide ends before the game shows the new room and holds it, then the game's own picture takes over on
+the first frame it shows the room (pixel-identical apart from what moved; never a black frame). Presentation only;
+it is not in screenshots or recordings.
+
+### More soldiers (M15, core options `game.lives`, `game.fullPlatoon`) - gameplay
+- `game.lives=3..5`: when a soldier dies the next one takes over with "ONE MORE CHANCE" and a fresh 2:00 at the start
+  room, until the last of them is killed ("YOUR PLATOON HAS BEEN DESTROYED!"). The original allows two.
+- `game.fullPlatoon=1`: the final jungle keeps the platoon you brought (wounds, grenades, ammunition, dead men)
+  instead of five fresh soldiers; it starts with your first living man and every living man gets his turn
+  (`s2.diff.grenades` then does not apply).
+
+### Original bug fixes (S9) - one switch each
+| Option | Fix |
+|---|---|
+| `s2.fixRoomTimer=1` (**gameplay**) | The airstrike timer pauses while the screen is black between rooms, as the programmer intended (the original clears the wrong address). Worth about 5 s over the shortest route. |
+| `s2.napalmStopsTimer=1` | When time is up the HUD timer stays at 00:00 instead of wrapping to 59:59 during the napalm flash. |
+| `s2.withdrawnText=1` | Running out of morale shows the intended "YOUR PLATOON HAS WITHDRAWN FROM ACTION" screen instead of "YOUR PLATOON HAS BEEN DESTROYED!". |
+| `kernel.timerStopsAtZero=1` | (all sections, row "HUD timer never wraps to 59:59") The kernel's mission timer stops at 00:00 instead of wrapping when it runs out. |
+| `s2.fixPhantomGrenades=1` | Once Barnes is dead your remaining grenades are no longer thrown one after another by themselves. |
+
+### Difficulty (M10) - gameplay
+Recruit / Veteran set these; Custom uses only the ones you set (`original` = the game's value):
+| Key | Original | Recruit | Veteran | Meaning |
+|---|---|---|---|---|
+| `s2.diff.timer` | 120 | 180 | 90 | airstrike timer in seconds at every (re)start of the final jungle |
+| `s2.diff.maxSoldiers` | 5 | 3 | 5 | at most this many soldiers per room visit (the game draws 0-5 at random) |
+| `s2.diff.spawnDelay` | $14 | $14 | $0c | minimum ticks between soldiers entering (+0-15 random) |
+| `s2.diff.fireCooldown` | $14 | $20 | $0e | minimum ticks between soldier shots (+0-15 random) |
+| `s2.diff.sniperDelay` | 50 | 80 | 35 | ticks you may stand at one depth before the sniper shoots (twice that after entering a room or a hit) |
+| `s2.diff.hitMorale` | $800 | $400 | $c00 | morale lost per hit |
+| `s2.diff.barnesHits` | 5 | 3 | 7 | grenade hits that kill Barnes |
+| `s2.diff.barnesCooldown` | $0a | $18 | $06 | minimum ticks between Barnes' shots (+0-15 random) |
+| `s2.diff.grenades` | 9 | 9 | 9 | grenades per man at the start of the final jungle |
+
+The random draws stay exactly where the original makes them; only the resulting numbers are bounded or offset.
+
+---
+
+## Game options, difficulty presets, command line
+The translated game reads its options from one registry of `key=value` settings (the rows of Preferences map onto
+them). This chapter lists the game-wide ones and how to set any option outside the app.
+
+### Where options are switched on
+- **App:** Preferences (⌘,): every option has a row (mostly the Gameplay tab; the rows of this chapter are in
+  General ▸ Title screen and high scores, Input ▸ High-score name, Video ▸ Accessibility, Audio ▸ Music / sound FX
+  at power-on and the Final-jungle bug list). Options are read when a game starts, so use **Reset Game Now** after
+  changing one.
+- **Command line (headless runner):** `platoon-headless --enh key=value[,key=value]` (repeatable);
+  `platoon-headless --enh list` prints every option with its default and help text.
+- **Environment:** `PLATOON_ENH="key=value,key=value"` works for the app and the headless runner.
+
+Values: `1`/`0` (also on/off, true/false) for switches, numbers in decimal or hex (`0x4800`, `$4800`), `original`
+for "use the game's own value".
+
+### Difficulty presets (`difficulty`) - gameplay
+`difficulty=original` (default, the real game), `recruit`, `veteran`, or `custom`. Recruit and Veteran adjust a set
+of per-section values (enemy fire, wounds, timers, ...; the tables are in the jungle, tunnels and final-jungle chapters).
+Custom uses only the values you set yourself (keys ending in `.diff.<name>`). The core value is:
+- `kernel.diff.startMorale` - morale at the start of a new game (the original is `$9000`; Recruit `$c000`,
+  Veteran `$6c00`; "half morale" is `$4800`).
+
+### Extra soldiers (`game.lives`, `game.fullPlatoon`) - gameplay
+- `game.lives=2..5` - how many soldiers you get in the tunnels and the final jungle (the original gives you 2).
+- `game.fullPlatoon=1` - the platoon you kept alive in the jungle (wounds, ammunition, fallen men) carries over into
+  the later sections; each section then starts with your first living man.
+(How each section uses them: see the tunnels and final-jungle chapters. Preferences › Gameplay › Platoon.)
+
+### Kernel extras (presentational, not gameplay)
+| Option | What it does |
+|---|---|
+| `originalCredits` (default **on**; General ▸ Title screen and high scores) | The credits page shows the original "GAME DESIGN (C)1988 OCEAN." / "CONVERSION BY CHOICE" lines instead of the cracker's text on the disk image. |
+| `kernel.soundFlagsAtBoot=0..3` (Audio ▸ Music / sound FX at power-on) | Music/FX mode at power-on (what F10 cycles through): 0 = all off, 1 = music only, 2 = sound effects only, 3 = both (the original). The app uses this to remember your last F10 choice. |
+| `kernel.steadyPauseColour=1` (Video ▸ Accessibility) | The TAB pause no longer makes the background flash. |
+| `kernel.keyboardNameEntry=1` (Input ▸ High-score name) | Type your hiscore name on the keyboard: letters, digits, space; Backspace goes back one letter; Return finishes the name. The joystick still works as before. |
+| `kernel.timerStopsAtZero=1` (Gameplay ▸ Final jungle & foxhole: original bugs, "HUD timer never wraps") | The mission timer stops at 00:00 instead of jumping to 59:59 while the napalm strike plays (a cosmetic original bug). |
+| `kernel.separateCheatScores=1` (General ▸ Title screen and high scores) | Games in which the original cheat codes (HAMBURGER / MEGA CHEAT) were typed also go to the assisted hiscore table. |
+
+### Hiscores and assisted runs
+See [Assisted games and high scores](#assisted-games-and-high-scores). Name entry in a separate table works as
+usual and your usual name is pre-filled; the title screen keeps showing the original table. For the core, a game is
+assisted when a gameplay option differs from its default (`platoon-headless --enh list` marks them with `*`), the
+host declared or marked a reason (`GameConfig.assistedReasons`, `GameProbe.markAssisted`), the trainer is active,
+the game was started with a carry block or at section 1 or 2, or (optionally) the original cheats were used.
+
+---
+
+## For developers
+
+The regression gate, test harnesses and extension APIs of each area. Build with your own scratch path
+(`swift build -c release --scratch-path /tmp/pbuild-<name>`) and run long tests in the background.
+
+### Regression gate and builds
+- `tools/regress_all.sh --bin <platoon-headless>` (4-12 min): 62 default-settings scenarios (kernel, sections 0-2)
+  compared byte for byte with a baseline built from the pinned pre-enhancement commit: tick dumps, the full-RAM hash
+  of every frame, screenshots, files. It must stay ALL PASS; `--only REGEX` runs a subset. See port/PORTING.md.
+- `swift test` runs every unit test suite (registry, snapshot codec, audio, sections 0-2, assists).
+- Robustness (QA): `port/verify/qa/kitchen.py <platoon-headless> <outdir> [all|veteran|custom]` runs every gate
+  scenario's script with many options on at once (all gameplay switches + randomisers + audio; Veteran with seeds and
+  extreme knobs; Custom extremes) and reports crashes / hangs; `port/verify/qa/xsection_travel.sh` (env BIN) checks
+  rewinds and checkpoint retries that go back across the tunnels -> final-jungle change against the uninterrupted run.
+- App bundle: `port/build_app.sh` (universal; `SCRATCH=/tmp/dir` scratch path, `OUT=dir`, `DIST=1` without the game
+  disk, `ARCHS="arm64"` for one architecture). The bundle registers `.adf` files (open with / drop on the Dock icon)
+  and contains this guide and the README for the Help menu.
+- Rules for changes: gameplay changes only at `// ENHANCEMENT <ID>` sites behind a default-off option declared in
+  `Game/Enhance/<Group>Options.swift` (`gameplay: true` taints the run); host features read RAM in
+  `AppServices.onFrame` / `onDisplay` and never write it unless they are a gameplay option.
+
+### App
+- Settings: `Prefs/Prefs<Owner>.swift` (declarative `PrefSection`s). Menus and a launch hook:
+  `Menus/Menu<Owner>.swift`. Services: `AppServices.shared` (`onFrame`, `onDisplay`, `onReset`, `onSectionStart`,
+  `onPauseChange`, `onHostReady`, `probe` (F1/F2), `pause/resume`, `toast`, `markAssisted`, `addPauseMenuItem`,
+  `onNewGame` (a new game from the title, no reset), `keyHooks`/`padHooks`, `snapshots`, `markAssisted` /
+  `markAssistedOnce` (per game; call it every frame while an assist acts). Overlays (F3):
+  `AppServices.shared.overlay.add(OverlayPanel)`; they never show up in ⌘S screenshots or in the Metal picture.
+  Panels are laid out in zIndex order and move clear of panels already placed (`avoidsOverlap`, default on; modal and
+  fill panels never move). Pause-menu entries: `PauseMenuItem(... isEnabled:, isShown:, action:)`; hide entries that
+  don't apply (another section, a feature that is off) with `isShown`.
+- Menu toggles generated from prefs (`.inMenu(...)`) get title-case names and sit next to their menu's related
+  group (Game after the save states, Sound after the audio items, Assist after the message log).
+- `Platoon --list-prefs` prints the registry and checks that the current settings reach the core.
+- App test driver: `PLATOON_DEBUG_SCRIPT=script PLATOON_DEBUG_CAPTURE=outdir [PLATOON_DEBUG_FRESH_PREFS=1]
+  [PLATOON_ADF=disk] [PLATOON_PREFS=k=v,…]`. The commands are listed in `DebugScript.swift`: key, pad, resign,
+  sleep, disconnect, pausemenu, menu ID, menurows, prefs, prefshot, pref (runs the live-apply hooks), reset,
+  capture (game + overlay composited), shot, log, menudump (the whole main menu), panels (overlay frames), windows,
+  assisted, quit (waits at most 150 frames for pending captures). `PLATOON_SUPPORT_DIR` redirects the disk,
+  high scores, saves and assist files; copy the binary under another name so its UserDefaults domain is private.
+
+### Save states
+Snapshots are taken only at the four section main-loop heads,
+where the whole game state is in chip RAM, the virtual chipset (copper, CIA timers, TOD and alarm, Paula) and a few
+host variables. A restored game continues from exactly that point on a fresh game thread. `port/verify/snapshot/
+roundtrip.sh` checks that a restored game plays on byte-identically to one that was never interrupted: the full-RAM
+hash every frame, the tick dumps, the screenshots and the audio, in all four loops. It also covers rewind and
+checkpoint retry, and files saved in one process and loaded in another. Headless options: `--snapshot-save N FILE`,
+`--snapshot-load FILE`, `--roundtrip N`, `--roundtrip-every K`, `--rewind-at N BACK`, `--checkpoints`,
+`--retry-at N`.
+
+### Controls
+- Code: `PlatoonApp/InputManager.swift` (bindings resolution, reference-counted Amiga keys, controllers, S2 context,
+  frame tick), `PlatoonApp/Input/` (Bindings, KeyLayout, InputPipeline = S15/M13, AimAssist = L2a, Rumble = S13,
+  ControlsWindow = M7, InputFeature = launch glue + controller hints, InputSelfTest), `Prefs/PrefsInput.swift`,
+  `Menus/MenuInput.swift`. No PlatoonCore code; M14 uses `Section0HostButtons`, L2 uses `TunnelAim`.
+- With every option off the joystick is written at event time exactly as before; with S15/M13/L2 on it is written
+  once per emulated frame from `Machine.frameHook`.
+- Test: `port/verify/input/run.sh [Platoon binary] [outdir]` (background, ~3 min). Unit checks (the default
+  bindings produce the original key events and joystick bits for all 86 keys and 6 modifiers, controller presets,
+  QWERTZ/AZERTY, S18, S15 stretcher, M13 toggles/auto-fire, aim steering, rumble mapping, persistence), renders of
+  the Controls window and the trap-door hint, and game runs of the translated game: pad X grenade, pad Y man
+  select, trap door answered with A / B (RAM identical to the keyboard Y / N runs of the section-0 harness scripts),
+  S15 zero-length tunnel turns, M13 toggle walking and final-jungle auto-fire, M14 jump button, L2 assisted aim in
+  tunnel combat and the flare dugout and direct aim. `PLATOON_INPUT_ONLY=s2jungle,m14,trapdoor,s15,m13toggle,
+  m13auto,l2` runs a subset. `PLATOON_KEYLAYOUT=qwertz|azerty` simulates a layout in the app.
+
+### Picture
+- Files: `PlatoonApp/MetalRenderer.swift` (passes, layout, offscreen rendering `renderOffscreen`),
+  `Video/VideoShaders.swift` (all Metal code), `Video/VideoLook.swift` (settings and keys), `Video/VideoFX.swift`
+  (per-frame state from the F1/F2 probe: shake, night lift, flash limiter, HUD split line), `Video/VideoRecorder.swift`
+  + `GIFWriter.swift` (M24), `Video/SniperCue.swift` (S13 final-jungle sniper caption, reads $57f60), `Video/SideColumns.swift` (L4 compositing API: `SideColumnCompositor.shared.submit /
+  clear / room / reservedWidth`, documented in the file).
+- The flash limiter reads the copper list's top palette ($115fa) and `$5a(a6)` at the frame hook; while a flash
+  is limited, the renderer maps each pixel by its palette index taken from the last canvas before the flash.
+- Tests: `port/verify/presentation/selftest.sh <Platoon> <platoon-headless> [outdir]` (background, ~6 min):
+  offscreen renderer checks (pixel-exact integer scaling, MMPX colours and sharp HUD, colour vision, night lift, flash LUT and
+  index mapping, backdrop, shake, magnifier, side columns), GIF/movie writer read-back, app runs from snapshots
+  before a tunnel hit / the flare light-up / the napalm strike with S13/S16/S17 on and off, the sniper cue on and
+  off (section 2 from its start, standing still until the idle shot), and a recording run.
+  In the app: `PLATOON_VIDEO_TEST=dir` (+ `PLATOON_VIDEO_TEST_INPUT=dir of canvas PNGs`), `PLATOON_VIDEO_SCRIPT=file`
+  (record/stop/copyshot/look/log at emulated frames), `PLATOON_VIDEO_LOG=file` (effect events),
+  `PLATOON_RECORD_DIR`, `PLATOON_SCREENSHOT_DIR`.
+
+### Sound
+- Paula (`Platform/Paula.swift`): `runLineLegacy` is the original renderer and is used whenever every mixer setting is
+  at its default; `runLineMixer` steps the DMA state machine identically (same phase arithmetic, order, interrupts)
+  and only computes the output differently. Building blocks in `Platform/PaulaMixer.swift` (BLEP bus, reverb).
+- Music driver hooks (`Game/Audio/MusicDriver.swift`, `// ENHANCEMENT M12/M25`): ghost writes via
+  `Paula.ghostWrite` (never `chip.write`), song cue counter; `Game/Audio/AudioEnhance.swift` installs the voice tagger
+  (shadow block `$4084+12*ch+$b`) and applies `enhancements.audio` once per run, and picks the auto ambience from F1.
+- M22: `Platform/HostAudioStream.swift` (ring + rate control, unit-tested); app side `PlatoonApp/AudioOutput.swift`,
+  `PlatoonApp/AudioEnhancements.swift` (pref sync, soundtrack controller).
+- M22 slow motion: a host that runs the game slower than real time sets `host.audio.stream.speedHint = speed`
+  (nil at 100 %); without a hint the stream estimates the producer speed (2 s windows, stalls ignored, used below 90 %,
+  or below 99 % once two underruns within 6 s show the host really is that slow).
+- Tests (run in the background): `port/verify/audio/wavcmp.sh BIN OUT` (default output byte-identical to the pinned
+  baseline, 9 scenarios: title, F10, section 1 combat + flare, section 2 combat, driver harness songs 0/2/4/6 with
+  sfx bursts, 44.1 kHz no-filter), `port/verify/audio/enhtests.sh BIN OUT` (RAM hash every frame and register log
+  unchanged with every audio option on; ghost / BLEP / ambience / pan / volume behaviour as numbers),
+  `swift test --filter AudioTests` (BLEP aliasing, mixer neutrality, gains/pan, ghosts, interrupt timing, stream rate
+  control, slow motion with/without hint, stalls, latency cap). App-level: `port/verify/audio/app/apptest.sh
+  PLATOON_BIN OUT` (replacement soundtrack end to end, Preferences screenshot, dropout count Original vs Smooth);
+  `PLATOON_DEBUG_AUDIO_WAV=file.wav` records the app's final mix (Paula stream + soundtrack) in any debug-script run.
+
+### Assists
 - Models (PlatoonCore, testable headless): `Game/Assist/MessageLog.swift`, `Objectives.swift`, `RunTracker.swift`,
   `InputReplay.swift`, `PracticeDrills.swift` (+ `PracticeScripts.swift`, generated from port/verify scripts). App:
   `PlatoonApp/Assist/`. Unit tests: `swift test --filter AssistTests` (honest final-jungle route through timer,
@@ -825,3 +919,53 @@ own high-score tables, other combinations in the assisted table.
   newgame S [det], savereplay, practice, openlog, dumplog, dumpspeech, state, record) - scripted app runs in `port/verify/assist/`
   (`runapp.sh overlays|practice OUT`, see its README), together with PLATOON_DEBUG_SCRIPT for window captures;
   `PLATOON_ASSIST_SILENT=1` mutes speech; `PLATOON_SUPPORT_DIR` redirects the record/replay/practice files.
+
+### Jungle & village
+- Hooks: `// ENHANCEMENT <ID>` sites in `Game/Section0/*.swift`; helpers in `Game/Section0/Section0Enhance.swift`
+  (M14 host buttons `Section0HostButtons.of(machine).jump/.crouch`, S6 failsafe, S9b clamp, L3 shuffle with a
+  host PRNG so the game's random numbers are untouched).
+- Read-only models: `JungleMapModel` / `JunglePlayer` (M6) and `JungleWideLatch` + `JungleWidescreen.render`
+  (L4: the scroll state is latched when the game swaps buffers, so the sides match the displayed frame).
+- Feature tests: `port/verify/section0/enh/features.py <platoon-headless> [outdir] [--only REGEX]` (headless,
+  deterministic). `PLATOON_S0_WIDETEST=dir[,every]` makes the headless runner check the L4 renderer against the
+  real picture and write sample images (`wide_<frame>.ppm`, `wide.log`). Unit tests:
+  `Tests/PlatoonCoreTests/Section0OptionsTests.swift`. The app side of L4 (`Overlay/JungleWide.swift`) hands the
+  columns to the renderer's `SideColumnCompositor` (canvas x 33 / 337, line 36, 144 lines).
+
+### Tunnels & flare night
+- Hooks: `// ENHANCEMENT <ID>` sites in `Game/Section1/*.swift`; helpers in `Game/Section1/Section1Enhance.swift`
+  (state in a RAM scratch block at $3f000, so savestates/rewind capture it), `TunnelAim.swift` (L2 API:
+  `TunnelAim.setTarget(machine, x:y:)` / `clearTarget` / `info(memory, area:)`, visible-screen coordinates) and the
+  public `TunnelMaze` helpers used by the overlay.
+- Feature tests: `port/verify/enh-section1/s1test.py <platoon-headless> [outdir] [--only REGEX]` (headless,
+  deterministic; `PLATOON_S1_AIM="FRAME:X,Y;FRAME:-"` scripts the aim target),
+  `port/verify/enh-section1/roundtrip.sh <platoon-headless> [ftdir]` (the options survive savestate round trips
+  byte-identically), the unit tests `Tests/PlatoonCoreTests/Section1EnhanceTests.swift` and the app-level overlay
+  test `port/verify/enh-section1/runapp.sh <Platoon app binary>` (debug-script captures of the map and the slide).
+
+### Final jungle & foxhole
+- Hooks: `// ENHANCEMENT <ID>` sites in `Game/Section2/FinalJungle.swift` and `Foxhole.swift`; helpers in
+  `Game/Section2/Section2Enhance.swift`. No new stored host state (nothing for the snapshot codec).
+- Read-only model (public, `Game/Section2/FinalNavigator.swift`): `FinalJungleMaze` (map from RAM, exact
+  trans_left/trans_right successor, BFS `route(from:)`), `FinalJungleLive.read(memory)` (room, heading, exits,
+  player depth, Barnes, transition state) and `FinalJungleRenderer` (the game's picture decoder, bob cut and depth
+  order: a room image from RAM). App overlays: `PlatoonApp/Overlay/FinalNavigator.swift`, `FinalRoomSlide.swift`,
+  wired in `Menus/MenuGameplaySection2.swift` / `Prefs/PrefsGameplaySection2.swift`.
+- Tests: `swift test --filter FinalJungleTests` (maze and routes against `re/finaljungle/assets/maze_graph.json`,
+  every picture decodes); `port/verify/section2/enh/run_enh.py [--bin platoon-headless]` (headless feature tests,
+  including the in-game check with `PLATOON_S2NAV=<log>`: the route at every room entry of the honest routes, host
+  decoder == game decoder for every room, host room image == the first drawn playfield, and the log changes nothing).
+  App level: `port/verify/section2/enh/app/run_app.sh APP HEADLESS [OUT]` (background, ~5 min) plays a left and a
+  right room exit from savestates with the navigator and the slide on and checks every slide frame
+  (`PLATOON_S2SLIDE_DUMP=<dir>` dumps the slide image and the game's playfield per emulated frame: no dark seam, the
+  hand-over frame is the game's picture and matches the last slide image) plus the assisted marks.
+  `PLATOON_S2NAV_DEBUG=1` logs the navigator state (and the run's assisted reasons) every 50 frames; a savestate made with
+  `platoon-headless --snapshot-save` in the final jungle plus `PLATOON_SAVES_DIR` / `PLATOON_DEBUG_SAVESTATES` gets the
+  app into a room within seconds for `PLATOON_DEBUG_SCRIPT` captures.
+
+### Game options and hiscores (core)
+- Regression gate: `tools/regress_all.sh --bin <your platoon-headless>` (see port/PORTING.md "Regression gate").
+- Core feature tests: `tools/regress/core_features.sh <platoon-headless>`.
+- Event/context log: `PLATOON_EVENTS=/tmp/events.txt platoon-headless ...` writes every game event (messages incl.
+  dropped ones, sound effects, score, wounds, deaths, section start/end, game over, hiscores) and every screen/area
+  change, as the app's features see them.

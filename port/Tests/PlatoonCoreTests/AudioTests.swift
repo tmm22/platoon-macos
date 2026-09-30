@@ -161,13 +161,19 @@ final class AudioTests: XCTestCase {
         var nextPush = 0.0, nextPull = 0.0
         var fills: [Int] = [], ratios: [Double] = []
         var l = [Float](repeating: 0, count: 512), r = l
-        var rng = SystemRandomNumberGenerator()
+        // Seeded, so every run of the test sees the same jitter (it used to use the system RNG, and the jitter was
+        // accumulated into the push clock: a random walk whose drift over the measured window sometimes exceeded
+        // the ratio tolerance, a flaky test). The jitter is now per push around the producer's nominal clock.
+        var rng = SplitMix64(seed: 0x5EED_A0D1)
+        var nominal = 0.0
         while now < seconds {
             if nextPush <= nextPull {
                 now = nextPush
                 chunk.withUnsafeBufferPointer { s.push($0) }
-                nextPush += 0.02 / speed / drift + Double.random(in: -0.004...0.004, using: &rng) * 0.5
-                if stallEvery > 0 && Int(nextPush / stallEvery) != Int(now / stallEvery) { nextPush += stall }
+                let before = nominal
+                nominal += 0.02 / speed / drift
+                if stallEvery > 0 && Int(nominal / stallEvery) != Int(before / stallEvery) { nominal += stall }
+                nextPush = nominal + Double.random(in: -0.004...0.004, using: &rng) * 0.5
             } else {
                 now = nextPull
                 l.withUnsafeMutableBufferPointer { lp in r.withUnsafeMutableBufferPointer { rp in s.render(512, lp.baseAddress!, rp.baseAddress!) } }
@@ -287,5 +293,18 @@ final class AudioTests: XCTestCase {
         XCTAssertEqual(peak, 0.5, accuracy: 0.01)
         XCTAssertLessThan(jump, 0.01, "no discontinuities")   // 2nd difference of a 440 Hz sine at 0.5 is ~0.0021
         XCTAssertEqual(s.stats.underruns, 0)
+    }
+}
+
+/// Small deterministic RNG for the audio stream simulations.
+struct SplitMix64: RandomNumberGenerator {
+    var state: UInt64
+    init(seed: UInt64) { state = seed }
+    mutating func next() -> UInt64 {
+        state &+= 0x9E37_79B9_7F4A_7C15
+        var z = state
+        z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
+        z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
+        return z ^ (z >> 31)
     }
 }

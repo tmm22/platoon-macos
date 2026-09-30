@@ -40,7 +40,7 @@ extension PrefsRegistry {
     static var assistSections: [PrefSection] {
         let onPicture = [(0, "Beside the game (if there is room)"), (1, "On the picture")]
         return [
-            PrefSection(tab: .assist, title: "Messages and captions (S8)", footer:
+            PrefSection(tab: .assist, title: "Messages and captions", footer:
                 "The game shows its clues as a one-line message that fades after a second, and silently drops a message "
                 + "when four are waiting. The log keeps every one (Assist ▸ Message Log, ⌥⌘L, or the pause menu). "
                 + "Captions and speech only read the game; they never change it.", order: 10, items: [
@@ -66,7 +66,7 @@ extension PrefsRegistry {
                         format: { "\(Int(($0 * 200).rounded()))%" })
                     .enabled(if: { Prefs.bool(AssistPrefs.speech) }),
             ]),
-            PrefSection(tab: .assist, title: "Objectives and briefings (M2)", footer:
+            PrefSection(tab: .assist, title: "Objectives and briefings", footer:
                 "Platoon never says what to do. The checklist follows your progress from the game's own memory. "
                 + "\"Full solution\" gives exact places and the final-jungle route; it marks the game as assisted while shown.",
                         order: 20, items: [
@@ -85,7 +85,7 @@ extension PrefsRegistry {
                 .choice(AssistPrefs.hudPlace, "Numeric HUD position", default: 0, onPicture)
                     .enabled(if: { Prefs.bool(AssistPrefs.hud) }),
             ]),
-            PrefSection(tab: .assist, title: "Speedrun timer and service record (M16)", footer:
+            PrefSection(tab: .assist, title: "Speedrun timer and service record", footer:
                 "The timer counts game frames (50 per second) from the start of a game, without TAB pauses; host pauses and "
                 + "fast-forward don't change it. Personal bests are kept per category (original, difficulty presets, "
                 + "assisted, start section). The service record keeps your career statistics and medals "
@@ -101,7 +101,7 @@ extension PrefsRegistry {
                         help: "A short message when you earn a medal.")
                     .enabled(if: { Prefs.bool(AssistPrefs.serviceRecord) }),
             ]),
-            PrefSection(tab: .assist, title: "Replays (M17)", footer:
+            PrefSection(tab: .assist, title: "Replays", footer:
                 "The port is deterministic, so your joystick and key presses from the start of a game reproduce it exactly. "
                 + "Assist ▸ Save Replay of This Game writes them to a file; Play Replay shows it again (you can pause, "
                 + "fast-forward and take over with Stop Replay). Replay files are also platoon-headless scripts. "
@@ -109,7 +109,7 @@ extension PrefsRegistry {
                 .toggle(AssistPrefs.replayRecord, "Record the current game", default: true,
                         help: "Keeps the input of the game since the last reset in memory (a few KB)."),
             ]),
-            PrefSection(tab: .assist, title: "Practice (M11)", footer:
+            PrefSection(tab: .assist, title: "Practice", footer:
                 "Assist ▸ Practice starts a drill: the bridge, the village, the tunnels, the flare night, the final jungle "
                 + "or Sgt Barnes, prepared from recorded play in a moment. Practice games are marked as assisted and never "
                 + "enter the high-score table.", order: 50, items: [

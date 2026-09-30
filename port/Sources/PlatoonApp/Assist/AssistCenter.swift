@@ -69,9 +69,11 @@ final class AssistCenter {
         app.addPauseMenuItem(PauseMenuItem(id: "assist.practice.restart", title: { [weak self] in
                                                "Restart Drill" + (self?.practice.drill.map { " (\($0.title))" } ?? "") },
                                            order: 291, isEnabled: { [weak self] in self?.practice.drill != nil },
+                                           isShown: { [weak self] in self?.practice.drill != nil },
                                            action: { [weak self] in self?.practice.restart(); return true }))
         app.addPauseMenuItem(PauseMenuItem(id: "assist.replay.stop", title: { "Stop Replay (take over)" }, order: 292,
                                            isEnabled: { [weak self] in self?.replays.isPlaying ?? false },
+                                           isShown: { [weak self] in self?.replays.isPlaying ?? false },
                                            action: { [weak self] in self?.replays.stopPlayback(); return true }))
         replays.install(app)
         practice.install(app)

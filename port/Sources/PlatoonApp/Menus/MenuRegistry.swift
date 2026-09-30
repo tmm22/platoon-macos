@@ -82,15 +82,33 @@ enum MenuRegistry {
         for i in PrefsRegistry.allItems {
             guard let target = i.menu, case .toggle = i.kind else { continue }
             let key = i.key
-            let item = ClosureMenuItem(i.title, state: { Prefs.bool(key) },
+            let item = ClosureMenuItem(titleCase(i.title), state: { Prefs.bool(key) },
                                        enabled: i.enabledIf) { Prefs.set(key, !Prefs.bool(key)) }
             item.toolTip = i.help
             byMenu[target, default: []].append(item)
         }
+        // next to the related built-in groups: Game after the save-state items (20), Sound after the audio group
+        // (50), the Assist overlay toggles right after the message log (10)
         return byMenu.map { t, items in
-            let m: MenuTarget = t == .game ? .game : t == .view ? .view : t == .sound ? .sound : .assist
-            return MenuContribution(menu: m, order: 500, items: items)
+            switch t {
+            case .game: return MenuContribution(menu: .game, order: 21, items: items)
+            case .view: return MenuContribution(menu: .view, order: 500, items: items)
+            case .sound: return MenuContribution(menu: .sound, order: 51, separatorBefore: false, items: items)
+            case .assist: return MenuContribution(menu: .assist, order: 15, items: items)
+            }
         }
+    }
+
+    /// macOS menu titles are in title case: "Show the tunnel map" -> "Show the Tunnel Map".
+    static func titleCase(_ s: String) -> String {
+        let small: Set<String> = ["a", "an", "the", "and", "or", "of", "in", "on", "to", "at", "for", "with", "by"]
+        var out: [String] = []
+        for (n, w) in s.split(separator: " ", omittingEmptySubsequences: false).enumerated() {
+            let word = String(w)
+            if n > 0 && small.contains(word.lowercased()) && !(out.last?.hasSuffix(":") ?? false) { out.append(word.lowercased()); continue }
+            out.append(word.prefix(1).uppercased() + word.dropFirst())
+        }
+        return out.joined(separator: " ")
     }
 
     /// Adds contributions to the app's menus (creating the Assist menu if needed, before Window).
@@ -102,8 +120,9 @@ enum MenuRegistry {
                 m = NSMenu(title: c.menu.title)
                 let top = NSMenuItem(title: c.menu.title, action: nil, keyEquivalent: ""); top.submenu = m
                 let windowIndex = menus[.window].flatMap { w in main.items.firstIndex { $0.submenu === w } } ?? main.items.count
-                main.insertItem(top, at: windowIndex)
+                main.insertItem(top, at: c.menu == .help ? main.items.count : windowIndex)   // Help stays last
                 menus[c.menu] = m
+                if c.menu == .help { NSApp.helpMenu = m }
             }
             if c.separatorBefore && m.items.count > 0 && !(m.items.last?.isSeparatorItem ?? true) { m.addItem(.separator()) }
             c.items.forEach(m.addItem)

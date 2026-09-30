@@ -28,7 +28,7 @@ final class JungleHintPanel {
                 text = "⚠  Something doesn't feel right here…"
             }
         }
-        if text != nil && !marked { marked = true; AppServices.shared.markAssisted("Booby-trap warning") }
+        if text != nil { AppServices.shared.markAssistedOnce("Booby-trap warning") }
         if text != shownText { shownText = text; panel.text = text }
     }
 

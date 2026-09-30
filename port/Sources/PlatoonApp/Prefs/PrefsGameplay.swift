@@ -122,7 +122,7 @@ extension PrefsRegistry {
         // M10 knobs: the catalogue's own rows (automatic item builder), with friendlier titles, grouped by section
         var knobSections: [PrefSection] = []
         let groups: [(prefix: String, title: String)] = [("kernel", "All sections"), ("s0", "Jungle & village"),
-                                                         ("s1", "Tunnels & flare night"), ("s2", "Final jungle & bunker")]
+                                                         ("s1", "Tunnels & flare night"), ("s2", "Final jungle & foxhole")]
         for (n, g) in groups.enumerated() {
             let infos = Enhancements.catalog.filter { $0.key.hasPrefix(g.prefix + ".diff.") }
             guard !infos.isEmpty else { continue }
@@ -134,21 +134,21 @@ extension PrefsRegistry {
                 its[0] = its[0].covers(info.key)
                 items += its
             }
-            knobSections.append(PrefSection(tab: .gameplay, title: "Custom difficulty: \(g.title) (M10)",
+            knobSections.append(PrefSection(tab: .gameplay, title: "Custom difficulty: \(g.title)",
                                             footer: n == groups.count - 1 ? "A knob set here overrides the preset's value. "
                                                 + "Left at \"Original\" / off, the preset (or the 1988 game) decides." : nil,
                                             order: 60 + n, items: items))
         }
 
         return [
-            PrefSection(tab: .gameplay, title: "Difficulty (M10)", footer:
+            PrefSection(tab: .gameplay, title: "Difficulty", footer:
                 "Every preset except Original changes the game: such games rank in their own high-score table "
                 + "(hiscores-recruit / -veteran / -custom) and never in the original one.", order: 50, items: [
                 difficulty,
                 .note("gameplay.difficulty.summary", presetNote),
             ]),
         ] + knobSections + [
-            PrefSection(tab: .gameplay, title: "Platoon (M15)", footer:
+            PrefSection(tab: .gameplay, title: "Platoon", footer:
                 "In the original, the tunnels and the final jungle start again with fresh men and use only two of them. "
                 + "These make the later sections much easier, so such games are kept out of the original high scores.",
                         order: 70, items: [

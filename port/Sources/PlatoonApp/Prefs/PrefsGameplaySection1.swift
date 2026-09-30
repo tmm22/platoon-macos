@@ -7,13 +7,75 @@ import PlatoonCore
 // .onChange { }, .config { cfg in }, .enabled(if:), .inMenu(.game)). Suggested tab: .gameplay.
 // Keys should be namespaced "section1.<name>". Gameplay-changing items MUST be default-off and use .gameplay().
 //
-// The core options s1.* (keep items, flare-night retry, checkpoint respawn, explored map window, the S9 fixes,
-// direct aiming, randomiser, difficulty knobs) get their Preferences rows automatically from the enhancement
-// catalogue (Gameplay tab). This file adds the host-only items: the M3 automap overlay and the M25 turn slide.
+// The core options s1.* get hand-made rows here (Gameplay tab: rules, original bugs; the randomiser as
+// off / new every reset / fixed seed like the village one); the difficulty knobs s1.diff.* are on the shared
+// Gameplay page (PrefsGameplay.swift). Host-only items: the M3 automap overlay and the M25 turn slide.
+
+enum Section1Prefs {
+    static let kTunnelMode = "section1.tunnelRandom"
+    static let kTunnelSeed = "section1.tunnelSeedValue"
+}
 
 extension PrefsRegistry {
     static var gameplaySection1Sections: [PrefSection] {
         [
+            PrefSection(tab: .gameplay, title: "Tunnels & flare night", footer:
+                "These change the rules of the tunnels and the flare night, so games played with them are kept out of the "
+                + "original hiscore table. They take effect when a new game starts.", order: 130, items: [
+                .toggle("section1.keepItems", "Keep items when a soldier dies", default: false,
+                        help: "The next soldier keeps the flares, the compass, a map found in the tunnels and the emptied drawers "
+                            + "(the original takes everything away and refills the rooms). Dying in the flare night gives back "
+                            + "the flares you took into it, so the exit still opens.")
+                    .gameplay(enhancement: "s1.keepItems"),
+                .toggle("section1.flareRetry", "Flare night: retry with the next soldier", default: false,
+                        help: "A death in the flare night restarts the flare night with the next soldier and the flares you "
+                            + "brought, instead of sending him back through the whole maze.")
+                    .gameplay(enhancement: "s1.flareRetry"),
+                .toggle("section1.checkpointRespawn", "Next soldier starts at the last room", default: false,
+                        help: "The next soldier starts in front of the last room you entered instead of at the entrance.")
+                    .gameplay(enhancement: "s1.checkpointRespawn"),
+                .toggle("section1.exploredMap", "The game's map window shows what you explored", default: false,
+                        help: "The tunnels' own map window is always open and draws the corridors you have seen, even without "
+                            + "the map item (the tunnel plan still reveals everything).")
+                    .gameplay(enhancement: "s1.exploredMap"),
+                .toggle("section1.directAim", "Pointer aiming moves the crosshair directly", default: false,
+                        help: "With assisted aiming (Input tab) the crosshair jumps to the mouse pointer or right-stick target "
+                            + "instead of being steered there with the joystick (the original limits still apply).")
+                    .gameplay(enhancement: "s1.directAim"),
+                .choice(Section1Prefs.kTunnelMode, "Tunnel randomiser", default: 0,
+                        [(0, "Off (original tunnels)"), (1, "New tunnels at every reset"), (2, "Fixed tunnels (seed below)")],
+                        help: "Shuffles what lies behind each hotspot between rooms that look alike (flares, compass, maps, "
+                            + "ammunition...); the real EXIT is behind the door of either ladder room.")
+                    .gameplay()
+                    .covers("s1.randomSeed")
+                    .config { cfg in
+                        switch Prefs.int(Section1Prefs.kTunnelMode) {
+                        case 1: cfg.enhancements.section1.randomSeed = Int.random(in: 1...99_999)
+                        case 2: cfg.enhancements.section1.randomSeed = max(1, Prefs.int(Section1Prefs.kTunnelSeed))
+                        default: break
+                        }
+                    },
+                .slider(Section1Prefs.kTunnelSeed, "Tunnel seed", default: 1, range: 1...999, step: 1, format: { "\(Int($0))" })
+                    .restart()
+                    .enabled(if: { Prefs.int(Section1Prefs.kTunnelMode) == 2 }),
+            ]),
+            PrefSection(tab: .gameplay, title: "Tunnels & flare night: original bugs", footer:
+                "Fixes for accidents in the 1988 code. Each one changes the game slightly, so these runs are kept out of "
+                + "the original hiscore table.", order: 131, items: [
+                .toggle("section1.fixLastBullet", "Your last bullet can kill", default: false,
+                        help: "The original checks the ammunition after the shot has used it, so the last round never hits. "
+                            + "Tunnels and flare night.")
+                    .gameplay(enhancement: "s1.fixLastBullet"),
+                .toggle("section1.fixMoraleWrap", "Morale from room items stops at full", default: false,
+                        help: "Instead of wrapping a nearly full morale bar round to almost nothing.")
+                    .gameplay(enhancement: "s1.fixMoraleWrap"),
+                .toggle("section1.fixFoodFarm", "Rotten food scores once", default: false,
+                        help: "The rotten food gives its 500 points once per soldier, not on every click.")
+                    .gameplay(enhancement: "s1.fixFoodFarm"),
+                .toggle("section1.fixFlareSpawn", "Flare night: enemies keep coming", default: false,
+                        help: "Heavy firing in the flare night can no longer switch the enemy spawns off for good.")
+                    .gameplay(enhancement: "s1.fixFlareSpawn"),
+            ]),
             PrefSection(tab: .assist, title: "Tunnel map", footer:
                 "A map of the tunnel maze beside the game that fills in as you explore (fog of war). Rooms are numbered "
                 + "when you enter them, with what you found there. It only reads the game, so it does not affect the "

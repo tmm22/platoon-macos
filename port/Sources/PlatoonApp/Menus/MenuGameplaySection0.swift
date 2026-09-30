@@ -66,6 +66,7 @@ extension FeatureHooks {
             title: { map.userHidden || !map.isVisible ? "Show Jungle Map" : "Hide Jungle Map" },
             order: 220,
             isEnabled: { map.enabled && app.host.map { JungleMapPanel.inJungle(FrameContext(host: $0)) } == true },
+            isShown: { map.enabled && app.host?.probe.context.section == 0 },
             action: { map.userHidden.toggle(); if let h = app.host { map.refresh(FrameContext(host: h)) }; return false }))
     }
 }

@@ -28,6 +28,8 @@ if cli.first == "--check-disk" {
 }
 if cli.first == "--list-prefs" {
     PrefsRegistry.registerDefaults()
+    // as at app launch: PLATOON_PREFS overrides (tests check what a combination of settings sends to the core)
+    if let o = ProcessInfo.processInfo.environment["PLATOON_PREFS"] { Prefs.applyOverrides(o) }
     print(PrefsRegistry.dump(), terminator: "")
     var cfg = GameConfig()
     let assisted = PrefsRegistry.apply(to: &cfg)

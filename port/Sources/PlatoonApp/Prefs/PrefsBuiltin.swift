@@ -20,6 +20,7 @@ enum BuiltinPrefs {
     static let soundModeAtBoot = "app.soundModeAtBoot"
     static let fastKeys = "app.fasterKeyDelivery"
     static let lastSoundFlags = "app.lastSoundFlags"
+    static let gameSpeed = "app.gameSpeed"
 }
 
 extension PrefsRegistry {
@@ -55,9 +56,17 @@ extension PrefsRegistry {
                 .slider(BuiltinPrefs.ffVolume, "Sound while fast-forwarding", default: 0.25, range: 0...1, step: 0.05,
                         format: { $0 == 0 ? "Muted" : "\(Int(($0 * 100).rounded()))%" }),
             ]),
+            PrefSection(tab: .general, title: "Game speed", footer: "Slow motion gives you more time to react. The game itself is "
+                        + "unchanged, it just runs fewer frames per second (the sound follows at a lower pitch). Any speed below "
+                        + "100 % marks the game as assisted.", order: 22, items: [
+                PrefItem(key: BuiltinPrefs.gameSpeed, title: "Game speed",
+                         kind: .choice(default: 100, options: [(100, "100 % (original)"), (90, "90 %"), (80, "80 %"), (70, "70 %"), (60, "60 %")].map { (value: $0.0, title: $0.1) }),
+                         help: "Accessibility: the whole game runs slower, including the timers.", isGameplay: true)
+                    .onChange { AppServices.shared.host?.applySpeedSetting() },
+            ]),
             PrefSection(tab: .general, title: "Keyboard", order: 25, items: [
                 .toggle(BuiltinPrefs.fastKeys, "Faster key response", default: false,
-                        help: "M25. The original keyboard handling takes 3 frames per key event, so quick SPACE / Alt / Y / N presses lag by 6-9 frames. This delivers one per frame instead.")
+                        help: "The original keyboard handling takes 3 frames per key event, so quick SPACE / Alt / Y / N presses lag by 6-9 frames. This delivers one per frame instead.")
                     .onChange { AppServices.shared.host?.applyInputSettings() },
             ]),
             PrefSection(tab: .general, title: "Game disk", order: 30, items: [
@@ -69,10 +78,16 @@ extension PrefsRegistry {
                     AppServices.shared.app?.showDiskHealth()
                 },
             ]),
-            PrefSection(tab: .general, title: "Title screen", order: 40, items: [
+            PrefSection(tab: .general, title: "Title screen and high scores", footer: "The original high-score table only takes "
+                        + "games played without gameplay options, trainer, loaded saves, rewind or section starts; the others "
+                        + "go to hiscores-recruit / -veteran / -custom / -assisted.bin next to it.", order: 40, items: [
                 .toggle(BuiltinPrefs.originalCredits, "Original Ocean credits text", default: true,
                         help: "Restores \"GAME DESIGN (C)1988 OCEAN.\" / \"CONVERSION BY CHOICE\" that the cracked disk replaced. Applies after a reset.")
                     .enhancement("kernel.originalCredits"),
+                .toggle("app.separateCheatScores", "Games with the original cheat codes use the assisted table", default: false,
+                        help: "With HAMBURGER / MEGA CHEAT typed on the title screen, the game's score goes to the assisted "
+                            + "table instead of the original one. Applies after a reset.")
+                    .enhancement("kernel.separateCheatScores"),
             ]),
 
             PrefSection(tab: .video, title: "Display", order: 0, items: [
@@ -87,7 +102,7 @@ extension PrefsRegistry {
             PrefSection(tab: .audio, title: "Music / sound FX at power-on (F10)", order: 10, items: [
                 PrefItem.choice(BuiltinPrefs.soundModeAtBoot, "Mode at start-up", default: 0,
                                 [(0, "Original (music and FX)"), (1, "Remember the last F10 choice"), (2, "Music only"), (3, "Sound FX only"), (4, "Off")],
-                                help: "S12. F10 still cycles the modes in the game. Applies after a reset.")
+                                help: "F10 still cycles the modes in the game. Applies after a reset.")
                     .covers("kernel.soundFlagsAtBoot")
                     .config { c in
                         let flags: Int?
@@ -118,7 +133,40 @@ extension PrefsRegistry {
 }
 
 extension MenuRegistry {
-    static func builtinMenus(_ app: AppServices) -> [MenuContribution] { [] }
+    static func builtinMenus(_ app: AppServices) -> [MenuContribution] {
+        [MenuContribution(menu: .help, order: 10, separatorBefore: false, items: [
+            ClosureMenuItem("Platoon Enhancements Guide") { HelpDocs.open("ENHANCEMENTS_GUIDE") },
+            ClosureMenuItem("About This Port (README)") { HelpDocs.open("README") },
+            .separator(),
+            ClosureMenuItem("Controls & Bindings…") { ControlsWindowController.shared.show() },
+            ClosureMenuItem("Preferences…") { app.openPreferences() },
+        ])]
+    }
+}
+
+/// The user guide files: bundled by build_app.sh (Contents/Resources), else the source tree next to the binary's
+/// package (development builds).
+enum HelpDocs {
+    static func url(_ name: String) -> URL? {
+        if let u = Bundle.main.url(forResource: name, withExtension: "md") { return u }
+        var dir = URL(fileURLWithPath: #filePath)
+        for _ in 0..<6 {
+            dir.deleteLastPathComponent()
+            for c in [dir.appendingPathComponent("\(name).md"), dir.appendingPathComponent("port/\(name).md")]
+            where FileManager.default.fileExists(atPath: c.path) { return c }
+        }
+        return nil
+    }
+    static func open(_ name: String) {
+        guard let u = url(name) else { AppServices.shared.toast("\(name).md is not available in this build"); return }
+        // .md often has no default application: fall back to TextEdit instead of doing nothing
+        if NSWorkspace.shared.urlForApplication(toOpen: u) == nil,
+           let te = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.TextEdit") {
+            NSWorkspace.shared.open([u], withApplicationAt: te, configuration: NSWorkspace.OpenConfiguration())
+            return
+        }
+        NSWorkspace.shared.open(u)
+    }
 }
 
 extension FeatureHooks {

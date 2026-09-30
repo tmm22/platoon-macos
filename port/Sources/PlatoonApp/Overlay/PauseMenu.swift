@@ -149,21 +149,24 @@ final class PauseMenuPanel: OverlayPanel {
             rows.append((100, Row(id: "save", title: "Save Game…", detail: why, enabled: true) { [weak self] in self?.go(.save) }))
             rows.append((110, Row(id: "load", title: "Load Game…") { [weak self] in self?.go(.load) }))
         }
-        for item in services.pauseMenuItems {
+        for item in services.pauseMenuItems where item.isShown() {
             rows.append((item.order, Row(id: "x." + item.id, title: item.title(), enabled: item.isEnabled()) { [weak self] in
                 if item.action() { self?.close() } else { self?.rebuild() }
             }))
         }
         if let s = h.currentSection {
+            let arrived = h.sectionStartCarry != nil ? "with the platoon you arrived with" : "with a fresh platoon (loaded game)"
             let (title, detail): (String, String) = s == 0
                 ? ("New Game", "Starts again from the jungle")
-                : ("Restart \(SectionNames.title(s))", s == 1 ? "From the tunnels, with the platoon you arrived with" : "With the platoon you arrived with")
+                : ("Restart \(SectionNames.title(s))", s == 1 ? "From the tunnels, \(arrived)" : arrived.prefix(1).uppercased() + arrived.dropFirst())
             rows.append((300, Row(id: "restart", title: title + "…", detail: detail) { [weak self] in
                 self?.confirm(title + "?", "Yes, restart") { [weak self] in self?.restart(section: s) }
             }))
         }
         rows.append((400, Row(id: "options", title: "Options…") { [weak self] in self?.services.openPreferences() }))
-        rows.append((410, Row(id: "controls", title: "Controls…") { [weak self] in self?.app?.showControls(nil) }))
+        rows.append((410, Row(id: "controls", title: "Controls & Bindings…") { [weak self] in
+            self?.close(); DispatchQueue.main.async { ControlsWindowController.shared.show() }
+        }))
         if h.currentSection != nil {
             rows.append((900, Row(id: "abort", title: "Abort to Title…", destructive: true) { [weak self] in
                 self?.confirm("ABORT GAME?", "Yes, abort to the title") { [weak self] in
@@ -184,16 +187,26 @@ final class PauseMenuPanel: OverlayPanel {
             let summary = snap.slotSummary(i)
             rows.append(.init(id: "slot\(i)", title: "Slot \(i + 1)", detail: summary ?? "— empty —", enabled: save || summary != nil) { [weak self] in
                 guard let self else { return }
+                var finished = false
                 let done: (String?) -> Void = { [weak self] err in
-                    guard let self else { return }
+                    finished = true
+                    guard let self, self.isVisible || err == nil else { return }
                     if let e = err { self.model.message = e; self.rebuild() } else {
                         self.services.toast(save ? "Saved to slot \(i + 1)" : "Loaded slot \(i + 1)")
-                        if save { self.go(.main) } else { self.close() }
+                        if save { if self.isVisible { self.go(.main) } } else { self.close() }
                     }
                 }
+                // Outside play (man select, text screens, loading) the save is only taken when play continues:
+                // go back to the main page and say so, instead of leaving the player on the SAVE page.
+                let saveNow = { [weak self] in
+                    snap.save(slot: i, done: done)
+                    guard let self, !finished else { return }
+                    self.go(.main)
+                    self.model.message = "Slot \(i + 1) will be saved as soon as play continues."
+                }
                 if save {
-                    if summary != nil { self.confirm("OVERWRITE SLOT \(i + 1)?", "Yes, overwrite") { snap.save(slot: i, done: done) } }
-                    else { snap.save(slot: i, done: done) }
+                    if summary != nil { self.confirm("OVERWRITE SLOT \(i + 1)?", "Yes, overwrite") { saveNow() } }
+                    else { saveNow() }
                 } else { snap.load(slot: i, done: done) }
             })
         }

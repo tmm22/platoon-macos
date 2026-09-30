@@ -26,6 +26,7 @@ final class InputFeature {
             self.applyPrefs()
         }
         app.onReset { h in h.inputManager.aim.newRun(); h.inputManager.pipeline.newRun() }
+        app.onNewGame { h in h.inputManager.aim.newRun(); h.inputManager.pipeline.newRun() }   // re-arm the assisted marks
         app.onFrame { ctx in
             let h = ctx.host, im = h.inputManager
             im.m14Enabled = h.runEnhancements.section0.explicitJumpCrouch
@@ -35,10 +36,7 @@ final class InputFeature {
         Prefs.observeAll { [weak self] k in if k.hasPrefix("input.") { self?.applyPrefs() } }
         app.overlay.add(hints)
         hints.forceShow = ProcessInfo.processInfo.environment["PLATOON_INPUT_FORCE_HINTS"] != nil   // app tests without a pad
-        app.addPauseMenuItem(PauseMenuItem(id: "input.controls", title: { "Controls & Bindings…" }, order: 405) {
-            DispatchQueue.main.async { ControlsWindowController.shared.show() }
-            return true
-        })
+        // (the pause menu's own "Controls & Bindings…" row, id "controls", opens the M7 window)
         Rumble.shared.install(app)
     }
 

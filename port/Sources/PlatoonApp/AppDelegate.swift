@@ -411,7 +411,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
         game.addItem(item("Import Disk Image…", #selector(importDiskMenu(_:)), "o"))
         game.addItem(item("Check Disk…", #selector(checkDiskMenu(_:))))
         game.addItem(.separator())
-        game.addItem(item("Controls…", #selector(showControls(_:)), "/"))
+        game.addItem(item("Controls & Bindings…", #selector(showControls(_:)), "/"))
         gameItem.submenu = game
 
         let viewItem = NSMenuItem(); main.addItem(viewItem)
@@ -485,31 +485,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
     @objc func sendAmigaKey(_ s: NSMenuItem) { host?.tapKey(UInt8(s.tag)) }
     @objc func saveScreenshot(_ s: Any?) {
         guard let h = host else { return }
-        let png = ImageIO.canvasPNG(h.machine.chip)
-        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
-        let dir = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!
-        try? png.write(to: dir.appendingPathComponent("Platoon \(f.string(from: Date())).png"))
+        VideoCommands.saveScreenshot(h.machine.chip)     // M24: same PNG + file name; folder / clipboard prefs
     }
-    @objc func showControls(_ s: Any?) {
-        let a = NSAlert()
-        a.messageText = "Platoon Controls"
-        a.informativeText = """
-        Joystick: arrow keys (or a game controller's d-pad / left stick)
-        Fire: Z, or Space (Space is also the Amiga SPACE key: jungle grenades, flares)
-        Controller fire: A / B / right trigger / right shoulder
-
-        TAB — pause the game (press again to resume)
-        F10 — cycle music / sound effects
-        DEL — abort to the title screen
-        Left Option (Alt) — change soldier (jungle) · Y / N — answer prompts
-        F11 = HELP · F12 = keypad minus (for laptops)
-
-        Esc — pause menu (resume, restart, options, abort) · hold ` — fast-forward
-        ⌘P pause emulation · ⌘T turbo · ⌘R reset · ⌘S screenshot · ⌘, preferences
-        ⌘1/⌘2/⌘3 sharp / smooth / CRT display · ⌃⌘F full screen
-        """
-        runModal(a)
-    }
+    /// Game ▸ Controls & Bindings… (⌘/) and the pause menu: the M7 window (Input/ControlsWindow.swift).
+    @objc func showControls(_ s: Any?) { ControlsWindowController.shared.show() }
     @objc func setFilter(_ s: NSMenuItem) { Settings.shared.filter = s.tag; applyVideoSettings(); PrefsModel.shared.bump() }
     @objc func toggleAspect(_ s: Any?) { Settings.shared.aspect.toggle(); applyVideoSettings(); PrefsModel.shared.bump() }
     @objc func toggleInteger(_ s: Any?) { Settings.shared.integerScale.toggle(); applyVideoSettings(); PrefsModel.shared.bump() }

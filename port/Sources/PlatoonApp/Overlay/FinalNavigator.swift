@@ -74,14 +74,8 @@ final class FinalNavigatorModel {
         // hides it then; roadmap M5: "labelled a mild assist", like s2.compassAssist). Only while the panel is
         // actually shown (level on, not hidden with N). Marked once per run; the reasons stay for the whole run.
         let shown = level != .off && !userHidden
-        if shown && level == .guide && !markedGuide {
-            markedGuide = true
-            AppServices.shared.markAssisted("Final-jungle route guide")
-        }
-        if shown && !l.hasCompass && !markedHeading {
-            markedHeading = true
-            AppServices.shared.markAssisted("Final-jungle heading without the compass")
-        }
+        if shown && level == .guide { AppServices.shared.markAssistedOnce("Final-jungle route guide") }
+        if shown && !l.hasCompass { AppServices.shared.markAssistedOnce("Final-jungle heading without the compass") }
     }
 }
 

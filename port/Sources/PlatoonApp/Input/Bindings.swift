@@ -30,7 +30,7 @@ enum InputAction: String, CaseIterable, Codable {
         case .pause: return "Pause (TAB)"; case .music: return "Music / FX (F10)"
         case .abort: return "Abort to title (DEL)"; case .help: return "HELP"; case .keypadMinus: return "Keypad −"
         case .jump: return "Jump (jungle, M14)"; case .crouch: return "Crouch (jungle, M14)"
-        case .turboFire: return "Turbo fire (M13)"
+        case .turboFire: return "Turbo fire"
         }
     }
     /// The Amiga raw key this action presses (nil = joystick / host action).

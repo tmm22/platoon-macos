@@ -11,7 +11,7 @@ import PlatoonCore
 extension PrefsRegistry {
     static var gameplaySection2Sections: [PrefSection] {
         [
-            PrefSection(tab: .assist, title: "Final jungle navigator (M5)",
+            PrefSection(tab: .assist, title: "Final jungle navigator",
                         footer: "Read-only overlay beside or on the game picture, shown in the final jungle. The route guide, "
                             + "and the heading while you carry no compass, mark the game as assisted (separate hiscore "
                             + "table).", order: 150, items: [
@@ -26,14 +26,14 @@ extension PrefsRegistry {
                             + "hint becomes GET GOING!. Changes the game (assisted).").gameplay(enhancement: "s2.compassAssist"),
             ]),
             PrefSection(tab: .video, title: "Final jungle", order: 150, items: [
-                .toggle("section2.roomSlide", "Directional room slide (M25)", default: false,
+                .toggle("section2.roomSlide", "Directional room slide", default: false,
                         help: "Instead of the fade to black between final-jungle rooms, the old view slides out to the side "
                             + "you turned to and the next room slides in. Presentation only: the game is unchanged."),
                 .slider("section2.roomSlideFrames", "Slide length", default: 12, range: 6...16, step: 1,
                         format: { "\(Int($0)) frames" })
                     .enabled(if: { Prefs.bool("section2.roomSlide") }),
             ]),
-            PrefSection(tab: .gameplay, title: "Final jungle & foxhole: original bugs (S9)",
+            PrefSection(tab: .gameplay, title: "Final jungle & foxhole: original bugs",
                         footer: "Each switch corrects one 1988 bug of the last section. Applied when a new game starts.",
                         order: 150, items: [
                 .toggle("section2.fixRoomTimer", "Airstrike timer pauses between rooms", default: false,
@@ -42,6 +42,9 @@ extension PrefsRegistry {
                     .gameplay(enhancement: "s2.fixRoomTimer"),
                 .toggle("section2.napalmStopsTimer", "Timer stays at 00:00 during the napalm strike", default: false,
                         help: "No 59:59 on the HUD while the screen flashes white.").enhancement("s2.napalmStopsTimer"),
+                .toggle("section2.timerStopsAtZero", "HUD timer never wraps to 59:59 (all sections)", default: false,
+                        help: "The kernel's mission timer stops at 00:00 instead of jumping to 59:59 when it runs out.")
+                    .enhancement("kernel.timerStopsAtZero"),
                 .toggle("section2.withdrawnText", "Morale 0: 'WITHDRAWN FROM ACTION' screen", default: false,
                         help: "Shows the intended YOUR PLATOON HAS WITHDRAWN FROM ACTION text when morale runs out in the "
                             + "final jungle (the original shows the 'destroyed' text).").enhancement("s2.withdrawnText"),

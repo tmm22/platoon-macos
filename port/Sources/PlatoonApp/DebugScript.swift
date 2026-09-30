@@ -22,6 +22,9 @@ import PlatoonCore
 ///   resize W H           window content size
 ///   answer N             answer modal alerts with button N (0 = first) without showing them (logged); "answer" = show again
 ///   import FILE...       M23 import (%20 = space in paths); checkdisk = the Check Disk report
+///   menudump            log the whole main menu tree (titles, shortcuts, state, enabled) to menus.txt
+///   panels              log the overlay panels (id, z, visible, modal)
+///   windows / assisted  log the visible windows / the current run's assisted reasons
 ///   quit
 final class DebugScript {
     private var lines: [[String]]
@@ -35,6 +38,7 @@ final class DebugScript {
     private var logFile: FileHandle?
     private var pendingCaptures = 0
     private var quitRequested = false
+    private var quitWaitFrames = 0
 
     init?(path: String, app: AppDelegate) {
         guard let text = try? String(contentsOfFile: path, encoding: .utf8) else { NSLog("debug script not found: \(path)"); return nil }
@@ -69,7 +73,18 @@ final class DebugScript {
         pendingKeyUps.removeAll()
         for b in pendingPadUps { app.host?.inputManager.injectPad(b, down: false) }
         pendingPadUps.removeAll()
-        if quitRequested { if pendingCaptures == 0 { logFile?.closeFile(); NSApp.terminate(nil) }; return }
+        if quitRequested {
+            // wait for outstanding window captures, but not forever (a capture whose drawable never came, e.g. an
+            // occluded window, used to keep the app running until the harness killed it)
+            quitWaitFrames += 1
+            if pendingCaptures == 0 || quitWaitFrames > 150 {
+                if pendingCaptures > 0 { log("quit: \(pendingCaptures) capture(s) never completed") }
+                logFile?.closeFile()
+                DispatchQueue.global().asyncAfter(deadline: .now() + 5) { exit(0) }   // if termination is held up
+                NSApp.terminate(nil)
+            }
+            return
+        }
         if waitFrames > 0 { waitFrames -= 1; return }
         if let f = waitUntilFrame { if (app.host?.machine.frameCount ?? 0) < f { return }; waitUntilFrame = nil }
         while pc < lines.count {
@@ -109,9 +124,19 @@ final class DebugScript {
                 if !app.pauseMenu.debugChoose(a.first ?? "") { log("menu: no row \(a.first ?? "") in \(app.pauseMenu.debugRowIDs)") }
                 waitFrames = 2; return
             case "menurows": log("menu rows: \(app.pauseMenu.debugRowIDs)")
+            case "menudump": dumpMenus(a.first ?? "menus")
+            case "panels": log("panels: " + AppServices.shared.overlay.debugPanels)
+            case "windows": log("windows: " + NSApp.windows.filter(\.isVisible).map { "'\($0.title)'" }.joined(separator: ", "))
+            case "assisted": log("assisted: \(app.host?.assistedReasons ?? [])")
             case "prefs": app.openPreferences(tab: PrefTab(rawValue: a.first ?? "general")); waitFrames = 10; return
             case "closeprefs": PreferencesWindowController.shared.window?.orderOut(nil); app.window.makeKeyAndOrderFront(nil)
-            case "pref": Prefs.applyOverrides(a.joined(separator: " ")); PrefsModel.shared.bump(); app.applyVideoSettings(); app.host?.applyAudioSettings()
+            case "pref":
+                let spec = a.joined(separator: " ")
+                Prefs.applyOverrides(spec)
+                for kv in spec.split(separator: ",") {        // live-apply hooks, as when the value is changed in the window
+                    if let k = kv.split(separator: "=").first.map(String.init) { Prefs.notifyChanged(k) }
+                }
+                PrefsModel.shared.bump(); app.applyVideoSettings(); app.host?.applyAudioSettings()
             case "reset": app.host?.resumeAll(); app.pauseMenu.isVisible = false; app.host?.reset(startSection: a.first.flatMap { Int($0) })
             case "toast": AppServices.shared.toast(a.joined(separator: " "))
             case "resize":
@@ -126,6 +151,34 @@ final class DebugScript {
             default: log("unknown command \(l)")
             }
         }
+    }
+
+    /// Writes the main menu tree (as the user would see it after validation) to NAME.txt.
+    private func dumpMenus(_ name: String) {
+        guard let main = NSApp.mainMenu else { return }
+        var out = ""
+        func walk(_ m: NSMenu, _ depth: Int) {
+            m.update()
+            for i in m.items {
+                let pad = String(repeating: "  ", count: depth)
+                if i.isHidden { continue }        // e.g. AppKit's hidden ⌃⌘F alternate of Enter Full Screen
+                if i.isSeparatorItem { out += pad + "----\n"; continue }
+                if let t = i.target as? NSMenuItemValidation { _ = t.validateMenuItem(i) }
+                else if let t = i.target as? AppDelegate { _ = t.validateMenuItem(i) }
+                var key = ""
+                if !i.keyEquivalent.isEmpty {
+                    let f = i.keyEquivalentModifierMask
+                    key = (f.contains(.control) ? "⌃" : "") + (f.contains(.option) ? "⌥" : "") + (f.contains(.shift) ? "⇧" : "") + (f.contains(.command) ? "⌘" : "")
+                    key += i.keyEquivalent == " " ? "Space" : i.keyEquivalent.uppercased()
+                }
+                if ProcessInfo.processInfo.environment["PLATOON_DEBUG_MENU_ACTIONS"] != nil, let sel = i.action { key += " " + NSStringFromSelector(sel) + " tag=\(i.tag)" }
+                out += pad + i.title + (key.isEmpty ? "" : "   [\(key)]") + (i.state == .on ? "   ✓" : "") + (i.isEnabled ? "" : "   (disabled)") + "\n"
+                if let s = i.submenu { walk(s, depth + 1) }
+            }
+        }
+        walk(main, 0)
+        try? out.write(toFile: "\(dir)/\(name).txt", atomically: true, encoding: .utf8)
+        log("menus written to \(name).txt")
     }
 
     private func prefShot(_ name: String) {

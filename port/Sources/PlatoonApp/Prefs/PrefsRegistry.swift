@@ -194,6 +194,17 @@ enum PrefsRegistry {
         return assisted
     }
 
+    /// Reasons (titles) of the host-only gameplay prefs that apply LIVE (no restart: the trainer, game speed) and are
+    /// not at their default now. They are marked per game (GameHost), not as reasons of the whole Machine run: a
+    /// game started from the title after switching them off must be an ordinary game again.
+    static func liveGameplayReasons() -> [String] {
+        allItems.filter { $0.isGameplay && !$0.requiresRestart && $0.isNonDefault && $0.enhancement == nil && !$0.key.hasPrefix(autoKeyPrefix) }
+            .map(\.title)
+    }
+    static func isLiveGameplayReason(_ title: String) -> Bool {
+        allItems.contains { $0.isGameplay && !$0.requiresRestart && $0.enhancement == nil && !$0.key.hasPrefix(autoKeyPrefix) && $0.title == title }
+    }
+
     /// Items whose value changed since the current run started and that only apply on restart.
     static func pendingRestartItems(since snapshot: [String: String]) -> [PrefItem] {
         allItems.filter { $0.requiresRestart && snapshot[$0.key] != nil && snapshot[$0.key] != $0.enhancementValue }
@@ -238,6 +249,11 @@ enum Prefs {
     static func double(_ k: String) -> Double { d.double(forKey: k) }
     static func set(_ k: String, _ v: Any) {
         d.set(v, forKey: k)
+        notifyChanged(k)
+    }
+    /// Runs the observers and the item's live-apply hook for `k` (after the value was stored some other way,
+    /// e.g. by the debug script's `pref` command).
+    static func notifyChanged(_ k: String) {
         observers[k]?.forEach { $0() }
         anyObservers.forEach { $0(k) }
         PrefsRegistry.item(k)?.onChange?()
@@ -290,8 +306,10 @@ enum EnhancementBridge {
 /// optional int -> "change from original" toggle + slider.
 extension PrefsRegistry {
     static let autoKeyPrefix = "enh."
-    /// Root keys that are aliases of group options (no second row).
-    static let aliasKeys: Set<String> = ["originalCredits"]
+    /// Keys without an automatic row: aliases of group options (originalCredits), the core's section-0 trainer
+    /// flags (the Game ▸ Trainer covers every section), and headless-only test keys (M14 Amiga keycodes; the app
+    /// binds jump / crouch in Controls & Bindings).
+    static let aliasKeys: Set<String> = ["originalCredits", "infiniteAmmo", "infiniteMorale", "s0.jumpKey", "s0.crouchKey"]
 
     static var autoEnhancementSections: [PrefSection] {
         let items = explicitSections.flatMap(\.items)
@@ -317,6 +335,26 @@ extension PrefsRegistry {
             if ch.isUppercase && !out.isEmpty { out += " " + ch.lowercased() } else { out.append(ch) }
         }
         return (out.first.map { String($0).uppercased() } ?? "") + out.dropFirst() + " (\(info.id))"
+    }
+
+    /// The number after "original" in a catalogue help text ("original $c00", "original 120 = 2:00"), nil if none.
+    static func originalValue(_ help: String) -> Double? {
+        guard let r = help.range(of: "original") else { return nil }
+        let tail = help[r.upperBound...].drop { $0 == " " || $0 == ":" }
+        if tail.hasPrefix("$") || tail.hasPrefix("0x") {
+            let digits = tail.dropFirst(tail.hasPrefix("$") ? 1 : 2).prefix { $0.isHexDigit }
+            return Int(digits, radix: 16).map(Double.init)
+        }
+        let digits = tail.prefix { $0.isNumber }
+        guard !digits.isEmpty, !tail.dropFirst(digits.count).hasPrefix("..") else { return nil }   // "0..5" is a range
+        return Double(String(digits))
+    }
+    /// 1, 2, 4, 8 ... (hex values) or 1, 2, 5, 10, 20 ... (decimal) closest below `raw`.
+    static func niceStep(_ raw: Double, hex: Bool) -> Double {
+        guard raw > 1 else { return 1 }
+        if hex { return pow(2, floor(log2(raw))) }
+        let p = pow(10, floor(log10(raw)))
+        return [5, 2, 1].map { $0 * p }.first { $0 <= raw } ?? p
     }
 
     static func autoItems(_ info: EnhancementInfo) -> [PrefItem] {
@@ -346,16 +384,22 @@ extension PrefsRegistry {
             let p = w.components(separatedBy: "..."); guard p.count == 2, let a = Double(p[0]), let b = Double(p[1]) else { return nil }
             return (a, b)
         }.first
-        guard let (lo, hi) = nums else { return [] }       // unbounded numbers: owner must declare a row
+        guard let (lo, fullHi) = nums else { return [] }   // unbounded numbers: owner must declare a row
         let isInt = kind.hasPrefix("int")
-        let fmt: (Double) -> String = { v in isInt ? (hi > 255 ? String(format: "$%X", Int(v)) : String(Int(v))) : String(format: "%.2f", v) }
+        // The game's own value, from the help text ("original $800" / "original 120"): the default position of
+        // the slider, its notation (hex where the original literal is hex) and a useful slider range around it.
+        let orig = originalValue(info.help).map { min(fullHi, max(lo, $0)) }
+        let hexNotation = orig != nil ? info.help.range(of: "original $") != nil : fullHi > 255
+        var hi = fullHi
+        if optional, isInt, let o = orig, fullHi - lo > 64 { hi = min(fullHi, max(o * 4, lo + 16)) }
+        let fmt: (Double) -> String = { v in isInt ? (hexNotation ? String(format: "$%X", Int(v)) : String(Int(v))) : String(format: "%.2f", v) }
         if !optional, isInt, hi - lo <= 10 {
             let d = Int(info.defaultValue) ?? Int(lo)
             return [item(.choice(default: d, options: (Int(lo)...Int(hi)).map { (value: $0, title: String($0)) })) { c in
                 _ = c.enhancements.apply(["\(ekey)=\(Prefs.int(key))"])
             }]
         }
-        let step = isInt ? max(1, ((hi - lo) / 64).rounded()) : (hi - lo) / 100
+        let step = isInt ? niceStep((hi - lo) / 64, hex: hexNotation) : (hi - lo) / 100
         if !optional {
             let d = Double(info.defaultValue) ?? lo
             return [item(.slider(default: d, range: lo...hi, step: step, format: fmt)) { c in
@@ -376,7 +420,7 @@ extension PrefsRegistry {
         toggle.applyToConfig = { c in
             _ = c.enhancements.apply(["\(ekey)=" + (Prefs.bool(setKey) ? String(Int(Prefs.double(key))) : "original")])
         }
-        var slider = PrefItem(key: key, title: "   value", kind: .slider(default: lo, range: lo...hi, step: step, format: fmt))
+        var slider = PrefItem(key: key, title: "   value", kind: .slider(default: orig ?? lo, range: lo...hi, step: step, format: fmt))
         slider.requiresRestart = true
         slider.enabledIf = { Prefs.bool(setKey) }
         return [toggle, slider]

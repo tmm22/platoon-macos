@@ -63,6 +63,11 @@ class OverlayPanel: NSObject {
     /// While visible, receives ALL keyboard and controller-button input (e.g. the pause menu) — the game
     /// gets none of it.
     var isModal = false
+    /// Keeps clear of other information panels (integration: maps, timer, HUD, captions, badges from different
+    /// features share the side bars and corners). Panels are placed in zIndex order; a panel whose frame would
+    /// overlap an already placed one is moved below it (or above it when there is no room below). Modal panels
+    /// and panels filling the game image / window never take part.
+    var avoidsOverlap = true
     /// Fixed size in points; nil = the view's fittingSize.
     var preferredSize: CGSize? { didSet { manager?.setNeedsLayout() } }
     fileprivate(set) weak var manager: OverlayManager?
@@ -167,6 +172,13 @@ final class OverlayManager {
         panels[i].view.removeFromSuperview(); panels[i].manager = nil; panels.remove(at: i)
     }
     func panel(id: String) -> OverlayPanel? { panels.first { $0.id == id } }
+    /// Debug: every panel with z, visibility and frame (visible ones), game rect first.
+    var debugPanels: String {
+        func r(_ f: CGRect) -> String { "\(Int(f.minX)),\(Int(f.minY)) \(Int(f.width))x\(Int(f.height))" }
+        return "game=\(r(layoutInfo.gameRect)) bounds=\(r(layoutInfo.bounds)) | " + panels.map { p in
+            "\(p.id)[z\(p.zIndex)\(p.isModal ? ",modal" : "")]" + (p.isVisible ? "=" + r(p.view.frame) : "(hidden)")
+        }.joined(separator: " ")
+    }
 
     /// Topmost visible modal panel (receives all input).
     var modalPanel: OverlayPanel? { panels.last { $0.isModal && $0.isVisible } }
@@ -187,7 +199,42 @@ final class OverlayManager {
     func layoutPanels() {
         layoutDirty = false
         layoutInfo.bounds = view.bounds
-        for p in panels where p.isVisible { p.view.frame = p.frame(in: layoutInfo) }
+        var placed: [CGRect] = []
+        for p in panels where p.isVisible {
+            var f = p.frame(in: layoutInfo)
+            if participatesInStacking(p) {
+                f = OverlayManager.clear(of: placed, f, bounds: layoutInfo.bounds)
+                placed.append(f)
+            }
+            p.view.frame = f
+        }
+    }
+
+    private func participatesInStacking(_ p: OverlayPanel) -> Bool {
+        guard p.avoidsOverlap, !p.isModal else { return false }
+        switch p.anchor {
+        case .fillGame, .fillWindow: return false
+        default: return true
+        }
+    }
+
+    /// Moves `f` vertically until it no longer overlaps any of `placed` (below first, then above), staying inside
+    /// `bounds`; returns `f` unchanged if no free spot is found.
+    static func clear(of placed: [CGRect], _ f: CGRect, bounds: CGRect, gap: CGFloat = 6) -> CGRect {
+        func hit(_ r: CGRect) -> CGRect? { placed.first { $0.insetBy(dx: 1, dy: 1).intersects(r) } }
+        guard hit(f) != nil else { return f }
+        // candidate positions: just below / above each placed frame that shares the column
+        var ys: [CGFloat] = []
+        for q in placed where q.minX < f.maxX && q.maxX > f.minX {
+            ys.append(q.maxY + gap); ys.append(q.minY - gap - f.height)
+        }
+        let cands = ys.filter { $0 >= bounds.minY && $0 + f.height <= bounds.maxY }
+            .sorted { abs($0 - f.minY) < abs($1 - f.minY) }
+        for y in cands {
+            let r = CGRect(x: f.minX, y: y.rounded(), width: f.width, height: f.height)
+            if hit(r) == nil { return r }
+        }
+        return f
     }
     func update(_ ctx: FrameContext?) {
         for p in panels where p.isVisible { p.update(ctx) }
@@ -307,6 +354,7 @@ private final class ToastStack {
     lazy var panel: OverlayPanel = {
         stack.orientation = .vertical; stack.spacing = 6; stack.alignment = .centerX
         let p = OverlayPanel(id: "app.toasts", view: stack, anchor: .window(.top, inset: 14), zIndex: 500)
+        p.avoidsOverlap = false          // transient; may cover anything for a moment
         return p
     }()
     private var items: [(view: NSView, until: CFTimeInterval)] = []

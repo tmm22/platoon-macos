@@ -53,11 +53,26 @@ final class GameHost {
     private var acc: Double = 0
     static let frameTime = 1.0 / 50.0
 
+    // MARK: game speed (accessibility slow motion, M22 audio side)
+    /// 0.6 ... 1.0 of real time (General ▸ Game speed). Below 1 the run is assisted.
+    private(set) var speed: Double = 1
+    /// `mark`: a change during a run marks it assisted (at game start the gameplay pref itself does, via the config).
+    func applySpeedSetting(mark: Bool = true) {
+        let pct = Prefs.int(BuiltinPrefs.gameSpeed)
+        speed = pct >= 60 && pct < 100 ? Double(pct) / 100 : 1
+        audio.stream.speedHint = speed < 1 ? speed : nil        // Smooth rate control follows at a lower pitch
+        if speed < 1 && mark { markAssisted("Game speed") }       // same reason as the gameplay pref at game start
+    }
+
     // MARK: run state (host-side, main thread)
     /// Load section currently being played (probe context), nil on the title / loading / game over.
     var currentSection: Int? { probe.context.section }
     /// The a6 globals at the start of the current section (for "Restart section").
     private(set) var sectionStartCarry: [UInt8]?
+    /// The a6 globals at the start of each section of the current game (a rewind or checkpoint retry goes back
+    /// within the same game, possibly into the previous section: "Restart section" then still restarts with the
+    /// platoon that arrived there, instead of a fresh one).
+    private var sectionCarries: [Int: [UInt8]] = [:]
     /// Host-side reasons why the current run is assisted (F4/S5), in addition to the core's own
     /// (enhancements, trainer, start section) which are in `probe.context.assistReasons`.
     private var hostAssistedReasons: [String] = []
@@ -71,9 +86,25 @@ final class GameHost {
     private var pendingSectionStarts: [(Int, [UInt8])] = []
     private let pendingLock = NSLock()
 
+    /// Reasons that come from the settings of the current run (they stay across new games from the title).
+    private var configAssistedReasons: [String] = []
+    /// Reasons already marked in the current game by `markAssistedOnce` (a new game or a reset re-arms them).
+    private var markedThisGame = Set<String>()
+
     init(disk: Disk) {
         self.disk = disk
         machine = Machine(disk: disk)
+        // A new game from the title (no Machine reset): the core forgets the previous game's marks, so the host
+        // does too, and features that mark "once per game" are re-armed.
+        probe.addObserver { [weak self] r in
+            guard let self, case .newGame = r.event else { return }
+            self.hostAssistedReasons = self.configAssistedReasons
+            self.markedThisGame.removeAll()
+            self.sectionCarries.removeAll()
+            // live gameplay prefs (trainer, game speed) count for this game only if they are still on now
+            for reason in PrefsRegistry.liveGameplayReasons() { self.markAssisted(reason) }
+            AppServices.shared.dispatchNewGame(self)
+        }
         wire()
         let cfg = makeConfig()
         machine.start { PlatoonGame.main($0, config: cfg) }
@@ -83,8 +114,10 @@ final class GameHost {
     /// plumbing from the Preferences registry.
     func makeConfig(startSection: Int? = nil, carry: [UInt8]? = nil) -> GameConfig {
         var c = GameConfig()
-        if let sup = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            let dir = sup.appendingPathComponent("Platoon", isDirectory: true)
+        // PLATOON_SUPPORT_DIR (tests) replaces Application Support/Platoon, as for the disk and the assist files
+        let supportDir = ProcessInfo.processInfo.environment["PLATOON_SUPPORT_DIR"].map { URL(fileURLWithPath: $0, isDirectory: true) }
+            ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("Platoon", isDirectory: true)
+        if let dir = supportDir {
             try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
             c.hiscoreURL = dir.appendingPathComponent("hiscores.bin")
         }
@@ -93,7 +126,10 @@ final class GameHost {
         c.onSectionStart = { [weak self] section, a6 in
             // game thread: the host thread is blocked in runFrame, so this is serialized with the main thread
             // Section 0 re-initialises the platoon, so only the later sections are worth continuing from.
-            if section > 0 {
+            // A replay being watched or a practice drill is not the player's game: it must not move the player's
+            // Continue point (AssistCenter was created at launch; the main thread is parked in runFrame here).
+            let assist = AssistCenter.shared
+            if section > 0 && !assist.replays.isReplayGame && assist.practice.drill == nil {
                 Settings.shared.continueSection = section
                 Settings.shared.continueCarry = Data(a6)
             }
@@ -101,8 +137,13 @@ final class GameHost {
             self.pendingLock.lock(); self.pendingSectionStarts.append((section, a6)); self.pendingLock.unlock()
         }
         hostAssistedReasons = PrefsRegistry.apply(to: &c)
+        // Restart-only host gameplay prefs (randomiser modes ...) hold for every game of this run; the live ones
+        // (trainer, game speed) are marked per game at its start (newGame observer / markAssisted), so switching
+        // them off before a new game from the title gives an ordinary game again.
+        configAssistedReasons = hostAssistedReasons.filter { !PrefsRegistry.isLiveGameplayReason($0) }
+        markedThisGame.removeAll()
         // host-only gameplay prefs without an enhancement key taint through the core's F4 flag too
-        c.assistedReasons.formUnion(hostAssistedReasons)
+        c.assistedReasons.formUnion(configAssistedReasons)
         c.probe = probe
         runEnhancements = c.enhancements
         runPrefsSnapshot = PrefsRegistry.restartSnapshot()
@@ -114,6 +155,10 @@ final class GameHost {
     func markAssisted(_ reason: String) {
         if !hostAssistedReasons.contains(reason) { hostAssistedReasons.append(reason) }
         probe.markAssisted(reason)
+    }
+    /// Marks the game assisted the first time a feature acts in it (cheap to call every frame).
+    func markAssistedOnce(_ reason: String) {
+        if markedThisGame.insert(reason).inserted { markAssisted(reason) }
     }
 
     static func applyCheats(_ m: Machine) {
@@ -142,6 +187,7 @@ final class GameHost {
         inputManager.input = machine.input
         applyAudioSettings()
         applyInputSettings()
+        applySpeedSetting(mark: false)
     }
 
     /// Host input options on the current machine (M25 faster key delivery; 2 = original pacing).
@@ -153,6 +199,7 @@ final class GameHost {
         pendingLock.lock(); let p = pendingSectionStarts; pendingSectionStarts.removeAll(); pendingLock.unlock()
         for (s, a6) in p {
             sectionStartCarry = a6
+            sectionCarries[s] = a6
             AppServices.shared.dispatchSection(s)
         }
     }
@@ -174,7 +221,7 @@ final class GameHost {
         machine = Machine(disk: disk)
         wire()
         audio.flush()
-        sectionStartCarry = nil; hostAssistedReasons = []
+        sectionStartCarry = nil; sectionCarries.removeAll(); hostAssistedReasons = []
         pendingLock.lock(); pendingSectionStarts.removeAll(); pendingLock.unlock()
         let cfg = makeConfig(startSection: startSection, carry: carry)
         machine.start { PlatoonGame.main($0, config: cfg) }
@@ -186,16 +233,20 @@ final class GameHost {
     /// Replaces the running game with a restored one (snapshot agent: savestates / checkpoints / rewind).
     /// `start` receives a fresh Machine and the current config and must start the game thread on it
     /// (e.g. `{ m, cfg in PlatoonGame.resume(m, from: snap, config: cfg) }`). The run is marked assisted.
-    func restoreGame(section: Int, reason: String, _ start: (Machine, GameConfig) -> Void) {
+    /// `sameGame`: the snapshot comes from the game being played (rewind, checkpoint retry), so the section-start
+    /// platoon of `section` is still known; otherwise (a loaded slot, a replay, a drill) it is not.
+    func restoreGame(section: Int, reason: String, sameGame: Bool = false, _ start: (Machine, GameConfig) -> Void) {
         machine.stop()
         machine = Machine(disk: disk)
         wire()
         audio.flush()
         pendingLock.lock(); pendingSectionStarts.removeAll(); pendingLock.unlock()
         let cfg = makeConfig()
-        sectionStartCarry = nil
+        if !sameGame { sectionCarries.removeAll() }
+        sectionStartCarry = sectionCarries[section]
         start(machine, cfg)
         markAssisted(reason)
+        for r in PrefsRegistry.liveGameplayReasons() { markAssisted(r) }   // no newGame event in a resumed game
         acc = 0; last = 0
         inputManager.releaseAll()
         AppServices.shared.dispatchReset(self)
@@ -217,18 +268,19 @@ final class GameHost {
         let dt = min(0.25, now - last)
         let perTick = isFastForwarding ? fastForwardSpeed : 1
         audioGain = perTick > 1 ? Float(Prefs.double(BuiltinPrefs.ffVolume)) : 1
+        let ft = GameHost.frameTime / speed
         // Display running at ~50 Hz (e.g. a variable-refresh display): one Amiga frame per display frame,
         // so every frame is shown exactly once and scrolling stays perfectly smooth.
-        if abs(dt - GameHost.frameTime) < GameHost.frameTime * 0.15 {
+        if speed >= 1 && abs(dt - ft) < ft * 0.15 {
             runFrames(perTick)
             acc = 0
             return true
         }
         acc += dt
         var ran = false, n = 0
-        while acc >= GameHost.frameTime && n < 5 {
+        while acc >= ft && n < 5 {
             runFrames(perTick)
-            acc -= GameHost.frameTime; ran = true; n += 1
+            acc -= ft; ran = true; n += 1
         }
         if n == 5 { acc = 0 }
         return ran

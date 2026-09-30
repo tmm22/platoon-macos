@@ -68,17 +68,21 @@ final class SaveStates: SnapshotService {
         guard !installed else { return }
         installed = true
         app.snapshots = self
-        app.onHostReady { [weak self] h in self?.attach(h) }
+        // a new host = a new disk (M23 import): the rings and a waiting save belong to the old game (and disk)
+        app.onHostReady { [weak self] h in self?.cancelPendingSave(); self?.controller.resetRun(); self?.attach(h) }
         app.onReset { [weak self] h in
             guard let self else { return }
             self.attach(h)
-            if !self.restoring { self.controller.resetRun() }
+            if !self.restoring { self.cancelPendingSave(); self.controller.resetRun() }
         }
         app.onDisplay { [weak self] ctx in self?.display(ctx) }
+        app.onNewGame { [weak self] _ in self?.cancelPendingSave() }    // a new game from the title is another game too
         app.addPauseMenuItem(PauseMenuItem(id: "snapshot.retry", title: { [unowned self] in self.retryTitle }, order: 150,
-                                           isEnabled: { [unowned self] in self.canRetry }, action: { [unowned self] in self.retryCheckpoint(); return true }))
+                                           isEnabled: { [unowned self] in self.canRetry },
+                                           isShown: { Prefs.bool(SaveStates.kCheckpoints) || SaveStates.shared.canRetry }, action: { [unowned self] in self.retryCheckpoint(); return true }))
         app.addPauseMenuItem(PauseMenuItem(id: "snapshot.rewind", title: { "Rewind…" }, order: 160,
                                            isEnabled: { [unowned self] in self.canRewind },
+                                           isShown: { Prefs.bool(SaveStates.kRewind) },
                                            action: { [unowned self] in DispatchQueue.main.async { self.beginRewind() }; return true }))
         for k in [SaveStates.kCheckpoints, SaveStates.kRewind, SaveStates.kRewindSeconds] { Prefs.observe(k) { [weak self] in self?.applyOptions() } }
         controller.onEvent = { [weak self] e in self?.event(e) }
@@ -179,6 +183,15 @@ final class SaveStates: SnapshotService {
         done(nil)
     }
 
+    /// A save requested outside play ("Saving at the next opportunity…") must not be taken from a DIFFERENT game:
+    /// a reset, a loaded save, a checkpoint retry or a rewind replaces the game it was meant for, so it is dropped.
+    /// (Before, the loaded game was written into the slot the player had chosen for the old one.)
+    private func cancelPendingSave() {
+        guard controller.hasPendingRequest else { return }
+        controller.cancelRequests()
+        AppServices.shared.toast("Save cancelled (the game was replaced before it could be taken)", seconds: 3)
+    }
+
     func quickSave() { save(slot: SaveStates.quickSlot) { e in if let e { AppServices.shared.toast(e, seconds: 3) } } }
     func quickLoad() { load(slot: SaveStates.quickSlot) { e in if let e { AppServices.shared.toast(e, seconds: 3) } } }
     func deleteSlot(_ slot: Int) { try? FileManager.default.removeItem(at: url(slot)); infoCache[slot] = nil }
@@ -190,7 +203,7 @@ final class SaveStates: SnapshotService {
 
     func retryCheckpoint() {
         guard let h = host, let snap = controller.latestCheckpoint else { AppServices.shared.toast("No checkpoint yet"); return }
-        restore(snap, in: h, reason: "Retry from checkpoint")
+        restore(snap, in: h, reason: "Retry from checkpoint", sameGame: true)
         controller.truncate(after: snap)
         AppServices.shared.toast("Checkpoint: \(snap.info.label)")
     }
@@ -198,12 +211,17 @@ final class SaveStates: SnapshotService {
     // MARK: restore
 
     /// Replaces the running game with `snap` (the machine continues exactly at the snapshot's loop head).
-    func restore(_ snap: GameSnapshot, in h: GameHost, reason: String) {
+    func restore(_ snap: GameSnapshot, in h: GameHost, reason: String, sameGame: Bool = false) {
+        cancelPendingSave()         // a save still waiting for a loop head belongs to the game being replaced
         restoring = true; defer { restoring = false }
-        let earlier = h.assistedReasons                  // the new run's config starts a new reason list
+        // The new run's config starts a new reason list. A rewind / retry continues THIS game, so everything it
+        // was marked with stays (also marks made after the snapshot was taken); a loaded slot or a practice drill
+        // is another game: it brings its own marks (the snapshot's run marks are restored by the core), not the
+        // replaced game's.
+        let earlier = sameGame ? h.assistedReasons : []
         // A fresh Machine (GameHost.restoreGame: wired, new config, marked assisted, onReset observers told).
         let carried = earlier + (snap.info.assisted ? ["Saved from an assisted game"] : [])
-        h.restoreGame(section: snap.info.section, reason: reason) { m, cfg in
+        h.restoreGame(section: snap.info.section, reason: reason, sameGame: sameGame) { m, cfg in
             PlatoonGame.resume(m, from: snap, config: cfg, assisted: reason, alsoAssisted: carried)
         }
         for r in earlier { h.markAssisted(r) }
@@ -245,7 +263,7 @@ final class SaveStates: SnapshotService {
         controller.suspended = false
         guard let h = host else { return }
         if let s = snap {
-            restore(s, in: h, reason: "Rewind")
+            restore(s, in: h, reason: "Rewind", sameGame: true)
             controller.truncate(after: s)
         }
         h.resume(.custom("rewind"))

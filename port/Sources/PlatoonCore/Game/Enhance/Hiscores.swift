@@ -7,7 +7,8 @@ import Foundation
 //   - the host declared a session reason (GameConfig.assistedReasons) or marked one during the run
 //     (GameProbe.markAssisted / PlatoonGame.markAssisted: trainer, snapshot load, rewind, practice ...),
 //   - the Trainer is active (Trainer.apply marks it automatically),
-//   - the game was started by GameConfig.startSection / carry (Continue / Start at section),
+//   - the game was started by GameConfig.carry or at a later GameConfig.startSection (Continue / Start at section;
+//     startSection 0 without a carry is the title's new game),
 //   - kernel.separateCheatScores and the original cheat flags $70(a6) are set.
 // Its score is ranked in a separate table: "hiscores-<mode>.bin" next to GameConfig.hiscoreURL, where mode is the
 // difficulty preset ("recruit", "veteran", "custom") when that is the only reason, else "assisted". The original
@@ -48,7 +49,10 @@ extension Platoon {
     func beginRun(section: Int, fromConfig: Bool) {
         assistLock.lock()
         runAssist.removeAll()
-        if fromConfig {
+        // Continue / a later section is assisted. Section 0 without a carry block sets exactly the title's
+        // new-game values (k_start_new_game), so "New Game" from the pause menu / Start New Game At > The Jungle
+        // is an honest game.
+        if fromConfig && (config.carry != nil || section != 0) {
             runAssist.insert(config.carry != nil ? "continue" : "startSection")
         }
         assistLock.unlock()

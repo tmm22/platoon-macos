@@ -23,7 +23,7 @@ extension PrefsRegistry {
                 .toggle(SaveStates.kDeathPrompt, "Offer a retry when a soldier dies", default: false,
                         help: "Shows a short reminder of ⇧⌘R when the current soldier is killed (needs automatic checkpoints).")
                     .enabled(if: { Prefs.bool(SaveStates.kCheckpoints) }),
-                .toggle(SaveStates.kRewind, "Rewind", default: false,
+                .toggle(SaveStates.kRewind, "Keep a rewind buffer", default: false,
                         help: "Keeps a snapshot every second. Hold Backspace, ⌘Z or the controller's right-stick click (R3) to go back; release to continue from there, Esc cancels.")
                     .inMenu(.game),
                 .slider(SaveStates.kRewindSeconds, "Rewind length", default: 30, range: 10...120, step: 10,

@@ -297,7 +297,7 @@ final class JungleMapPanel: OverlayPanel {
         if isVisible != show { isVisible = show }
         guard show else { return }
         let tier = max(0, min(2, Prefs.int(JungleMapPanel.kSpoilers)))
-        if tier >= 2 && !markedSpoiler { markedSpoiler = true; AppServices.shared.markAssisted("Jungle map: hut contents") }
+        if tier >= 2 { AppServices.shared.markAssistedOnce("Jungle map: hut contents") }
         let size = CGFloat(max(2, min(8, Prefs.double(JungleMapPanel.kSize))))
         let key = "\(tier) \(Prefs.bool(JungleMapPanel.kFog)) \(size) \(Prefs.int(JungleMapPanel.kPlace))"
         guard state.generation != drawnGeneration || key != drawnKey else { return }

@@ -11,6 +11,7 @@ public final class MusicDriverTestHarness {
 
     /// Loads the resident program and installs the vblank handler. Call before `Machine.start`.
     public func setup() {
+        applyEnvironmentAudioOptions()                    // audio enhancement options (AudioEnhance.swift)
         p.disk.loadTracks(first: 1, count: 17, to: 0x400, memory: p.mem)
         p.chip.interruptHandlers[3] = { [p] in
             p.md_play()

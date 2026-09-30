@@ -92,9 +92,15 @@ extension Platoon {
     /// $1768e hit_pbullet: player bullet touched the enemy x-range.
     func s0HitPBullet(_ a0: UInt32, bob d1: UInt16) {
         if v0.estate == 2 { s0EnemyShot(a0); return }
-        if v0.estate == 5 { s0HitPbState5(a0, bob: d1); return }
+        if v0.estate == 5 {
+            if enhancements.section0.difficulty.rifleKillsSpider == 1 { s0EnemyShot(a0); return }   // ENHANCEMENT M10
+            s0HitPbState5(a0, bob: d1); return
+        }
         if v0.estate != 4 { s0BulletDraw(a0, bob: d1); return }
         if v0.hutKilled != 0 { s0BulletDraw(a0, bob: d1); return }
+        if enhancements.section0.fixHutDummy && v0.eframe == 0 {   // ENHANCEMENT S9f: the invisible hut-1 dummy
+            s0BulletDraw(a0, bob: d1); return
+        }
         s0EnemyShot(a0)
     }
 
@@ -188,6 +194,7 @@ extension Platoon {
         if v0.align != 0 { return }
         if s0Rand() & 3 != 0 { return }
         var d0 = v0.c34
+        if enhancements.section0.fixTripwireSpawn { d0 = 0 }       // ENHANCEMENT S9g: x = edge + tile value only
         if v0.pfacing != 0 {
             var a0 = v0.pmapptr
             d0 = (d0 & 0xff00) | UInt16(mem.r8(a0 &- 2))
@@ -216,7 +223,9 @@ extension Platoon {
         if v0.trapX >= 0x130 { s0TrapClear(); return }
         if v0.trapX >= 0x8c && v0.trapX < 0x9c && v0.pstate == 0 {
             s0PlayerHit()
-            mem.w16(s0Man + 4, 3)                 // death on the following hit count
+            if !enhancements.section0.trapsWoundOn {  // ENHANCEMENT S7 (default: the trap kills)
+                mem.w16(s0Man + 4, 3)             // death on the following hit count
+            }
             v0.trapState = 2
             v0.trapxTimer = 3
             v0.trapxFrame = 0
@@ -356,7 +365,7 @@ extension Platoon {
             return
         default:                                  // 1: MEDICAL SUPPLIES
             k_queue_text(0xc)
-            v0.morale = v0.morale &+ 0x300
+            s0MoraleAdd(0x300)                    // (S9b clamp when enabled; else add.w as the original)
             let a5 = s0Man
             if mem.r16(a5 + 4) != 0 {
                 mem.w16(a5 + 4, mem.r16(a5 + 4) &- 1)
@@ -364,7 +373,7 @@ extension Platoon {
             }
         }
         // crate_done
-        v0.morale = v0.morale &+ 0x200
+        s0MoraleAdd(0x200)
         mem.w32(0x60c84, 0)
         k_add_score(after: Platoon.s0Score500End)
     }

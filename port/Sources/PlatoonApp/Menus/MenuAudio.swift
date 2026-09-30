@@ -11,11 +11,24 @@ import PlatoonCore
 
 extension MenuRegistry {
     static func audioMenus(_ app: AppServices) -> [MenuContribution] {
-        []
+        func toggle(_ key: String) { Prefs.set(key, !Prefs.bool(key)) }
+        let synth = ClosureMenuItem("Band-limited Synthesis", state: { Prefs.int(AudioPrefs.synthesis) == 1 }) {
+            Prefs.set(AudioPrefs.synthesis, Prefs.int(AudioPrefs.synthesis) == 1 ? 0 : 1)
+        }
+        let amb = ClosureMenuItem("Ambience (Automatic)", state: { Prefs.int(AudioPrefs.ambience) != 0 }) {
+            Prefs.set(AudioPrefs.ambience, Prefs.int(AudioPrefs.ambience) == 0 ? 1 : 0)
+        }
+        let st = ClosureMenuItem("Replacement Soundtrack", state: { Prefs.bool(AudioPrefs.soundtrack) }) {
+            toggle(AudioPrefs.soundtrack); AudioEnhancements.shared.soundtrack.rescan()
+        }
+        let folder = ClosureMenuItem("Choose Soundtrack Folder…") { SoundtrackUI.chooseFolder() }
+        let mixer = ClosureMenuItem("Audio Mixer…") { app.openPreferences(tab: .audio) }
+        return [MenuContribution(menu: .sound, order: 50, items: [synth, amb, st, folder, mixer])]
     }
 }
 
 extension FeatureHooks {
     static func audioInstall(_ app: AppServices) {
+        AudioEnhancements.shared.install(app)
     }
 }

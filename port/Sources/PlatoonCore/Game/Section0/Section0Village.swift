@@ -149,7 +149,9 @@ extension Platoon {
         v0.explY = 0x3d
         mem.w8(a0 &+ 2, mem.r8(a0 &+ 3))
         s0PlayerHit()
-        mem.w16(s0Man &+ 4, 3)
+        if !enhancements.section0.trapsWoundOn {      // ENHANCEMENT S7 (default: the trap kills)
+            mem.w16(s0Man &+ 4, 3)
+        }
         return 0xf
     }
 
@@ -157,7 +159,7 @@ extension Platoon {
     func s0ItemTorch() -> UInt16 {
         if v0.torch != 0 { return 3 }
         v0.torch = 0xff
-        v0.morale = v0.morale &+ 0x200
+        s0MoraleAdd(0x200)                             // (S9b clamp when enabled)
         k_add_score(after: Platoon.s0Score500End)
         return 2
     }
@@ -166,9 +168,10 @@ extension Platoon {
     func s0ItemMap() -> UInt16 {
         if v0.mapFound != 0 { return 7 }
         if v0.hutKilled == 0 { return 7 }
+        if enhancements.section0.difficulty.noMap == 1 { return 7 }   // ENHANCEMENT M10 (Custom: no map)
         mem.w8(a6 + 0x24, 0xff)                        // st.b $24(a6)
         k_hud_icons()
-        v0.morale = v0.morale &+ 0x200
+        s0MoraleAdd(0x200)                             // (S9b clamp when enabled)
         k_add_score(after: Platoon.s0Score500End)
         return 8
     }
@@ -189,6 +192,7 @@ extension Platoon {
             s0DrawPlayer()
             s0Settle()
             k_swap()
+            s0WideLatch()                              // L4 host latch (read-only; no-op unless a host attached one)
             s0Dbg("017de4")
             if r_keytest(0x36) { s0WaitMessages(); return }     // N
             if !r_keytest(0x15) { continue }                     // Y?
@@ -201,6 +205,7 @@ extension Platoon {
     /// dissolve out, kernel $f874 (load the next section).
     func s0TrapdoorYes() -> Never {
         var a5 = s0Man
+        if enhancements.section0.fixTrapdoorBonus { a5 = a6 }   // ENHANCEMENT S9k: count men 0..4
         var d1: UInt32 = 0
         for _ in 0...4 {
             if mem.r16(a5 &+ 4) < 4 { d1 &+= 0x1000 }

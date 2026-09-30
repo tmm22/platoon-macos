@@ -9,7 +9,7 @@ extension Platoon {
     /// $18282 room_setup_bunker: Barnes in slot 4 (active byte = his hit points $32), then the picture.
     func s2_room_setup_bunker(pic d0: UInt16) {
         let a0 = S2.slot4
-        mem.w8(a0, 0x32)
+        mem.w8(a0, s2Diff.barnesHits.map { UInt8($0 * 10) } ?? 0x32)   // ENHANCEMENT M10 s2.diff.barnesHits
         mem.w32(a0 &+ 0xe, 0)                        // +e..+11 = 0 (frame 0)
         mem.w16(a0 &+ 2, 0x96)
         mem.w16(a0 &+ 4, 0x69)
@@ -68,7 +68,7 @@ extension Platoon {
         mem.w16(a0 &+ 2, mem.r16(a0 &+ 2) &+ 0xe)                   // bullet x = Barnes x + $e
         mem.w8(a0, 0xff)
         let r = UInt16(truncatingIfNeeded: k_random())
-        mem.w16(S2.vFireCooldown, (r & 0xf) &+ 0xa)                 // 10..25
+        mem.w16(S2.vFireCooldown, (r & 0xf) &+ UInt16(s2Diff.barnesCooldown ?? 0xa))   // 10..25; ENHANCEMENT M10
         s2_sfx(0x82)
     }
 
@@ -178,6 +178,7 @@ extension Platoon {
     /// $1718a time_up: napalm flash to white, fade out, "YOU DIDN'T MAKE IT! ... NAPALM STRIKE !", game over.
     func s2_time_up() -> Never {
         tickPoint(0x1718a)
+        if s2Opt.napalmStopsTimer { mem.w16(a6 &+ 0x68, 0) }     // ENHANCEMENT S9h (default off): no 59:59 wrap
         s2_sfx_and_reset(0x81)
         s2_pal_copy_current()
         var d2: UInt16
@@ -203,10 +204,18 @@ extension Platoon {
 
     /// $17e96 (in obj_player_dead_wait): man 0 dead -> man 1 takes over, "ONE OF YOUR PLATOON MEMBERS FOLLOWED
     /// YOU ..." and the whole jungle restarts (fj_restart).
-    func s2_second_chance() -> Never {
+    /// `nextMan` (ENHANCEMENT M15, game.lives / game.fullPlatoon): the record index of the man who takes over
+    /// (nil = original: man 1).
+    func s2_second_chance(nextMan: Int? = nil) -> Never {
         tickPoint(0x17e96)
-        mem.w16(a6 &+ 0x22, mem.r16(a6 &+ 0x22) &+ 1)
-        let a5 = a6 &+ 6
+        let a5: UInt32
+        if let n = nextMan {                                        // ENHANCEMENT M15
+            mem.w16(a6 &+ 0x22, UInt16(n))
+            a5 = a6 &+ UInt32(6 * n)
+        } else {
+            mem.w16(a6 &+ 0x22, mem.r16(a6 &+ 0x22) &+ 1)
+            a5 = a6 &+ 6
+        }
         mem.w32(a6 &+ 0x1e, a5)
         k_hud_wounds()
         s2_fade_out_wait()
@@ -222,6 +231,10 @@ extension Platoon {
         tickPoint(0x17f04)
         s2_fade_out_wait()
         k_clear_screens()
+        if s2Opt.withdrawnText {                                    // ENHANCEMENT S9h (default off): the intended text
+            s2_text_screen_music3(S2.txtWithdrawn)
+            k_game_over()
+        }
         _ = S2.txtWithdrawn                                         // lea d_txt_withdrawn,a0 (overwritten)
         s2_end_text_gameover()
     }

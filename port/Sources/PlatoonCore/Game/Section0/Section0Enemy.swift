@@ -84,7 +84,8 @@ extension Platoon {
 
     /// $182f2 en_st2_walk: walking soldier / villager.
     func s0EnSt2Walk() {
-        if s0Rand() & 0x1f == 0 { s0EnTryShoot(); return }
+        let mask = UInt16(enhancements.section0.difficulty.shootMask ?? 0x1f)   // ENHANCEMENT M10 (nil = $1f)
+        if s0Rand() & mask == 0 { s0EnTryShoot(); return }
         s0EwStep()
     }
 
@@ -232,7 +233,7 @@ extension Platoon {
     func s0EnemyScore() {
         if v0.evillager != 0 {
             k_queue_text(0x17)
-            s0MoraleSub(0x1200)
+            s0MoraleSub(UInt16(enhancements.section0.difficulty.villagerMorale ?? 0x1200))   // ENHANCEMENT M10
             return
         }
         k_add_score(after: Platoon.s0Score300End)

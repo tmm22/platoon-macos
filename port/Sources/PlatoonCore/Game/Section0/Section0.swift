@@ -168,6 +168,8 @@ extension Platoon {
         mem.w16(a6 + 0x2c, 0)
         mem.w16(a6 + 0x28, 0)
         mem.w16(a6 + 0x54, 0)
+        if let seed = enhancements.section0.villageSeed { s0RandomiseVillage(seed) }   // ENHANCEMENT L3 (default off)
+        JungleWideSelfTest.installIfRequested(m)          // L4 verification (env PLATOON_S0_WIDETEST only; host-side)
         while true {
             s0RestartInit()
             s0MainLoop()     // returns only when an F1-F4 cheat warp does `bra sec0_restart`
@@ -176,6 +178,7 @@ extension Platoon {
 
     /// $17070-$17184 sec0_restart: (re)start at the position long $1a6da; also the F1-F4 warp target.
     func s0RestartInit() {
+        s0WideInvalidate()                                // L4 host latch (no-op unless a host attached one)
         mem.w32(0x60c24, mem.r32(Platoon.s0StartPos))
         k_set_split(0x8f)
         k_set_top_pal(Platoon.s0PalPlayfield)
@@ -183,9 +186,11 @@ extension Platoon {
         v0.manPtr = a6
         v0.manIndex = 0
         var a0 = a6
+        let knobs = enhancements.section0.difficulty
+        let grenades = UInt16(knobs.grenades ?? 9), ammo = UInt16(knobs.ammo ?? 0x90)   // ENHANCEMENT M10 (nil = original)
         for _ in 0...4 {                     // 5 men: grenades 9, ammo $90, hits 0
-            mem.w16(a0 + 0, 9)
-            mem.w16(a0 + 2, 0x90)
+            mem.w16(a0 + 0, grenades)
+            mem.w16(a0 + 2, ammo)
             mem.w16(a0 + 4, 0)
             a0 &+= 6
         }
@@ -218,7 +223,9 @@ extension Platoon {
             s0Dbg("017186")
             v0.tick = v0.tick &+ 1
             s0ReadInput()
-            if v0.noise < 8 { v0.noise = 8 }
+            if let f = enhancements.section0.difficulty.spawnFloor {   // ENHANCEMENT M10 (nil = original)
+                if v0.noise < UInt16(f + 1) { v0.noise = UInt16(f + 1) }
+            } else if v0.noise < 8 { v0.noise = 8 }
             v0.noise = v0.noise &- 1                 // spawn chance decays to minimum 7
             s0Dbg("0171aa")
             if r_keytest(0x64) && v0.estate == 0 {   // Left-Alt: voluntary change of soldier
@@ -272,6 +279,7 @@ extension Platoon {
             s0Dbg("017328")
             k_swap()
             v0.bplcon1 = (v0.hscroll &<< 4) | v0.hscroll
+            s0WideLatch()                            // L4 host latch (read-only; no-op unless a host attached one)
             if v0.morale == 0 { s0Exit() }
             if !enhancements.infiniteMorale {        // ENHANCEMENT hook (default off = original)
                 v0.morale = v0.morale &- 1

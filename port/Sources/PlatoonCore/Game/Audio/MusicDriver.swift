@@ -83,6 +83,13 @@ extension Platoon {
         md_hw(reg, UInt16(v >> 16))
         md_hw(reg + 2, UInt16(truncatingIfNeeded: v))
     }
+    /// ENHANCEMENT M12 (host-only): a music-channel register write mirrored into Paula's ghost voice. Called only
+    /// when `chip.paula.ghostVoices` is set, never through chip.write (register logs, interrupts, RAM unaffected).
+    @inline(__always) private func md_ghost(_ reg: Int, _ v: UInt16) { chip.paula.ghostWrite(reg, v) }
+    @inline(__always) private func md_ghostL(_ reg: Int, _ v: UInt32) {
+        chip.paula.ghostWrite(reg, UInt16(v >> 16))
+        chip.paula.ghostWrite(reg + 2, UInt16(truncatingIfNeeded: v))
+    }
     /// `divu.w src,dst`: remainder in the high word, quotient in the low word; on overflow dst is unchanged.
     @inline(__always) private func md_divu(_ d: UInt32, _ s: UInt16) -> UInt32 {
         guard s != 0 else { fatalError("music driver: divu by zero") }
@@ -110,7 +117,10 @@ extension Platoon {
     /// $2800 api_init_song -> $2854.
     func md_initSong_impl(_ d0: UInt8) { md_init_song(d0) }
     /// $280e api_play -> $2990.
-    func md_play_impl() { md_play_tick() }
+    func md_play_impl() {
+        md_hostAudioSync()                                // ENHANCEMENT S10/M12/M25: host-side only (AudioEnhance.swift)
+        md_play_tick()
+    }
     /// $281c api_stop -> $28e8.
     func md_stop_impl() { md_stop_all() }
     /// $2838 api_sfx -> $3c90.
@@ -127,6 +137,7 @@ extension Platoon {
 
     /// $2854 init_song: LED/filter off, stop, build tables, set tempo/speed, reset the 4 channel structs.
     private func md_init_song(_ song: UInt8) {
+        if chip.paula.cueSongs { chip.paula.cueSong(Int(song)) }   // ENHANCEMENT M25: host bookkeeping only
         md_ledOff()
         md_stop_impl()                                    // bsr api_stop
         md_init_tables()
@@ -166,6 +177,10 @@ extension Platoon {
         md_hw(0x0b8, 0)
         md_hw(0x0c8, 0)
         md_hw(0x0d8, 0)
+        if chip.paula.ghostVoices {                       // ENHANCEMENT M12: the ghosts stop with the music
+            md_ghost(0x096, 0x000f)
+            for r in [0x0a8, 0x0b8, 0x0c8, 0x0d8] { md_ghost(r, 0) }
+        }
     }
 
     /// $2942 sfx_stop_all: every sfx ends at the next sfx_update.
@@ -180,6 +195,7 @@ extension Platoon {
         var d1: UInt16 = 0x8200
         for d7 in (0...3).reversed() { d1 |= 1 << UInt16(d7) }  // bset d7,d1 ; dbra
         md_hw(0x096, d1)
+        if chip.paula.ghostVoices { md_ghost(0x096, d1) } // ENHANCEMENT M12
         mem.w8(MD.playing, 0xff)
     }
 
@@ -224,6 +240,7 @@ extension Platoon {
         var a1 = mem.r32(a0 &+ 4)                         // pattern pointer
         var a5 = mem.r32(a0 &+ 0x18)                      // instrument
         @inline(__always) func sfxOwns() -> Bool { mem.r8(a4 &+ 0xb) != 0 }
+        let ghost = chip.paula.ghostVoices                // ENHANCEMENT M12: mirror every music write (see md_ghost)
 
         if mem.r8(a0 &+ 0x16) == 0 {                      // note started last tick: write the repeat part
             mem.w8(a0 &+ 0x16, 0xff)
@@ -235,6 +252,7 @@ extension Platoon {
                     md_hwL(a6, mem.r32(MD.silencePtr))
                     md_hw(a6 + 4, 0x20)
                 }
+                if ghost { md_ghostL(a6, mem.r32(MD.silencePtr)); md_ghost(a6 + 4, 0x20) }   // ENHANCEMENT M12
             } else {
                 let a2 = mem.r32(a5) &+ d0
                 d0 >>= 1
@@ -245,6 +263,7 @@ extension Platoon {
                     md_hwL(a6, a2)
                     md_hw(a6 + 4, d1)
                 }
+                if ghost { md_ghostL(a6, a2); md_ghost(a6 + 4, d1) }   // ENHANCEMENT M12
             }
         }
         // $2a7a chan_count
@@ -254,6 +273,7 @@ extension Platoon {
             if cnt != 1 { md_effects(d7, a0: a0, a4: a4, a5: a5, a6: a6); return true }
             // last tick of the event: DMA off (1-tick gap) unless the next byte is a tie
             if !sfxOwns() && mem.r8(a1) != 0x83 { md_hw(0x096, 1 << UInt16(d7)) }
+            if ghost && mem.r8(a1) != 0x83 { md_ghost(0x096, 1 << UInt16(d7)) }   // ENHANCEMENT M12
             return true
         }
         // $2aa4 chan_event: read pattern bytes until an event
@@ -278,10 +298,12 @@ extension Platoon {
                     md_hw(a6 + 4, mem.r16(a5 &+ 8))
                     md_hw(a6 + 8, vol)
                 }
+                if ghost { md_ghostL(a6, mem.r32(a5)); md_ghost(a6 + 4, mem.r16(a5 &+ 8)); md_ghost(a6 + 8, vol) }   // ENHANCEMENT M12
                 // $2afc note_period
                 let per = md_period(note, a5)
                 mem.w16(a4 &+ 6, per)
                 if !sfxOwns() { md_hw(a6 + 6, per) }
+                if ghost { md_ghost(a6 + 6, per) }        // ENHANCEMENT M12
                 mem.w8(a0 &+ 0x16, 0)                     // loop pending
                 md_noteCommitTie(d7, a0: a0, a1: a1)
                 return true
@@ -335,6 +357,7 @@ extension Platoon {
                     md_hwL(a6, mem.r32(MD.silencePtr))
                     md_hw(a6 + 4, 0x20)
                 }
+                if ghost { md_ghostL(a6, mem.r32(MD.silencePtr)); md_ghost(a6 + 4, 0x20) }   // ENHANCEMENT M12
                 return true
             case 0x2d2a:                                  // $83 tie: extend, no retrigger
                 md_noteCommitTie(d7, a0: a0, a1: a1)
@@ -372,6 +395,7 @@ extension Platoon {
         mem.w32(a0 &+ 4, a1)
         mem.w16(a0 &+ 0x1e, mem.r16(a0 &+ 0x1c))
         md_hw(0x096, 0x8200 | 1 << UInt16(d7))
+        if chip.paula.ghostVoices { md_ghost(0x096, 0x8200 | 1 << UInt16(d7)) }   // ENHANCEMENT M12
     }
 
     /// $2b4a chan_effects (counter >= 2 after the decrement): arpeggio, portamento, vibrato, volume envelope.
@@ -413,6 +437,7 @@ extension Platoon {
         }
         mem.w16(a4 &+ 6, d0)                              // $2bf8 fx_set_period
         if mem.r8(a4 &+ 0xb) == 0 { md_hw(a6 + 6, d0) }
+        if chip.paula.ghostVoices { md_ghost(a6 + 6, d0) }   // ENHANCEMENT M12
         // $2c06 fx_envelope: subq.b #1 ; bcc -> step only when the counter underflows
         let c = mem.r8(a0 &+ 0x2b)
         mem.w8(a0 &+ 0x2b, c &- 1)
@@ -424,6 +449,7 @@ extension Platoon {
         let vol = md_scaleVolume(UInt16(v & 0x7f))
         mem.w16(a4 &+ 8, vol)
         if mem.r8(a4 &+ 0xb) == 0 { md_hw(a6 + 8, vol) }
+        if chip.paula.ghostVoices { md_ghost(a6 + 8, vol) }  // ENHANCEMENT M12
     }
 
     // MARK: tables

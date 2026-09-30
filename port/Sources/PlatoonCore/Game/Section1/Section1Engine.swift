@@ -28,6 +28,7 @@ extension Platoon {
     /// flag the platoon destroyed.
     func s1_killedInAction() {
         k_queue_text(0x1b)
+        if enhancements.game.extendedMen { s1e_killedInAction(); return }   // ENHANCEMENT M15 (game.lives/fullPlatoon; default off)
         if mem.r16(a6 + 0x22) == 1 {
             mem.w8(S1.destroyed, 0xff)
         } else {
@@ -44,7 +45,7 @@ extension Platoon {
             k_wait_vbl()
         } while mem.r16(a6 + 0x48) != 0
         s1_hudWounds()
-        s1_moraleSub(0xc00)
+        s1_moraleSub(UInt16(truncatingIfNeeded: s1opt.difficulty.hitMorale ?? 0xc00))   // ENHANCEMENT M10
         k_hud_update()
         k_queue_text(0)
     }

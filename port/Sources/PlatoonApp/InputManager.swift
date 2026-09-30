@@ -3,29 +3,38 @@ import GameController
 import PlatoonCore
 
 /// Logical controller buttons (for modal overlays such as the pause menu, and for feature hooks).
-enum PadButton: String, CaseIterable {
+/// rsUp/rsDown/rsLeft/rsRight are the right stick used as a d-pad (only when bound, e.g. the right-half preset).
+enum PadButton: String, CaseIterable, Codable {
     case up, down, left, right, a, b, x, y, lb, rb, lt, rt, l3, r3, menu, options
+    case rsUp, rsDown, rsLeft, rsRight
 }
 
 /// Keyboard + game controller -> Amiga joystick port 2 and keyboard.
 ///
-/// Host features on top of the original mapping (the default tables are unchanged):
-///  - per-controller state OR-ed together; a disconnected controller's state is cleared (was stuck before);
-///  - `suspend()` / `resume()` (host pause): nothing reaches the game while suspended, and on resume every key or
-///    button that is still held is ignored until released ("resume-press swallowing", S4) — so the press that
-///    closes the pause menu doesn't fire a shot;
-///  - controller button events for modal overlays (`padButtonSink`) and host actions (fast-forward hold, pause-menu
-///    long press);
-///  - interceptors for feature owners (input agent): `keyInterceptors`, `padInterceptors`, `joyTransforms`.
+/// OWNER: [input]. Layers (all host-only; the translated game only ever sees Input's joystick bits and key events):
+///  1. Bindings (M7, Input/Bindings.swift): logical actions -> keys / controller buttons. The default binding set is
+///     the original app's table; keys not bound to an action pass through the Amiga keyboard table
+///     (`amigaKeys`, letters by character on non-US layouts: S3, Input/KeyLayout.swift).
+///  2. Controller extras (S2): buttons that did nothing before (X = SPACE, Y = change soldier tap, LB/LT = Y/N) and
+///     the trap-door context (A = fire + Y, B = fire + N, fresh presses only).
+///  3. Per-frame pipeline (Input/InputPipeline.swift), run from Machine.frameHook through `frameTick`: tap
+///     stretching (S15), toggle-hold and auto-fire (M13), assisted aiming (L2a), timed key taps, M14 host buttons.
+///     With every option off the joystick is written at event time exactly as before.
+/// Host features from [app]: per-controller state OR-ed together; a disconnected controller's state is cleared;
+/// `suspend()` / `resume()` with resume-press swallowing (S4); `padButtonSink` for modal overlays / host buttons;
+/// interceptors `keyInterceptors`, `padInterceptors`, `joyTransforms`.
 final class InputManager {
     weak var input: Input?
+    /// Tests: receives every Amiga key event instead of `input` (InputSelfTest).
+    var keySink: ((UInt8, Bool) -> Void)?
+    private func sendKey(_ k: UInt8, _ down: Bool) { if let s = keySink { s(k, down) } else { input?.key(k, down: down) } }
 
-    // MARK: mapping tables (defaults = the original app's mapping)
-    // Mac virtual keycodes used for the joystick
+    // MARK: original mapping tables (the passthrough keyboard table; the Original preset reproduces the rest)
+    // Mac virtual keycodes used for the joystick by the original app (kept for reference / the self-test)
     static var joyUp: Set<UInt16> = [0x7e], joyDown: Set<UInt16> = [0x7d], joyLeft: Set<UInt16> = [0x7b], joyRight: Set<UInt16> = [0x7c]
     static var joyFire: Set<UInt16> = [0x31, 0x06]  // space, Z
 
-    // Mac keycode -> Amiga raw keycode
+    // Mac keycode -> Amiga raw keycode (US positions)
     static var amigaKeys: [UInt16: UInt8] = [
         0x32: 0x00, 0x12: 0x01, 0x13: 0x02, 0x14: 0x03, 0x15: 0x04, 0x17: 0x05, 0x16: 0x06, 0x1a: 0x07, 0x1c: 0x08, 0x19: 0x09, 0x1d: 0x0a,
         0x1b: 0x0b, 0x18: 0x0c, 0x2a: 0x0d,
@@ -44,8 +53,11 @@ final class InputManager {
     // modifier keys (arrive as flagsChanged): Mac keycode -> Amiga keycode
     static var modifierKeys: [UInt16: UInt8] = [0x3a: 0x64, 0x3d: 0x65, 0x38: 0x60, 0x3c: 0x61, 0x3b: 0x63, 0x3e: 0x63]
     static let capsLock: UInt16 = 0x39
+    /// Amiga keys that type a character in the level-2 keymap (name entry): they are not joystick keys while the
+    /// name is typed on the keyboard (S18).
+    static let typingAmigaKeys: Set<UInt8> = Set(Array(0x00...0x0d) + Array(0x10...0x1b) + Array(0x20...0x2a) + Array(0x31...0x3a) + [0x40, 0x41, 0x44])
 
-    // MARK: feature hooks (input agent). All run on the main thread.
+    // MARK: feature hooks. All run on the main thread.
     /// Consulted for every key down/up before the default mapping; return true to consume the event.
     /// (Host hotkeys such as Esc / fast-forward are handled by the app before these.)
     var keyInterceptors: [(_ code: UInt16, _ down: Bool, _ event: NSEvent?) -> Bool] = []
@@ -59,33 +71,75 @@ final class InputManager {
     var padButtonSink: ((PadButton, Bool) -> Bool)?
     /// Controller connected / disconnected (after the state was updated).
     var onControllerChange: ((_ connected: Bool, _ controller: GCController) -> Void)?
+    /// Controls window: the next controller button press is delivered here instead of the game (M7 capture).
+    var capturePad: ((PadButton) -> Void)?
 
     struct JoyState: Equatable { var up = false, down = false, left = false, right = false, fire = false }
 
+    // MARK: configuration (input agent)
+    /// The binding table (M7). Setting it re-resolves every key.
+    var bindings = BindingSet.standard { didSet { resolverGeneration = -1; sync() } }
+    /// S2 trap-door context for controller fire buttons.
+    var padContext = true
+    /// Stick dead zone (d-pad + left stick, right stick as buttons).
+    var deadZone: Float = 0.4
+    /// Frames a controller "tap" (change soldier, context Y/N) holds its Amiga key.
+    var padTapFrames = 5
+    /// Per-frame features (S15, M13, L2a).
+    let pipeline = InputPipeline()
+    let aim = AimAssist()
+    /// M14: write jump/crouch host buttons (set by the install hook when the run has s0.explicitJumpCrouch).
+    var m14Enabled = false
+
     // MARK: state
-    /// Keys physically held (Mac keycodes), and the subset whose press was forwarded to the game.
+    /// Keys physically held (Mac keycodes incl. modifiers), and the subset whose press was forwarded to the game.
     private var physicalKeys = Set<UInt16>()
     private var keysDown = Set<UInt16>()
     /// Keys held when input resumed: ignored until released.
     private var swallowedKeys = Set<UInt16>()
-    private var modifiersDown = Set<UInt16>()         // forwarded to the game
-    private var physicalModifiers = Set<UInt16>()
-    private var swallowedModifiers = Set<UInt16>()
     private(set) var suspended = false
+    /// What each forwarded key press did (so the release undoes exactly that, even if bindings changed meanwhile).
+    struct KeyOutput: Equatable {
+        var amiga: [UInt8] = []
+        var joy = Set<JoyBit>()
+        var host = Set<InputAction>()
+        /// The key types a character in the name entry (its joystick bits are ignored while typing, S18).
+        var typing = false
+    }
+    private var pressed: [UInt16: KeyOutput] = [:]
+    /// Amiga keys held by the host (reference counts: several Mac keys / buttons / taps may hold the same key).
+    private var amigaHeld: [UInt8: Int] = [:]
+    private var amigaDownFrame: [UInt8: UInt64] = [:]
+    /// Deferred releases (taps, S15 minimum hold): each entry holds one reference until `frame`.
+    private var pendingUps: [(key: UInt8, frame: UInt64)] = []
+    /// Emulated frame number of the last frameTick (0 before the first).
+    private(set) var frame: UInt64 = 0
+    /// F1 context as of the last emulated frame (nil before the first).
+    private(set) var context: GameContext?
 
     private final class Pad {
         let controller: GCController
         var buttons = Set<PadButton>()      // physically pressed
+        var rightStick = CGPoint.zero
         init(_ c: GCController) { controller = c }
     }
     private var pads: [ObjectIdentifier: Pad] = [:]
     /// Buttons consumed by a sink/interceptor or swallowed at resume: ignored until released.
     private var padIgnored = Set<PadButton>()
-    private var padMenuSent = false, padOptionsSent = false
+    /// Amiga keys a controller button holds (released with the button).
+    private var padKeysSent: [PadButton: [UInt8]] = [:]
     /// Controller buttons the app keeps for itself (never mapped to the game): e.g. .l3 for fast-forward.
     var hostPadButtons = Set<PadButton>()
 
     var controllerCount: Int { pads.count }
+    var controllers: [GCController] { pads.values.map(\.controller) }
+    /// Right stick of all controllers (strongest deflection), x right, y up; -1...1.
+    var rightStick: CGPoint {
+        var best = debugRightStick
+        for p in pads.values where hypot(p.rightStick.x, p.rightStick.y) > hypot(best.x, best.y) { best = p.rightStick }
+        return best
+    }
+    var debugRightStick = CGPoint.zero
 
     init() {
         NotificationCenter.default.addObserver(forName: .GCControllerDidConnect, object: nil, queue: .main) { [weak self] n in
@@ -98,27 +152,107 @@ final class InputManager {
         GCController.startWirelessControllerDiscovery {}
     }
 
+    // MARK: key resolution
+
+    private var resolverGeneration = -1
+    private var keyActions: [UInt16: [InputAction]] = [:]
+
+    private func rebuildResolver() {
+        guard resolverGeneration != KeyLayout.generation else { return }
+        resolverGeneration = KeyLayout.generation
+        var t: [UInt16: [InputAction]] = [:]
+        for a in InputAction.allCases {
+            for k in bindings[a].keys { if let c = k.keycode, !(t[c]?.contains(a) ?? false) { t[c, default: []].append(a) } }
+        }
+        keyActions = t
+    }
+
+    /// The Amiga key Mac key `code` types when it is not bound to an Amiga-key action.
+    static func passthrough(_ code: UInt16) -> UInt8? {
+        if let m = modifierKeys[code] { return m }
+        if InputSettings.layoutLetters, let us = KeyLayout.usEquivalent(code) { return amigaKeys[us] }
+        return amigaKeys[code]
+    }
+
+    /// What pressing Mac key `code` does now.
+    func resolve(_ code: UInt16) -> KeyOutput {
+        rebuildResolver()
+        let acts = keyActions[code] ?? []
+        var out = KeyOutput()
+        let base = InputManager.passthrough(code)
+        out.typing = base.map { InputManager.typingAmigaKeys.contains($0) } ?? false
+        let keys = acts.compactMap(\.amigaKey)
+        out.amiga = keys.isEmpty ? (base.map { [$0] } ?? []) : Array(Set(keys)).sorted()
+        for a in acts {
+            if a == .turboFire { out.host.insert(a) } else if let j = a.joyBit { out.joy.insert(j) }
+            if a == .jump || a == .crouch { out.host.insert(a) }
+        }
+        return out
+    }
+
+    // MARK: Amiga keys (reference counted, frame-timed releases)
+
+    private func amigaPress(_ k: UInt8) {
+        let n = amigaHeld[k, default: 0]
+        amigaHeld[k] = n + 1
+        if n == 0 { sendKey(k, true); amigaDownFrame[k] = frame }
+    }
+    private func amigaRelease(_ k: UInt8, minHold: Int = 0) {
+        guard let n = amigaHeld[k], n > 0 else { return }
+        if minHold > 0, let d = amigaDownFrame[k], frame < d &+ UInt64(minHold), n == 1 {
+            pendingUps.append((k, d &+ UInt64(minHold)))       // keeps the reference until then
+            return
+        }
+        if n == 1 { amigaHeld[k] = nil; sendKey(k, false) } else { amigaHeld[k] = n - 1 }
+    }
+    /// Presses Amiga key `k` for `frames` emulated frames (controller taps).
+    func amigaTap(_ k: UInt8, frames: Int) {
+        amigaPress(k)
+        pendingUps.append((k, frame &+ UInt64(max(1, frames))))
+    }
+    /// S15: minimum hold for released Amiga keys (0 = off, or outside the play screens).
+    private var keyMinHold: Int {
+        guard pipeline.stretchFrames > 0, let c = context, InputPipeline.stretchScreens.contains(c.screen) else { return 0 }
+        return pipeline.stretchFrames
+    }
+
     // MARK: keyboard
 
     /// A modifier key changed state (NSEvent flagsChanged).
     func modifierChanged(_ code: UInt16, flags: NSEvent.ModifierFlags) {
         if code == InputManager.capsLock {           // Amiga CAPS LOCK is a normal key: send a tap per toggle
             if suspended { return }
-            input?.key(0x62, down: true); input?.key(0x62, down: false); return
+            sendKey(0x62, true); sendKey(0x62, false); return
         }
-        guard let k = InputManager.modifierKeys[code] else { return }
-        let isDown: Bool
+        guard InputManager.modifierKeys[code] != nil else { return }
+        // Left and right modifiers share one class flag: use the device-dependent bits (NX_DEVICEL/R*KEYMASK)
+        // so releasing one Option while the other is held is seen. Synthetic events without them: toggle.
+        let raw = flags.rawValue
+        let device: UInt
+        let cls: NSEvent.ModifierFlags
         switch code {
-        case 0x3a, 0x3d: isDown = flags.contains(.option)
-        case 0x38, 0x3c: isDown = flags.contains(.shift)
-        default: isDown = flags.contains(.control)
+        case 0x3a: device = 0x20; cls = .option
+        case 0x3d: device = 0x40; cls = .option
+        case 0x38: device = 0x02; cls = .shift
+        case 0x3c: device = 0x04; cls = .shift
+        case 0x3b: device = 0x01; cls = .control
+        default: device = 0x2000; cls = .control
         }
-        if isDown { physicalModifiers.insert(code) } else { physicalModifiers.remove(code); swallowedModifiers.remove(code) }
-        if suspended || swallowedModifiers.contains(code) { return }
-        let wasDown = modifiersDown.contains(code)
-        if isDown == wasDown { return }
-        if isDown { modifiersDown.insert(code) } else { modifiersDown.remove(code) }
-        input?.key(k, down: isDown)
+        let isDown: Bool
+        if !flags.contains(cls) { isDown = false }
+        else if raw & 0x2067 != 0 { isDown = raw & device != 0 }
+        else { isDown = !physicalKeys.contains(code) }
+        if isDown {
+            guard !physicalKeys.contains(code) else { return }
+            physicalKeys.insert(code); swallowedKeys.remove(code)
+            if suspended || keysDown.contains(code) { return }
+            press(code)
+        } else {
+            guard physicalKeys.contains(code) || keysDown.contains(code) else { return }
+            physicalKeys.remove(code)
+            if swallowedKeys.remove(code) != nil { return }
+            if keysDown.contains(code) { release(code) }
+        }
     }
 
     func keyDown(_ code: UInt16, isRepeat: Bool, event: NSEvent? = nil) {
@@ -127,9 +261,8 @@ final class InputManager {
         swallowedKeys.remove(code)          // a fresh (non-repeat) press: its earlier release was missed
         if suspended { return }
         for f in keyInterceptors where f(code, true, event) { return }
-        keysDown.insert(code)
-        if let k = InputManager.amigaKeys[code] { input?.key(k, down: true) }
-        sync()
+        if keysDown.contains(code) { return }
+        press(code)
     }
     func keyUp(_ code: UInt16, event: NSEvent? = nil) {
         physicalKeys.remove(code)
@@ -140,24 +273,37 @@ final class InputManager {
             return
         }
         for f in keyInterceptors where f(code, false, event) { break }
-        keysDown.remove(code)
-        if let k = InputManager.amigaKeys[code] { input?.key(k, down: false) }
+        release(code)
+    }
+
+    private func press(_ code: UInt16) {
+        let out = resolve(code)
+        keysDown.insert(code)
+        pressed[code] = out
+        for k in out.amiga { amigaPress(k) }
         sync()
     }
+    private func release(_ code: UInt16) {
+        keysDown.remove(code)
+        let out = pressed.removeValue(forKey: code) ?? KeyOutput()
+        let hold = keyMinHold
+        for k in out.amiga { amigaRelease(k, minHold: hold) }
+        sync()
+    }
+
     /// Releases everything the game currently sees as held (window lost focus, pause, reset).
     func releaseAll() {
-        for c in keysDown { if let k = InputManager.amigaKeys[c] { input?.key(k, down: false) } }
-        keysDown.removeAll()
-        for c in modifiersDown { if let k = InputManager.modifierKeys[c] { input?.key(k, down: false) } }
-        modifiersDown.removeAll()
-        if padMenuSent { padMenuSent = false; input?.key(0x42, down: false) }
-        if padOptionsSent { padOptionsSent = false; input?.key(0x59, down: false) }
+        keysDown.removeAll(); pressed.removeAll()
+        for (k, _) in amigaHeld.sorted(by: { $0.key < $1.key }) { sendKey(k, false) }
+        amigaHeld.removeAll(); pendingUps.removeAll(); padKeysSent.removeAll()
         padIgnored.formUnion(allPadButtons)
+        pipeline.reset()
+        aim.releaseAll()
         sync()
     }
     /// After a focus change the physical key state is unknown: forget it too.
     func forgetPhysicalKeys() {
-        physicalKeys.removeAll(); physicalModifiers.removeAll(); swallowedKeys.removeAll(); swallowedModifiers.removeAll()
+        physicalKeys.removeAll(); swallowedKeys.removeAll()
     }
 
     // MARK: host pause
@@ -173,7 +319,6 @@ final class InputManager {
         guard suspended else { return }
         suspended = false
         swallowedKeys = physicalKeys
-        swallowedModifiers = physicalModifiers
         padIgnored = allPadButtons
         sync()
     }
@@ -198,6 +343,7 @@ final class InputManager {
     func injectDisconnect() {
         let held = debugPadButtons
         debugPadButtons.removeAll()
+        debugRightStick = .zero
         for b in held where !allPadButtons.contains(b) { buttonEdge(b, down: false) }
         sync()
     }
@@ -219,12 +365,15 @@ final class InputManager {
         onControllerChange?(false, c)
     }
 
-    private static func buttons(_ g: GCExtendedGamepad) -> Set<PadButton> {
+    static func buttons(_ g: GCExtendedGamepad, deadZone dz: Float = 0.4) -> Set<PadButton> {
         var s = Set<PadButton>()
         let x = max(-1, min(1, g.dpad.xAxis.value + g.leftThumbstick.xAxis.value))
         let y = max(-1, min(1, g.dpad.yAxis.value + g.leftThumbstick.yAxis.value))
-        if x < -0.4 { s.insert(.left) }; if x > 0.4 { s.insert(.right) }
-        if y > 0.4 { s.insert(.up) }; if y < -0.4 { s.insert(.down) }
+        if x < -dz { s.insert(.left) }; if x > dz { s.insert(.right) }
+        if y > dz { s.insert(.up) }; if y < -dz { s.insert(.down) }
+        let rx = g.rightThumbstick.xAxis.value, ry = g.rightThumbstick.yAxis.value
+        if rx < -dz { s.insert(.rsLeft) }; if rx > dz { s.insert(.rsRight) }
+        if ry > dz { s.insert(.rsUp) }; if ry < -dz { s.insert(.rsDown) }
         if g.buttonA.isPressed { s.insert(.a) }; if g.buttonB.isPressed { s.insert(.b) }
         if g.buttonX.isPressed { s.insert(.x) }; if g.buttonY.isPressed { s.insert(.y) }
         if g.leftShoulder.isPressed { s.insert(.lb) }; if g.rightShoulder.isPressed { s.insert(.rb) }
@@ -239,7 +388,8 @@ final class InputManager {
     private func padChanged(_ id: ObjectIdentifier, _ g: GCExtendedGamepad) {
         guard let p = pads[id] else { return }
         let before = allPadButtons
-        p.buttons = InputManager.buttons(g)
+        p.buttons = InputManager.buttons(g, deadZone: deadZone)
+        p.rightStick = CGPoint(x: CGFloat(g.rightThumbstick.xAxis.value), y: CGFloat(g.rightThumbstick.yAxis.value))
         let after = allPadButtons
         for b in PadButton.allCases where before.contains(b) != after.contains(b) { buttonEdge(b, down: after.contains(b)) }
         sync()
@@ -247,7 +397,9 @@ final class InputManager {
 
     /// A merged button changed state.
     private func buttonEdge(_ b: PadButton, down: Bool) {
+        if down, let cap = capturePad { capturePad = nil; padIgnored.insert(b); cap(b); return }
         if !down && padIgnored.remove(b) != nil {
+            for k in padKeysSent.removeValue(forKey: b) ?? [] { amigaRelease(k) }
             _ = padButtonSink?(b, false)       // let the sink see releases of what it consumed (long-press timing)
             return
         }
@@ -260,35 +412,115 @@ final class InputManager {
             for f in padInterceptors where f(b, false) { break }
         }
         if hostPadButtons.contains(b) { return }
-        // Menu = in-game pause (TAB), Options = cycle music/fx (F10)
-        switch b {
-        case .menu: if down != padMenuSent { padMenuSent = down; input?.key(0x42, down: down) }
-        case .options: if down != padOptionsSent { padOptionsSent = down; input?.key(0x59, down: down) }
-        default: break
+        padAction(b, down: down)
+    }
+
+    /// Amiga-key actions of a controller button (the joystick part is merged in `sync`).
+    private func padAction(_ b: PadButton, down: Bool) {
+        let acts = bindings.actions(forPad: b)
+        if down {
+            var held: [UInt8] = []
+            for a in acts {
+                guard let k = a.amigaKey else { continue }
+                if a.padTap { amigaTap(k, frames: padTapFrames) } else { amigaPress(k); held.append(k) }
+            }
+            // S2 context layer: at the trap-door prompt a fresh press of a fire button answers (A = yes, B = no; a
+            // button bound to SPACE = no). Only fresh presses: a fire held into the prompt doesn't answer.
+            // The answering press is consumed (no fire), so after "No" the player doesn't shoot on return to the
+            // jungle while the button is still held.
+            if padContext, context?.screen == .trapDoorPrompt, acts.contains(.fire) || acts.contains(.space) {
+                amigaTap(acts.contains(.fire) && b != .b ? 0x15 : 0x36, frames: padTapFrames + 1)
+                padIgnored.insert(b)
+            }
+            if !held.isEmpty { padKeysSent[b, default: []] += held }
+        } else {
+            let hold = keyMinHold
+            for k in padKeysSent.removeValue(forKey: b) ?? [] { amigaRelease(k, minHold: hold) }
         }
     }
 
     /// Sends a TAB tap as if the controller Menu button had been pressed and released (pause-menu long-press
     /// mode sends TAB on release of a short press).
-    func tapPadMenu() { input?.key(0x42, down: true); input?.key(0x42, down: false) }
+    func tapPadMenu() { sendKey(0x42, true); sendKey(0x42, false) }
 
-    /// S18 keyboard name entry: keyboard keys don't press joystick fire (letters and Space type the name).
+    /// S18 keyboard name entry: keyboard keys that type don't press joystick buttons (letters and Space type).
     var keyboardFireSuppressed = false { didSet { if keyboardFireSuppressed != oldValue { sync() } } }
+
+    // MARK: joystick merge
+
+    /// Host actions (jump, crouch, turbo fire) held now by keys or buttons.
+    private(set) var hostActions = Set<InputAction>()
+    /// Keyboard/controller joystick before the per-frame pipeline (tests).
+    private(set) var rawJoy = JoyState()
+
+    private func merged() -> JoyState {
+        let live = allPadButtons.subtracting(padIgnored).subtracting(hostPadButtons)
+        var j = JoyState()
+        var host = Set<InputAction>()
+        guard !suspended else { hostActions = []; return j }
+        for b in live {
+            for a in bindings.actions(forPad: b) {
+                if a == .turboFire || a == .jump || a == .crouch { host.insert(a) } else if let bit = a.joyBit { j[bit] = true }
+            }
+        }
+        for c in keysDown {
+            guard let o = pressed[c] else { continue }
+            host.formUnion(o.host)
+            if keyboardFireSuppressed && o.typing { continue }
+            for bit in o.joy { j[bit] = true }
+        }
+        for t in joyTransforms { t(&j) }
+        hostActions = host
+        return j
+    }
 
     private func sync() {
         guard let i = input else { return }
-        let live = allPadButtons.subtracting(padIgnored).subtracting(hostPadButtons)
-        var j = JoyState()
-        if !suspended {
-            j.up = live.contains(.up) || !keysDown.isDisjoint(with: InputManager.joyUp)
-            j.down = live.contains(.down) || !keysDown.isDisjoint(with: InputManager.joyDown)
-            j.left = live.contains(.left) || !keysDown.isDisjoint(with: InputManager.joyLeft)
-            j.right = live.contains(.right) || !keysDown.isDisjoint(with: InputManager.joyRight)
-            j.fire = !live.isDisjoint(with: [.a, .b, .rt, .rb]) || (!keyboardFireSuppressed && !keysDown.isDisjoint(with: InputManager.joyFire))
-            for t in joyTransforms { t(&j) }
-        }
+        rawJoy = merged()
+        pipeline.observe(rawJoy, turbo: hostActions.contains(.turboFire), context: context)
+        if pipeline.active || aim.active { return }       // the per-frame pipeline writes Input (frameTick)
+        write(rawJoy, to: i)
+    }
+    private func write(_ j: JoyState, to i: Input) {
         i.up = j.up; i.down = j.down; i.left = j.left; i.right = j.right; i.fire = j.fire
     }
     /// Re-applies the merged state (call after changing mapping tables or transforms).
-    func refresh() { sync() }
+    func refresh() { resolverGeneration = -1; sync() }
+
+    // MARK: per emulated frame (Machine.frameHook, game thread parked)
+
+    /// Runs the frame-timed features: deferred key releases, S15/M13 pipeline, L2 aiming, M14 buttons.
+    func frameTick(machine m: Machine, context c: GameContext, directAim: Bool = false) {
+        frame = m.frameCount
+        context = c
+        if !pendingUps.isEmpty {
+            let due = pendingUps.filter { $0.frame <= frame }
+            pendingUps.removeAll { $0.frame <= frame }
+            for u in due { amigaRelease(u.key) }
+        }
+        guard let i = input else { return }
+        let userDirs = rawJoy.anyDirection
+        let aimOut = suspended ? nil : aim.tick(machine: m, context: c, userDirections: userDirs, stick: rightStick, directAim: directAim)
+        if let a = aimOut {
+            if a.spaceDown != aimSpaceHeld { aimSpaceHeld = a.spaceDown; if a.spaceDown { amigaPress(0x40) } else { amigaRelease(0x40) } }
+        } else if aimSpaceHeld { aimSpaceHeld = false; amigaRelease(0x40) }
+        if pipeline.active || aim.active {
+            var j = suspended ? JoyState() : pipeline.tick(frame: frame, raw: rawJoy, turbo: hostActions.contains(.turboFire), context: c)
+            if let a = aimOut {
+                if let d = a.directions { j.up = d.up; j.down = d.down; j.left = d.left; j.right = d.right }
+                if a.fire { j.fire = true }
+            }
+            write(j, to: i)
+        }
+        if m14Enabled {
+            let b = Section0HostButtons.of(m)
+            let jump = !suspended && hostActions.contains(.jump), crouch = !suspended && hostActions.contains(.crouch)
+            if b.jump != jump { b.jump = jump }
+            if b.crouch != crouch { b.crouch = crouch }
+        }
+    }
+    private var aimSpaceHeld = false
+
+    /// Pipeline / aim options changed: write the current state now.
+    func configurationChanged() { sync(); if !(pipeline.active || aim.active), let i = input { write(rawJoy, to: i) } }
 }

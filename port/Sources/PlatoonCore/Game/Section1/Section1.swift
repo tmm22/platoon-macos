@@ -176,12 +176,15 @@ extension Platoon {
         cpu(S1Cyc.entryTables)
         k_clear_screens()
         s1_textScreen(S1.txtIntro)
-        mem.w32(a6 + 0x1e, a6)
-        mem.w16(a6 + 0x22, 0)
-        for i in 0..<5 {
-            let r = a6 + UInt32(6 * i)
-            mem.w16(r, 9); mem.w16(r + 2, 0x90); mem.w16(r + 4, 0)
+        if !s1e_keepPlatoon() {                                  // ENHANCEMENT M15 (game.fullPlatoon; default off)
+            mem.w32(a6 + 0x1e, a6)
+            mem.w16(a6 + 0x22, 0)
+            for i in 0..<5 {
+                let r = a6 + UInt32(6 * i)
+                mem.w16(r, 9); mem.w16(r + 2, 0x90); mem.w16(r + 4, 0)
+            }
         }
+        if s1opt.needsScratch || s1opt.randomSeed != 0 { s1e_sectionEntry() }   // ENHANCEMENT M4/M3/L3 (default off)
         mem.w32(a6 + 0x4a, S1.messages)
         mem.w8(a6 + 0x54, 0xff)
         mem.w16(S1.mapAtEntry, mem.r16(a6 + 0x24))
@@ -213,10 +216,11 @@ extension Platoon {
         mem.w8(S1.walked, 0)
         let r = UInt8(truncatingIfNeeded: k_random())
         mem.w8(S1.spawnTimer, (r & 3) &+ 2)
-        mem.w16(a6 + 0x24, mem.r16(S1.mapAtEntry))
+        let keepItems = s1opt.keepItems && s1e_lifeStartKeepItems()     // ENHANCEMENT M4 (s1.keepItems; default off)
+        if !keepItems { mem.w16(a6 + 0x24, mem.r16(S1.mapAtEntry)) }
         mem.w32(S1.colLeft, 0)
         mem.w32(S1.colRight, 0xa)
-        if mem.r16(a6 + 0x24) == 0 {
+        if mem.r16(a6 + 0x24) == 0 && !s1e_exploredWindow {             // ENHANCEMENT M3 (s1.exploredMap; default off)
             mem.w32(S1.colLeft, 0xa)
             mem.w32(S1.colRight, 0x14)
         }
@@ -229,13 +233,16 @@ extension Platoon {
         mem.w8(S1.posX, 0x15)
         mem.w8(S1.posY, 3)
         mem.w16(a6 + 0x2a, 3)
-        mem.w16(a6 + 0x26, 0)
-        mem.w16(a6 + 0x2c, 0)
-        var a0 = S1.items
-        while true {
-            let d0 = mem.r16(a0)
-            if d0 & 0x8000 != 0 { break }
-            mem.w16(a0, d0 & ~0x80); a0 &+= 2
+        if s1opt.needsScratch { s1e_lifeStartPosition() }             // ENHANCEMENT M4 (s1.checkpointRespawn; default off)
+        if !keepItems {                                                 // ENHANCEMENT M4 (s1.keepItems; default off)
+            mem.w16(a6 + 0x26, 0)
+            mem.w16(a6 + 0x2c, 0)
+            var a0 = S1.items
+            while true {
+                let d0 = mem.r16(a0)
+                if d0 & 0x8000 != 0 { break }
+                mem.w16(a0, d0 & ~0x80); a0 &+= 2
+            }
         }
         mem.w8(S1.inRoom, 0)
         s1_copyTunnelPalette()
@@ -306,7 +313,7 @@ extension Platoon {
                 mem.w8(S1.spawnTimer, t)
                 if t == 0 {
                     let r = UInt8(truncatingIfNeeded: k_random())
-                    mem.w8(S1.spawnTimer, (r & 0x31) &+ 0x10)
+                    mem.w8(S1.spawnTimer, (r & 0x31) &+ UInt8(truncatingIfNeeded: s1opt.difficulty.spawnDelay ?? 0x10))  // ENHANCEMENT M10
                     if mem.r8(S1.inRoom) == 0 { s1_spawnEnemy() }
                 }
             }

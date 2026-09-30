@@ -8,6 +8,7 @@ extension Platoon {
     func s0PlSt0Walk() {
         v0.px = 0x94; v0.py = 0x50                       // the player never moves on screen
         if v0.align != 0 { s0PlKeepWalking(); return }
+        if enhancements.section0.explicitJumpCrouch { s0M14Walk(); return }   // ENHANCEMENT M14 (default off)
         let d0 = UInt16(v0.input) & 5
         if d0 == 0 || d0 == 5 { s0PlHorizontal(); return }
         let a0 = v0.pmapptr
@@ -211,7 +212,7 @@ extension Platoon {
         let a5 = s0Man
         mem.w16(a5 + 4, mem.r16(a5 + 4) &+ 1)
         if mem.r16(a5 + 4) >= 5 { mem.w16(a5 + 4, 4) }
-        s0MoraleSub(0x800)
+        s0MoraleSub(UInt16(enhancements.section0.difficulty.hitMorale ?? 0x800))   // ENHANCEMENT M10 (nil = $800)
         k_hud_wounds()
         s0DissolveOut(a1: Platoon.s0DissolveA1AfterHudWounds, d4: Platoon.s0DissolveD4AfterHudWounds)
         if v0.morale == 0 { s0Exit() }
@@ -355,6 +356,7 @@ extension Platoon {
             k_queue_text(0x18)                               // PLEASE DON'T ATTEMPT SUICIDE!!
             return
         }
+        if enhancements.section0.bridgeFailsafeOn && s0BridgeFailsafeBlocks() { return }   // ENHANCEMENT S6 (default off)
         // scroll_right $18a3e
         if v0.align == 0 {
             v0.probeY = v0.py &+ 8

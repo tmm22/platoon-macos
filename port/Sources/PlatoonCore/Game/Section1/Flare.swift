@@ -22,6 +22,7 @@ extension Platoon {
 
     func s1_flareEnterBody(_ a3: UInt32) -> Never {
         tickPoint(0x18b0e)
+        if s1opt.needsScratch { s1e_flareEntered() }                  // ENHANCEMENT M4 (default off)
         s1_fadeOutAndClear()
         s1_recolourCrosshairC4()
         for k in 0..<8 { mem.w8(S1.spawnSlots + UInt32(4 * k), 0) }
@@ -41,7 +42,7 @@ extension Platoon {
         s1_decodeBackground()
         mem.w32(S1.colLeft, 0)
         mem.w16(S1.spawnCount, 0x24)
-        mem.w16(S1.spawnBase, 0x90)
+        mem.w16(S1.spawnBase, UInt16(truncatingIfNeeded: s1opt.difficulty.flareSpawnBase ?? 0x90))   // ENHANCEMENT M10
         s1_copyBackground()
         s1_swap()
         s1_copyBackground()
@@ -76,7 +77,10 @@ extension Platoon {
             if s1_subW(S1.spawnCount, 1) == 0 { s1_flareSpawn() }
             // flare_loop_objects
             s1_flareObjects()
-            if mem.r8(S1.soldierLost) != 0 { s1_exitBackToTunnels() }
+            if mem.r8(S1.soldierLost) != 0 {
+                if s1opt.flareRetry && s1e_active { s1e_flareRetry() }  // ENHANCEMENT M4 (s1.flareRetry; default off)
+                s1_exitBackToTunnels()
+            }
             if mem.r16(a6 + 0x2e) == 0 { s1_exitMoraleZero() }
             if mem.r8(S1.destroyed) != 0 { s1_exitPlatoonDestroyed() }
             var countdown = true
@@ -101,7 +105,7 @@ extension Platoon {
     /// $18c08-$18ca0: spawn countdown expired: new enemy in a free record and a free column.
     func s1_flareSpawn() {
         let d1 = (mem.r16(S1.spawnBase) &+ mem.r16(S1.killBonus)) >> 2
-        mem.w16(S1.spawnCount, d1)
+        mem.w16(S1.spawnCount, d1 == 0 && s1opt.fixFlareSpawn ? 1 : d1)   // ENHANCEMENT S9d (default off)
         var a0 = S1.list1Enemies
         var free = false
         for _ in 0..<5 {
@@ -309,7 +313,8 @@ extension Platoon {
 
     /// $19048 h_crosshair (list 2 [0]): accelerating cursor; fire shoots, or fires a flare on the flare box.
     func s1_hFlareCrosshair(_ a3: UInt32) {
-        let d0 = s1_joystick()
+        var d0 = s1_joystick()
+        if s1opt.directAim && s1e_aimAt(a3, .flare) { d0 &= 0xf0 }   // ENHANCEMENT L2 (s1.directAim; default off)
         var d1: UInt16 = 0
         if d0 & 0xf == 0 {
             mem.w16(S1.crossSpeed, 4)
@@ -403,7 +408,7 @@ extension Platoon {
         let e = s1_addW(a3 + 0xe, 1)
         var d0 = (mem.r16(S1.palIndex) >> 2) &- 3
         if d0 & 0x8000 != 0 { d0 = 0 &- d0 }
-        d0 = ((d0 &+ 1) << 4) &- 0xd
+        d0 = ((d0 &+ 1) << 4) &- UInt16(truncatingIfNeeded: s1opt.difficulty.flareShotSlack ?? 0xd)   // ENHANCEMENT M10
         if Int16(bitPattern: d0) < Int16(bitPattern: e) { s1_enemyHitsPlayer(a3); return }
         if mem.r16(a3 + 0xe) & 7 != 0 { return }
         s1_fx(0x83)
@@ -423,7 +428,7 @@ extension Platoon {
         mem.w8(S1.spawnSlots &+ s1_sx(mem.r16(a3 + 0x10)), 0)
         mem.w8(a3, 0)
         mem.w16(S1.spawnCount, 0x24)
-        mem.w16(S1.spawnBase, 0x90)
+        mem.w16(S1.spawnBase, UInt16(truncatingIfNeeded: s1opt.difficulty.flareSpawnBase ?? 0x90))   // ENHANCEMENT M10
         mem.w16(S1.killBonus, 0)
         mem.w8(S1.lightCycle, 0xff)
         s1_playerHitFlare()

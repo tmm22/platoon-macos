@@ -457,6 +457,7 @@ extension Platoon {
     /// `a1`/`d4` are the caller's register values (the dissolve's "random" source; see s0Dissolve).
     func s0DissolveOut(a1: UInt32, d4: UInt16) {
         s0Dbg("019936")
+        s0WideInvalidate()                                // L4 host latch (no-op unless a host attached one)
         s0CopyBackbufTo68000()
         s0Dissolve(masks: 0x1a058, step: 0x20, a1: a1, d4: d4)
     }

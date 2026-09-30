@@ -24,8 +24,17 @@ extension Platoon {
         a0 = a6
         mem.w32(a6 &+ 0x1e, a0)
         mem.w16(a6 &+ 0x22, 0)
+        // ENHANCEMENT M15 (game.fullPlatoon, default off): the jungle platoon carries over (no re-init); the first
+        // living man plays (the same choice as k_section_start's M15 hook).
+        if enhancements.game.fullPlatoon, let i = s2_firstLivingMan() {
+            let a5 = a6 &+ UInt32(6 * i)
+            mem.w32(a6 &+ 0x1e, a5)
+            mem.w16(a6 &+ 0x22, UInt16(i))
+            s2_fj_restart(a5: a5)
+        }
+        let grenades = UInt16(s2Diff.grenades ?? 9)  // ENHANCEMENT M10 (s2.diff.grenades, nil = original 9)
         for _ in 0...4 {                            // men: grenades 9, ammo $90, hits 0
-            mem.w16(a0, 9)
+            mem.w16(a0, grenades)
             mem.w16(a0 &+ 2, 0x90)
             mem.w16(a0 &+ 4, 0)
             a0 &+= 6
@@ -40,9 +49,11 @@ extension Platoon {
         mem.w32(a6 &+ 0x1e, a5)
         let a0 = S2.transStart
         mem.w16(a6 &+ 0x6a, 0x32)                   // timer frame sub-counter
-        mem.w16(a6 &+ 0x6c, 0x200)                  // timer 02:00 (BCD mm:ss)
+        mem.w16(a6 &+ 0x6c, s2Diff.timer.map { Platoon.s2_bcdTimer(seconds: $0) } ?? 0x200)   // timer 02:00 (BCD
+                                                    // mm:ss); ENHANCEMENT M10 s2.diff.timer (nil = original)
         mem.w32(S2.vHints, mem.r32(S2.hintsInit))   // hints = 00 01 06 07
         var d0: UInt8 = 0
+        if s2Opt.compassAssist { mem.w16(a6 &+ 0x26, 1) }   // ENHANCEMENT M5 (s2.compassAssist, default off)
         if mem.r16(a6 &+ 0x26) == 0 { d0 = 0x0b }   // no compass: hint 0 = "A COMPASS WOULD HELP !"
         mem.w8(S2.vHints, d0)
         k_hud_init()
@@ -75,7 +86,8 @@ extension Platoon {
         }
         // room_enter_done $170f4
         tickPoint(0x170f4)
-        mem.w16(S2.vIdleCount, 0x64)
+        if s2NavLog != nil { s2_navLogRoom() }       // verification log (PLATOON_S2NAV), read-only
+        mem.w16(S2.vIdleCount, s2_idleLong())        // $64; ENHANCEMENT M10 s2.diff.sniperDelay (nil = original)
         mem.w16(S2.vSpawnDelay, 0x14)
         mem.w16(S2.vFireCooldown, 0x14)
         mem.w16(S2.vHitSfx, 0x80)
@@ -90,6 +102,7 @@ extension Platoon {
         while true {
             snapshotPoint(0x17118)                   // savestate point (Game/Snapshot; no-op unless a host asked)
             tickPoint(0x17118)
+            if s2NavLog != nil { s2_navLogDrawn() }  // verification log (PLATOON_S2NAV), read-only
             s2PaceIndex += 1                         // verification aid only (see s2_paceToReference)
             s2_dbg("head")
             k_hud_update()
@@ -149,7 +162,7 @@ extension Platoon {
             let d0 = mem.r16(S2.playerY)
             if d0 != mem.r16(S2.vIdleDepth) {         // idle_reset $17332
                 mem.w16(S2.vIdleDepth, d0)
-                mem.w16(S2.vIdleCount, 0x32)
+                mem.w16(S2.vIdleCount, s2_idleReset())   // $32; ENHANCEMENT M10 s2.diff.sniperDelay
                 return
             }
             let c = mem.r16(S2.vIdleCount) &- 1
@@ -204,7 +217,7 @@ extension Platoon {
         mem.w32(a0 &+ 0xa, mem.r32(S2.vIdleSavedHandler))
         mem.w16(a0 &+ 0x10, mem.r16(S2.vIdleSavedFrame))
         mem.w32(S2.vIdleSlot, 0)
-        mem.w16(S2.vIdleCount, 0x64)
+        mem.w16(S2.vIdleCount, s2_idleLong())        // $64; ENHANCEMENT M10 s2.diff.sniperDelay
     }
 
     // MARK: - soldiers  ($17498-$17556, $17c32-$17cfa, $17f32-$17ffe, $1807a-$1811a)
@@ -218,7 +231,7 @@ extension Platoon {
         mem.w16(S2.vSpawnDelay, c)
         if Int16(bitPattern: c) >= 0 { return }
         let r = UInt16(truncatingIfNeeded: k_random())
-        mem.w16(S2.vSpawnDelay, (r & 0xf) &+ 0x14)   // 20..35
+        mem.w16(S2.vSpawnDelay, (r & 0xf) &+ UInt16(s2Diff.spawnDelay ?? 0x14))   // 20..35; ENHANCEMENT M10
         if Int16(bitPattern: mem.r16(S2.playerY)) > 0x40 { return }
         let (a0, found) = s2_find_free_slot(S2.slot4, countMinus1: 2)
         if !found { return }
@@ -360,7 +373,7 @@ extension Platoon {
         mem.w32(a0 &+ 2, mem.r32(a3 &+ 2))
         mem.w8(a0, 0xff)
         let r = UInt16(truncatingIfNeeded: k_random())
-        mem.w16(S2.vFireCooldown, (r & 0xf) &+ 0x14)          // 20..35
+        mem.w16(S2.vFireCooldown, (r & 0xf) &+ UInt16(s2Diff.fireCooldown ?? 0x14))   // 20..35; ENHANCEMENT M10
         s2_sfx(0x82)
     }
 
@@ -418,7 +431,8 @@ extension Platoon {
         mem.w16(S2.vPathWSaved, mem.r16(S2.vPathW))
         if mem.r8(S2.vExits) == 0 {                           // bunker room
             s2_bunker_goal_check(a3)                          // may not return (won)
-            let d0 = (d0In & 0xff00) | 0x39                   // move.b #$39,d0 ('.' key; high byte = leftover)
+            var d0 = (d0In & 0xff00) | 0x39                   // move.b #$39,d0 ('.' key; high byte = leftover)
+            if s2Opt.fixPhantomGrenades { d0 = 0x39 }         // ENHANCEMENT S9j (default off): a proper key test
             if s2_keytest_d0w(d0) {
                 if mem.r8(S2.vDotLatch) == 0 {
                     mem.w8(S2.vDotLatch, 0xff)
@@ -563,7 +577,7 @@ extension Platoon {
         mem.w8(S2.playerE, start &+ 3)                        // end frame
         mem.w8(S2.playerF, 0)
         mem.w8(S2.vDying, 0xff)
-        mem.w16(S2.vIdleCount, 0x64)
+        mem.w16(S2.vIdleCount, s2_idleLong())                 // $64; ENHANCEMENT M10 s2.diff.sniperDelay
         let a5 = s2_a5
         mem.w16(a5 &+ 4, mem.r16(a5 &+ 4) &+ 1)               // hits + 1
         var d0: UInt16 = 0x0a                                 // "YOU'RE HIT"
@@ -571,7 +585,8 @@ extension Platoon {
         k_queue_text(d0)
         k_hud_wounds()
         let morale = mem.r16(a6 &+ 0x2e)                      // subi.w #$800; bcc
-        mem.w16(a6 &+ 0x2e, morale >= 0x800 ? morale &- 0x800 : 0)
+        let loss = UInt16(s2Diff.hitMorale ?? 0x800)          // ENHANCEMENT M10 s2.diff.hitMorale (nil = $800)
+        mem.w16(a6 &+ 0x2e, morale >= loss ? morale &- loss : 0)
         s2_play_hit_sfx()
     }
 
@@ -604,6 +619,10 @@ extension Platoon {
         mem.w32(a3 &+ 0xa, S2.hPlayer)
         mem.w8(S2.vDying, 0)
         if mem.r16(s2_a5 &+ 4) >= 4 {                          // man dead
+            if enhancements.game.extendedMen {                 // ENHANCEMENT M15 (game.lives / game.fullPlatoon)
+                guard let next = s2_nextMan() else { s2_all_dead() }
+                s2_second_chance(nextMan: next)
+            }
             if mem.r16(a6 &+ 0x22) != 0 { s2_all_dead() }
             s2_second_chance()
         }
@@ -654,12 +673,15 @@ extension Platoon {
         mem.w32(S2.vDirs, d1)
         mem.w8(S2.vRoom, UInt8(truncatingIfNeeded: d0in))
         mem.w16(0x68, 0)                                        // clr.w $68.l (absolute; harmless original bug)
+        if s2Opt.fixRoomTimer { mem.w16(a6 &+ 0x68, 0) }        // ENHANCEMENT S9a (default off): the intended
+                                                                // clr.w $68(a6): timer stopped until room_enter_done
         let t = mem.r8(S2.map &+ UInt32(d0in & 0xff))           // room type
         mem.w8(S2.vRoomType, t)
         mem.w8(S2.vExits, mem.r8(S2.typeExits &+ UInt32(t)))
         let pic = UInt16(mem.r8(S2.typePic &+ UInt32(t)))
         var n = UInt8(truncatingIfNeeded: k_random()) & 7       // soldiers: 0..5
         if Int8(bitPattern: n) > 5 { n &-= 3 }
+        if let mx = s2Diff.maxSoldiers { n = min(n, UInt8(mx)) }   // ENHANCEMENT M10 s2.diff.maxSoldiers
         mem.w8(S2.vSoldiersLeft, n)
         mem.w16(S2.vPathW, 0x32)
         let e = UInt32(mem.r8(S2.vExits))
@@ -713,6 +735,7 @@ extension Platoon {
         }
         s2_decode_delay(cycles: cyc)
         tickPoint(0x1764e)
+        if s2NavLog != nil { s2_navLogDecode() }                // verification log (PLATOON_S2NAV), read-only
         s2_dbg("decoded")
         s2_fade_wait_loop()
         s2_dbg("fadedone")

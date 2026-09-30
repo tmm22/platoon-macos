@@ -179,7 +179,10 @@ extension Platoon {
         var d5 = mem.r8(S1.posY) &- 9
         if d5 & 0x80 != 0 { d5 = 0 } else if Int8(bitPattern: d5) > 0x19 { d5 = 0x19 }
         cpu(S1Cyc.mapFixed)
-        if mem.r16(a6 + 0x24) != 0 {
+        // ENHANCEMENT M3 (s1.exploredMap; default off): without the map item the window shows the cells seen so far
+        let explored = s1e_exploredWindow && mem.r16(a6 + 0x24) == 0
+        if explored { s1e_markSeen() }
+        if mem.r16(a6 + 0x24) != 0 || explored {
             cpu(18 * S1Cyc.mapRow + 360 * S1Cyc.mapCell)
             var a3 = S1.maze &+ UInt32(d4) &+ mem.r32(S1.mazeRowTab + UInt32(d5) * 4)
             let a2 = S1.mapTiles
@@ -187,7 +190,8 @@ extension Platoon {
             for row in 0..<18 {
                 var a1 = s1_screenAddr(col: 0x14, row: UInt32(row))
                 for _ in 0..<20 {
-                    let d2 = mem.r8(a3); a3 &+= 1
+                    var d2 = mem.r8(a3); a3 &+= 1
+                    if explored && mem.r8(S1E.seen &+ (a3 &- 1 &- S1.maze)) == 0 { d2 = S1E.blankTile }   // ENHANCEMENT M3
                     if d2 != mem.r8(a4) {
                         mem.w8(a4, d2)
                         s1_copyCell(from: a2 &+ UInt32(d2) << 5, to: a1)
@@ -279,7 +283,7 @@ extension Platoon {
     /// $17996 h_enemy_aim: after 15 ticks fire (object 1 = shot).
     func s1_hEnemyAim(_ a3: UInt32) {
         s1_hitEnemy(a3)
-        if s1_addW(a3 + 0xe, 1) != 0xf { return }
+        if s1_addW(a3 + 0xe, 1) != UInt16(truncatingIfNeeded: s1opt.difficulty.enemyAim ?? 0xf) { return }   // ENHANCEMENT M10
         mem.w16(a3 + 0xe, 0)
         mem.w8(a3 &- 0x12, 0xff)
         mem.w16(a3 &- 0x10, mem.r16(a3 + 2))
@@ -392,7 +396,8 @@ extension Platoon {
         if Int16(bitPattern: d3) > d1 { return false }
         if Int16(bitPattern: d5) < d1 { return false }
         if mem.r8(S1.shotFlag) == 0 { return false }
-        if mem.r16(s1_a5 + 2) == 0 { return false }
+        // ENHANCEMENT S9c (s1.fixLastBullet; default off): the flag already means a bullet was fired
+        if mem.r16(s1_a5 + 2) == 0 && !s1opt.fixLastBullet { return false }
         return true
     }
 
@@ -524,6 +529,7 @@ extension Platoon {
         t = t &+ t
         mem.w32(S1.roomPic, mem.r32(S1.roomPicByType &+ UInt32(bitPattern: Int32(Int16(bitPattern: t)))))
         mem.w16(S1.posBeforeRoom, saved)
+        if s1opt.checkpointRespawn { s1e_roomEntered(before: saved) }   // ENHANCEMENT M4 (default off)
         if UInt8(truncatingIfNeeded: d1) != 0 { return }
         mem.w8(S1.obj4, 0xff)                                    // room 0: guard active
         mem.w16(0x19d8a, 0)
@@ -567,7 +573,9 @@ extension Platoon {
     }
 
     /// $1858c in_combat: accelerating crosshair, auto-fire (one shot per tick) with recoil.
-    func s1_inCombat(_ a3: UInt32, _ d0: UInt8) {
+    func s1_inCombat(_ a3: UInt32, _ d0in: UInt8) {
+        var d0 = d0in
+        if s1opt.directAim && s1e_aimAt(a3, .tunnelCombat) { d0 &= 0xf0 }   // ENHANCEMENT L2 (s1.directAim; default off)
         var d1: UInt16 = 0
         if d0 & 0xf == 0 {
             mem.w16(S1.crossSpeed, 2)
@@ -591,7 +599,9 @@ extension Platoon {
     }
 
     /// $18654 in_room: slower cursor; fire (edge) clicks a hotspot.
-    func s1_inRoom(_ a3: UInt32, _ d0: UInt8) {
+    func s1_inRoom(_ a3: UInt32, _ d0in: UInt8) {
+        var d0 = d0in
+        if s1opt.directAim && s1e_aimAt(a3, .tunnelRoom) { d0 &= 0xf0 }   // ENHANCEMENT L2 (s1.directAim; default off)
         var d1: UInt16 = 0
         if d0 & 0xf == 0 {
             mem.w16(S1.crossSpeed, 4)
@@ -658,7 +668,7 @@ extension Platoon {
         case 0x18810:                       // map
             k_queue_text(d7)
             if mem.r16(a6 + 0x24) != 0 { k_queue_text(0x1c); return }
-            s1_mapScrollAnim()
+            if mem.r32(S1.colLeft) != 0 || !s1e_exploredWindow { s1_mapScrollAnim() }   // ENHANCEMENT M3 (already slid)
             mem.w32(S1.colLeft, 0)
             mem.w32(S1.colRight, 0xa)
             mem.w16(a6 + 0x24, 1)
@@ -680,6 +690,7 @@ extension Platoon {
             k_queue_text(d7)
             k_queue_text(0x1d)
             k_add_score(after: S1.score500End)
+            if s1opt.fixFoodFarm { mem.w8(a4 + 1, mem.r8(a4 + 1) | 0x80) }   // ENHANCEMENT S9e (default off)
         case 0x188ba:                       // ammo
             if mem.r16(s1_a5 + 2) == 0x90 { k_queue_text(d7); return }
             mem.w16(s1_a5 + 2, 0x90)
@@ -715,7 +726,12 @@ extension Platoon {
     /// $1888c: mark taken, morale +$200, then the generic message ($18898).
     func s1_itemTaken(d7: UInt16, a4: UInt32) {
         mem.w8(a4 + 1, mem.r8(a4 + 1) | 0x80)
-        _ = s1_addW(a6 + 0x2e, 0x200)
+        let add = UInt16(truncatingIfNeeded: s1opt.difficulty.itemMorale ?? 0x200)     // ENHANCEMENT M10
+        if s1opt.fixMoraleWrap && UInt32(mem.r16(a6 + 0x2e)) + UInt32(add) > 0xffff {  // ENHANCEMENT S9b (default off)
+            mem.w16(a6 + 0x2e, 0xffff)
+        } else {
+            _ = s1_addW(a6 + 0x2e, add)
+        }
         k_queue_text(d7)
     }
 

@@ -79,7 +79,7 @@ final class EnhancementRegistryTests: XCTestCase {
     func testPrintTextDecoder() {
         let m = Memory()
         // [5,3] "AB" 0 [1,4] colour(2,6) "CD" + last char 'E'|$80
-        m.load([5, 3, 0x41, 0x42, 0, 1, 4, 2, 6, 0x43, 0x44, 0x45 | 0x80], at: 0x1000)
+        m.load([5, 3, 0x41, 0x42, 0, 1, 4, 2, 6, 0x43, 0x44, 0xC5] as [UInt8], at: 0x1000)   // 0xC5 = "E" | $80
         let s = PrintText.segments(m, 0x1000)
         XCTAssertEqual(s, [.init(col: 5, row: 3, text: "AB"), .init(col: 1, row: 4, text: "CDE")])
         XCTAssertEqual(PrintText.plain(s), "AB\nCDE")

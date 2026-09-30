@@ -80,6 +80,7 @@ final class CheatTests: XCTestCase {
 
     /// Invincibility in the jungle: 3000 frames standing in enemy fire, no wound; the control run is hit.
     func testJungleInvincible() throws {
+        _ = try disk()   // skip (not fail) without the game disk: XCTAssert* would record a thrown XCTSkip as a failure
         func hits(_ enh: String) throws -> (hits: Int, morale: UInt16) {
             let m = Machine(disk: try disk())
             var cfg = GameConfig()

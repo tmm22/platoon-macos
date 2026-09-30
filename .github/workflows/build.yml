@@ -8,7 +8,7 @@ jobs:
       - name: Build (release)
         working-directory: port
         run: swift build -c release
-      - name: Unit tests (tests needing the game disk are skipped: no game data in the repository)
+      - name: "Unit tests (tests needing the game disk are skipped; no game data in the repository)"
         working-directory: port
         run: swift test
       - name: Reference emulator

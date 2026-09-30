@@ -1,0 +1,28 @@
+Platoon — native macOS port
+===========================
+
+Scope of the licence
+--------------------
+The MIT licence in LICENSE applies only to the original work in this repository: the virtual Amiga chipset
+(port/Sources/PlatoonCore/Platform), the macOS application, the enhancements, the headless runner, the reference
+emulator harness (tools/amiga), the reverse-engineering tools and scripts, the tests, and the documentation.
+
+Third-party rights
+------------------
+"Platoon" and the original game — its program code, data, graphics, music, sound effects, text, names and
+artwork — are copyright (c) 1987/1988 Ocean Software Ltd and Hemdale Film Corporation (and their successors in
+interest). The translated game logic in port/Sources/PlatoonCore/Game and the specifications under re/ describe and
+are derived from the original program. No rights to the original game or any of its elements are granted by this
+repository or its licence.
+
+This repository contains no game data (no disk images, graphics, music or samples). To use it you must supply
+your own copy of the original Amiga game.
+
+This is an unofficial, non-commercial fan project. It is not affiliated with, authorised or endorsed by Ocean
+Software, Hemdale Film Corporation, Infogrames/Atari or any other rights holder. All trademarks belong to their
+respective owners.
+
+Bundled third-party software
+----------------------------
+tools/Musashi — Musashi M680x0 emulator, copyright (c) 1998-2001 Karl Stenerud, used under its MIT-style
+licence (see tools/Musashi/readme.txt).

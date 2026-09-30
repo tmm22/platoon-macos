@@ -99,9 +99,11 @@ Type `HAMBURGER` on a title screen ("CHEAT!!!" appears in the credits), then `KE
 Then: jungle F1-F4 warps / F5-F6 debug overlay, tunnels HELP skips a sub-section, final jungle CAPS LOCK skips.
 
 ## Legal
-This is an unofficial fan project, not affiliated with or endorsed by Ocean Software, Hemdale or any rights holder.
-It contains no copyrighted game assets; you must own the original game. The Musashi 68000 core in `tools/Musashi` is
-© Karl Stenerud (MIT-style licence, see `tools/Musashi/readme.txt`).
+The code and documentation written for this project are released under the MIT licence (`LICENSE`). That licence
+covers only the original work here: the original game — its code, data, graphics, music, names and artwork — remains
+© Ocean Software / Hemdale, and no rights to it are granted (see `NOTICE`). The repository contains no game assets;
+you must own the original game. This is an unofficial fan project, not affiliated with or endorsed by any rights
+holder. The bundled Musashi 68000 core (`tools/Musashi`) is © Karl Stenerud, MIT-style licence.
 
 ## Repository layout
 - `original/` — (not in the repository) put your own disk images here.

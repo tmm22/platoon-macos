@@ -20,6 +20,8 @@ rm -rf "$APP"; mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/Platoon"
 ADF=../re/platoon_port.adf
 if [ "$DIST" != 1 ] && [ -f "$ADF" ]; then cp "$ADF" "$APP/Contents/Resources/Platoon.adf"; fi
+# The icon is generated from the loading picture on your own disk image (no game artwork in the repository).
+if [ ! -f Resources/AppIcon.icns ] && [ -f "$ADF" ]; then python3 ../tools/make_icon.py "$ADF" Resources/AppIcon.icns || true; fi
 [ -f Resources/AppIcon.icns ] && cp Resources/AppIcon.icns "$APP/Contents/Resources/"
 # user guide (Help menu)
 cp ENHANCEMENTS_GUIDE.md "$APP/Contents/Resources/"

@@ -1,4 +1,0 @@
-[f1593 v010] AUD0 start ptr=008c00 len=64 per=2112 vol=4
-[f1600 v239] chip ram dumped to out/post18.bin
-[f1601 v006] AUD1 start ptr=008834 len=32 per=374 vol=48
-[f1603 v313] done: 1603 frames, 121 blits, pc=010b1a

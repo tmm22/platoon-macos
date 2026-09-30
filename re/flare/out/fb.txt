@@ -1,4 +1,0 @@
-[f1584 v231] BP 018d2c d0=00000080 d1=00000000 d2=ffff0000 d3=00000022 a0=00019048 a1=00071680 a2=0001131e a6=00012dde sp=000003f0
-[f1585 v010] AUD0 start ptr=008c00 len=64 per=2112 vol=4
-[f1591 v313] dumped 012e0a+2 to out/fl.bin
-[f1592 v313] done: 1592 frames, 63 blits, pc=018d72

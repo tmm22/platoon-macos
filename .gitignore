@@ -7,3 +7,28 @@ port/.build/
 build/
 *.state
 re/dumps/
+
+# --- Original game data (copyright Ocean Software / Hemdale): never committed. Supply your own disk images. ---
+original/
+Platoon_Amiga_EN.zip
+*.adf
+*.zip
+*.bin
+*.wav
+*.png
+*.gif
+*.mp4
+*.mov
+*.icns
+*.iff
+*.raw
+*.td
+*.dSYM/
+# annotated disassembly listings contain the game's code and data bytes; regenerate with tools/rdis.py
+re/**/*.s
+re/*.s
+# build products / bulky logs
+out/
+tools/amiga/emu.new
+re/flare/emu_mod/emu
+*.log

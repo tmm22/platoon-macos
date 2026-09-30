@@ -14,10 +14,23 @@ cd port
 open build/Platoon.app
 DIST=1 ./build_app.sh     # distribution build without the game disk (players import their own .adf)
 ```
-`re/platoon_port.adf` is built from the disk images in `original/` (Darc crack with tracks 77 and 127 from the
-original dump, which the Darc image has blank/corrupt). Without a bundled disk the app asks for one: Game ▸
-**Import Disk Image…** (⌘O), or drop `.adf` files on the window or the Dock icon. Several dumps can be combined; each
-is identified from per-track fingerprints and damaged tracks are repaired from the others.
+### You need your own copy of the game
+This repository contains **no game data**: no disk images, graphics, music or samples. Platoon is © 1987/1988
+Ocean Software / Hemdale Film Corporation. To play or run the tests you need the Amiga disk image(s) of Platoon.
+
+The port knows these TOSEC dumps: `Platoon (1988)(Ocean)[cr 68 Darc]`, `[b]`, `[cr VF - Beyonders]` and
+`[cr VF - Beyonders][t +5 LFC]`. None is perfect on its own: the Darc image has a blank hiscore track (77) and a
+corrupt track 127, and the Beyonders images are corrupt in the last section. Combine two dumps into the verified image:
+```sh
+cd port && swift build -c release --product Platoon
+.build/release/Platoon --check-disk "Platoon (1988)(Ocean)[cr 68 Darc].adf" "Platoon (1988)(Ocean)[b].adf" \
+    --repair ../re/platoon_port.adf
+```
+`re/platoon_port.adf` is what the build script bundles, the headless runner, the tests and the regression gate use.
+The app icon is generated from that disk's loading picture at build time (`tools/make_icon.py`).
+Without a bundled disk the app asks for one: Game ▸ **Import Disk Image…** (⌘O), or drop `.adf` files on the window
+or the Dock icon. Several dumps can be combined; each is identified from per-track fingerprints and damaged tracks
+are repaired from the others.
 
 ## Controls
 | | |
@@ -85,8 +98,13 @@ driver's register stream write by write, including complete honest play-throughs
 Type `HAMBURGER` on a title screen ("CHEAT!!!" appears in the credits), then `KEYPAD-` `H I L L` for "MEGA CHEAT".
 Then: jungle F1-F4 warps / F5-F6 debug overlay, tunnels HELP skips a sub-section, final jungle CAPS LOCK skips.
 
+## Legal
+This is an unofficial fan project, not affiliated with or endorsed by Ocean Software, Hemdale or any rights holder.
+It contains no copyrighted game assets; you must own the original game. The Musashi 68000 core in `tools/Musashi` is
+© Karl Stenerud (MIT-style licence, see `tools/Musashi/readme.txt`).
+
 ## Repository layout
-- `original/` — the supplied disk images.
+- `original/` — (not in the repository) put your own disk images here.
 - `re/` — reverse-engineering: per-module specs (`re/<module>/NOTES.md`), annotated listings, extraction scripts.
 - `tools/amiga/emu` — headless reference Amiga emulator used to verify the port (`make -C tools/amiga`).
 - `port/` — the Swift package: `PlatoonCore` (platform + translated game), `PlatoonApp` (macOS app),

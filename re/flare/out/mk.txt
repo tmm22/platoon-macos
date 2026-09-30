@@ -1,6 +1,0 @@
-[f1005 v004] AUD0 start ptr=008834 len=32 per=397 vol=32
-[f1008 v263] AUD0 start ptr=00d3f4 len=3405 per=357 vol=64
-[f1008 v289] AUD2 start ptr=00d3f4 len=3405 per=357 vol=64
-[f1010 v233] BP 018b0e d0=0000ffff d1=00030000 d2=00000034 d3=00000024 a0=0001977c a1=000797c0 a2=00dff000 a6=00012dde sp=000003f0
-[f1021 v313] state saved to /Users/deborahmangan/Projects/Platoon/re/states/flare_start.state
-[f1022 v313] done: 1022 frames, 36 blits, pc=010ada

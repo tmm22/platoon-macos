@@ -109,6 +109,14 @@ struct PrefRow: View {
             } label: { label }
         case .action(let button, let run):
             LabeledContent { Button(button, action: run) } label: { label }
+        case .buttons(let buttons):
+            LabeledContent {
+                HStack(spacing: 6) {
+                    ForEach(Array(buttons.enumerated()), id: \.offset) { _, b in
+                        Button(b.title, action: b.run).disabled(!b.enabled()).help(b.help ?? "")
+                    }
+                }
+            } label: { label }
         case .note:
             Text(item.title).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
         }

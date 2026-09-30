@@ -30,6 +30,11 @@ extension Platoon {
                 a5 &+= 6
                 d1 &+= 1
             }
+            if !found && enhancements.cheats.infiniteMen {   // ENHANCEMENT CHEAT-MEN (default off): the fallen man
+                d1 = mem.r16(a6 &+ 0x22)                     // is patched up instead of the game ending
+                cheatPatchUp(s0Man)
+                found = true
+            }
             if !found { s0Exit() }                     // the whole platoon is dead
             mem.w16(a6 &+ 0x22, d1)
             v0.manHilite = d1

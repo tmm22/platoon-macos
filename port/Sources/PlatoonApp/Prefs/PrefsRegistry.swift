@@ -27,18 +27,20 @@ import PlatoonCore
 // "Restart now". Use `applyToConfig` for anything the key=value form can't express.
 
 enum PrefTab: String, CaseIterable, Identifiable {
-    case general, input, video, audio, gameplay, assist
+    case general, input, video, audio, gameplay, assist, cheats
     var id: String { rawValue }
     var title: String {
         switch self {
         case .general: return "General"; case .input: return "Input"; case .video: return "Video"
         case .audio: return "Audio"; case .gameplay: return "Gameplay"; case .assist: return "Assist"
+        case .cheats: return "Cheats"
         }
     }
     var symbol: String {
         switch self {
         case .general: return "gearshape"; case .input: return "gamecontroller"; case .video: return "display"
         case .audio: return "speaker.wave.2"; case .gameplay: return "flag.2.crossed"; case .assist: return "lifepreserver"
+        case .cheats: return "wand.and.stars"
         }
     }
 }
@@ -54,6 +56,8 @@ struct PrefItem {
         case slider(default: Double, range: ClosedRange<Double>, step: Double, format: (Double) -> String)
         /// A button (no stored value).
         case action(button: String, run: () -> Void)
+        /// A row of buttons (no stored value), each with its own enabling.
+        case buttons([PrefButton])
         /// Static explanatory text.
         case note
     }
@@ -95,6 +99,9 @@ struct PrefItem {
         PrefItem(key: key, title: title, kind: .action(button: button, run: run), help: help)
     }
     static func note(_ key: String, _ text: String) -> PrefItem { PrefItem(key: key, title: text, kind: .note) }
+    static func buttons(_ key: String, _ title: String, help: String? = nil, _ b: [PrefButton]) -> PrefItem {
+        PrefItem(key: key, title: title, kind: .buttons(b), help: help)
+    }
 
     // modifiers
     /// Gameplay-changing option: taints the run and applies on restart.
@@ -114,7 +121,7 @@ struct PrefItem {
         case .toggle(let d): return d
         case .choice(let d, _): return d
         case .slider(let d, _, _, _): return d
-        case .action, .note: return nil
+        case .action, .buttons, .note: return nil
         }
     }
     /// Is the stored value different from the default (used for "assisted" and the Reset buttons)?
@@ -123,7 +130,7 @@ struct PrefItem {
         case .toggle(let d): return Prefs.bool(key) != d
         case .choice(let d, _): return Prefs.int(key) != d
         case .slider(let d, _, _, _): return abs(Prefs.double(key) - d) > 1e-9
-        case .action, .note: return false
+        case .action, .buttons, .note: return false
         }
     }
     /// The value as the core enhancement registry expects it ("1"/"0", integers, decimals).
@@ -132,9 +139,17 @@ struct PrefItem {
         case .toggle: return Prefs.bool(key) ? "1" : "0"
         case .choice: return String(Prefs.int(key))
         case .slider: return String(Prefs.double(key))
-        case .action, .note: return ""
+        case .action, .buttons, .note: return ""
         }
     }
+}
+
+/// One button of a `.buttons` row.
+struct PrefButton {
+    var title: String
+    var help: String? = nil
+    var enabled: () -> Bool = { true }
+    var run: () -> Void
 }
 
 struct PrefSection {
@@ -158,7 +173,7 @@ enum PrefsRegistry {
     static var explicitSections: [PrefSection] {
         builtinSections + inputSections + audioSections + videoSections
             + gameplayCoreSections + gameplaySection0Sections + gameplaySection1Sections + gameplaySection2Sections
-            + assistSections + saveStateSections + dynamicSections
+            + assistSections + saveStateSections + cheatSections + dynamicSections
     }
     static var all: [PrefSection] {
         let s = explicitSections + autoEnhancementSections
@@ -174,6 +189,7 @@ enum PrefsRegistry {
         for i in allItems {
             if case .note = i.kind { continue }
             if case .action = i.kind { continue }
+            if case .buttons = i.kind { continue }
             if !seen.insert(i.key).inserted { NSLog("Prefs: duplicate key \(i.key)") }
             if let d = i.defaultValue { defaults[i.key] = d }
         }
@@ -306,8 +322,8 @@ enum EnhancementBridge {
 /// optional int -> "change from original" toggle + slider.
 extension PrefsRegistry {
     static let autoKeyPrefix = "enh."
-    /// Keys without an automatic row: aliases of group options (originalCredits), the core's section-0 trainer
-    /// flags (the Game ▸ Trainer covers every section), and headless-only test keys (M14 Amiga keycodes; the app
+    /// Keys without an automatic row: aliases of group options (originalCredits, the legacy infiniteAmmo /
+    /// infiniteMorale keys of cheat.*, which the Cheats tab covers), and headless-only test keys (M14 Amiga keycodes; the app
     /// binds jump / crouch in Controls & Bindings).
     static let aliasKeys: Set<String> = ["originalCredits", "infiniteAmmo", "infiniteMorale", "s0.jumpKey", "s0.crouchKey"]
 

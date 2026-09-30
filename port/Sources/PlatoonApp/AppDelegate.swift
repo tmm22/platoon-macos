@@ -394,13 +394,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
         }
         startItem.submenu = startMenu
         game.addItem(startItem)
-        let cheatItem = NSMenuItem(title: "Trainer", action: nil, keyEquivalent: "")
-        let cheatMenu = NSMenu()
-        cheatMenu.addItem(item("Infinite Ammo & Grenades", #selector(toggleCheat(_:)), tag: 0))
-        cheatMenu.addItem(item("Infinite Morale", #selector(toggleCheat(_:)), tag: 1))
-        cheatMenu.addItem(item("No Wounds (a hit costs nothing)", #selector(toggleCheat(_:)), tag: 2))
-        cheatItem.submenu = cheatMenu
-        game.addItem(cheatItem)
+        game.addItem(CheatsMenu.submenu())                 // Game ▸ Cheats (Menus/MenuCheats.swift)
         game.addItem(.separator())
         game.addItem(item("In-game Pause (TAB)", #selector(sendAmigaKey(_:)), tag: 0x42))
         game.addItem(item("Cycle Music / Sound FX (F10)", #selector(sendAmigaKey(_:)), tag: 0x59))
@@ -470,11 +464,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
     }
     @objc func resetGame(_ s: Any?) { host?.resumeAll(); pauseMenu.isVisible = false; host?.reset() }
     @objc func toggleTurbo(_ s: Any?) { host?.turbo.toggle() }
-    @objc func toggleCheat(_ s: NSMenuItem) {
-        let st = Settings.shared
-        switch s.tag { case 0: st.cheatAmmo.toggle(); case 1: st.cheatMorale.toggle(); default: st.cheatInvulnerable.toggle() }
-        PrefsModel.shared.bump()
-    }
     @objc func startAtSection(_ s: NSMenuItem) { host?.resumeAll(); pauseMenu.isVisible = false; host?.reset(startSection: s.tag) }
     @objc func continueGame(_ s: Any?) {
         let st = Settings.shared
@@ -515,9 +504,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKV
         case #selector(toggleTurbo(_:)): m.state = host?.turbo == true ? .on : .off
         case #selector(openPauseMenu(_:)): return host != nil
         case #selector(checkDiskMenu(_:)): return diskURL != nil
-        case #selector(toggleCheat(_:)):
-            let st = Settings.shared
-            m.state = [st.cheatAmmo, st.cheatMorale, st.cheatInvulnerable][m.tag] ? .on : .off
         case #selector(continueGame(_:)):
             let n = Settings.shared.continueSection
             m.title = n == 1 ? "Continue from The Tunnels" : n == 2 ? "Continue from The Final Jungle" : "Continue from Last Section"

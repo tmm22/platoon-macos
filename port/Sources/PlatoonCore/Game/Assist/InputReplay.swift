@@ -26,7 +26,8 @@ public struct ReplayHeader: Equatable {
     public var carry: [UInt8]?
     /// Enhancement options that differed from the defaults ("key=value"), as passed at game start.
     public var enhancements: [String] = []
-    /// Host trainer switches in effect ("ammo,morale,invulnerable" subset; empty = none).
+    /// LEGACY host trainer switches ("ammo,morale,invulnerable" subset; empty = none): only replays recorded before the
+    /// cheats existed have them (played back with the legacy Trainer). The cheats are enhancement options (`enh`).
     public var trainer: [String] = []
     /// Input.keyGapFrames while recording (2 = original pacing).
     public var keyGap = 2

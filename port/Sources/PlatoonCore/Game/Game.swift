@@ -42,7 +42,11 @@ public enum PlatoonGame {
         p.config = config
         p.enhancements = config.enhancements
         p.applyEnvironmentOverrides()
-        p.sessionAssist = p.enhancements.assistReasons.union(p.config.assistedReasons)
+        // cheats taint per game (they can be switched live): marked for the current game here and at every
+        // new game (beginRun) while they are on, not for the whole session
+        p.sessionAssist = p.enhancements.assistReasons.subtracting(p.enhancements.cheatAssistReasons)
+            .union(p.config.assistedReasons)
+        p.runAssist = p.enhancements.cheatAssistReasons
         p.enhancements = p.enhancements.resolved()
         attach(p, to: m)
         p.probeAttach()
@@ -79,6 +83,19 @@ public enum PlatoonGame {
 
     /// The enhancements in effect for the game running on `m` (preset resolved), nil before it started.
     public static func enhancements(_ m: Machine) -> Enhancements? { platoon(for: m)?.enhancements }
+
+    /// Cheats: the cheat switches in effect for the game running on `m`, nil before it started.
+    public static func cheats(_ m: Machine) -> CheatOptions? { platoon(for: m)?.enhancements.cheats }
+
+    /// Cheats: switches the cheats of the game running on `m` (live; call it from Machine.frameHook, where the game
+    /// thread is parked). Cheats switched on mark the current game assisted; the original-cheats switch writes the
+    /// same RAM as typing the codes on the title (and undoes it when switched off). Returns false before the game
+    /// started.
+    @discardableResult public static func setCheats(_ m: Machine, _ c: CheatOptions) -> Bool {
+        guard let p = platoon(for: m) else { return false }
+        p.cheatsSetLive(c)
+        return true
+    }
 }
 
 extension Platoon {

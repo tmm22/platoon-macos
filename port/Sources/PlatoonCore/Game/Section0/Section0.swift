@@ -281,7 +281,7 @@ extension Platoon {
             v0.bplcon1 = (v0.hscroll &<< 4) | v0.hscroll
             s0WideLatch()                            // L4 host latch (read-only; no-op unless a host attached one)
             if v0.morale == 0 { s0Exit() }
-            if !enhancements.infiniteMorale {        // ENHANCEMENT hook (default off = original)
+            if !enhancements.cheats.infiniteMorale { // ENHANCEMENT CHEAT-MORALE (default off = original)
                 v0.morale = v0.morale &- 1
             }
             if v0.morale == 0 { s0Exit() }
@@ -296,7 +296,7 @@ extension Platoon {
 
     /// $1735c morale_sub: morale -= d0, clamped at 0.
     func s0MoraleSub(_ d0: UInt16) {
-        if enhancements.infiniteMorale { return }    // ENHANCEMENT hook (default off = original)
+        if enhancements.cheats.infiniteMorale { return }   // ENHANCEMENT CHEAT-MORALE (default off = original)
         let m0 = v0.morale
         if d0 > m0 { v0.morale = 0 } else { v0.morale = m0 &- d0 }
     }

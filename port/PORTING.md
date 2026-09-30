@@ -142,5 +142,8 @@ tools/regress_all.sh --only 's0_|k_hs' ...     # regex subset;  --skip REGEX;  -
   its observers (`onMessage`, `onFx`, `onScore`, `onDeath`, `onManSelect`, `onSectionStart/End`, `onGameOver`,
   `onHiscore`, `addObserver`) are called in Machine.frameHook (host thread, game parked). Debug: `PLATOON_EVENTS=file`.
   `probe.markAssisted(reason)` / `PlatoonGame.markAssisted(machine, reason)` taint the current run.
+- **Cheats** (`CheatOptions.swift`, group `cheat`, hooks `// ENHANCEMENT CHEAT-*`, helpers `Game/Cheats.swift`): the original
+  developer cheats as a switch plus extra cheats; the host may switch them live (`PlatoonGame.setCheats` from frameHook);
+  they taint per game (marked at beginRun / when switched on), not per session.
 - **Hiscore integrity (S5)** (`Hiscores.swift`): assisted runs rank in `hiscores-<mode>.bin` (recruit / veteran /
   custom / assisted) next to `GameConfig.hiscoreURL`; the original table is never written by them.

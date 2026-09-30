@@ -148,6 +148,7 @@ extension Platoon {
         v0.explX = v0.px
         v0.explY = 0x3d
         mem.w8(a0 &+ 2, mem.r8(a0 &+ 3))
+        if enhancements.cheats.invincible { return 0xf }   // ENHANCEMENT CHEAT-INV (default off): only the explosion
         s0PlayerHit()
         if !enhancements.section0.trapsWoundOn {      // ENHANCEMENT S7 (default: the trap kills)
             mem.w16(s0Man &+ 4, 3)

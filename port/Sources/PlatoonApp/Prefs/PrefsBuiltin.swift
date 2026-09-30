@@ -2,7 +2,8 @@ import AppKit
 import PlatoonCore
 
 // OWNER: [app] — built-in preferences: pause behaviour (S4), pause menu (M1), fast-forward (S11), disk (M23), and
-// the pre-existing video / audio / trainer settings (same UserDefaults keys as before, so user settings persist).
+// the pre-existing video / audio settings (same UserDefaults keys as before, so user settings persist). The old
+// Gameplay ▸ Trainer toggles became the Cheats tab (Prefs/PrefsCheats.swift, settings migrated at launch).
 
 enum BuiltinPrefs {
     static let pauseOnFocus = "app.pauseOnFocusLoss"
@@ -79,7 +80,7 @@ extension PrefsRegistry {
                 },
             ]),
             PrefSection(tab: .general, title: "Title screen and high scores", footer: "The original high-score table only takes "
-                        + "games played without gameplay options, trainer, loaded saves, rewind or section starts; the others "
+                        + "games played without gameplay options, cheats, loaded saves, rewind or section starts; the others "
                         + "go to hiscores-recruit / -veteran / -custom / -assisted.bin next to it.", order: 40, items: [
                 .toggle(BuiltinPrefs.originalCredits, "Original Ocean credits text", default: true,
                         help: "Restores \"GAME DESIGN (C)1988 OCEAN.\" / \"CONVERSION BY CHOICE\" that the cracked disk replaced. Applies after a reset.")
@@ -122,11 +123,6 @@ extension PrefsRegistry {
                         format: { $0 == 0 ? "Mono" : $0 >= 1 ? "Amiga (hard)" : "\(Int(($0 * 100).rounded()))%" }).onChange(audio),
                 .toggle("a500filter", "A500 low-pass filter", default: true).onChange(audio),
                 .toggle("interpolate", "Smooth sample interpolation", default: false).onChange(audio),
-            ]),
-            PrefSection(tab: .gameplay, title: "Trainer", footer: "Trainer runs are marked as assisted.", order: 900, items: [
-                PrefItem(key: "cheatAmmo", title: "Infinite ammo & grenades", kind: .toggle(default: false), isGameplay: true),
-                PrefItem(key: "cheatMorale", title: "Infinite morale", kind: .toggle(default: false), isGameplay: true),
-                PrefItem(key: "cheatInvuln", title: "No wounds (a hit costs nothing)", kind: .toggle(default: false), isGameplay: true),
             ]),
         ]
     }

@@ -74,7 +74,7 @@ final class GameHost {
     /// platoon that arrived there, instead of a fresh one).
     private var sectionCarries: [Int: [UInt8]] = [:]
     /// Host-side reasons why the current run is assisted (F4/S5), in addition to the core's own
-    /// (enhancements, trainer, start section) which are in `probe.context.assistReasons`.
+    /// (enhancements, cheats, start section) which are in `probe.context.assistReasons`.
     private var hostAssistedReasons: [String] = []
     var assistedReasons: [String] { Array(Set(hostAssistedReasons + probe.context.assistReasons)).sorted() }
     var isAssisted: Bool { !assistedReasons.isEmpty }
@@ -101,7 +101,8 @@ final class GameHost {
             self.hostAssistedReasons = self.configAssistedReasons
             self.markedThisGame.removeAll()
             self.sectionCarries.removeAll()
-            // live gameplay prefs (trainer, game speed) count for this game only if they are still on now
+            // live gameplay prefs (game speed) count for this game only if they are still on now (the core marks
+            // the cheats that are on itself)
             for reason in PrefsRegistry.liveGameplayReasons() { self.markAssisted(reason) }
             AppServices.shared.dispatchNewGame(self)
         }
@@ -138,7 +139,7 @@ final class GameHost {
         }
         hostAssistedReasons = PrefsRegistry.apply(to: &c)
         // Restart-only host gameplay prefs (randomiser modes ...) hold for every game of this run; the live ones
-        // (trainer, game speed) are marked per game at its start (newGame observer / markAssisted), so switching
+        // (game speed; cheats in the core) are marked per game at its start (newGame observer / markAssisted), so switching
         // them off before a new game from the title gives an ordinary game again.
         configAssistedReasons = hostAssistedReasons.filter { !PrefsRegistry.isLiveGameplayReason($0) }
         markedThisGame.removeAll()
@@ -161,9 +162,31 @@ final class GameHost {
         if markedThisGame.insert(reason).inserted { markAssisted(reason) }
     }
 
-    static func applyCheats(_ m: Machine) {
-        let s = Settings.shared
-        Trainer(infiniteAmmo: s.cheatAmmo, infiniteMorale: s.cheatMorale, invulnerable: s.cheatInvulnerable).apply(to: m)
+    // MARK: cheats (Prefs/PrefsCheats.swift; core Enhance/CheatOptions.swift)
+
+    /// The legacy host trainer: only active while a replay recorded with it (`# trainer` header) plays back.
+    var legacyTrainer = Trainer()
+    /// Keeps the running game's cheats in line with the Cheats preferences (every frame, game thread parked).
+    /// Not while a replay plays: it runs with the cheats it was recorded with.
+    private func syncCheats(_ m: Machine) {
+        guard !AssistCenter.shared.replays.isPlaying, let running = PlatoonGame.cheats(m) else { return }
+        let want = CheatPrefs.current
+        if running != want { PlatoonGame.setCheats(m, want) }
+    }
+
+    /// Keys held for a few frames by `holdKey` (original cheat keys: the section loops test them once per tick).
+    private var heldKeys: [(code: UInt8, frames: Int)] = []
+    /// Presses an Amiga key and releases it `frames` frames later (long enough for a 2- or 4-frame game tick to
+    /// see it, also with the faster key delivery).
+    func holdKey(_ code: UInt8, frames: Int = 10) {
+        machine.input.key(code, down: true)
+        heldKeys.append((code, frames))
+    }
+    private func releaseHeldKeys(_ m: Machine) {
+        guard !heldKeys.isEmpty else { return }
+        for i in heldKeys.indices { heldKeys[i].frames -= 1 }
+        for k in heldKeys where k.frames <= 0 { m.input.key(k.code, down: false) }
+        heldKeys.removeAll { $0.frames <= 0 }
     }
 
     /// Audio of the current emulated frame is kept (false = dropped: fast-forward keeps only the last frame of
@@ -172,9 +195,12 @@ final class GameHost {
     private var audioGain: Float = 1
 
     private func wire() {
+        heldKeys.removeAll()
         machine.frameHook = { [weak self] m in
-            GameHost.applyCheats(m)          // the core marks trainer runs assisted itself
             guard let self else { return }
+            if self.legacyTrainer.isActive { self.legacyTrainer.apply(to: m) }   // (the core marks it assisted)
+            self.syncCheats(m)
+            self.releaseHeldKeys(m)
             // S18: while the name is typed on the keyboard, letter keys / Space must not also press fire
             self.inputManager.keyboardFireSuppressed = self.runEnhancements.kernel.keyboardNameEntry && self.probe.context.screen == .nameEntry
             self.deliverSectionStarts()

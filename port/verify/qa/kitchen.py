@@ -10,6 +10,9 @@ SETS = {
  'veteran': 'difficulty=veteran,s0.villageSeed=12345,s1.randomSeed=99,s2.diff.timer=30,s2.diff.barnesHits=20,s0.diff.noMap=1,kernel.diff.startMorale=0x100',
  'custom': 'difficulty=custom,s0.diff.shootMask=0,s0.diff.hitMorale=0,s0.diff.grenades=0,s0.diff.ammo=0,s0.diff.spawnFloor=254,s1.diff.spawnDelay=1,s1.diff.enemyAim=1,s1.diff.flareSpawnBase=4,s1.diff.flareShotSlack=0,s2.diff.maxSoldiers=0,s2.diff.spawnDelay=1,s2.diff.fireCooldown=1,s2.diff.sniperDelay=5,s2.diff.grenades=99,s2.diff.barnesCooldown=1,game.lives=2',
 }
+# every cheat on top of the 'all' set (port/verify/cheats covers what each one does)
+SETS['cheats'] = SETS['all'] + ',cheat.original=1,cheat.invincible=1,cheat.infiniteAmmo=1,cheat.infiniteGrenades=1,' \
+    'cheat.infiniteFlares=1,cheat.infiniteMorale=1,cheat.freezeTimer=1,cheat.infiniteMen=1'
 enh = SETS[SET]
 def one(sc):
     d = f'{OUT}/{SET}/{sc.name}'; os.makedirs(d, exist_ok=True)

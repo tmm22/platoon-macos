@@ -304,6 +304,10 @@ extension Platoon {
                 settleCPU()
             } while mem.s16(a6 + 0x6a) >= 0
             tickPoint(0x171d8)
+            if enhancements.cheats.infiniteFlares && mem.r16(a6 + 0x2c) < 8 {   // ENHANCEMENT CHEAT-FLARE (default off):
+                mem.w16(a6 + 0x2c, 8)                                            // the 8 flares the exit needs
+                s1_hudIcons()
+            }
             if S1DBG { FileHandle.standardError.write("tick f\(m.frameCount) v\(m.beamLine) debt \(cpuCycles)\n".data(using: .utf8)!) }
             mem.w16(a6 + 0x6a, 3)
             s1_drawMap()

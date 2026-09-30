@@ -29,8 +29,8 @@ final class ReplayController {
     static func keyGap(forFile text: String) -> Int { text.hasPrefix(ReplayHeader.magic) ? 0 : 2 }
     private var startConfigKnown = false
     private var header = ReplayHeader()
-    private var trainerAtStart: [String] = []
-    private var savedTrainer: (Bool, Bool, Bool)?
+    /// The cheats the recorded game runs with (read from the game once it started; nil before).
+    private var cheatsAtStart: CheatOptions?
     private var savedKeySink: ((UInt8, Bool) -> Void)?
     private var installedTransformOn: ObjectIdentifier?
     private weak var host: GameHost?
@@ -64,8 +64,9 @@ final class ReplayController {
             header.adfTag = GameSnapshot.adfTag(h.disk)
             startConfigKnown = false
         }
-        trainerAtStart = ReplayController.trainerList()
-        header.trainer = trainerAtStart
+        // (a played-back replay keeps its header, incl. a legacy `# trainer` line; new recordings have none: the
+        // cheats are enhancement options, recorded in `# enh`)
+        cheatsAtStart = nil
         recorder = Prefs.bool(AssistPrefs.replayRecord) || player != nil ? InputRecorder(machine: h.machine) : nil
         if let rec = recorder, !rec.valid { rec.invalidate("the game was restored from a save state") }
     }
@@ -90,8 +91,9 @@ final class ReplayController {
             if cfg.enhancements.section1.directAim { header.warnings.append("s1.directAim: pointer aiming is not in the input stream") }
         }
         rec.observe(m)
-        if m.frameCount % 50 == 0, ReplayController.trainerList() != trainerAtStart {
-            rec.invalidate("the trainer was changed during the game")
+        if let c = PlatoonGame.cheats(m) {
+            if cheatsAtStart == nil { cheatsAtStart = c }
+            else if c != cheatsAtStart { rec.invalidate("the cheats were changed during the game") }
         }
     }
 
@@ -121,11 +123,6 @@ final class ReplayController {
     }
 
     // MARK: recording
-
-    static func trainerList() -> [String] {
-        let s = Settings.shared
-        return (s.cheatAmmo ? ["ammo"] : []) + (s.cheatMorale ? ["morale"] : []) + (s.cheatInvulnerable ? ["invulnerable"] : [])
-    }
 
     /// The replay of the current game, or a reason why there is none.
     func currentReplay() -> Result<InputReplay, ReplayError> {
@@ -212,11 +209,10 @@ final class ReplayController {
         if r.header.adfTag != 0 && r.header.adfTag != GameSnapshot.adfTag(h.disk) { notes.append("recorded with a different disk image") }
         if r.header.buildTag != GameSnapshot.buildTag { notes.append("recorded with another build of the app") }
         notes += r.header.warnings
-        // the recorded trainer switches apply during playback (GameHost applies Settings every frame)
-        let s = Settings.shared
-        if savedTrainer == nil { savedTrainer = (s.cheatAmmo, s.cheatMorale, s.cheatInvulnerable) }
-        s.cheatAmmo = r.header.trainer.contains("ammo"); s.cheatMorale = r.header.trainer.contains("morale")
-        s.cheatInvulnerable = r.header.trainer.contains("invulnerable")
+        // replays recorded before the cheats existed may carry the legacy host trainer (`# trainer` line): it is
+        // applied during playback exactly as it was recorded; the cheats themselves come with the recorded `# enh`
+        h.legacyTrainer = Trainer(infiniteAmmo: r.header.trainer.contains("ammo"), infiniteMorale: r.header.trainer.contains("morale"),
+                                  invulnerable: r.header.trainer.contains("invulnerable"))
         pendingPlayback = r
         h.resumeAll()
         mute(h)
@@ -256,13 +252,12 @@ final class ReplayController {
         injectedAsPlayer = false
         unmute(h)
         h.applyInputSettings()
-        if let t = savedTrainer {
-            let s = Settings.shared
-            s.cheatAmmo = t.0; s.cheatMorale = t.1; s.cheatInvulnerable = t.2
-            savedTrainer = nil
-            trainerAtStart = ReplayController.trainerList()
-            if trainerAtStart != header.trainer { recorder?.invalidate("the trainer changed when the replay ended") }
+        if h.legacyTrainer.isActive {
+            h.legacyTrainer = Trainer()
+            recorder?.invalidate("the replay's trainer ended with it")
         }
+        // from here the Cheats preferences apply again (GameHost.syncCheats); if they differ from the replay's,
+        // the recording of this game is invalidated at the next frame
         if let t = toast { AppServices.shared.toast(t, seconds: 3) }
     }
 

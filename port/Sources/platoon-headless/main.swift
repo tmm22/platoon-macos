@@ -13,7 +13,7 @@ func usage() -> Never {
                      [--music-test SONG] [--sfx-test ID] [--audio-test] [--reglog FILE] [--wav-rate HZ] [--no-filter]
       --hash      print an FNV hash of a RAM region after every frame (lockstep comparison)
       --start-section N  skip the title and start a new game in load section N (0,1,2)
-      --trainer LIST     ammo,morale,invulnerable (host-side trainer, as in the app)
+      --trainer LIST     ammo,morale,invulnerable (LEGACY host-side trainer, for old replays; use --enh cheat.*)
       --deterministic    no 'interrupted d1' term in the vblank RNG (pair with emu --deterministic)
       --enh K=V[,K=V]    enhancement options (repeatable; same keys as PLATOON_ENH); --enh list prints them all
       --tickdump  append [u32 frame][LEN bytes at LO] whenever translated code calls tickPoint(PC)

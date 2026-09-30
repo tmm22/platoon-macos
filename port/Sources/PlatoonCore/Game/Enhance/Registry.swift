@@ -173,9 +173,16 @@ public struct Enhancements {
 
     // MARK: root options (no prefix)
 
-    /// Section-0 trainer-style hooks (Section0.swift / Section0Player.swift, `// ENHANCEMENT` sites).
-    public var infiniteMorale = false
-    public var infiniteAmmo = false
+    /// Legacy keys (PLATOON_ENH "infiniteAmmo=1"): aliases of cheat.infiniteMorale / cheat.infiniteAmmo, which now
+    /// cover every section (Enhance/CheatOptions.swift).
+    public var infiniteMorale: Bool {
+        get { cheats.infiniteMorale }
+        set { cheats.infiniteMorale = newValue }
+    }
+    public var infiniteAmmo: Bool {
+        get { cheats.infiniteAmmo }
+        set { cheats.infiniteAmmo = newValue }
+    }
     /// M10 difficulty preset: Original = bit-exact; Recruit/Veteran fill each section's knobs; Custom = only the
     /// knobs set explicitly. Resolved into the groups at game start (`resolved()`).
     public var difficulty: DifficultyPreset = .original
@@ -194,14 +201,15 @@ public struct Enhancements {
     public var section2 = Section2Options()
     public var audio = AudioOptions()
     public var assist = AssistOptions()
+    public var cheats = CheatOptions()
 
     static let rootOptions: [EnhancementOption<Enhancements>] = [
         .bool("originalCredits", \.originalCredits, id: "kernel", gameplay: false,
               help: "Credits page shows the original Ocean lines instead of the Darc crack's (default on)."),
-        .bool("infiniteAmmo", \.infiniteAmmo, id: "trainer", gameplay: true,
-              help: "Jungle: firing does not use ammunition (section 0 hook)."),
-        .bool("infiniteMorale", \.infiniteMorale, id: "trainer", gameplay: true,
-              help: "Jungle: morale never drops (section 0 hook)."),
+        .bool("infiniteAmmo", \.infiniteAmmo, id: "cheat", gameplay: true,
+              help: "Alias of cheat.infiniteAmmo (legacy key)."),
+        .bool("infiniteMorale", \.infiniteMorale, id: "cheat", gameplay: true,
+              help: "Alias of cheat.infiniteMorale (legacy key)."),
         .choice("difficulty", \.difficulty, id: "M10", gameplay: true,
                 help: "Difficulty preset: original (bit-exact), recruit, veteran, custom (only explicitly set knobs)."),
     ]
@@ -234,11 +242,11 @@ public struct Enhancements {
                          get: o.get, set: o.set)
         }
         list += erase(\.kernel) + erase(\.game) + erase(\.section0) + erase(\.section1) + erase(\.section2)
-            + erase(\.audio) + erase(\.assist)
+            + erase(\.audio) + erase(\.assist) + erase(\.cheats)
         return list
     }()
 
-    /// The catalogue of every option (stable order: root, kernel, game, s0, s1, s2, audio, assist).
+    /// The catalogue of every option (stable order: root, kernel, game, s0, s1, s2, audio, assist, cheat).
     public static var catalog: [EnhancementInfo] { allOptions.map { $0.info } }
 
     static func lookup(_ key: String) throws -> ErasedOption {
@@ -297,6 +305,15 @@ public struct Enhancements {
             if o.get(self) != o.get(def) { r.insert(o.info.key) }
         }
         if difficulty != .original { r.insert("difficulty:\(difficulty.rawValue)") }
+        return r
+    }
+
+    /// The part of `assistReasons` that comes from cheats (id "cheat": the cheat group and its legacy root aliases).
+    /// Cheats taint per game, not per session (Game.swift prepare / Hiscores.swift beginRun).
+    public var cheatAssistReasons: Set<String> {
+        let def = Enhancements()
+        var r = Set<String>()
+        for o in Enhancements.allOptions where o.info.id == "cheat" && o.get(self) != o.get(def) { r.insert(o.info.key) }
         return r
     }
 

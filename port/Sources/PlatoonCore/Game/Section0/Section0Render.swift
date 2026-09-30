@@ -198,7 +198,8 @@ extension Platoon {
         v0.flip = v0.efacing
         v0.ex = v0.ex &+ v0.dx
         if v0.pstate == 0 && v0.evillager == 0 && (v0.estate == 2 || v0.estate == 5)
-            && v0.ex >= 0x80 && v0.ex < 0xa8 {
+            && v0.ex >= 0x80 && v0.ex < 0xa8
+            && !enhancements.cheats.invincible {   // ENHANCEMENT CHEAT-INV (default off)
             s0PlayerHit()                          // bodily contact kills
         }
         s0DrawFrame(mem.r32(0x5f88a), v0.eframe)

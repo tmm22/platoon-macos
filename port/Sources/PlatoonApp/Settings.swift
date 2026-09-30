@@ -21,8 +21,5 @@ final class Settings {
     /// Last section reached (1 or 2) and the carried globals, for "Continue".
     var continueSection: Int { get { d.integer(forKey: "contSection") } set { d.set(newValue, forKey: "contSection") } }
     var continueCarry: Data? { get { d.data(forKey: "contCarry") } set { d.set(newValue, forKey: "contCarry") } }
-    var cheatAmmo: Bool { get { d.bool(forKey: "cheatAmmo") } set { d.set(newValue, forKey: "cheatAmmo") } }
-    var cheatMorale: Bool { get { d.bool(forKey: "cheatMorale") } set { d.set(newValue, forKey: "cheatMorale") } }
-    var cheatInvulnerable: Bool { get { d.bool(forKey: "cheatInvuln") } set { d.set(newValue, forKey: "cheatInvuln") } }
     var adfBookmark: Data? { get { d.data(forKey: "adf") } set { d.set(newValue, forKey: "adf") } }
 }

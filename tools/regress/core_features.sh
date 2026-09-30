@@ -42,10 +42,11 @@ EOF
 "$B" --enh list | grep -q "kernel.soundFlagsAtBoot" && ok "enh list" || bad "enh list" "catalogue incomplete"
 "$B" --adf "$ADF" --enh bogus=1 --frames 1 --out "$O/x" > "$O/bogus.txt" 2>&1; grep -q "unknown enhancement option" "$O/bogus.txt" && ok "enh unknown key rejected" || bad "enh unknown key" "$(cat $O/bogus.txt)"
 
-# --- S5: default run -> original file; recruit -> hiscores-recruit.bin; trainer -> hiscores-assisted.bin
-for mode in default recruit trainer; do
+# --- S5: default run -> original file; recruit -> hiscores-recruit.bin; trainer / cheats -> hiscores-assisted.bin
+for mode in default recruit trainer cheat; do
   rm -rf "$O/hs_$mode"; mkdir -p "$O/hs_$mode"
   extra=(); [ $mode = recruit ] && extra=(--enh difficulty=recruit); [ $mode = trainer ] && extra=(--trainer ammo)
+  [ $mode = cheat ] && extra=(--enh cheat.original=1,cheat.infiniteAmmo=1)
   PLATOON_HISCORES="$O/hs_$mode/hiscores.bin" PLATOON_EVENTS="$O/hs_$mode/events.txt" \
     "$B" --adf "$ADF" --deterministic --frames 4200 --script "$K/hs.txt" --out "$O/hs_$mode/files" "${extra[@]}" \
     --tickdump f890 116cc 1600 "$O/hs_$mode/title_table.bin" > /dev/null 2>&1 &
@@ -57,6 +58,8 @@ wait
   && ok "S5 recruit run -> hiscores-recruit.bin only" || bad "S5 recruit" "$(ls hs_recruit) $(grep hiscore hs_recruit/events.txt)"
 [ ! -f hs_trainer/hiscores.bin ] && [ -f hs_trainer/hiscores-assisted.bin ] && grep -q 'mode=assisted' hs_trainer/events.txt \
   && ok "S5 trainer run -> hiscores-assisted.bin only" || bad "S5 trainer" "$(ls hs_trainer)"
+[ ! -f hs_cheat/hiscores.bin ] && [ -f hs_cheat/hiscores-assisted.bin ] && grep -q 'hiscore rank=1 .*mode=assisted' hs_cheat/events.txt \
+  && ok "S5 cheat run -> hiscores-assisted.bin only" || bad "S5 cheat" "$(ls hs_cheat)"
 # the title's table (k_init after each game) must stay the pristine one in tainted runs, and the assisted table
 # must hold the entered score in rank 1 (2nd game 10000 in rank 2)
 python3 - "$O" <<'PY' && ok "S5 original table untouched in RAM, mode table ranked" || bad "S5 tables" "see above"

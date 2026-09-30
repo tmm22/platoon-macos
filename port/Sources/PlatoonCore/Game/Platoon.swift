@@ -60,6 +60,9 @@ public final class Platoon {
     var textScreenPending = false
     /// F2: k_text_start is printing a HUD message (not part of a text screen).
     var inTextStart = false
+    /// Cheats (CHEAT-ORIG): the credits-page flag bytes $115b3 / $115c2 as they were before the original-cheats
+    /// switch cleared them (restored when it is switched off again).
+    var cheatFlagBytes: (UInt8, UInt8)?
 
     public init(machine: Machine) {
         m = machine; mem = machine.memory; chip = machine.chip; disk = machine.disk; input = machine.input

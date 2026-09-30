@@ -569,8 +569,9 @@ of byte code>>3); `$24a8` w last joystick; `$23e4` keyboard ASCII buffer (count 
   2. then `KEYPAD- H I L L` (raw `4a 25 17 28 28`, `$11211`) → `$115c2`:=0 ("MEGA CHEAT" at [15,24], further
      checks disabled), `$70(a6)` |= 2. Each accepted key plays `jt27(2)`. Verified: `$70`=3 and "MEGA CHEAT" shown.
   Effects (section code): S0 (`$171c6`, any bit): F1/F2/F3/F4 warp to start positions (`$1a6da` := `$50001`,
-  `$2d0004`, `$410001`, `$410000`, restart at `$17070`), F5/F6 debug overlay on/off (`$60ca0`, `$19f5e` prints
-  hex values). MEGA CHEAT (bit1): S1 HELP (`$5f`) at `$178be`/`$18bd8` → skip (`$18afe`/`$18e6c`); S2 CAPS LOCK
+  `$2d0004`, `$410001`, `$410000`, restart at `$17070`), F5/F6 invincibility on/off (`st.b`/`clr.w $60ca0`:
+  player_hit returns at once; read_input `$19f5e` queues message $16 "CHEAT!" while it is set) [verified in the port:
+  port/verify/cheats]. MEGA CHEAT (bit1): S1 HELP (`$5f`) at `$178be`/`$18bd8` → skip (`$18afe`/`$18e6c`); S2 CAPS LOCK
   (`$62`) at `$1711e` → `$17c0a`. (Details belong to the section modules; **unverified** beyond the code.)
 
 ---------------------------------------------------------------------------------------------------------

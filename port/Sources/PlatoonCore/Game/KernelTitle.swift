@@ -64,6 +64,7 @@ extension Platoon {
     func k_title_start() -> Never {
         tickPoint(0xf95a)
         probeScreen(.title)
+        if enhancements.cheats.original { cheatApplyOriginal() }        // ENHANCEMENT CHEAT-ORIG (default off)
         k_logo_cycle_reset()
         if let n = config.startSection, !startSectionDone {
             startSectionDone = true
@@ -82,6 +83,7 @@ extension Platoon {
     func k_start_new_game(section n: Int) -> Never {
         if let carry = config.carry {
             for (i, b) in carry.prefix(0x76).enumerated() { mem.w8(a6 + UInt32(i), b) }
+            if enhancements.cheats.original { cheatApplyOriginal() }    // ENHANCEMENT CHEAT-ORIG: the carried $70(a6)
         } else {
             mem.w16(a6 + KV.morale, k_newGameMorale())
             mem.w32(a6 + KV.score, 0)

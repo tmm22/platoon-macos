@@ -82,7 +82,9 @@ extension Platoon {
                 // tg_spawn $182f8
                 let a5 = s2_a5
                 if mem.r16(a5) == 0 { return }                      // no grenades left
-                mem.w16(a5, mem.r16(a5) &- 1)
+                if !enhancements.cheats.infiniteGrenades {          // ENHANCEMENT CHEAT-GREN (default off)
+                    mem.w16(a5, mem.r16(a5) &- 1)
+                }
                 mem.w16(a0, 0xff00)                                 // active $ff, anim 0
                 var d0 = mem.r32(a3 &+ 2)                           // x+$a, depth+$1e
                 d0 = (d0 & 0x0000ffff) | UInt32(UInt16(truncatingIfNeeded: d0 >> 16) &+ 0xa) << 16

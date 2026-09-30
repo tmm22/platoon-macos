@@ -24,14 +24,15 @@ background).
 9. [Jungle & village: failsafes, fixes, map, widescreen](#jungle--village-failsafes-fixes-map-widescreen)
 10. [Tunnels & flare night: map, fairness, fixes](#tunnels--flare-night-map-fairness-fixes)
 11. [Final jungle & foxhole: navigator, room slide, fixes](#final-jungle--foxhole-navigator-room-slide-fixes)
-12. [Game options, difficulty presets, command line](#game-options-difficulty-presets-command-line)
-13. [For developers](#for-developers)
+12. [Cheats: the original developer cheats and extra ones](#cheats-the-original-developer-cheats-and-extra-ones)
+13. [Game options, difficulty presets, command line](#game-options-difficulty-presets-command-line)
+14. [For developers](#for-developers)
 
 ---
 
 ## Finding things
 
-**Preferences** (Platoon ▸ Settings…, ⌘,) has six tabs. Every option of this guide has a row there:
+**Preferences** (Platoon ▸ Settings…, ⌘,) has seven tabs. Every option of this guide has a row there:
 
 | Tab | What is there |
 |---|---|
@@ -39,14 +40,15 @@ background).
 | Input | keyboard and controller presets, Controls & Bindings, controller hints and dead zone, high-score name typing, motor accessibility (tap stretching, toggles, auto-fire), aiming, rumble |
 | Video | filter, CRT look, pixel-art upscaler, around the picture (glow, shake, hit flash, sniper cue), accessibility (night lift, reduced flashing, colour vision, HUD magnifier), recording, widescreen jungle, tunnel turn slide, final-jungle room slide |
 | Audio | output, F10 mode at start-up, mixer, music (ghost voices, replacement soundtrack), sound character, output timing |
-| Gameplay | difficulty preset and summary, custom difficulty knobs per section, platoon (soldiers, full platoon), jungle & village rules and bug fixes, tunnels rules and bug fixes, final-jungle bug fixes, trainer |
+| Gameplay | difficulty preset and summary, custom difficulty knobs per section, platoon (soldiers, full platoon), jungle & village rules and bug fixes, tunnels rules and bug fixes, final-jungle bug fixes |
 | Assist | messages and captions, objectives and briefings, speedrun timer and service record, replays, practice, jungle map, tunnel map, final-jungle navigator |
+| Cheats | enable / disable all, the original developer cheats and their keys, invincibility, infinite ammunition / grenades / flares / morale / soldiers, freeze the airstrike timer |
 
 Rows marked **GAMEPLAY** change the game (see the next chapter); rows marked **ON RESET** are read when a new game
 starts, and the window's footer offers **Reset Game Now** while such changes are waiting. **Restore Defaults**
 resets the current tab.
 
-**Menus.** *Game*: pause, reset, continue, start at a section, trainer, save states (quick save / load, slots, retry
+**Menus.** *Game*: pause, reset, continue, start at a section, cheats, save states (quick save / load, slots, retry
 from checkpoint, rewind, and the checkpoint / rewind switches), send Amiga key, screenshot, disk import and check,
 Controls & Bindings. *View*: filters, CRT look, picture effects and accessibility, recording, widescreen jungle,
 room slide. *Sound*: output, mixer, synthesis, ambience, ghost voices, replacement soundtrack. *Assist*: message log,
@@ -55,7 +57,8 @@ replays, service record. *Help*: this guide, the README, Controls & Bindings, Pr
 
 **Pause menu** (Esc, Game ▸ Pause Menu, or hold the controller's Menu button when that is switched on): resume,
 save / load, retry from checkpoint and rewind (when on), message log, objectives, the map or navigator of the
-section you are in, recording, practice, restart the section, Options, Controls & Bindings, abort to title, quit.
+section you are in, recording, practice, the original cheat keys that work right now (when the original cheats
+are on), restart the section, Options, Controls & Bindings, abort to title, quit.
 Entries that don't apply right now (another section's map, a replay or practice drill that isn't running) are
 left out. It works with the keyboard, a controller and the mouse.
 
@@ -84,7 +87,9 @@ title screen shows); it goes to a table of its own next to it:
 
 What makes a game assisted:
 - any row marked **GAMEPLAY** in Preferences that is not at its default (difficulty, soldiers, rules, bug fixes,
-  randomisers, compass assist, direct aiming, game speed below 100 %, trainer);
+  randomisers, compass assist, direct aiming, game speed below 100 %);
+- any cheat (Preferences ▸ Cheats or Game ▸ Cheats, the original developer cheats switch too), from the moment it
+  is switched on;
 - loading a save, retrying a checkpoint, rewinding, practice drills, replays, *Continue from Last Section* and
   starting at the tunnels or the final jungle (starting a new game at the jungle is an ordinary game);
 - assists that act during the game, from the moment they first act: assisted aiming, auto-fire, the objectives'
@@ -104,7 +109,7 @@ The pause menu shows **ASSISTED** under its title while the current game is mark
 None of these change the game. They are part of the Mac app around it.
 
 ### Preferences (⌘,)
-One window with tabs General, Input, Video, Audio, Gameplay and Assist (see [Finding things](#finding-things) for
+One window with tabs General, Input, Video, Audio, Gameplay, Assist and Cheats (see [Finding things](#finding-things) for
 what is where). Every option of the game's enhancement catalogue has a row. Badges:
 - **GAMEPLAY**: changes the game. Runs that use it are assisted and never enter the original hiscore table.
 - **ON RESET**: read when a new game starts. The window footer shows how many changes are waiting, with a
@@ -127,6 +132,9 @@ choose, Esc or Ⓑ to go back. The mouse works too.
   checkpoint retries keep that platoon, also when they go back into the previous section; after loading a saved
   game it isn't known, so the row says "with a fresh platoon (loaded game)". New Game is an ordinary game;
   restarting a later section marks the run assisted.
+- **Cheat: …** rows (only while the original developer cheats are on, and only the keys that work where you are):
+  the jungle warps F1-F4 and the F5/F6 invincibility, HELP in the tunnels / flare night, CAPS LOCK in the final
+  jungle (see [Cheats](#cheats-the-original-developer-cheats-and-extra-ones)).
 - **Options…** (Preferences), **Controls & Bindings…**, **Abort to Title…** (the original DEL), **Quit Platoon…**.
   Destructive entries ask for confirmation.
 
@@ -511,7 +519,7 @@ are waiting.
 The port is deterministic: the joystick and keys of a game reproduce it exactly.
 - **Record the current game** (default on) keeps the input since the last reset in memory (a few KB).
 - **Assist › Replays › Save Replay of This Game…** (⌥⌘S) writes a `.plreplay` file. **Play Replay…** (⌥⌘O) plays one:
-  the game restarts with the recorded settings (difficulty and other options, start section, trainer) and your own
+  the game restarts with the recorded settings (difficulty and other options, cheats, start section) and your own
   input is ignored. You can pause, open the pause menu and fast-forward; **Stop Replay (take over)** (Replays menu or
   pause menu) hands you the controls at that moment, and the recording carries on, so saving afterwards gives a
   replay of both parts. A replayed game is marked assisted and never writes a high score, and neither a replay nor a
@@ -519,7 +527,8 @@ The port is deterministic: the joystick and keys of a game reproduce it exactly.
 - The last finished game and your best-scoring game are kept automatically (`Play Last Game`, `Play Best Game`;
   files in `~/Library/Application Support/Platoon/replays/`).
 - Loading a save state, retrying a checkpoint or rewinding ends the recording (the game can no longer be replayed
-  from its start); changing the trainer during a game does too.
+  from its start); switching a cheat during a game does too. (Replays recorded with the old Trainer play back with
+  it: their `# trainer` header line still works, as does `platoon-headless --trainer`.)
 - A plain `platoon-headless --script` file (joystick and key lines, no pokes) can be played with Play Replay… too;
   its keys are paced like the headless runner's, so a key press and release on the same frame still register.
 - A `.plreplay` is also a `platoon-headless --script`; its header lists the command line, e.g.
@@ -756,6 +765,53 @@ The random draws stay exactly where the original makes them; only the resulting 
 
 ---
 
+## Cheats: the original developer cheats and extra ones
+**Preferences ▸ Cheats** (or **Game ▸ Cheats**). Every cheat is off by default and takes effect at once, in the
+middle of a game too. **Enable All Cheats** / **Disable All Cheats** (top of the tab, and in the menu) switch every
+switch of this chapter together. A game in which any cheat was on, even for a moment, is **assisted**: its score
+goes to `hiscores-assisted.bin`, never to the original table. Switching every cheat off makes the next new game an
+ordinary one again. (The old *Game ▸ Trainer* switches became these cheats: your settings were carried over.)
+
+### Original developer cheats - `cheat.original`
+The game has cheats of its own: type `HAMBURGER` on a title screen ("CHEAT!!!" appears on the credits page), then
+`KEYPAD-` `H I L L` ("MEGA CHEAT"). The switch **Original developer cheats (CHEAT!!! + MEGA CHEAT)** does exactly
+what typing both does (the credits page shows MEGA CHEAT, `$70(a6)` = 3), without typing. Switching it off again
+undoes it (also codes you typed by hand). What the codes unlock, and where (the keys only work in these places;
+the Cheats tab buttons, the Game ▸ Cheats items and the pause-menu **Cheat:** rows press them for you and are greyed
+out / left out elsewhere):
+
+| Where | Key | What it does |
+|---|---|---|
+| Jungle & village | **F1** | *Warp to the start*: the jungle restarts at its start (level 1, column 5). |
+| | **F2** | *Warp near the explosives*: restart on the rear path (level 4, column 45), just before the box of explosives. |
+| | **F3** | *Warp to the bridge*: restart on the river path (level 1, column 65), in front of the bridge. |
+| | **F4** | *Warp to the village*: restart in the village street (level 0, column 65). |
+| | **F5** / **F6** | The developers' own invincibility on / off (jungle and village only; "CHEAT!" is shown while it is on). |
+| Tunnels | **HELP** | *Skip to the flare night*: "LET'S GO TO THE FLARE SCREEN!", with 9 flares. |
+| Flare night | **HELP** | *Survive the night*: "WELL DONE, YOU MADE IT THROUGH THE NIGHT", on to the final jungle. |
+| Final jungle & bunker | **CAPS LOCK** | *Win the game*: "YOU MADE IT! A HUEY IS ON IT'S WAY…", then the usual game over and high score. |
+
+The jungle keys need either code, the others MEGA CHEAT. Every warp re-equips all five soldiers (the original's
+restart). The keys are held for a few frames, so they also work with *Faster key response*. (The F5/F6 key was
+described as a "debug overlay" in older notes; the code shows it is the invincibility flag `$60ca0`.)
+
+### Extra cheats
+| Switch (key) | What it does |
+|---|---|
+| **Invincibility** (`cheat.invincible`) | Nothing can hurt you in any section: enemy bullets, knives and bodily contact, the hut guard, snipers, tripwires and the booby-trapped drawers (they still go off), the tunnel, room-guard and water enemies (their shot misses), the flare-night enemies (they keep shooting, harmlessly, and can still be shot), mines (they still explode), barbed wire (it still blocks you) and Barnes. No wound, no morale loss, no *CHOOSE YOUR MAN* interruption. In the jungle it also stops you before the bridge while the explosives are not planted, like the *Bridge failsafe*: otherwise you would stand frozen at the bridge for ever, because the runner's shot that normally ends it can't hurt you. The napalm strike at 0:00 is not an attack and still comes: use *Freeze the airstrike timer*. |
+| **Infinite ammunition** (`cheat.infiniteAmmo`) | Firing never uses rounds (jungle, tunnels, flare night, final jungle). |
+| **Infinite grenades** (`cheat.infiniteGrenades`) | Throwing never uses grenades (jungle; final jungle and the bunker). |
+| **Infinite flares** (`cheat.infiniteFlares`) | In the tunnels you always carry the 8 flares the exit asks for (the most the boxes of flares give), so the exit lets you through. In the flare night the flares count down to dawn - the night is survived when the last one burns out - so they are used up there as usual (with endless flares the night would never end). |
+| **Infinite morale** (`cheat.infiniteMorale`) | Morale never drops: no loss per hit or per villager, and the jungle's slow drain stops. |
+| **Freeze the airstrike timer** (`cheat.freezeTimer`) | The final jungle's two-minute countdown to the napalm strike stands still. |
+| **Infinite soldiers** (`cheat.infiniteMen`) | The platoon can't be wiped out: when your last soldier is killed he is patched up (no wounds) and carries on - in the tunnels and the final jungle through the section's usual "one more chance" restart. Morale at zero still ends the game (add *Infinite morale*), and so does walking past the unmined bridge (the whole platoon is shot; add *Invincibility*). |
+
+Command line / environment: `platoon-headless --enh cheat.invincible=1,cheat.infiniteAmmo=1` or
+`PLATOON_ENH=cheat.original=1`; the legacy keys `infiniteAmmo` / `infiniteMorale` are aliases of the
+`cheat.` ones. `platoon-headless --trainer` still runs the old host-side trainer (for old replays).
+
+---
+
 ## Game options, difficulty presets, command line
 The translated game reads its options from one registry of `key=value` settings (the rows of Preferences map onto
 them). This chapter lists the game-wide ones and how to set any option outside the app.
@@ -799,7 +855,7 @@ Custom uses only the values you set yourself (keys ending in `.diff.<name>`). Th
 See [Assisted games and high scores](#assisted-games-and-high-scores). Name entry in a separate table works as
 usual and your usual name is pre-filled; the title screen keeps showing the original table. For the core, a game is
 assisted when a gameplay option differs from its default (`platoon-headless --enh list` marks them with `*`), the
-host declared or marked a reason (`GameConfig.assistedReasons`, `GameProbe.markAssisted`), the trainer is active,
+host declared or marked a reason (`GameConfig.assistedReasons`, `GameProbe.markAssisted`), a cheat is on,
 the game was started with a carry block or at section 1 or 2, or (optionally) the original cheats were used.
 
 ---
@@ -962,6 +1018,20 @@ checkpoint retry, and files saved in one process and loaded in another. Headless
   `PLATOON_S2NAV_DEBUG=1` logs the navigator state (and the run's assisted reasons) every 50 frames; a savestate made with
   `platoon-headless --snapshot-save` in the final jungle plus `PLATOON_SAVES_DIR` / `PLATOON_DEBUG_SAVESTATES` gets the
   app into a room within seconds for `PLATOON_DEBUG_SCRIPT` captures.
+
+### Cheats
+- Options: `Game/Enhance/CheatOptions.swift` (group `cheat`, every option `gameplay: true`); hooks marked
+  `// ENHANCEMENT CHEAT-ORIG|INV|AMMO|GREN|FLARE|MORALE|TIMER|MEN` in the kernel (k_title_start, k_start_new_game,
+  vbl_timer) and in Section0/1/2 (the list is in CheatOptions.swift's header); helpers in `Game/Cheats.swift`.
+  Cheat reasons taint per game (`Game.swift` prepare / `Hiscores.swift` beginRun), not per session.
+- Live switching: `PlatoonGame.setCheats(machine, CheatOptions)` from `Machine.frameHook` (the app's
+  `GameHost.syncCheats` does it every frame from Preferences ▸ Cheats, except while a replay plays);
+  `PlatoonGame.cheats(machine)` reads them. The key actions: `CheatPrefs.actions` (Prefs/PrefsCheats.swift),
+  `GameHost.holdKey`. The legacy host `Trainer` only runs for `platoon-headless --trainer` and old replays.
+- Tests: `port/verify/cheats/run_cheats.py [--bin platoon-headless] [--only REGEX]` (headless; every section:
+  invincibility against soldiers, the hut guard, tripwires / booby traps, tunnel and flare-night enemies, final-jungle
+  soldiers, mines, wire and Barnes, each with a control run that does get hurt; ammunition, grenades, flares, morale,
+  timer, soldiers; the original cheats' RAM, warps and skips), `swift test --filter CheatTests`.
 
 ### Game options and hiscores (core)
 - Regression gate: `tools/regress_all.sh --bin <your platoon-headless>` (see port/PORTING.md "Regression gate").

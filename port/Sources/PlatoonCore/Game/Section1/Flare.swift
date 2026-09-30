@@ -357,7 +357,7 @@ extension Platoon {
 
     /// $18fba shot_jitter_flare: ammo -1, gunshot, 4x random recoil (x $1e..$10e, y $a..$78).
     func s1_shotJitterFlare(_ a3: UInt32) {
-        _ = s1_subW(s1_a5 + 2, 1)
+        if !enhancements.cheats.infiniteAmmo { _ = s1_subW(s1_a5 + 2, 1) }       // ENHANCEMENT CHEAT-AMMO
         s1_fx(0x83)
         var r = UInt16(truncatingIfNeeded: k_random()) & 7
         if Int16(bitPattern: s1_addW(a3 + 2, r)) >= 0x10f { mem.w16(a3 + 2, 0x10e) }
@@ -425,6 +425,8 @@ extension Platoon {
 
     /// $1922a enemy_hits_player: free slot, remove enemy, reset spawn difficulty, start a light cycle, hit.
     func s1_enemyHitsPlayer(_ a3: UInt32) {
+        // ENHANCEMENT CHEAT-INV (default off): the shot misses; the enemy stays and starts its shooting cycle again
+        if enhancements.cheats.invincible { mem.w16(a3 + 0xe, 0); return }
         mem.w8(S1.spawnSlots &+ s1_sx(mem.r16(a3 + 0x10)), 0)
         mem.w8(a3, 0)
         mem.w16(S1.spawnCount, 0x24)

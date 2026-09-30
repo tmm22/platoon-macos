@@ -1,6 +1,7 @@
-/// Host-side trainer options (enhancement): applied to the platoon's globals (a6 block at $12dde) at the start
-/// of every frame while a section is running. Default off = original game. An active trainer marks the running
-/// game as assisted (F4/S5: its score goes to the assisted hiscore table, never the original one).
+/// LEGACY host-side trainer: applied to the platoon's globals (a6 block at $12dde) at the start of every frame while a
+/// section is running. Superseded by the cheats (Enhance/CheatOptions.swift, in-code hooks); kept so that
+/// `platoon-headless --trainer` and the playback of replays recorded with it (`# trainer` header line) reproduce
+/// exactly. Default off = original game. An active trainer marks the running game as assisted (F4/S5).
 public struct Trainer {
     public var infiniteAmmo = false, infiniteMorale = false, invulnerable = false
     public init(infiniteAmmo: Bool = false, infiniteMorale: Bool = false, invulnerable: Bool = false) {

@@ -536,7 +536,9 @@ extension Platoon {
         for _ in 0...2 {
             if mem.r16(a0) == 0 {                             // active and anim byte both 0
                 let a5 = s2_a5
-                mem.w16(a5 &+ 2, mem.r16(a5 &+ 2) &- 1)       // ammo - 1
+                if !enhancements.cheats.infiniteAmmo {        // ENHANCEMENT CHEAT-AMMO (default off)
+                    mem.w16(a5 &+ 2, mem.r16(a5 &+ 2) &- 1)   // ammo - 1
+                }
                 mem.w8(a0, 0xff)
                 mem.w32(a0 &+ 2, mem.r32(a3 &+ 2))            // at player x+8, depth+$28
                 mem.w16(a0 &+ 2, mem.r16(a0 &+ 2) &+ 8)
@@ -556,6 +558,11 @@ extension Platoon {
         // ($4e75) over the first instruction of player_hit ($17d68, normally $4239). The code bytes are in RAM,
         // so honour that patch exactly like the 68000 would (all callers tolerate an immediate return).
         if mem.r16(0x17d68) == 0x4e75 { return }
+        // ENHANCEMENT CHEAT-INV (default off): the hit is ignored (a mine still explodes: its sound plays)
+        if enhancements.cheats.invincible {
+            if mem.r16(S2.vHitSfx) != 0x80 { s2_play_hit_sfx() }
+            return
+        }
         mem.w8(S2.playerAnim, 0)
         mem.w32(S2.playerHandler, S2.hPlayerDying)
         let f = Int8(bitPattern: mem.r8(S2.playerFrame))      // start frame from size/facing (signed byte compares)
@@ -586,7 +593,9 @@ extension Platoon {
         k_hud_wounds()
         let morale = mem.r16(a6 &+ 0x2e)                      // subi.w #$800; bcc
         let loss = UInt16(s2Diff.hitMorale ?? 0x800)          // ENHANCEMENT M10 s2.diff.hitMorale (nil = $800)
-        mem.w16(a6 &+ 0x2e, morale >= loss ? morale &- loss : 0)
+        if !enhancements.cheats.infiniteMorale {              // ENHANCEMENT CHEAT-MORALE (default off)
+            mem.w16(a6 &+ 0x2e, morale >= loss ? morale &- loss : 0)
+        }
         s2_play_hit_sfx()
     }
 
@@ -619,6 +628,14 @@ extension Platoon {
         mem.w32(a3 &+ 0xa, S2.hPlayer)
         mem.w8(S2.vDying, 0)
         if mem.r16(s2_a5 &+ 4) >= 4 {                          // man dead
+            if enhancements.cheats.infiniteMen {               // ENHANCEMENT CHEAT-MEN (default off): the last man
+                let next = enhancements.game.extendedMen ? s2_nextMan()      // is patched up and gets another chance
+                    : (mem.r16(a6 &+ 0x22) != 0 ? nil : 1)
+                if next == nil {
+                    cheatPatchUp(s2_a5)
+                    s2_second_chance(nextMan: Int(mem.r16(a6 &+ 0x22)))
+                }
+            }
             if enhancements.game.extendedMen {                 // ENHANCEMENT M15 (game.lives / game.fullPlatoon)
                 guard let next = s2_nextMan() else { s2_all_dead() }
                 s2_second_chance(nextMan: next)

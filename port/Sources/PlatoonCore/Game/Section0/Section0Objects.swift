@@ -136,6 +136,9 @@ extension Platoon {
 
     /// $1772a hit_ebullet: enemy bullet touched the player x-range.
     func s0HitEBullet(_ a0: UInt32, bob d1: UInt16) {
+        // ENHANCEMENT CHEAT-INV (default off): the bullet flies through the player. (Frozen at the unmined bridge -
+        // only reachable if invincibility was switched on after walking past it - the runner's shot still ends it.)
+        if enhancements.cheats.invincible && v0.pstate != 9 { s0BulletDraw(a0, bob: d1); return }
         if v0.pstate == 9 { s0PlayerHit(); return }       // bullet continues (not drawn this tick)
         if v0.pstate != 5 && v0.pstate != 0 { s0BulletDraw(a0, bob: d1); return }
         s0BulletKill(a0)
@@ -222,9 +225,11 @@ extension Platoon {
         v0.trapX = v0.trapX &+ v0.dx
         if v0.trapX >= 0x130 { s0TrapClear(); return }
         if v0.trapX >= 0x8c && v0.trapX < 0x9c && v0.pstate == 0 {
-            s0PlayerHit()
-            if !enhancements.section0.trapsWoundOn {  // ENHANCEMENT S7 (default: the trap kills)
-                mem.w16(s0Man + 4, 3)             // death on the following hit count
+            if !enhancements.cheats.invincible {      // ENHANCEMENT CHEAT-INV (default off): it only explodes
+                s0PlayerHit()
+                if !enhancements.section0.trapsWoundOn {  // ENHANCEMENT S7 (default: the trap kills)
+                    mem.w16(s0Man + 4, 3)             // death on the following hit count
+                }
             }
             v0.trapState = 2
             v0.trapxTimer = 3

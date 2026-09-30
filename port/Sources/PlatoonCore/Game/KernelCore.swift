@@ -45,6 +45,7 @@ extension Platoon {
         }
         if mem.r16(a6 + KV.timerOn) == 0 { return }
         mem.w16(a6 + KV.timerVbl, 0x31)
+        if enhancements.cheats.freezeTimer { return }                  // ENHANCEMENT CHEAT-TIMER (default off)
         // ENHANCEMENT S9h (kernel.timerStopsAtZero, default off): no wrap from 00:00 to 59:59
         if enhancements.kernel.timerStopsAtZero && mem.r16(a6 + KV.timerMin) == 0 { return }
         let (s, c) = Platoon.sbcd(mem.r8(a6 + KV.timerSec), mem.r8(KA.bcdZero + 3), x: x)

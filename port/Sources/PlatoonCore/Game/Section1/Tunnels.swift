@@ -455,7 +455,7 @@ extension Platoon {
             if mem.r8(S1.fireLatch) != 0 {
                 skipLatchClear = true
             } else if mem.r16(s1_a5 + 2) != 0 {
-                _ = s1_subW(s1_a5 + 2, 1)
+                if !enhancements.cheats.infiniteAmmo { _ = s1_subW(s1_a5 + 2, 1) }   // ENHANCEMENT CHEAT-AMMO
                 s1_fx(0x82)
             }
         }
@@ -787,7 +787,7 @@ extension Platoon {
 
     /// $18f3c shot_jitter_tunnel: ammo -1, gunshot, 4x random recoil (x 0..$8d, y 0..$7d).
     func s1_shotJitterTunnel(_ a3: UInt32) {
-        _ = s1_subW(s1_a5 + 2, 1)
+        if !enhancements.cheats.infiniteAmmo { _ = s1_subW(s1_a5 + 2, 1) }       // ENHANCEMENT CHEAT-AMMO
         s1_fx(0x83)
         var r = UInt16(truncatingIfNeeded: k_random()) & 7
         if Int16(bitPattern: s1_addW(a3 + 2, r)) >= 0x8e { mem.w16(a3 + 2, 0x8d) }

@@ -8,6 +8,7 @@ extension Platoon {
     /// $17d1a player_hit: "YOU'RE HIT", thrown out of a room, wounds+1, red flash, KIA handling,
     /// wait for the message queue, morale -$c00, "GET GOING !". Runs inside the object loop.
     func s1_playerHit() {
+        if enhancements.cheats.invincible { return }                     // ENHANCEMENT CHEAT-INV (default off)
         mem.w8(S1.enemyHit, 0)
         s1_fx(0x80)
         k_queue_text(0x20)
@@ -28,7 +29,16 @@ extension Platoon {
     /// flag the platoon destroyed.
     func s1_killedInAction() {
         k_queue_text(0x1b)
-        if enhancements.game.extendedMen { s1e_killedInAction(); return }   // ENHANCEMENT M15 (game.lives/fullPlatoon; default off)
+        if enhancements.game.extendedMen {                               // ENHANCEMENT M15 (game.lives/fullPlatoon; default off)
+            s1e_killedInAction()
+            if enhancements.cheats.infiniteMen { s1_cheatNoWipeOut() }   // ENHANCEMENT CHEAT-MEN (default off)
+            return
+        }
+        if mem.r16(a6 + 0x22) == 1 && enhancements.cheats.infiniteMen {  // ENHANCEMENT CHEAT-MEN (default off)
+            mem.w8(S1.destroyed, 0xff)
+            s1_cheatNoWipeOut()
+            return
+        }
         if mem.r16(a6 + 0x22) == 1 {
             mem.w8(S1.destroyed, 0xff)
         } else {
@@ -36,6 +46,15 @@ extension Platoon {
             mem.w32(a6 + 0x1e, a6 + 6)                           // lea 6(a6),a5 ; move.l a5,$1e(a6)
             mem.w8(S1.soldierLost, 0xff)
         }
+    }
+
+    /// ENHANCEMENT CHEAT-MEN: the last man would be lost ("PLATOON DESTROYED"): patch him up and give him another
+    /// chance instead (the "ONE MORE CHANCE" restart of a lost soldier).
+    func s1_cheatNoWipeOut() {
+        guard mem.r8(S1.destroyed) != 0 else { return }
+        mem.w8(S1.destroyed, 0)
+        cheatPatchUp(s1_a5)
+        mem.w8(S1.soldierLost, 0xff)
     }
 
     /// $17d9e / $17e2e: wait until all queued messages scrolled, then wounds, morale -$c00, "GET GOING !".
@@ -105,6 +124,7 @@ extension Platoon {
 
     /// $17f6e morale_sub: $2e(a6) -= d0, clamped at 0 on borrow (unsigned).
     func s1_moraleSub(_ d0: UInt16) {
+        if enhancements.cheats.infiniteMorale { return }                 // ENHANCEMENT CHEAT-MORALE (default off)
         let m = mem.r16(a6 + 0x2e)
         mem.w16(a6 + 0x2e, m < d0 ? 0 : m &- d0)
     }

@@ -136,6 +136,6 @@ enum FeatureHooks {
         builtinInstall(app)
         inputInstall(app); audioInstall(app); videoInstall(app); gameplayCoreInstall(app)
         gameplaySection0Install(app); gameplaySection1Install(app); gameplaySection2Install(app)
-        assistInstall(app); saveStateInstall(app)
+        assistInstall(app); saveStateInstall(app); cheatsInstall(app)
     }
 }

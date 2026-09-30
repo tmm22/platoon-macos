@@ -294,7 +294,7 @@ extension Platoon {
             v0.firetoggle ^= 1
             v0.pframe = v0.pframe &+ 1
         }
-        if !enhancements.infiniteAmmo {              // ENHANCEMENT hook (default off = original)
+        if !enhancements.cheats.infiniteAmmo {       // ENHANCEMENT CHEAT-AMMO (default off = original)
             mem.w16(a5 + 2, mem.r16(a5 + 2) &- 1)
         }
         s0NoiseAdd(8)
@@ -314,7 +314,9 @@ extension Platoon {
         let a5 = s0Man
         if mem.r16(a5 + 0) == 0 { s0PfFire(); return }
         s0Sfx(0xa)
-        mem.w16(a5 + 0, mem.r16(a5 + 0) &- 1)
+        if !enhancements.cheats.infiniteGrenades {   // ENHANCEMENT CHEAT-GREN (default off = original)
+            mem.w16(a5 + 0, mem.r16(a5 + 0) &- 1)
+        }
         mem.w8(0x60c42, 0xff)                    // st.b v_grenade_busy
         v0.grenadeT = 8
         v0.pstate = 7
@@ -357,6 +359,9 @@ extension Platoon {
             return
         }
         if enhancements.section0.bridgeFailsafeOn && s0BridgeFailsafeBlocks() { return }   // ENHANCEMENT S6 (default off)
+        // ENHANCEMENT CHEAT-INV (default off): invincibility implies the S6 guard - an invincible player walking past
+        // the unmined bridge would otherwise stand frozen for ever (the bridge runner's shot can't end it)
+        if enhancements.cheats.invincible && !enhancements.section0.bridgeFailsafeOn && s0BridgeFailsafeBlocks() { return }
         // scroll_right $18a3e
         if v0.align == 0 {
             v0.probeY = v0.py &+ 8

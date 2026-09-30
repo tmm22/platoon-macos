@@ -57,7 +57,7 @@ button can be rebound in Controls & Bindings.
 ## Enhancements
 **All optional.** With every setting at its default you play the original 1988 game: the translated code runs
 byte-identically to the verified port (`tools/regress_all.sh`, 62 lockstep scenarios). Options that change the game
-are marked *gameplay*; a game played with any of them (or with the trainer, a loaded save, rewind, practice, a
+are marked *gameplay*; a game played with any of them (or with a cheat, a loaded save, rewind, practice, a
 section start…) is *assisted* and its score goes to a separate high-score table, never the original one.
 The full user guide is [port/ENHANCEMENTS_GUIDE.md](port/ENHANCEMENTS_GUIDE.md) (also in the app's Help menu).
 
@@ -84,8 +84,11 @@ The full user guide is [port/ENHANCEMENTS_GUIDE.md](port/ENHANCEMENTS_GUIDE.md) 
 - **Sound:** separate music and effects volume, per-voice panning, *ghost voices* (the music keeps all four parts
   during gunfire), band-limited synthesis, per-area ambience, your own replacement soundtrack, smooth output timing
   with a latency setting, A500 filter, interpolation.
+- **Cheats (assisted):** Preferences ▸ Cheats / Game ▸ Cheats with *Enable All*: the original developer cheats as
+  one switch (plus buttons for their keys), invincibility, infinite ammunition, grenades, flares, morale and
+  soldiers, and a frozen airstrike timer.
 - **Disk:** import and health check of your own `.adf` dumps with automatic repair.
-- **Original extras kept:** the trainer (Game menu, assisted), saved high scores (Application Support/Platoon),
+- **Original extras kept:** saved high scores (Application Support/Platoon),
   the original Ocean credits text, instant loading, 50 Hz presentation on variable-refresh displays.
 
 ## Faithfulness
@@ -95,8 +98,14 @@ driver's register stream write by write, including complete honest play-throughs
 (jungle → village → tunnels → flare → final jungle → foxhole → ending → high-score entry). Evidence: `port/verify/`.
 
 ## Original cheats
-Type `HAMBURGER` on a title screen ("CHEAT!!!" appears in the credits), then `KEYPAD-` `H I L L` for "MEGA CHEAT".
-Then: jungle F1-F4 warps / F5-F6 debug overlay, tunnels HELP skips a sub-section, final jungle CAPS LOCK skips.
+Type `HAMBURGER` on a title screen ("CHEAT!!!" appears in the credits), then `KEYPAD-` `H I L L` for "MEGA CHEAT"
+(or switch on Preferences ▸ Cheats ▸ *Original developer cheats*, which does the same). Then: in the jungle & village
+F1-F4 warp to the start / near the explosives / the bridge / the village and F5 / F6 switch invincibility on / off;
+HELP skips the tunnels (to the flare night) and the flare night (to the final jungle); CAPS LOCK in the final jungle
+wins the game. The Cheats tab also has extra cheats (invincibility everywhere, infinite ammunition, grenades, flares,
+morale and soldiers, frozen airstrike timer). A game with any cheat on goes to the assisted high-score table
+(typed codes too, if General ▸ *Games with the original cheat codes use the assisted table* is on). Details:
+[port/ENHANCEMENTS_GUIDE.md](port/ENHANCEMENTS_GUIDE.md#cheats-the-original-developer-cheats-and-extra-ones).
 
 ## Legal
 The code and documentation written for this project are released under the MIT licence (`LICENSE`). That licence

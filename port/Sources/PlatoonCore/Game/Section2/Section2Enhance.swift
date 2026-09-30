@@ -14,7 +14,9 @@ extension Platoon {
     static func s2_bcdTimer(seconds s: Int) -> UInt16 {
         let v = max(0, min(59 * 60 + 59, s))
         let mm = v / 60, ss = v % 60
-        return UInt16((mm / 10) << 12 | (mm % 10) << 8 | (ss / 10) << 4 | ss % 10)
+        let hi: Int = (mm / 10) << 12 | (mm % 10) << 8
+        let lo: Int = (ss / 10) << 4 | ss % 10
+        return UInt16(hi | lo)
     }
 
     /// M10 sniper: idle-shot countdown after a depth change ($32) and after a room entry / hit / shot ($64).

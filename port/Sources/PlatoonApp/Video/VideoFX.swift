@@ -21,9 +21,16 @@ struct VideoFrameState {
     var night: Float = 0
     /// Canvas line where the HUD (bottom palette) starts: lines above it are the game window.
     var splitCanvasY = 180
+    /// M21: a section's HUD is on screen (the magnifier strip stays empty otherwise; the layout doesn't jump).
+    var hudActive = true
     /// S17 colour LUT (4096 entries, index = 12-bit Amiga colour, value 0xAARRGGBB) or nil = none.
     var flashLUT: [UInt32]?
     var flashLUTGeneration = 0
+    /// S17 per-index mapping while a flash is limited: 48 x 12-bit colours = the reference palette (the canvas
+    /// kept by `refUpdate`), the current top palette, the limited palette. nil = LUT only.
+    var flashPalettes: [UInt16]?
+    /// S17: keep the canvas of this upload as the flash reference (set on frames without a flash).
+    var refUpdate = false
     /// Emulated frames since the last canvas upload (persistence / temporal filters decay per emulated frame).
     var framesSinceUpload = 0
 }
@@ -41,6 +48,7 @@ final class VideoFX {
     private var tint: Float = 0
     private var rng: UInt32 = 0x2545_f491
     private var lastBridge: Int?
+    private var lastNapalm = false
     // S16
     private var night: Float = 0
     // S17
@@ -48,6 +56,8 @@ final class VideoFX {
     private var stableTop: [UInt16] = Array(repeating: 0, count: 16)
     private var slew: [SIMD3<Float>]? = nil
     private var lastLUTKey: [UInt32] = []
+    private var refTop: [UInt16] = Array(repeating: 0, count: 16)
+    private var lastHookTop: [UInt16] = Array(repeating: 0, count: 16)
     private var lutGeneration = 0
     static func rgb(_ c12: Int) -> UInt32 {
         let r = UInt32((c12 >> 8) & 15) * 0x11, g = UInt32((c12 >> 4) & 15) * 0x11, b = UInt32(c12 & 15) * 0x11
@@ -58,12 +68,21 @@ final class VideoFX {
     /// Debug/test log of effect events (PLATOON_VIDEO_LOG=file).
     private var log: FileHandle?
 
+    /// PLATOON_VIDEO_SCRIPT test driver (Video/VideoSelfTest.swift).
+    private(set) var script: VideoScript?
+
     func install(_ app: AppServices) {
+        script = VideoScript(path: ProcessInfo.processInfo.environment["PLATOON_VIDEO_SCRIPT"])
+        if let dir = ProcessInfo.processInfo.environment["PLATOON_VIDEO_TEST"] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { VideoSelfTest.run(outDir: dir) }
+        }
         if let p = ProcessInfo.processInfo.environment["PLATOON_VIDEO_LOG"] {
             FileManager.default.createFile(atPath: p, contents: nil); log = FileHandle(forWritingAtPath: p)
         }
-        NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.lookDirty = true
+        // (queue nil: UserDefaults can change on the game thread while the main thread waits for it in runFrame;
+        // a .main queue observer would deadlock there - reported by [section1])
+        NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: nil) { [weak self] _ in
+            DispatchQueue.main.async { self?.lookDirty = true }
         }
         app.onHostReady { [weak self] host in
             host.probe.onFx { id, _ in self?.fx(id) }
@@ -99,27 +118,30 @@ final class VideoFX {
     }
 
     private func resetRun() {
-        trauma = 0; sustain = 0; tint = 0; lastBridge = nil; night = 0
+        trauma = 0; sustain = 0; tint = 0; lastBridge = nil; lastNapalm = false; night = 0
         napalmArmed = false; slew = nil; lastLUTKey = []
         renderer?.fx = VideoFrameState()
     }
 
     // MARK: S13 events
 
+    // The sound-effect ids mean different things per section ($81 is the player's hit in the jungle, an enemy
+    // hit in the tunnels, a grenade hit on Barnes in the foxhole; $80 is a kill in the jungle, the player's hit
+    // in the tunnels), so only $85 (explosion: jungle grenade and trap, foxhole grenade miss) and the foxhole's
+    // $81 grenade hit come from the fx stream. Player hits come from the probe's wound / death events (all
+    // sections), the bridge blast and the napalm strike from RAM in frame().
     private func fx(_ id: Int) {
         guard look.shake != 0 else { return }
-        let ctx = AppServices.shared.probe?.context
+        let section = AppServices.shared.probe?.context.loadedSection
         switch id {
         case 0x85: kick(1.0); note("shake explosion")
-        case 0x81:
-            if ctx?.loadedSection == 2 && ctx?.timerMinutes == 0 && ctx?.timerSeconds == 0 { kick(1.0, sustain: 45); note("shake napalm") }
-            else { kick(0.6); note("shake hit") }
+        case 0x81 where section == 2: kick(0.75); note("shake grenade hit")
         default: break
         }
     }
     private func hit() {
-        guard look.hitTint else { return }
-        tint = 1; note("tint")
+        if look.shake != 0 { kick(0.6); note("shake hit") }
+        if look.hitTint { tint = 1; note("tint") }
     }
     private func kick(_ t: Float, sustain s: Int = 0) { trauma = max(trauma, t); sustain = max(sustain, s) }
     private func random() -> Float {
@@ -139,17 +161,21 @@ final class VideoFX {
         // M21/S17: HUD split (copper WAIT before the HUD palette: VP byte at $11638)
         let vp = Int(mem.r8(0x11638))
         if (0x60...0x120).contains(vp) { r.fx.splitCanvasY = vp - Chipset.canvasV0 }
+        r.fx.hudActive = g.inGame && (g.screen == .playing || g.screen == .trapDoorPrompt)
 
         // S13 shake
+        let napalm = g.loadedSection == 2 && g.inGame && g.screen == .playing && g.timerMinutes == 0 && g.timerSeconds == 0
         if look.shake != 0 {
             if let b = g.jungle?.bridge {
                 if let l = lastBridge, l != 2, b == 2 { kick(1.0, sustain: 30); note("shake bridge") }
                 lastBridge = b
             } else { lastBridge = nil }
+            if napalm && !lastNapalm { kick(1.0, sustain: 75); note("shake napalm") }
             if sustain > 0 { sustain -= 1 } else { trauma = max(0, trauma - 0.07) }
             let amp = (look.shake == 2 ? Float(3) : 2) * trauma * trauma
             r.fx.shake = amp > 0.05 ? (Int((random() * amp).rounded()), Int((random() * amp).rounded())) : (0, 0)
         } else if r.fx.shake != (0, 0) || trauma > 0 { trauma = 0; r.fx.shake = (0, 0) }
+        lastNapalm = napalm
         tint = max(0, tint - 0.06)
         r.fx.tint = look.hitTint ? tint : 0
 
@@ -164,11 +190,16 @@ final class VideoFX {
         updateFlashLUT(ctx, r)
 
         // M24
-        VideoRecorder.shared.frame(ctx.machine.chip)
+        if VideoRecorder.shared.isRecording {
+            VideoRecorder.shared.tapAudio(ctx.machine)
+            if VideoRecorder.shared.framesRecorded == 0 { script?.noteFirstFrame(ctx.machine.chip) }
+            VideoRecorder.shared.frame(ctx.machine.chip)
+        }
     }
 
     private func display(_ ctx: FrameContext) {
         if lookDirty { reloadLook() }
+        script?.step(ctx)
         if ctx.host.paused, let r = renderer, r.fx.shake != (0, 0) { r.fx.shake = (0, 0) }
     }
 
@@ -183,11 +214,16 @@ final class VideoFX {
     private func updateFlashLUT(_ ctx: FrameContext, _ r: MetalRenderer) {
         guard look.reduceFlashing else {
             if r.fx.flashLUT != nil { r.fx.flashLUT = nil }
+            r.fx.flashPalettes = nil; r.fx.refUpdate = false
             slew = nil; napalmArmed = false
             return
         }
         let g = ctx.game, mem = ctx.memory
         let top = (0..<16).map { mem.r16(VideoFX.copTopPalette + UInt32(4 * $0)) & 0xfff }
+        // (the canvas at this hook is the previous frame, drawn with the previous hook's palette; the canvas the
+        // renderer gets after this frame is drawn with `top`)
+        let syncTop = lastHookTop
+        lastHookTop = top
         let ptr = mem.r32(VideoFX.a6 + 0x5a)
         let cap = max(0.1, min(1, look.flashCap))
         var shown: [SIMD3<Float>]? = nil
@@ -227,33 +263,56 @@ final class VideoFX {
             } else { slew = nil }
         } else { slew = nil; napalmArmed = false }
 
-        guard let d = shown else {
+        func stable() {
+            // no flash: the renderer keeps this canvas (and its palette) as the reference of a later flash
             if r.fx.flashLUT != nil { r.fx.flashLUT = nil; lastLUTKey = [] }
-            return
+            r.fx.flashPalettes = nil
+            r.fx.refUpdate = g.loadedSection == 1 || g.loadedSection == 2
+            refTop = top
         }
-        // LUT: every colour of the current top palette -> the limited colour (first entry wins on duplicates)
+        guard let d = shown else { stable(); return }
+        // LUT: every colour of the current top palette -> the limited colour (first entry wins on duplicates).
+        // The flashes push all 16 colours towards one value ($f00 / $fff), so the canvas alone can't tell the
+        // colours apart at the peak: the renderer maps each pixel by its palette INDEX, found in the reference
+        // canvas (the last frame before the flash, the scene doesn't move during these blocking fades), and falls
+        // back to this LUT only where the picture changed since (fetchColour in VideoShaders).
         var key: [UInt32] = []
         var lut = VideoFX.identityLUT
+        var limited = [UInt16](repeating: 0, count: 16)
         var done = Set<UInt16>()
         var changed = false
-        for i in 0..<16 where done.insert(top[i]).inserted {
-            let v = simd_clamp(d[i], SIMD3(repeating: 0), SIMD3(repeating: 15)) * 17
-            let r8 = UInt32(v.x.rounded()), g8 = UInt32(v.y.rounded()), b8 = UInt32(v.z.rounded())
-            let out: UInt32 = 0xff00_0000 | r8 << 16 | g8 << 8 | b8
+        for i in 0..<16 {
+            let v = simd_clamp(d[i], SIMD3(repeating: 0), SIMD3(repeating: 15))
+            let n = UInt16(v.x.rounded()) << 8 | UInt16(v.y.rounded()) << 4 | UInt16(v.z.rounded())
+            limited[i] = n
+            guard done.insert(top[i]).inserted else { continue }
+            let out = VideoFX.rgb(Int(n))
             lut[Int(top[i])] = out
             if out != VideoFX.identityLUT[Int(top[i])] { changed = true }
             key.append(UInt32(top[i])); key.append(out)
         }
-        if !changed {
-            if r.fx.flashLUT != nil { r.fx.flashLUT = nil; lastLUTKey = [] }
-            return
-        }
+        guard changed else { stable(); return }
+        r.fx.refUpdate = false
+        r.fx.flashPalettes = refTop + top + limited
         if key != lastLUTKey {
             lastLUTKey = key
             lutGeneration += 1
             r.fx.flashLUT = lut
             r.fx.flashLUTGeneration = lutGeneration
-            note("flashLUT ptr=\(String(ptr, radix: 16)) section=\(g.loadedSection)")
+            note("flashLUT ptr=\(String(ptr, radix: 16)) section=\(g.loadedSection)\(log != nil ? paletteSync(ctx, syncTop) : "")")
         }
+    }
+
+    /// Debug (PLATOON_VIDEO_LOG): game-window pixels of the canvas (= the previous frame) whose colour is not in
+    /// `top` (= the palette read at the previous hook), i.e. whether the palette read at a frame hook is the one
+    /// that frame is drawn with.
+    private func paletteSync(_ ctx: FrameContext, _ top: [UInt16]) -> String {
+        let set = Set(top.map { VideoFX.rgb(Int($0)) & 0xffffff })
+        let cv = ctx.machine.chip.canvas
+        var off = 0, n = 0
+        let y1 = min(Chipset.canvasHeight, renderer?.fx.splitCanvasY ?? 180)
+        for y in stride(from: 24, to: y1, by: 3) { for x in stride(from: 40, to: Chipset.canvasWidth - 40, by: 7) {
+            n += 1; if !set.contains(cv[y * Chipset.canvasWidth + x] & 0xffffff) { off += 1 } } }
+        return " sync: \(off)/\(n) pixels off-palette"
     }
 }

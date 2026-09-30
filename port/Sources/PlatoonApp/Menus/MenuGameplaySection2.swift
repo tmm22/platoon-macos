@@ -41,9 +41,37 @@ extension FeatureHooks {
             FinalNavigatorModel.shared.frame(ctx)
             slide.frame(ctx)
         }
+        // The overlay manager updates only visible panels; hidden ones are polled here so they can show themselves
+        // (the manager then updates them itself from the same display frame on).
+        app.onDisplay { ctx in
+            if !nav.isVisible { nav.update(ctx) }
+            if !slide.isVisible { slide.update(ctx) }
+        }
         app.onReset { _ in FinalNavigatorModel.shared.reset() }
         app.onSectionStart { s in if s == 2 { FinalNavigatorModel.shared.reset() } }
         Prefs.observe("section2.navigator") { app.overlay.setNeedsLayout() }
         Prefs.observe("section2.navigatorPlace") { app.overlay.setNeedsLayout() }
+        // N (Mac keycode 0x2d) in the final jungle hides / shows the navigator, only while it is switched on (the
+        // game never reads N in section 2; with the navigator off the key goes to the game unchanged).
+        app.keyHooks.append { code, down, isRepeat in
+            guard code == 0x2d, FinalNavigatorModel.shared.level != .off,
+                  AppServices.shared.host?.probe.context.section == 2 else { return false }
+            if down && !isRepeat { FinalNavigatorModel.shared.userHidden.toggle() }
+            return true
+        }
+        app.addPauseMenuItem(PauseMenuItem(id: "section2.navigator",
+                                           title: {
+                                               let m = FinalNavigatorModel.shared
+                                               return m.level != .off && !m.userHidden ? "Hide Final Jungle Navigator"
+                                                                                        : "Show Final Jungle Navigator"
+                                           },
+                                           order: 225,
+                                           isEnabled: { AppServices.shared.host?.probe.context.section == 2 },
+                                           action: {
+                                               let m = FinalNavigatorModel.shared
+                                               if m.level == .off { Prefs.set("section2.navigator", 2); m.userHidden = false }
+                                               else { m.userHidden.toggle() }
+                                               return true
+                                           }))
     }
 }

@@ -1,0 +1,5 @@
+frame 150
+log start
+wait 500
+log end
+quit

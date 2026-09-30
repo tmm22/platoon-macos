@@ -37,7 +37,7 @@ enum VideoShaders {
     struct CU {
         int useLut; int splitY; float night; int cvd;
         float cvdStrength; float bleed; int colour1084; float decay;
-        int hasPrev; int nightAll; float pad0; float pad1;
+        int hasPrev; int nightAll; int usePal; float pad1;
     };
     static float4 lutc(float4 c, texture2d<float> lut) {
         uint3 n = uint3(round(saturate(c.rgb) * 15.0));
@@ -66,19 +66,38 @@ enum VideoShaders {
         else           d = float3(0.0, e.r * 0.7 + e.g, e.r * 0.7 + e.b);
         return toSRGB(l + d * k);
     }
-    static float4 fetchColour(texture2d<float> t, texture2d<float> lut, constant CU &u, int2 p) {
+    static uint c12(float4 c) { uint3 n = uint3(round(saturate(c.rgb) * 15.0)); return (n.r << 8) | (n.g << 4) | n.b; }
+    static float4 rgb12(uint v) { return float4(float((v >> 8) & 15), float((v >> 4) & 15), float(v & 15), 15.0) / 15.0; }
+    // pals: [0..15] reference palette (of `ref`), [16..31] current top palette, [32..47] limited palette
+    static float4 fetchColour(texture2d<float> t, texture2d<float> lut, texture2d<float> ref, constant uint *pals,
+                              constant CU &u, int2 p) {
         int2 q = clamp(p, int2(0), int2(t.get_width() - 1, t.get_height() - 1));
         float4 c = t.read(uint2(q));
         bool top = q.y < u.splitY;
-        if (u.useLut != 0 && top) c = lutc(c, lut);
+        if (u.useLut != 0 && top) {
+            bool done = false;
+            if (u.usePal != 0) {
+                // S17: the pixel's palette index from the reference frame; used when the pixel still shows that
+                // index's current colour (the picture didn't change there since)
+                uint rc = c12(ref.read(uint2(q))), cc = c12(c);
+                for (int i = 0; i < 16; i++) {
+                    if (pals[i] == rc) {
+                        if (pals[16 + i] == cc) { c = rgb12(pals[32 + i]); done = true; }
+                        break;
+                    }
+                }
+            }
+            if (!done) c = lutc(c, lut);
+        }
         if (u.night > 0 && (top || u.nightAll != 0)) c.rgb = pow(c.rgb, float3(1.0 / (1.0 + 1.6 * u.night)));
         c.rgb = cvdApply(c.rgb, u.cvd, u.cvdStrength);
         return c;
     }
-    fragment float4 fcolour(V in [[stage_in]], constant CU &u [[buffer(0)]], texture2d<float> t [[texture(0)]],
-                            texture2d<float> lut [[texture(1)]], texture2d<float> prev [[texture(2)]]) {
+    fragment float4 fcolour(V in [[stage_in]], constant CU &u [[buffer(0)]], constant uint *pals [[buffer(1)]],
+                            texture2d<float> t [[texture(0)]], texture2d<float> lut [[texture(1)]],
+                            texture2d<float> prev [[texture(2)]], texture2d<float> ref [[texture(3)]]) {
         int2 p = int2(in.pos.xy);
-        float4 c = fetchColour(t, lut, u, p);
+        float4 c = fetchColour(t, lut, ref, pals, u, p);
         if (u.bleed > 0) {
             // composite: chroma (YIQ I/Q) smeared over a few lowres pixels, luma slightly soft
             const float3x3 toYIQ = float3x3(float3(0.299, 0.596, 0.211), float3(0.587, -0.274, -0.523), float3(0.114, -0.322, 0.312));
@@ -86,7 +105,7 @@ enum VideoShaders {
             float3 yiq = float3(0), wsum = float3(0);
             float sc = max(0.35, 2.2 * u.bleed), sy = 0.25 + 0.5 * u.bleed;
             for (int k = -4; k <= 4; k++) {
-                float3 s = toYIQ * fetchColour(t, lut, u, p + int2(2 * k, 0)).rgb;
+                float3 s = toYIQ * fetchColour(t, lut, ref, pals, u, p + int2(2 * k, 0)).rgb;
                 float wc = exp(-float(k * k) / (2.0 * sc * sc)), wy = exp(-float(k * k) / (2.0 * sy * sy));
                 float3 w = float3(wy, wc, wc);
                 yiq += s * w; wsum += w;
@@ -185,9 +204,19 @@ enum VideoShaders {
         if (u.hasPrev != 0) acc = mix(prev.read(uint2(in.pos.xy)).rgb, acc, u.blend);
         return float4(acc, 1);
     }
-    struct BU { float2 gameOrigin; float2 gameSize; float2 viewSize; float brightness; float zoom; };
-    fragment float4 fbackdrop(V in [[stage_in]], constant BU &u [[buffer(0)]], texture2d<float> g [[texture(0)]], sampler s [[sampler(0)]]) {
+    struct BU { float2 gameOrigin; float2 gameSize; float2 viewSize; float brightness; float zoom;
+                float2 imgOrigin; float2 imgSize; float2 srcOrigin; float2 srcSize; float2 innerX; int mode; float pad; };
+    fragment float4 fbackdrop(V in [[stage_in]], constant BU &u [[buffer(0)]], texture2d<float> g [[texture(0)]],
+                              texture2d<float> src [[texture(1)]], sampler s [[sampler(0)]]) {
         float2 p = in.uv * u.viewSize;
+        if (u.mode == 1) {
+            // border fill: only the side border columns of the game image, only where the picture is black
+            float2 q = (p - u.imgOrigin) / u.imgSize;
+            if (q.x < 0 || q.x > 1 || q.y < 0 || q.y > 1 || (p.x >= u.innerX.x && p.x <= u.innerX.y)) discard_fragment();
+            float2 sp = u.srcOrigin + q * u.srcSize;
+            float3 pc = src.read(uint2(clamp(sp, float2(0), float2(src.get_width() - 1, src.get_height() - 1)))).rgb;
+            if (max(pc.r, max(pc.g, pc.b)) > 0.5 / 255.0) discard_fragment();
+        }
         float2 c = u.gameOrigin + u.gameSize * 0.5;
         float2 uv = (p - c) / (u.gameSize * u.zoom) + 0.5;
         float2 gs = float2(g.get_width(), g.get_height());
@@ -201,7 +230,7 @@ enum VideoShaders {
         // fade out with the distance from the game image
         float2 d2 = max(max(-uv, uv - 1.0), 0.0);
         float d = length(d2 * float2(u.gameSize.x / u.gameSize.y, 1.0));
-        float fade = exp(-d * 2.2);
+        float fade = exp(-d * 1.5);
         float3 col = acc * u.brightness * (0.35 + 0.65 * fade);
         // tiny ordered noise against banding
         float n = fract(sin(dot(floor(p), float2(12.9898, 78.233))) * 43758.5453) - 0.5;
@@ -223,18 +252,22 @@ enum VideoShaders {
         float2 px = u.dstOrigin + c * u.dstSize;
         V o; o.pos = float4(px.x / u.viewSize.x * 2 - 1, 1 - px.y / u.viewSize.y * 2, 0, 1); o.uv = c; return o;
     }
-    // sharp bilinear: nearest-neighbour look without shimmering on non-integer scales
+    // sharp bilinear: nearest-neighbour look without shimmering on non-integer scales. `texel` is a position in
+    // grid cells (cell k covers [k, k+1)); the result is the position to sample: the cell centre k + 0.5 over
+    // most of the cell, blending into the neighbour only within half an output pixel of the cell edge.
+    // (The port's original version returned k + 0 .. k + 1 over the cell, i.e. it sampled at the cell EDGES and
+    // showed a 50/50 blend of neighbouring pixels almost everywhere; fixed by the presentation agent.)
     float2 sharpUV(float2 texel, float2 scale) {
         float2 f = fract(texel), i = floor(texel);
-        float2 region = 0.5 - 0.5 / scale;
-        float2 off = clamp((f - region) / (1.0 - 2.0 * region), 0.0, 1.0);
-        return i + off;
+        float2 region = max(0.5 - 0.5 / scale, 0.0);
+        float2 cd = f - 0.5;
+        return i + 0.5 + (cd - clamp(cd, -region, region)) * max(scale, 1.0);
     }
-    static float3 maskRGB(float phase) {
-        // soft RGB stripes; mean 1 over a triad
-        float3 centre = float3(1.0 / 6.0, 0.5, 5.0 / 6.0);
-        float3 d = abs(fract(phase - centre + 0.5) - 0.5);
-        return saturate(1.0 - d * 3.0) * 3.0;
+    // phosphor triad, band-limited: one cosine per channel, 120 degrees apart, mean 1 over a triad (no
+    // brightness loss) and no harmonics that could alias at 3-4 screen pixels per triad. amount 0..1.
+    static float3 maskRGB(float phase, float amount) {
+        const float3 centre = float3(0.0, 1.0 / 3.0, 2.0 / 3.0);
+        return 1.0 + amount * cos(6.2831853 * (phase - centre));
     }
     fragment float4 fmain(V in [[stage_in]], constant U &u [[buffer(0)]], texture2d<float> t [[texture(0)]], sampler s [[sampler(0)]]) {
         float2 uv = in.uv;
@@ -248,15 +281,18 @@ enum VideoShaders {
         float2 lp = uv * lowSize;
         float2 scale = u.dstSize / lowSize;
         float4 col;
+        // sample positions stay inside the source rect (no bleeding of the rows / columns next to it, e.g. the
+        // last game-window line into the top of the HUD magnifier)
+        float2 lo = float2(0.5), hi = lowSize - 0.5;
         if (u.mode == 1) {
-            float2 tp = (u.srcOrigin + lp * tpg) / u.texSize; col = t.sample(s, tp);
+            float2 tp = (u.srcOrigin + clamp(lp, lo, hi) * tpg) / u.texSize; col = t.sample(s, tp);
         } else if (u.mode == 2 && u.crtClassic == 0) {
             float2 sp = sharpUV(lp, scale);
             sp.x = mix(lp.x, sp.x, u.sharpness);
-            col = t.sample(s, (u.srcOrigin + sp * tpg) / u.texSize);
+            col = t.sample(s, (u.srcOrigin + clamp(sp, lo, hi) * tpg) / u.texSize);
         } else {
             float2 sp = sharpUV(lp, scale);
-            float2 tp = (u.srcOrigin + sp * tpg) / u.texSize;
+            float2 tp = (u.srcOrigin + clamp(sp, lo, hi) * tpg) / u.texSize;
             col = t.sample(s, tp);
         }
         if (u.mode == 2 && u.crtClassic != 0) {
@@ -293,15 +329,16 @@ enum VideoShaders {
             // against the image; about 3 screen pixels per triad at any output resolution
             if (u.maskType != 0 && u.maskStrength > 0 && u.triads > 0) {
                 float tx = lp.x * u.triads;
-                float3 m = maskRGB(fract(tx));
+                float3 m = maskRGB(fract(tx), u.maskStrength);
                 if (u.maskType == 2) {
-                    // slot mask: dark gaps between slots, staggered in alternate triad columns
+                    // slot mask: soft dark gaps between the slots, staggered by half a line in alternate triad
+                    // columns (mean kept at 1)
                     float col2 = fmod(floor(tx), 2.0);
-                    float sy = fract(lp.y * 1.0 + col2 * 0.5);
-                    float gap = smoothstep(0.0, 0.12, sy) * smoothstep(1.0, 0.88, sy);
-                    m *= mix(0.55, 1.0, gap) * 1.15;
+                    float sy = fract(lp.y + col2 * 0.5 + 0.5);
+                    float gap = 1.0 - 0.5 * u.maskStrength * (1.0 + cos(6.2831853 * sy)) * 0.5;
+                    m *= gap / (1.0 - 0.25 * u.maskStrength);
                 }
-                c *= mix(float3(1.0), m, u.maskStrength);
+                c *= m;
             }
             if (vignette) { float2 vig = in.uv * (1 - in.uv); c *= pow(vig.x * vig.y * 16, 0.1); }
             return float4(c, 1);

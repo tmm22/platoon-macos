@@ -60,7 +60,7 @@ extension PrefsRegistry {
             ]),
             PrefSection(tab: .input, title: "Aiming (tunnels and flare)", footer: "L2. The mouse / trackpad pointer over the picture, or the right stick, "
                         + "steers the crosshair by pressing the virtual stick for you (original speed and limits). Left click fires, right click is SPACE in the flare dugout. "
-                        + "Marks the run as assisted once it aims. With the gameplay option \"Direct aim\" (Gameplay tab) the crosshair jumps to the pointer instead.", order: 40, items: [
+                        + "Marks the run as assisted once it aims. With the section-1 gameplay option s1.directAim (Gameplay tab) the crosshair jumps to the pointer instead.", order: 40, items: [
                 .choice(InputSettings.aimAssistKey, "Assisted aiming", default: 0, [(0, "Off (original)"), (1, "Pointer and right stick")]).onChange(apply),
                 .slider(InputSettings.aimSpeedKey, "Right stick reach", default: 40, range: 10...120, step: 5, format: { "\(Int($0)) px" })
                     .onChange(apply).enabled(if: { Prefs.int(InputSettings.aimAssistKey) != 0 }),

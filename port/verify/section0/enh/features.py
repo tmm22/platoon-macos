@@ -83,6 +83,21 @@ if want('s6'):
           f'max col ${max(col_on):x}')
     check('s6 failsafe: stopped at column $4d with "SET THE EXPLOSIVES" ($11)', max(col_on) == 0x4d and 0x11 in on.msgs())
     check('s6 failsafe: no game over, no KILLED IN ACTION', not on.has('gameOver') and 0x12 not in on.msgs())
+    # pushing against the guard, then walking back (the stop must not leave the player stuck mid-step)
+    push = [l for l in lines if not re.match(r'\d+ (right|fire)', l)] + ['811 right 1', '1300 right 0', '1330 left 1', '1450 left 0']
+    push = sorted(push, key=lambda l: int(l.split()[0]))
+    pb = Run('s6_pushback', push, 1600, 's0.bridgeFailsafe=1')
+    pw = pb.series(0x60c30); k1 = next(i for i in range(pb.n) if pb.frame(i) >= 1300)
+    check('s6 failsafe: stops aligned (align 0) at pworld $270 and can walk back left',
+          pw[k1] == 0x270 and pb.r(k1, 0x60c32) == 0 and pw[-1] < 0x260 and 9 not in pb.series(0x5f89a),
+          f'at 1300 ${pw[k1]:x} align {pb.r(k1, 0x60c32)}, end ${pw[-1]:x}')
+    # jumping right into the guard (jump arcs move through scroll_step too)
+    jmp = [l for l in lines if not re.match(r'\d+ (right|fire)', l)] + ['811 right 1', '1060 up 1', '1064 up 0',
+           '1090 up 1', '1094 up 0', '1120 up 1', '1124 up 0', '1300 right 0']
+    jmp = sorted(jmp, key=lambda l: int(l.split()[0]))
+    jr = Run('s6_jump', jmp, 1500, 's0.bridgeFailsafe=1')
+    check('s6 failsafe: jumps right are stopped too', 1 in jr.series(0x5f89a) and 9 not in jr.series(0x5f89a)
+          and max(jr.series(0x60c28)) == 0x4d, f'states {sorted(set(jr.series(0x5f89a)))} max col ${max(jr.series(0x60c28)):x}')
     # with the preset knob
     rec = Run('s6_recruit', lines, fr, 'difficulty=recruit')
     check('s6 via difficulty=recruit', 9 not in rec.series(0x5f89a) and max(rec.series(0x60c28)) == 0x4d)
@@ -149,12 +164,15 @@ if want('s9k'):
     # the trap-door "Y" happens at the end of the script: poke the current man at the last main-loop tick in hut 1
     last = max(i for i in range(probe.n) if probe.r(i, 0x60c26) == 5)
     f = probe.frame(last) - 30
-    add = [f'{f} poke 12dfc 00012dea 4', f'{f} poke 12e00 2 2']
+    # man 0 dead, man 2 in control: the original counts records 2..6 (3 men + 2 kernel "records"), the fix 0..4
+    add = [f'{f} poke 12dfc 00012dea 4', f'{f} poke 12e00 2 2', f'{f} poke 12de2 4 2']
     l2 = sorted(lines + add, key=lambda l: int(l.split()[0]))
     off = Run('s9k_off', l2, fr)
     on = Run('s9k_on', l2, fr, 's0.fixTrapdoorBonus=1')
-    so = [l for l in off.events if 'score' in l][-1:] ; sn = [l for l in on.events if 'score' in l][-1:]
-    check('s9k: bonus differs from the original when man 2 is in control', so != sn, f'orig {so} fixed {sn}')
+    bonus = lambda r: [int(m.group(1)) for m in (re.search(r' score \+(\d+) ', l) for l in r.events) if m][-1:]
+    so, sn = bonus(off), bonus(on)
+    check('s9k: fixed bonus = 1000 per living man of the five (4 alive -> 4000), differs from the original',
+          sn == [4000] and so != sn, f'orig {so} fixed {sn}')
 
 # ---------------------------------------------------------------------------------------------- M10 knobs
 if want('m10'):
@@ -177,6 +195,7 @@ if want('m14'):
     base = [l for l in lines if int(l.split()[0]) < 700]
     extra = ['700 right 1', '760 key 32 1', '764 key 32 0', '860 right 0', '900 key 33 1', '960 key 33 0',
              '1000 up 1', '1040 up 0']
+    extra += [f'{f} poke 5f888 0 2' for f in range(690, 1100)]   # no enemies (they would shoot the walker)
     l2 = sorted(base + extra, key=lambda l: int(l.split()[0]))
     off = Run('m14_off', l2, 1100, 's0.jumpKey=0x32,s0.crouchKey=0x33')
     on = Run('m14_on', l2, 1100, 's0.explicitJumpCrouch=1,s0.jumpKey=0x32,s0.crouchKey=0x33')

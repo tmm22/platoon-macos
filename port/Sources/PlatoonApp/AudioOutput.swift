@@ -104,4 +104,26 @@ final class AudioOutput {
         if paused { soundtrack.pause() } else { soundtrack.play() }
     }
     var soundtrackPlaying: Bool { soundtrackFile != nil }
+
+    // MARK: test capture (PLATOON_DEBUG_AUDIO_WAV: app-level audio tests record what the device is fed)
+
+    private var recordFile: AVAudioFile?
+    /// Records the engine's final mix (Paula stream + soundtrack, after the main mixer) to a WAV file.
+    func startRecording(to url: URL) {
+        stopRecording()
+        let mixer = engine.mainMixerNode
+        let fmt = mixer.outputFormat(forBus: 0)
+        guard let f = try? AVAudioFile(forWriting: url, settings: fmt.settings, commonFormat: .pcmFormatFloat32, interleaved: false) else {
+            NSLog("audio: cannot record to \(url.path)"); return
+        }
+        recordFile = f
+        mixer.installTap(onBus: 0, bufferSize: 4096, format: fmt) { [weak self] buf, _ in
+            try? self?.recordFile?.write(from: buf)
+        }
+    }
+    func stopRecording() {
+        guard recordFile != nil else { return }
+        engine.mainMixerNode.removeTap(onBus: 0)
+        recordFile = nil
+    }
 }

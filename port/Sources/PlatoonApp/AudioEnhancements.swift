@@ -58,8 +58,11 @@ final class AudioEnhancements {
         if p.ambience != amb { p.ambience = amb }
         let al = Float(Prefs.double(AudioPrefs.ambienceLevel))
         if p.ambienceLevel != al { p.ambienceLevel = al }
-        let mode: HostAudioStream.Mode = Prefs.int(AudioPrefs.sync) == 1 ? .adaptive : .legacy
         let s = host.audio.stream
+        // M22: a host running slower than real time (game speed < 100 %, sets `stream.speedHint`) needs the
+        // rate-controlled stream (lower pitch instead of underrun stutter), whatever the buffer-control choice.
+        let slow = (s.speedHint ?? 1) < 0.999
+        let mode: HostAudioStream.Mode = Prefs.int(AudioPrefs.sync) == 1 || slow ? .adaptive : .legacy
         if s.mode != mode { s.mode = mode }
         let lat = Double(max(10, Prefs.int(AudioPrefs.latency))) / 1000
         if abs(s.latency - lat) > 1e-9 { s.latency = lat }
@@ -71,6 +74,14 @@ final class AudioEnhancements {
         app.onDisplay { [weak self] ctx in self?.sync(ctx.host) }
         app.onFrame { [weak self] ctx in self?.soundtrack.update(ctx.host) }
         app.onPauseChange { [weak self] paused in self?.soundtrack.hostPaused(paused) }
+        if let path = ProcessInfo.processInfo.environment["PLATOON_DEBUG_AUDIO_WAV"] {   // app-level audio tests
+            app.onHostReady { host in
+                host.audio.startRecording(to: URL(fileURLWithPath: path))
+                NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification, object: nil, queue: .main) { _ in
+                    host.audio.stopRecording()
+                }
+            }
+        }
         if Prefs.bool(AudioPrefs.debugLog) {
             var n = 0
             app.onDisplay { ctx in

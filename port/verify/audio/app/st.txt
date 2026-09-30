@@ -1,0 +1,12 @@
+frame 150
+log start
+wait 400
+log soundtrack_on
+pref audio.replacementSoundtrack=0
+wait 400
+log soundtrack_off
+prefs audio
+prefshot prefs_audio
+closeprefs
+wait 20
+quit

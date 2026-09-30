@@ -31,7 +31,8 @@ final class VideoRecorder {
     private var gifScale = 1
     private var gifEvery = 2
     private var audioBuf: [Float] = []
-    private var tappedMachine: ObjectIdentifier?
+    private weak var tappedMachine: Machine?
+    private weak var tappedPaula: Paula?
     private var onStop: [(URL?, String?) -> Void] = []
 
     /// The folder recordings (and M24 screenshots) go to.
@@ -100,12 +101,13 @@ final class VideoRecorder {
         }
     }
 
-    /// Makes sure Paula's output of `machine` reaches the recorder (idempotent per machine).
+    /// Makes sure Paula's output of `machine` reaches the recorder (idempotent per machine; a reset or a loaded
+    /// game makes a new Machine, VideoFX calls this every emulated frame while recording).
     func tapAudio(_ machine: Machine) {
-        let id = ObjectIdentifier(machine)
-        guard tappedMachine != id else { return }
-        tappedMachine = id
+        guard tappedMachine !== machine || tappedPaula !== machine.chip.paula else { return }
+        tappedMachine = machine
         let paula = machine.chip.paula
+        tappedPaula = paula
         let prev = paula.output
         paula.output = { [weak self] buf in
             if let self, self.kind == .movie { self.audioBuf.append(contentsOf: buf) }
@@ -198,6 +200,9 @@ final class MovieWriter {
 
     func append(canvas: UnsafeMutablePointer<UInt32>, crop: (x: Int, y: Int, w: Int, h: Int), audio a: [Float]) {
         guard started, writer.status == .writing else { return }
+        // the encoder can be briefly busy (other load): wait up to ~40 ms rather than leave a gap in the video
+        var waits = 0
+        while !video.isReadyForMoreMediaData && waits < 40 { usleep(1000); waits += 1 }
         if video.isReadyForMoreMediaData, let pool = adaptor.pixelBufferPool {
             var pbOut: CVPixelBuffer?
             CVPixelBufferPoolCreatePixelBuffer(nil, pool, &pbOut)
@@ -230,6 +235,8 @@ final class MovieWriter {
         guard n > 0 else { return }
         let pts = CMTime(value: samples, timescale: CMTimeScale(sampleRate))
         samples += Int64(n)
+        var waits = 0
+        while !audio.isReadyForMoreMediaData && waits < 20 { usleep(1000); waits += 1 }
         guard audio.isReadyForMoreMediaData else { return }
         let bytes = n * 8
         var bb: CMBlockBuffer?

@@ -9,7 +9,8 @@
 //              where the correction follows the buffer fill (so clock drift and VRR pacing never click), and
 //              `speed` follows the producer (slow motion plays at lower pitch instead of stuttering; set
 //              `speedHint` when the host knows its game speed). Underruns re-prime to the target fill;
-//              overruns (e.g. a host stall) drop the oldest audio down to the target once.
+//              overruns (more than 4x the target buffered, e.g. catch-up bursts after a stall) drop the oldest audio
+//              down to the target once, so the latency never grows.
 import Foundation
 import os
 
@@ -42,8 +43,8 @@ public final class HostAudioStream {
     private var priming = true
     private var frac = 0.0
     private var hL: Float = 0, hR: Float = 0              // the frame before readPos (x[-1])
-    private var corr = 0.0
-    private var estSpeed = 1.0, estFrames = 0, estStart = -1.0
+    private var corr = 0.0, integ = 0.0, eFilt = 0.0
+    private var estSpeed = 1.0, estFrames = 0, estStart = -1.0, lastPush = -1.0
 
     public init(rate: Double = 48000, seconds: Double = 1.0, mode: Mode = .legacy) {
         self.rate = rate
@@ -59,7 +60,7 @@ public final class HostAudioStream {
     private var targetFloats: Int { Int(rate * _latency) * 2 }
 
     private func resetLocked() {
-        fill = 0; readPos = writePos; priming = true; frac = 0; hL = 0; hR = 0; corr = 0
+        fill = 0; readPos = writePos; priming = true; frac = 0; hL = 0; hR = 0; corr = 0; integ = 0; eFilt = 0
         estFrames = 0; estStart = -1
     }
 
@@ -80,19 +81,23 @@ public final class HostAudioStream {
             }
             return
         }
-        // adaptive: producer speed estimate (frames per second of real time, 0.5 s windows)
-        if estStart < 0 { estStart = now; estFrames = 0 }
-        estFrames += s.count / 2
+        // adaptive: producer speed estimate (frames per second of real time over 2 s windows: the app's frame
+        // pacing is bursty, only a sustained rate is a speed). A gap of more than 0.2 s between two pushes is a
+        // host stall (window restarted), not a speed. Hosts that know their speed set `speedHint` instead.
+        if estStart < 0 || now - lastPush > 0.2 { estStart = now; estFrames = 0 }
+        else { estFrames += s.count / 2 }
+        lastPush = now
         let el = now - estStart
-        if el >= 0.5 {
-            if el < 1.5 {                                  // a longer gap is a host stall, not a speed
-                let inst = min(1.2, max(0.2, Double(estFrames) / (el * rate)))
-                estSpeed = estSpeed * 0.6 + inst * 0.4
-            }
+        if el >= 2.0 {
+            let inst = min(1.2, max(0.2, Double(estFrames) / (el * rate)))
+            // a large change (entering / leaving slow motion) is taken at once, small ones are smoothed
+            estSpeed = abs(inst - estSpeed) > 0.1 ? inst : estSpeed * 0.6 + inst * 0.4
             estStart = now; estFrames = 0
         }
         _stats.producerSpeed = estSpeed
-        if fill + s.count > cap - 16 {                     // overrun: keep the newest `target` worth of audio
+        // overrun (the ring is full, or a burst of catch-up frames piled up more than 4x the latency target):
+        // keep the newest `target` worth of audio, so the latency never grows
+        if fill + s.count > min(cap - 16, max(targetFloats * 4, targetFloats + 4 * s.count)) {
             let keep = min(targetFloats, cap / 2)
             let drop = (fill - keep) & ~1
             if drop > 0 { readPos = (readPos + drop) % cap; fill -= drop }
@@ -125,10 +130,18 @@ public final class HostAudioStream {
             }
         }
         // rate: producer speed x fill correction (+-0.5 %)
-        var speed = _speedHint ?? (estSpeed < 0.97 ? estSpeed : 1)
+        // (an estimate within 10 % of real time is jitter / lost frames: the fill control and re-priming handle it)
+        var speed = _speedHint ?? (estSpeed < 0.9 ? estSpeed : 1)
         speed = min(1.25, max(0.2, speed))
-        let e = Double(fill - target) / Double(max(2, target))
-        let want = max(-0.005, min(0.005, e * 0.005))
+        // PI control of the fill: the integral term absorbs a constant clock offset (the fill then settles at
+        // the target instead of wherever the proportional term alone balances it), both limited to +-0.5 %.
+        // The fill is low-passed first (~0.5 s): it jumps by a whole emulated frame at every push.
+        let e0 = Double(fill - target) / Double(max(2, target))
+        let a = min(1, Double(n) / (rate * 0.5))
+        eFilt += (e0 - eFilt) * a
+        let e = eFilt
+        integ = max(-0.005, min(0.005, integ + e * Double(n) / rate * 0.002))
+        let want = max(-0.005, min(0.005, e * 0.01 + integ))
         corr += (want - corr) * 0.05
         let step = speed * (1 + corr)
         _stats.ratio = step

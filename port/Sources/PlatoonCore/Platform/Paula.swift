@@ -192,6 +192,13 @@ public final class Paula {
     var mixerWasActive = false
     // per-line voice routing (index 0-3 hardware voices, 4-7 ghosts)
     private var isSfx = [Bool](repeating: false, count: 4)
+    /// M12 hand-over: the sound effect on hardware voice c has ended but the voice has not yet been retriggered by
+    /// the music (the driver's restore is a DMA off/on pair that doesn't restart the voice, so the hardware plays the
+    /// rest of the effect's repeat and then the shadow sample from its start, out of step with the tune). Until the
+    /// music next (re)starts the ghost - at the same beam line as the hardware voice, which is then identical
+    /// again - the ghost stays audible and the hardware voice is muted.
+    private var ghostHold = [Bool](repeating: false, count: 4)
+    private var wasSfx = [Bool](repeating: false, count: 4)
     private var vGain = [Float](repeating: 0, count: 8)
     private var vBusOf = [Int](repeating: 0, count: 8)
     private var gL = [Float](repeating: 0.5, count: 4), gR = [Float](repeating: 0.5, count: 4)
@@ -231,6 +238,7 @@ public final class Paula {
         for c in 0..<4 {
             let on = ghostDMA & (1 << UInt16(c)) != 0
             if on && !ghost[c].active {
+                ghostHold[c] = false                     // retriggered together with the hardware voice
                 ghost[c].active = true
                 ghost[c].ptr = ghost[c].lc
                 ghost[c].wordsLeft = ghost[c].len == 0 ? 0x10000 : Int(ghost[c].len)
@@ -240,7 +248,7 @@ public final class Paula {
                 ghost[c].current = Float(Int8(bitPattern: UInt8(ghost[c].word >> 8)))
                 ghost[c].previous = ghost[c].current
             }
-            if !on && ghost[c].active { ghost[c].active = false; ghost[c].current = 0; ghost[c].previous = 0 }
+            if !on && ghost[c].active { ghost[c].active = false; ghost[c].current = 0; ghost[c].previous = 0; ghostHold[c] = false }
         }
     }
 
@@ -277,6 +285,7 @@ public final class Paula {
 
     private func resetMixerState() {
         for v in 0..<8 { lastL[v] = 0; lastR[v] = 0; lastBus[v] = 0 }
+        for c in 0..<4 { ghostHold[c] = false; wasSfx[c] = false }
         buses[0].reset(); buses[1].reset()
     }
 
@@ -295,11 +304,14 @@ public final class Paula {
         for c in 0..<4 {
             let sfx = tag?(c) ?? false
             isSfx[c] = sfx
+            if !ghosts || sfx || !ghost[c].active { ghostHold[c] = false } else if wasSfx[c] { ghostHold[c] = true }
+            wasSfx[c] = sfx
+            let hold = ghostHold[c]
             let p = max(-1, min(1, c < pan.count ? pan[c] : Paula.amigaPan[c]))
             gL[c] = 0.5 - 0.5 * p * sep; gR[c] = 0.5 + 0.5 * p * sep
-            vGain[c] = mute ? 0 : sfx ? sfxGain : (musicReplaced ? 0 : musicGain)
+            vGain[c] = mute || hold ? 0 : sfx ? sfxGain : (musicReplaced ? 0 : musicGain)
             vBusOf[c] = sfx ? 1 : 0
-            vGain[4 + c] = (ghosts && sfx && !musicReplaced && !mute) ? musicGain : 0
+            vGain[4 + c] = (ghosts && (sfx || hold) && !musicReplaced && !mute) ? musicGain : 0
             vBusOf[4 + c] = 0
         }
         // ambience

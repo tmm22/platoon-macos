@@ -31,17 +31,17 @@ public enum PaulaAmbience: String, CaseIterable {
 
 // MARK: - BLEP
 
-/// Stereo bus with band-limited step synthesis. Output is delayed by `BlepBus.half` samples (0.33 ms at 48 kHz):
+/// Stereo bus with band-limited step synthesis. Output is delayed by `BlepBus.half` samples (0.5 ms at 48 kHz):
 /// y[n] = naive[n - half] + sum of step residuals (band-limited step minus ideal step), so no level drift can build up.
 struct BlepBus {
-    static let half = 16                 // kernel half-width in output samples
+    static let half = 24                 // kernel half-width in output samples
     static let os = 64                   // table oversampling
     static let size = 64                 // ring size (power of 2, > 2*half)
     static let mask = size - 1
     /// Band-limited step H(x) for x = -half + j/os, j = 0 ... 2*half*os (+1 guard); H(-half) = 0, H(+half) = 1.
     static let table: [Float] = {
         let n = 2 * half * os
-        let fc = 0.42                    // cutoff (fraction of the output rate): flat to ~0.3 fs, stopband from ~0.55 fs
+        let fc = 0.40                    // cutoff (fraction of the output rate): flat to ~0.32 fs, stopband from ~0.48 fs (below Nyquist)
         let sub = 8                      // integration sub-steps per table step
         func h(_ x: Double) -> Double {
             let t = x / Double(half)

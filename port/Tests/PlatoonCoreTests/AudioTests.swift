@@ -29,7 +29,8 @@ final class AudioTests: XCTestCase {
         var x = [Float](repeating: 0, count: n)
         let off = stereo.count / 2 - n - 100
         for i in 0..<n {
-            let w = 0.5 - 0.5 * cos(2 * Double.pi * Double(i) / Double(n))   // Hann
+            let t = 2 * Double.pi * Double(i) / Double(n)                   // 4-term Blackman-Harris (-92 dB sidelobes:
+            let w = 0.35875 - 0.48829 * cos(t) + 0.14128 * cos(2 * t) - 0.01168 * cos(3 * t)   // Hann leakage floors at ~-42 dB)
             x[i] = stereo[2 * (off + i)] * Float(w)
         }
         let log2n = vDSP_Length(15)
@@ -52,7 +53,7 @@ final class AudioTests: XCTestCase {
         for b in 4..<(n / 2) {                          // skip DC
             let f = Double(b) * binHz
             let k = (f / f0).rounded()
-            if k >= 1 && abs(f - k * f0) <= 3 * binHz { harmonic += Double(power[b]) } else { alias += Double(power[b]) }
+            if k >= 1 && abs(f - k * f0) <= 6 * binHz { harmonic += Double(power[b]) } else { alias += Double(power[b]) }
         }
         return 10 * log10(alias / harmonic)
     }
@@ -72,7 +73,7 @@ final class AudioTests: XCTestCase {
         let blep = renderSquare(per: per, lines: 15650 * 2) { $0.synthesis = .blep }
         let a = aliasRatioDB(legacy, f0: f0, rate: 48000), b = aliasRatioDB(blep, f0: f0, rate: 48000)
         print("alias/harmonic: legacy \(a) dB, blep \(b) dB")
-        XCTAssertLessThan(b, a - 25, "BLEP should cut aliasing by > 25 dB (legacy \(a) dB, blep \(b) dB)")
+        XCTAssertLessThan(b, a - 30, "BLEP should cut aliasing by > 30 dB (legacy \(a) dB, blep \(b) dB)")
     }
 
     /// The mixer path with (almost) neutral settings renders what the original path renders.
@@ -150,14 +151,15 @@ final class AudioTests: XCTestCase {
 
     /// Simulates a producer pushing one emulated frame (rate/50 frames) every 20 ms / speed, jittered, and a device
     /// consuming 512 frames per callback; returns the stream after `seconds` of virtual time.
-    private func simulate(mode: HostAudioStream.Mode, speed: Double, drift: Double = 1, seconds: Double, latency: Double = 0.06) -> (HostAudioStream, [Int]) {
+    private func simulate(mode: HostAudioStream.Mode, speed: Double, drift: Double = 1, seconds: Double, latency: Double = 0.06,
+                          stallEvery: Double = 0, stall: Double = 0) -> (HostAudioStream, [Int], [Double]) {
         let s = HostAudioStream(rate: 48000, seconds: 1, mode: mode)
         s.latency = latency
         var now = 0.0
         s.clock = { now }
         let chunk = [Float](repeating: 0.1, count: 960 * 2)
         var nextPush = 0.0, nextPull = 0.0
-        var fills: [Int] = []
+        var fills: [Int] = [], ratios: [Double] = []
         var l = [Float](repeating: 0, count: 512), r = l
         var rng = SystemRandomNumberGenerator()
         while now < seconds {
@@ -165,39 +167,85 @@ final class AudioTests: XCTestCase {
                 now = nextPush
                 chunk.withUnsafeBufferPointer { s.push($0) }
                 nextPush += 0.02 / speed / drift + Double.random(in: -0.004...0.004, using: &rng) * 0.5
+                if stallEvery > 0 && Int(nextPush / stallEvery) != Int(now / stallEvery) { nextPush += stall }
             } else {
                 now = nextPull
                 l.withUnsafeMutableBufferPointer { lp in r.withUnsafeMutableBufferPointer { rp in s.render(512, lp.baseAddress!, rp.baseAddress!) } }
-                fills.append(s.stats.fillFrames)
+                fills.append(s.stats.fillFrames); ratios.append(s.stats.ratio)
                 nextPull += 512.0 / 48000
             }
         }
-        return (s, fills)
+        return (s, fills, ratios)
     }
 
     func testAdaptiveSteadyState() {
-        let (s, fills) = simulate(mode: .adaptive, speed: 1, drift: 1.003, seconds: 60)   // producer 0.3 % fast
+        // producer 0.3 % fast (its push times also random-walk: independent jitter per push, a harsh case)
+        let (s, fills, ratios) = simulate(mode: .adaptive, speed: 1, drift: 1.003, seconds: 90)
         let st = s.stats
         XCTAssertLessThanOrEqual(st.underruns, 1, "\(st)")
         XCTAssertEqual(st.overruns, 0, "\(st)")
-        let tail = fills.suffix(1000)
+        let tail = fills.suffix(4000)
         let mean = Double(tail.reduce(0, +)) / Double(tail.count)
-        XCTAssertEqual(mean, 2880, accuracy: 1000, "fill should settle around the 60 ms target: \(mean)")
-        XCTAssertGreaterThan(st.ratio, 1.0005)
-        XCTAssertLessThanOrEqual(st.ratio, 1.0051)
+        XCTAssertEqual(mean, 2880, accuracy: 700, "fill should settle around the 60 ms target (PI control): \(mean)")
+        let rt = ratios.suffix(4000)
+        let meanRatio = rt.reduce(0, +) / Double(rt.count)
+        XCTAssertEqual(meanRatio, 1.003, accuracy: 0.0012, "the consumer follows the producer's clock on average")
+        XCTAssertLessThanOrEqual(rt.max()!, 1.0051)
+        XCTAssertGreaterThanOrEqual(rt.min()!, 0.9949)
     }
 
     func testLegacyDropsWhenAhead() {
-        let (s, _) = simulate(mode: .legacy, speed: 1, drift: 1.02, seconds: 30)       // producer 2 % fast
+        let (s, _, _) = simulate(mode: .legacy, speed: 1, drift: 1.02, seconds: 30)       // producer 2 % fast
         XCTAssertGreaterThan(s.stats.droppedBlocks, 0)
     }
 
+    /// Slow motion without a hint: the stream detects the sustained producer rate (2 s windows) and follows it.
     func testAdaptiveSlowMotion() {
-        let (s, _) = simulate(mode: .adaptive, speed: 0.6, seconds: 40)
+        let (s, _, _) = simulate(mode: .adaptive, speed: 0.6, seconds: 40)
         let st = s.stats
         XCTAssertEqual(st.producerSpeed, 0.6, accuracy: 0.05, "\(st)")
-        XCTAssertLessThanOrEqual(st.underruns, 3, "slow motion must not keep underrunning: \(st)")
+        XCTAssertLessThanOrEqual(st.underruns, 10, "slow motion must not keep underrunning: \(st)")
         XCTAssertEqual(st.ratio, 0.6, accuracy: 0.05)
+    }
+
+    /// Slow motion announced by the host (speedHint): no underruns at all.
+    func testAdaptiveSlowMotionWithHint() {
+        let s = HostAudioStream(rate: 48000, seconds: 1, mode: .adaptive)
+        s.speedHint = 0.7
+        var now = 0.0; s.clock = { now }
+        let chunk = [Float](repeating: 0.1, count: 960 * 2)
+        var nextPush = 0.0, nextPull = 0.0
+        var l = [Float](repeating: 0, count: 512), r = l
+        while now < 30 {
+            if nextPush <= nextPull { now = nextPush; chunk.withUnsafeBufferPointer { s.push($0) }; nextPush += 0.02 / 0.7 }
+            else {
+                now = nextPull
+                l.withUnsafeMutableBufferPointer { lp in r.withUnsafeMutableBufferPointer { rp in s.render(512, lp.baseAddress!, rp.baseAddress!) } }
+                nextPull += 512.0 / 48000
+            }
+        }
+        XCTAssertEqual(s.stats.underruns, 0, "\(s.stats)")
+        XCTAssertEqual(s.stats.ratio, 0.7, accuracy: 0.004)
+    }
+
+    /// Catch-up bursts never let the latency grow beyond 4x the target.
+    func testAdaptiveLatencyCap() {
+        let s = HostAudioStream(rate: 48000, seconds: 1, mode: .adaptive)
+        s.latency = 0.04
+        var now = 0.0; s.clock = { now }
+        let chunk = [Float](repeating: 0.1, count: 960 * 2)
+        for _ in 0..<40 { chunk.withUnsafeBufferPointer { s.push($0) } }   // 0.8 s of audio at once
+        XCTAssertLessThanOrEqual(s.stats.fillFrames, 1920 * 4 + 960)
+        XCTAssertGreaterThan(s.stats.overruns, 0)
+        now += 1
+    }
+
+    /// Host hitches (a 0.3 s stall every 5 s) are not slow motion: the pitch stays at 1 and the stream recovers.
+    func testAdaptiveStallsAreNotSlowMotion() {
+        let (s, _, _) = simulate(mode: .adaptive, speed: 1, seconds: 40, stallEvery: 5, stall: 0.3)
+        let st = s.stats
+        XCTAssertEqual(st.producerSpeed, 1, accuracy: 0.08, "\(st)")
+        XCTAssertEqual(st.ratio, 1, accuracy: 0.006, "\(st)")
     }
 
     func testAdaptiveResamplerIsTransparentAtUnity() {

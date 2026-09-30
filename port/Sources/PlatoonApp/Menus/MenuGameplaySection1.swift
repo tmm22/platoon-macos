@@ -25,6 +25,7 @@ extension FeatureHooks {
         app.onSectionStart { s in if s == 1 { map.sectionStarted() } }
         app.onHostReady { host in
             host.probe.addObserver { r in if case .newGame = r.event { map.sectionStarted() } }
+            host.probe.onMessage { msg in if msg.section == 1, map.enabled { map.model.message(msg.index) } }
         }
         // M (Mac keycode 0x2e): show/hide the map in the tunnels (only while the option is on; otherwise the key goes
         // to the game, which never reads it in section 1).

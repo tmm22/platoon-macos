@@ -28,12 +28,15 @@ extension PrefsRegistry {
             PrefSection(tab: .video, title: "Around the picture", order: 10, items: [
                 .choice(VideoKeys.backdrop, "Side bars (S14)", default: 0, [(0, "Black (original)"), (1, "Ambient glow of the picture")],
                         help: "Fills the bars beside the picture with a blurred, darkened extension of the frame."),
-                .slider(VideoKeys.backdropBrightness, "Glow brightness", default: 0.45, range: 0.1...1, step: 0.05, format: pct)
+                .slider(VideoKeys.backdropBrightness, "Glow brightness", default: 0.55, range: 0.1...1, step: 0.05, format: pct)
                     .enabled(if: { Prefs.int(VideoKeys.backdrop) == 1 }),
                 .choice(VideoKeys.shake, "Screen shake (S13)", default: 0, [(0, "Off (original)"), (1, "Subtle"), (2, "Strong")],
                         help: "Explosions, the bridge blast, hits and the napalm strike shake the picture by up to 2-3 pixels. Never in screenshots or recordings."),
                 .toggle(VideoKeys.hitTint, "Red screen-edge flash when you are hit", default: false,
                         help: "A visual cue for playing without sound."),
+                .toggle(VideoKeys.srgbTag, "Colour-managed output (sRGB)", default: false,
+                        help: "Tags the picture as sRGB so wide-gamut (P3) displays show the Amiga colours as intended "
+                            + "instead of more saturated. Off: the colour values go to the display unchanged, as before."),
             ]),
             PrefSection(tab: .video, title: "Accessibility", order: 20, items: [
                 .toggle(VideoKeys.nightLift, "Brighten the dark night scenes (S16)", default: false,
@@ -64,8 +67,12 @@ extension PrefsRegistry {
                         footer: "View ▸ Record Video (⌥⌘R) / Record GIF (⌥⌘G). Recordings run in game time at 50 frames per second "
                             + "(fast-forward is recorded at normal speed, pauses are left out) and show the plain game picture.",
                         order: 30, items: [
-                .choice(VideoKeys.recordFolder, "Save recordings and copied screenshots to", default: 0,
+                .choice(VideoKeys.recordFolder, "Save recordings to", default: 0,
                         [(0, "Movies ▸ Platoon"), (1, "Desktop"), (2, "Pictures ▸ Platoon")]),
+                .choice(VideoKeys.screenshotFolder, "Save screenshots (⌘S) to", default: 0,
+                        [(0, "Desktop (original)"), (1, "The recordings folder"), (2, "Pictures ▸ Platoon")]),
+                .toggle(VideoKeys.screenshotClipboard, "Also copy ⌘S screenshots to the clipboard", default: false,
+                        help: "⌥⌘C copies just the visible picture (320×256) to the clipboard without saving a file."),
                 .choice(VideoKeys.recordScale, "Video size", default: 3, [(2, "640×512 (2×)"), (3, "960×768 (3×)"), (4, "1280×1024 (4×)")]),
                 .toggle(VideoKeys.recordAspect, "Tag videos with the PAL pixel aspect (16:15)", default: true,
                         help: "Players that honour it (QuickTime, browsers) show the picture 4:3, like the game window."),

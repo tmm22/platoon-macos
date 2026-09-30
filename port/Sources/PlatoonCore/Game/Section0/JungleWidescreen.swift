@@ -1,4 +1,4 @@
-// L4 widescreen jungle (owner: section0): host-rendered background columns beside the 320-px jungle window.
+// L4 widescreen jungle (owner: section0): host-rendered background columns beside the 304-px jungle window.
 // Read-only: renders the section-0 map ($1b000) with its tiles ($1c000 + n*$600, 4 planes plane-sequential,
 // 48 rows x 8 bytes each) and the current top palette (copper $115fa) for the scroll position of the buffer that is
 // ON SCREEN. That position is latched when the game swaps buffers (s0WideLatch after k_swap in the main loop and the
@@ -9,11 +9,13 @@
 //   let latch = JungleWideLatch.attach(machine)          // once per Machine (reset = new Machine)
 //   in frameHook / AppServices.onFrame:  latch.frameStart(machine)     // every emulated frame
 //   then  latch.displayed  (nil or !valid = hide the sides)  and
-//         JungleWidescreen.render(machine.memory, state, fromX:, width:) -> 0xFFRRGGBB pixels, 144 rows
+//         JungleWidescreen.render(machine.memory, state, fromX: -w (left) or windowWidth (right), width: w)
+//         -> 0xFFRRGGBB pixels, 144 rows
 //
 // Geometry (buffer coordinates, verified pixel-exact against the canvas by the PLATOON_S0_WIDETEST self-test):
-//   the jungle window starts at DIW h $81 (lowres), 144 rows from line $3c; buffer x 0 shows world pixel
-//   X0 = (T+1)*64 + c34*8 of the current level strip, shifted right on screen by the hardware scroll hscroll.
+//   the jungle window is DIW h $81..$1b0 (lowres; DIWSTRT $3c81, DIWSTOP $04b1 = 304 px wide, canvas lowres x
+//   33..336), 144 rows from line $3c (canvas line 36); buffer x 0 shows world pixel
+//   X0 = (T+1)*64 + c34*8 + 16 of the current level strip, shifted right on screen by the hardware scroll hscroll.
 //   Screen lowres h shows world X = X0 + (h - $81) - hscroll (+ JungleWidescreen.hOffset, see below).
 
 import Foundation
@@ -27,8 +29,9 @@ public final class JungleWideLatch {
         public var palette: UInt32
         /// false = a transition (dissolve, man select, restart) started: hide the sides.
         public var valid: Bool
-        /// World pixel shown at buffer x 0 (see the file comment).
-        public var worldX0: Int { (T + 1) * 64 + c34 * 8 }
+        /// World pixel shown at buffer x 0 (see the file comment): DDFSTRT fetches 16 px before the window, so
+        /// the first visible pixel is fetched pixel 16 - hscroll (re/jungle §f.1/§f.2).
+        public var worldX0: Int { (T + 1) * 64 + c34 * 8 + 16 }
     }
 
     /// Fast path for the game thread: false while no host attached a latch (default, zero cost).
@@ -103,6 +106,11 @@ public enum JungleWidescreen {
     /// First beam line and DIW horizontal start (lowres) of the jungle window.
     public static let firstLine = 0x3c
     public static let diwH = 0x81
+    /// Visible width of the jungle window (DIWSTOP h $1b1): the right side column starts at buffer x 304.
+    public static let windowWidth = 0x1b1 - 0x81
+    /// Canvas lowres x of the window's left and right edges (the SideColumnCompositor / ImageIO.canvasPNG system).
+    public static let canvasLeftEdge = 0x81 - Chipset.canvasH0, canvasRightEdge = 0x1b1 - Chipset.canvasH0
+    public static let canvasFirstLine = 0x3c - Chipset.canvasV0
     /// Correction between the formula in the file comment and the displayed picture (lowres px), measured by the
     /// self-test (PLATOON_S0_WIDETEST).
     public static var hOffset = 0
@@ -181,7 +189,7 @@ final class JungleWideSelfTest {
 
     func sample(_ m: Machine, _ s: JungleWideLatch.State) {
         let mem = m.memory
-        let W = 320
+        let W = JungleWidescreen.windowWidth
         let pal = JungleWidescreen.topPalette(mem)
         // canvas window: lowres h $81.., lines $3c..
         func canvasPixel(_ x: Int, _ y: Int) -> UInt32 {

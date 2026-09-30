@@ -277,7 +277,11 @@ final class InputManager {
     }
 
     private func press(_ code: UInt16) {
-        let out = resolve(code)
+        var out = resolve(code)
+        // S18: while the name is typed on the keyboard, a key that types a character types it, whatever action it
+        // is bound to (e.g. Return = SPACE in the right-hand preset must still finish the name, E = change soldier
+        // in the left-hand preset types E). Its joystick bits are ignored in `merged` meanwhile.
+        if keyboardFireSuppressed && out.typing, let base = InputManager.passthrough(code) { out.amiga = [base] }
         keysDown.insert(code)
         pressed[code] = out
         for k in out.amiga { amigaPress(k) }
@@ -478,7 +482,7 @@ final class InputManager {
         guard let i = input else { return }
         rawJoy = merged()
         pipeline.observe(rawJoy, turbo: hostActions.contains(.turboFire), context: context)
-        if pipeline.active || aim.active { return }       // the per-frame pipeline writes Input (frameTick)
+        if pipeline.active || aimEngaged { return }       // the per-frame pipeline writes Input (frameTick)
         write(rawJoy, to: i)
     }
     private func write(_ j: JoyState, to i: Input) {
@@ -491,7 +495,12 @@ final class InputManager {
 
     /// Runs the frame-timed features: deferred key releases, S15/M13 pipeline, L2 aiming, M14 buttons.
     func frameTick(machine m: Machine, context c: GameContext, directAim: Bool = false) {
-        frame = m.frameCount
+        tick(frame: m.frameCount, context: c, machine: m, directAim: directAim)
+    }
+
+    /// The frame-timed part (`machine` nil = unit tests: no aiming / M14 host buttons).
+    func tick(frame f: UInt64, context c: GameContext, machine m: Machine?, directAim: Bool = false) {
+        frame = f
         context = c
         if !pendingUps.isEmpty {
             let due = pendingUps.filter { $0.frame <= frame }
@@ -500,11 +509,17 @@ final class InputManager {
         }
         guard let i = input else { return }
         let userDirs = rawJoy.anyDirection
-        let aimOut = suspended ? nil : aim.tick(machine: m, context: c, userDirections: userDirs, stick: rightStick, directAim: directAim)
+        let aimOut = suspended || m == nil ? nil : aim.tick(machine: m!, context: c, userDirections: userDirs, stick: rightStick, directAim: directAim)
         if let a = aimOut {
             if a.spaceDown != aimSpaceHeld { aimSpaceHeld = a.spaceDown; if a.spaceDown { amigaPress(0x40) } else { amigaRelease(0x40) } }
         } else if aimSpaceHeld { aimSpaceHeld = false; amigaRelease(0x40) }
-        if pipeline.active || aim.active {
+        // the aim assist takes over the stick only on frames where it steers or fires (elsewhere, e.g. on the title
+        // or in the corridors, input stays event-timed like the original)
+        let engaged = aimOut.map { $0.directions != nil || $0.fire } ?? false
+        defer { aimEngaged = engaged }
+        if !pipeline.active && !engaged {
+            if aimEngaged { write(rawJoy, to: i) }             // hand the stick back
+        } else {
             var j = suspended ? JoyState() : pipeline.tick(frame: frame, raw: rawJoy, turbo: hostActions.contains(.turboFire), context: c)
             if let a = aimOut {
                 if let d = a.directions { j.up = d.up; j.down = d.down; j.left = d.left; j.right = d.right }
@@ -512,7 +527,7 @@ final class InputManager {
             }
             write(j, to: i)
         }
-        if m14Enabled {
+        if m14Enabled, let m {
             let b = Section0HostButtons.of(m)
             let jump = !suspended && hostActions.contains(.jump), crouch = !suspended && hostActions.contains(.crouch)
             if b.jump != jump { b.jump = jump }
@@ -520,7 +535,13 @@ final class InputManager {
         }
     }
     private var aimSpaceHeld = false
+    /// The aim assist drove the stick in the last frame (Input is then written per frame).
+    private var aimEngaged = false
 
     /// Pipeline / aim options changed: write the current state now.
-    func configurationChanged() { sync(); if !(pipeline.active || aim.active), let i = input { write(rawJoy, to: i) } }
+    func configurationChanged() {
+        if !aim.active { aimEngaged = false }
+        sync()
+        if !(pipeline.active || aimEngaged), let i = input { write(rawJoy, to: i) }
+    }
 }

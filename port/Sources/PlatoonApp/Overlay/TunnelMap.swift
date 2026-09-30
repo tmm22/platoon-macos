@@ -20,12 +20,25 @@ final class TunnelMapModel {
     private(set) var rooms: [TunnelMaze.Room] = []
     private(set) var player: (x: Int, y: Int, heading: Int)?
     private(set) var inRoom: Int?
+    /// Items the player found without taking them (the doors: real EXIT / blocked exit), key room*256+code.
+    private(set) var found = Set<Int>()
     private(set) var generation = 0
 
     func reset() {
         seen = [Bool](repeating: false, count: TunnelMapModel.n * TunnelMapModel.n)
-        visitedRooms = []; player = nil; inRoom = nil; generation += 1
+        visitedRooms = []; found = []; player = nil; inRoom = nil; generation += 1
     }
+
+    /// A section-1 message (F2): clicking a door queues its item text ($0f blocked exit; the real exit queues $0f
+    /// then $15), which is how the player learns what it is - the game never marks doors as taken.
+    func message(_ index: Int) {
+        guard let r = inRoom, index == 0x0f || index == 0x15, r < rooms.count else { return }
+        let codes = rooms[r].items.map { $0.code }
+        guard codes.contains(index), !(index == 0x0f && codes.contains(0x15)) else { return }
+        if found.insert(r * 256 + index).inserted { generation += 1 }
+    }
+
+    func isFound(_ room: Int, _ code: Int) -> Bool { found.contains(room * 256 + code) }
 
     /// Called every emulated frame while the tunnels run (game parked: RAM reads are safe).
     func sample(_ mem: Memory, _ t: GameContext.Tunnels) {
@@ -89,12 +102,19 @@ final class TunnelMapView: NSView {
             let known = reveal || model.visitedRooms.contains(r.index)
             guard known else { continue }
             var parts: [String] = []
-            for it in r.items.dropLast() where TunnelMaze.isKeyItem(it.code) || (reveal && it.code == 0x0f) {
+            for it in r.items.dropLast() where TunnelMaze.isKeyItem(it.code) || it.code == 0x0f {
                 let name = TunnelMaze.itemName(it.code)
+                // without "reveal" only what the player has taken or tried (doors) is listed: no spoilers
                 if it.taken { parts.append(name + " ✓") }
-                else if reveal || showItems && it.code == 0x15 { parts.append(name) }
+                else if it.code == 0x15 && (reveal || model.isFound(r.index, 0x15)) { parts.append("EXIT (8 flares)") }
+                else if it.code == 0x0f && (reveal || model.isFound(r.index, 0x0f)) { parts.append(name) }
+                else if reveal && it.code != 0x0f { parts.append(name) }
             }
             if !showItems && !reveal { parts = [] }
+            // "ammo, ammo" -> "2× ammo" (keeping the first-seen order)
+            var order: [String] = [], count: [String: Int] = [:]
+            for p in parts { if count[p] == nil { order.append(p) }; count[p, default: 0] += 1 }
+            parts = order.map { count[$0]! > 1 ? "\(count[$0]!)× \($0)" : $0 }
             lines.append("\(r.index)" + (parts.isEmpty ? "" : "  " + parts.joined(separator: ", ")))
         }
         let title = reveal ? "TUNNELS (all)" : "TUNNELS  \(model.visitedRooms.count)/10 rooms"
@@ -137,9 +157,9 @@ final class TunnelMapView: NSView {
         let start = CGRect(x: o + 21 * c, y: o + 3 * c, width: c, height: c).insetBy(dx: c * 0.25, dy: c * 0.25)
         g.setFillColor(NSColor.systemBlue.cgColor); g.fill(start)
         // room numbers
-        let font = NSFont.monospacedSystemFont(ofSize: max(7, c * 1.8), weight: .bold)
+        let font = NSFont.monospacedSystemFont(ofSize: max(8, c * 2.1), weight: .heavy)
         for r in model.rooms where reveal || model.visitedRooms.contains(r.index) {
-            let flag = r.items.contains { $0.code == 0x15 } && reveal
+            let flag = r.items.contains { $0.code == 0x15 } && (reveal || model.isFound(r.index, 0x15))
             let s = NSAttributedString(string: "\(r.index)", attributes: [
                 .font: font, .foregroundColor: flag ? NSColor.systemRed : NSColor.white,
                 .strokeColor: NSColor.black, .strokeWidth: -3.0])

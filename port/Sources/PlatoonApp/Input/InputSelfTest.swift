@@ -2,7 +2,7 @@ import AppKit
 import PlatoonCore
 
 // OWNER: [input]. Self-test of the input layer (PLATOON_INPUT_TEST=outdir, optional PLATOON_ADF=disk and
-// PLATOON_INPUT_SCRIPTS=dir with the replay scripts of port/verify/input/scripts). Runs at launch, prints
+// PLATOON_REPO=repository root for the section-0/1 harness scripts; runner: port/verify/input/run.sh). Runs at launch, prints
 // PASS/FAIL lines, writes outdir/report.txt (+ PNGs of the Controls window and the controller hint) and exits
 // 0 (all pass) / 1.
 //
@@ -26,7 +26,10 @@ enum InputSelfTest {
         func note(_ s: String) { lines.append("     " + s); print("[input-test]      " + s) }
     }
 
+    static var outDir: String?
+
     static func run(outDir: String) {
+        self.outDir = outDir
         try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirectories: true)
         let r = Report()
         let t0 = Date()
@@ -63,7 +66,15 @@ enum InputSelfTest {
             im.bindings = bindings
         }
         var joy: InputManager.JoyState { im.debugJoy }
+        var frame: UInt64 = 0
+        /// One emulated frame of the frame-timed layer (no Machine).
+        func tick(_ c: GameContext = InputSelfTest.ctx()) { frame += 1; im.tick(frame: frame, context: c, machine: nil) }
         func take() -> [(UInt8, Bool)] { defer { keys = [] }; return keys }
+    }
+
+    /// A default F1 context (GameContext has no public initialiser): a fresh probe's.
+    static func ctx(_ screen: GameContext.Screen = .boot, _ area: GameContext.Area = .none) -> GameContext {
+        var c = GameProbe().context; c.screen = screen; c.area = area; return c
     }
 
     static func eq(_ a: [(UInt8, Bool)], _ b: [(UInt8, Bool)]) -> Bool { a.count == b.count && zip(a, b).allSatisfy { $0 == $1 } }
@@ -135,9 +146,9 @@ enum InputSelfTest {
                     let g = Rig(bindings: .preset(keyboard: .original, pad: preset))
                     g.im.injectPad(b, down: true)
                     let dn = g.take(), j = g.joy
-                    g.im.frameTick(machine: DummyMachine.shared, context: GameContext())   // advance time for taps
+                    g.tick()   // advance time for taps
                     g.im.injectPad(b, down: false)
-                    for _ in 0..<8 { DummyMachine.advance(); g.im.frameTick(machine: DummyMachine.shared, context: GameContext()) }
+                    for _ in 0..<8 { g.tick() }
                     let up = g.take()
                     var expDn: [(UInt8, Bool)] = [], expJ = InputManager.JoyState()
                     switch b {
@@ -161,7 +172,7 @@ enum InputSelfTest {
         do {
             let g = Rig()
             g.im.injectPad(.y, down: true)
-            for _ in 0..<12 { DummyMachine.advance(); g.im.frameTick(machine: DummyMachine.shared, context: GameContext()) }
+            for _ in 0..<12 { g.tick() }
             let ev = g.take()
             g.im.injectPad(.y, down: false)
             r.check("S2 pad Y = Left-Alt tap (released while still held)", eq(ev, [(0x64, true), (0x64, false)]) && g.take().isEmpty, fmt(ev))
@@ -210,13 +221,22 @@ enum InputSelfTest {
             s.im.keyboardFireSuppressed = true
             s.im.keyDown(0x0e, isRepeat: false)                 // E = change soldier in the left-hand preset
             let e1 = s.take()
-            r.check("S18 while typing: a letter bound to an action still types (left-hand E)", eq(e1, [(0x64, true)]) || eq(e1, [(0x12, true)]), fmt(e1))
+            r.check("S18 while typing: a letter bound to an action types the letter (left-hand E)", eq(e1, [(0x12, true)]), fmt(e1))
+            let rh = Rig(bindings: .preset(keyboard: .rightHand, pad: .extended))
+            rh.im.keyboardFireSuppressed = true
+            rh.im.keyDown(0x24, isRepeat: false)                // Return = SPACE in the right-hand preset
+            let e2 = rh.take()
+            rh.im.keyUp(0x24); _ = rh.take(); rh.im.keyboardFireSuppressed = false
+            rh.im.keyDown(0x24, isRepeat: false)
+            let e3 = rh.take()
+            r.check("S18 while typing: Return finishes the name in the right-hand preset (SPACE again afterwards)",
+                    eq(e2, [(0x44, true)]) && eq(e3, [(0x40, true)]), "\(fmt(e2)) / \(fmt(e3))")
         }
 
         // U5: stretcher
         do {
             let p = InputPipeline(); p.stretchFrames = 4
-            var c = GameContext(); c.screen = .playing
+            var c = ctx(.playing)
             var out: [Bool] = []
             // a tap entirely between two frames, then a double tap
             var raw = InputManager.JoyState()
@@ -228,7 +248,7 @@ enum InputSelfTest {
             let s = out.map { $0 ? "#" : "." }.joined()
             let pulses = s.split(separator: ".", omittingEmptySubsequences: true).map(\.count)
             r.check("S15 stretcher: 0-frame tap -> 4 frames, double tap -> two 4-frame presses", pulses == [4, 4, 4], s)
-            var t = GameContext(); t.screen = .title
+            let t = ctx(.title)
             let q = InputPipeline(); q.stretchFrames = 4
             var raw2 = InputManager.JoyState(); raw2.fire = true
             q.observe(raw2, turbo: false, context: t); let a = q.tick(frame: 1, raw: raw2, turbo: false, context: t).fire
@@ -300,11 +320,6 @@ enum InputSelfTest {
         }
     }
 
-    /// A machine that is never started: frameTick only needs frameCount / memory (unit tests).
-    enum DummyMachine {
-        static let shared: Machine = Machine(disk: try! Disk(data: [UInt8](repeating: 0, count: 901_120)))
-        static func advance() { shared.runFrameCountOnly() }
-    }
 
     // MARK: - UI renders
 
@@ -315,9 +330,18 @@ enum InputSelfTest {
         RunLoop.current.run(until: Date().addingTimeInterval(0.3))
         w.snapshot(to: dir + "/controls_window.png")
         r.check("M7 Controls window renders", FileManager.default.fileExists(atPath: dir + "/controls_window.png"))
+        var retargeted: [String] = []
+        func scan(_ m: NSMenu?) {
+            for i in m?.items ?? [] {
+                if i.target === InputMenuTarget.shared { retargeted.append(i.title) }
+                scan(i.submenu)
+            }
+        }
+        scan(NSApp.mainMenu)
+        r.check("M7 Game ▸ Controls… opens the Controls & Bindings window (menu item retargeted)", !retargeted.isEmpty, retargeted.joined(separator: ", "))
         w.window?.close()
         let p = ControllerHintPanel()
-        var c = GameContext(); c.screen = .trapDoorPrompt
+        let c = ctx(.trapDoorPrompt)
         if let parts = ControllerHintPanel.hint(c, bindings: .standard) {
             let s = ControllerHintPanel.attributed(parts, pad: nil)
             let size = s.size()
@@ -352,7 +376,8 @@ enum InputSelfTest {
             cfg.deterministicRNG = true
             probe.autoPoll = false
             cfg.probe = probe
-            _ = cfg.enhancements.apply(["kernel.originalCredits=0"] + enh)
+            let errs = cfg.enhancements.apply(["originalCredits=0"] + enh)
+            if !errs.isEmpty { print("[input-test] option errors: \(errs)") }
             m = Machine(disk: disk)
             im.input = m.input
             im.bindings = bindings
@@ -404,43 +429,77 @@ enum InputSelfTest {
                 m.runFrame()
             }
         }
+        /// Canvas screenshot into the report directory (diagnostics).
+        func shot(_ name: String) {
+            guard let d = InputSelfTest.outDir else { return }
+            try? ImageIO.canvasPNG(m.chip).write(to: URL(fileURLWithPath: d + "/game_" + name + ".png"))
+        }
         func keyHeld(_ k: UInt8) -> Bool { m.memory.r8(0x2498 + UInt32(k >> 3)) & (1 << (k & 7)) != 0 }
         func count(_ f: (GameEvent) -> Bool) -> Int { events.filter { f($0.event) }.count }
         func stop() { m.stop() }
     }
 
+    /// The verification scripts come straight from the section harnesses (the regression gate's inputs):
+    /// section 0 port scripts (tick-aligned, --start-section 0) and section 1 scripts (from power-on).
+    /// PLATOON_REPO = the repository root (default: the current directory or its parent).
     static func script(_ name: String) -> [String]? {
         let env = ProcessInfo.processInfo.environment
-        var dirs = [env["PLATOON_INPUT_SCRIPTS"]].compactMap { $0 }
-        dirs.append(FileManager.default.currentDirectoryPath + "/verify/input/scripts")
-        dirs.append(FileManager.default.currentDirectoryPath + "/port/verify/input/scripts")
-        for d in dirs { if let t = try? String(contentsOfFile: d + "/" + name, encoding: .utf8) { return t.split(separator: "\n").map(String.init) } }
+        let cwd = FileManager.default.currentDirectoryPath
+        var roots = [env["PLATOON_REPO"]].compactMap { $0 }
+        roots += [cwd, cwd + "/.."]
+        let subdirs = ["port/verify/section0/harness/sc", "port/verify/section1/scripts", "port/verify/input/scripts"]
+        for r in roots {
+            for d in subdirs {
+                if let t = try? String(contentsOfFile: r + "/" + d + "/" + name, encoding: .utf8) {
+                    return t.split(separator: "\n").map(String.init)
+                }
+            }
+        }
         return nil
+    }
+
+    /// PLATOON_INPUT_ONLY=name,name: run only these game tests (s2jungle m14 trapdoor s15 m13toggle m13auto l2).
+    static func want(_ name: String) -> Bool {
+        guard let only = ProcessInfo.processInfo.environment["PLATOON_INPUT_ONLY"], !only.isEmpty else { return true }
+        return only.split(separator: ",").contains { $0 == name }
     }
 
     static func gameTests(_ r: Report, _ disk: Disk) {
         // --- S2 in the jungle: pad X = SPACE (grenade), pad Y = change soldier
-        do {
+        if want("s2jungle") {
+            // like the section-0 harness scripts (--start-section 0): the jungle runs from ~frame 700; invincible
             let g = Game(disk, section: 0)
-            let ok = g.fireThrough(3000) { g.ctx.screen == .playing && g.ctx.area == .jungle }
-            g.m.input.fire = false
-            g.run(60)
+            g.run(706)
+            g.m.memory.w8(0x60ca0, 0xff)
+            g.run(120)
+            let ok = g.ctx.screen == .playing && g.ctx.area == .jungle
+            // SPACE throws only while the man stands/walks (pstate 0) with no grenade in the air
+            let ready = g.runUntil(900) { g.m.memory.r16(0x5f89a) == 0 && g.m.memory.r8(0x60c42) == 0 }
+            g.shot("s2_before_x")
             let gren0 = g.ctx.man?.grenades ?? -1
             let fx0 = g.count { if case .fx(0x0a, _) = $0 { return true }; return false }
             g.im.injectPad(.x, down: true)
             var sawSpace = false
             g.run(30) { if g.keyHeld(0x40) { sawSpace = true } }
             g.im.injectPad(.x, down: false)
+            g.shot("s2_after_x")
             g.run(40)
             let fx1 = g.count { if case .fx(0x0a, _) = $0 { return true }; return false }
-            r.check("S2 pad X = Amiga SPACE: jungle grenade thrown", ok && sawSpace && fx1 > fx0,
-                    "playing \(ok), SPACE in key matrix \(sawSpace), grenade sfx \(fx0)->\(fx1), grenades \(gren0)->\(g.ctx.man?.grenades ?? -1)")
+            r.check("S2 pad X = Amiga SPACE: jungle grenade thrown", ok && ready && sawSpace && fx1 > fx0,
+                    "playing \(ok), ready \(ready), SPACE in key matrix \(sawSpace), grenade sfx \(fx0)->\(fx1), grenades \(gren0)->\(g.ctx.man?.grenades ?? -1)")
+            // Left-Alt is only honoured with no enemy on screen (estate 0)
+            let calm = g.runUntil(3000) { g.m.memory.r16(0x5f888) == 0 && g.m.memory.r16(0x5f89a) == 0 && g.m.memory.r8(0x60c42) == 0 }
+            g.shot("s2_before_y")
             g.im.injectPad(.y, down: true)
-            let sel = g.runUntil(60) { g.ctx.screen == .manSelect }
+            var altSeen = false
+            // the jungle dissolves out first (~2-3 s), then the choose-your-man box opens
+            let sel = g.runUntil(400) { if g.keyHeld(0x64) { altSeen = true }; return g.ctx.screen == .manSelect }
+            g.shot("s2_after_y")
             g.run(10)
             let altStillHeld = g.keyHeld(0x64)
             g.im.injectPad(.y, down: false)
-            r.check("S2 pad Y = change soldier (man select opens, Alt tap released while Y held)", sel && !altStillHeld, "manSelect \(sel), alt held \(altStillHeld)")
+            r.check("S2 pad Y = change soldier (man select opens, Alt tap released while Y held)", calm && sel && !altStillHeld,
+                    "calm \(calm), alt seen \(altSeen), manSelect \(sel), alt held \(altStillHeld), screen \(g.ctx.screen)")
             // choose the man with fire (pad A) and back to the jungle; must not re-enter
             let back = g.runUntil(900) {
                 if g.frame % 30 == 0 { g.im.injectPad(.a, down: true) } else if g.frame % 30 == 6 { g.im.injectPad(.a, down: false) }
@@ -449,16 +508,15 @@ enum InputSelfTest {
             g.im.injectPad(.a, down: false)
             var reentered = false
             g.run(150) { if g.ctx.screen == .manSelect { reentered = true } }
-            r.check("S2 back from man select, no re-entry", back && !reentered, "back \(back) reentered \(reentered)")
-            // M14: jump button (needs s0.explicitJumpCrouch; checked in a fresh game below)
+            r.check("S2 back from man select, no re-entry", sel && back && !reentered, "back \(back) reentered \(reentered)")
             g.stop()
         }
         // --- M14 host jump button (section-0 option)
-        do {
+        if want("m14") {
             let g = Game(disk, section: 0, enh: ["s0.explicitJumpCrouch=1"])
-            _ = g.fireThrough(3000) { g.ctx.screen == .playing && g.ctx.area == .jungle }
-            g.m.input.fire = false
-            g.run(80)
+            g.run(706)
+            g.m.memory.w8(0x60ca0, 0xff)
+            g.run(120)
             g.im.m14Enabled = true
             g.im.injectPad(.lb, down: true)
             var jumped = false
@@ -468,7 +526,8 @@ enum InputSelfTest {
             g.stop()
         }
         // --- S2 trap door: pad answers vs keyboard answers (RAM identical afterwards)
-        if let hv = script("honest_village.port.txt") {
+        if !want("trapdoor") {
+        } else if let hv = script("honest_village_dj.port.txt") {
             let ref = Game(disk, section: 0)
             ref.replay(hv, until: 12700)
             let refRAM = ref.m.memory.snapshot(); let refSec = ref.ctx.loadedSection
@@ -485,8 +544,9 @@ enum InputSelfTest {
             r.check("S2 trap door: controller A answers Yes (RAM == keyboard Y run at f12700)", prompt && same && g.ctx.loadedSection == refSec,
                     "prompt \(prompt), loaded \(g.ctx.loadedSection) vs \(refSec), \(diff) bytes differ")
             g.stop()
-        } else { r.note("honest_village.port.txt not found (PLATOON_INPUT_SCRIPTS): trap door Yes test skipped") }
-        if let vr = script("village_route.port.txt") {
+        } else { r.note("honest_village_dj.port.txt not found (PLATOON_REPO): trap door Yes test skipped") }
+        if !want("trapdoor") {
+        } else if let vr = script("village_route_dj.port.txt") {
             let ref = Game(disk, section: 0)
             ref.replay(vr, until: 2130)
             let refRAM = ref.m.memory.snapshot()
@@ -505,47 +565,71 @@ enum InputSelfTest {
             g.stop()
         } else { r.note("village_route.port.txt not found: trap door No test skipped") }
 
-        // --- S15: 1-frame turn taps in the tunnels
+        // --- tunnels: boot into section 1 exactly like the section-1 regression scripts (idle.txt), enemy spawns
+        // suppressed ($3b237 = $ff, re/tunnels/NOTES.md) so the corridor stays in walking mode
+        let idle = script("idle.txt")
+        func tunnelGame() -> Game? {
+            guard let idle else { return nil }
+            let g = Game(disk, section: nil)
+            g.replay(idle, until: 906)                            // the tunnels start at frame ~905
+            g.m.memory.w8(0x3b237, 0xff)                          // as honest.txt: no enemy spawns for ~20 s
+            g.run(60)
+            return g
+        }
+        func corridorState(_ g: Game) -> String {
+            "screen \(g.ctx.screen) area \(g.ctx.area) inRoom \(g.m.memory.r8(0x3b230)) obj \(g.m.memory.r8(0x19d44))/\(g.m.memory.r8(0x19d56))/\(g.m.memory.r8(0x19d68))"
+        }
+        func corridor(_ g: Game) -> Bool {
+            g.ctx.screen == .playing && g.ctx.area == .tunnels && g.m.memory.r8(0x3b230) == 0
+                && g.m.memory.r8(0x19d44) == 0 && g.m.memory.r8(0x19d56) == 0 && g.m.memory.r8(0x19d68) == 0
+        }
+
+        // --- S15: 0-frame turn taps in the tunnels
         func tunnels(_ stretch: Int, taps: Int) -> (turns: Int, ok: Bool) {
-            let g = Game(disk, section: 1)
-            let ok = g.fireThrough(3000) { g.ctx.screen == .playing && g.ctx.area == .tunnels }
-            g.m.input.fire = false
-            g.run(100)
+            guard let g = tunnelGame() else { return (0, false) }
+            let ok = corridor(g)
+            if !ok { r.note("tunnels at start: " + corridorState(g)) }
+            g.shot("s15_start_\(stretch)")
             g.im.pipeline.stretchFrames = stretch
             g.im.configurationChanged()
             var turns = 0, last = g.m.memory.r16(Platoon.a6 + 0x2a) & 3
             for i in 0..<taps {
+                g.m.memory.w8(0x3b237, 0xff)
                 g.im.keyDown(0x7c, isRepeat: false); g.im.keyUp(0x7c)          // press+release between two frames
                 g.run(13 + i % 3) {
                     let h = g.m.memory.r16(Platoon.a6 + 0x2a) & 3
                     if h != last { turns += 1; last = h }
                 }
             }
+            let still = corridor(g)
+            if !still { r.note("tunnels at end: " + corridorState(g)) }
+            g.shot("s15_end_\(stretch)")
             g.stop()
-            return (turns, ok)
+            return (turns, ok && still)
         }
-        let off = tunnels(0, taps: 20), on = tunnels(4, taps: 20)
-        r.check("S15 tunnels, 20 zero-length right taps: off loses taps, on registers every turn", off.ok && on.ok && off.turns < 20 && on.turns == 20,
-                "off \(off.turns)/20, on \(on.turns)/20")
+        if !want("s15") {
+        } else if idle != nil {
+            let off = tunnels(0, taps: 20), on = tunnels(4, taps: 20)
+            r.check("S15 tunnels, 20 zero-length right taps: off loses taps, on registers every turn", off.ok && on.ok && off.turns < 20 && on.turns == 20,
+                    "off \(off.turns)/20, on \(on.turns)/20, corridor \(off.ok)/\(on.ok)")
+        } else { r.note("idle.txt not found: tunnel tests skipped") }
 
         // --- M13 toggle in the tunnels: one tap of up keeps walking
-        do {
-            let g = Game(disk, section: 1)
-            _ = g.fireThrough(3000) { g.ctx.screen == .playing && g.ctx.area == .tunnels }
-            g.m.input.fire = false
-            g.run(100)
+        if want("m13toggle"), let g = tunnelGame() {
+            let ok = corridor(g)
             g.im.pipeline.toggleDirections = true
             g.im.configurationChanged()
             g.im.keyDown(0x7e, isRepeat: false); g.run(2); g.im.keyUp(0x7e)
             var upFrames = 0, moves = 0
             var pos = g.m.memory.r16(0x1a0b0)
             g.run(300) {
+                if g.m.frameCount % 100 == 0 { g.m.memory.w8(0x3b237, 0xff) }
                 if g.m.input.up { upFrames += 1 }
                 let p = g.m.memory.r16(0x1a0b0); if p != pos { moves += 1; pos = p }
             }
             g.im.keyDown(0x7e, isRepeat: false); g.run(2); g.im.keyUp(0x7e); g.run(3)
-            r.check("M13 toggle-hold: one tap of up keeps walking, another tap stops", upFrames >= 298 && !g.m.input.up,
-                    "up held \(upFrames)/300 frames, maze moves \(moves), up after 2nd tap \(g.m.input.up)")
+            r.check("M13 toggle-hold: one tap of up keeps walking, another tap stops", ok && upFrames >= 298 && !g.m.input.up,
+                    "corridor \(ok), up held \(upFrames)/300 frames, maze moves \(moves), up after 2nd tap \(g.m.input.up)")
             g.stop()
         }
 
@@ -566,11 +650,15 @@ enum InputSelfTest {
             g.stop()
             return (s1 - s0, ok)
         }
-        let a0 = finalJungleShots(0), a1 = finalJungleShots(1)
-        r.check("M13 auto-fire, fire held 3 s in the final jungle: off 1 shot, on many", a0.1 && a0.0 <= 1 && a1.0 >= 8, "off \(a0.0), on \(a1.0) shots")
+        if want("m13auto") {
+            let a0 = finalJungleShots(0), a1 = finalJungleShots(1)
+            r.check("M13 auto-fire, fire held 3 s in the final jungle: many more shots with auto-fire", a0.1 && a1.1 && a1.0 >= a0.0 + 8,
+                    "off \(a0.0), on \(a1.0) shots")
+        }
 
         // --- L2 assisted aim: tunnel combat and flare
-        if let combat = script("combat.txt") {
+        if !want("l2") {
+        } else if let combat = script("combat.txt") {
             let g = Game(disk, section: nil)
             g.replay(combat, until: 975)
             g.im.aim.enabled = true
@@ -591,7 +679,8 @@ enum InputSelfTest {
                     "mode \(info0.map { $0.mode.rawValue } ?? "none"), final error \(err)")
             g.stop()
         } else { r.note("combat.txt not found: L2 tunnel test skipped") }
-        if let lit = script("fl_lit.txt") {
+        if !want("l2") {
+        } else if let lit = script("fl_lit.txt") {
             for direct in [false, true] {
                 let g = Game(disk, section: nil, enh: direct ? ["s1.directAim=1"] : [])
                 g.directAim = direct
@@ -617,9 +706,4 @@ enum InputSelfTest {
             }
         } else { r.note("fl_lit.txt not found: L2 flare test skipped") }
     }
-}
-
-extension Machine {
-    /// Unit tests: advance frameCount without running anything (never-started machine).
-    func runFrameCountOnly() { frameCount += 1 }
 }

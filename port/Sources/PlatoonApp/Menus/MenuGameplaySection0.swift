@@ -26,8 +26,6 @@ extension FeatureHooks {
         let map = JungleMapPanel.shared, hint = JungleHintPanel.shared, wide = JungleWideController.shared
         app.overlay.add(map)
         app.overlay.add(hint.panel)
-        app.overlay.add(wide.left)
-        app.overlay.add(wide.right)
 
         app.onFrame { ctx in
             map.sample(ctx)
@@ -46,7 +44,9 @@ extension FeatureHooks {
         }
         app.onHostReady { host in wide.attach(host) }
         app.onReset { host in wide.attach(host) }
-        Prefs.observe(JungleWideController.kEnabled) { if let h = app.host { wide.attach(h) } }
+        for k in [JungleWideController.kEnabled, JungleWideController.kReserve] {
+            Prefs.observe(k) { if let h = app.host { wide.attach(h) } }
+        }
         for k in [JungleMapPanel.kEnabled, JungleMapPanel.kSpoilers, JungleMapPanel.kFog, JungleMapPanel.kSize, JungleMapPanel.kPlace] {
             Prefs.observe(k) { app.overlay.setNeedsLayout() }
         }

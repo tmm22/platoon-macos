@@ -12,6 +12,7 @@ enum VideoKeys {
     static let crtBleed = "presentation.crt.bleed"
     static let crtSharpness = "presentation.crt.sharpness"
     static let crtColour = "presentation.crt.colour1084"
+    static let srgbTag = "presentation.srgb"
     static let backdrop = "presentation.backdrop"
     static let backdropBrightness = "presentation.backdropBrightness"
     static let shake = "presentation.shake"
@@ -31,6 +32,7 @@ enum VideoKeys {
     static let gifScale = "presentation.record.gifScale"
     static let recordBadge = "presentation.record.badge"
     static let screenshotFolder = "presentation.screenshot.folder"
+    static let screenshotClipboard = "presentation.screenshot.clipboard"
 }
 
 /// CRT look presets (M20). `classic` is the original single-pass CRT shader of the port, unchanged.
@@ -103,7 +105,7 @@ struct VideoLook: Equatable {
     var crt = CRTParams()
     /// S14: 0 black bars (original), 1 ambient glow.
     var backdrop = 0
-    var backdropBrightness: Float = 0.45
+    var backdropBrightness: Float = 0.55
     /// S13: 0 off, 1 subtle, 2 strong.
     var shake = 0
     var hitTint = false
@@ -118,6 +120,8 @@ struct VideoLook: Equatable {
     var colourVisionStrength: Float = 1
     var hudMagnifier = false
     var hudMagnification: Float = 2
+    /// M20: tag the drawable as sRGB (colour-managed on wide-gamut displays).
+    var srgbTag = false
 
     static func load() -> VideoLook {
         var l = VideoLook()
@@ -136,6 +140,7 @@ struct VideoLook: Equatable {
         l.colourVisionStrength = Float(Prefs.double(VideoKeys.colourVisionStrength))
         l.hudMagnifier = Prefs.int(VideoKeys.hudMagnifier) != 0
         l.hudMagnification = Float(Prefs.double(VideoKeys.hudMagnification))
+        l.srgbTag = Prefs.bool(VideoKeys.srgbTag)
         return l
     }
 }

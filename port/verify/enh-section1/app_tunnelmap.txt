@@ -1,0 +1,64 @@
+resize 1500 760
+frame 300
+reset 1
+frame 700
+log start
+key 31 tap
+frame 1000
+capture tunnels0
+wait 3
+key 7b down
+wait 2
+capture turn_01
+wait 2
+capture turn_02
+wait 2
+capture turn_03
+key 7b up
+wait 2
+capture turn_04
+wait 2
+capture turn_05
+wait 2
+capture turn_06
+wait 2
+capture turn_07
+wait 2
+capture turn_08
+wait 2
+capture turn_09
+wait 2
+capture turn_10
+wait 2
+capture turn_11
+wait 2
+capture turn_12
+wait 20
+key 7e down
+wait 60
+key 7e up
+wait 10
+capture map1
+key 7c down
+wait 8
+key 7c up
+wait 16
+key 7e down
+wait 60
+key 7e up
+wait 10
+capture map2
+log map
+key 2e tap
+wait 6
+capture hidden
+key 2e tap
+wait 6
+pref section1.tunnelMapReveal=1
+wait 6
+capture reveal
+log reveal
+pref section1.tunnelMapPlace=1
+wait 6
+capture corner
+quit

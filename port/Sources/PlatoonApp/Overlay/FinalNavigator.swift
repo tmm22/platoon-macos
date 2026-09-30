@@ -17,6 +17,10 @@ final class FinalNavigatorModel {
 
     enum Level: Int { case off = 0, heading = 1, map = 2, guide = 3 }
     var level: Level { Level(rawValue: Prefs.int("section2.navigator")) ?? .off }
+    /// Hidden for now with N in the final jungle / the pause menu (the level pref stays as it is).
+    var userHidden = false
+    /// PLATOON_S2NAV_DEBUG=1: log the model state every 50 frames (app-level tests).
+    static let debug = ProcessInfo.processInfo.environment["PLATOON_S2NAV_DEBUG"] != nil
 
     /// Section 2 main loop is running (incl. room transitions).
     private(set) var active = false
@@ -44,6 +48,10 @@ final class FinalNavigatorModel {
     func frame(_ ctx: FrameContext) {
         let g = ctx.game
         let inS2 = g.inGame && g.loadedSection == 2 && g.section == 2 && g.screen == .playing
+        if FinalNavigatorModel.debug, ctx.frame % 50 == 0 {
+            NSLog("[s2nav] f\(ctx.frame) inGame=\(g.inGame) loaded=\(g.loadedSection) section=\(g.section.map(String.init) ?? "-") "
+                  + "screen=\(g.screen) level=\(level.rawValue) hidden=\(userHidden) active=\(active) rooms=\(visited.count)")
+        }
         if !g.inGame && (!visited.isEmpty || active) { reset(); return }   // title / game over: forget the run
         if inS2 != active { active = inS2; version += 1 }
         guard inS2 else { return }
@@ -95,7 +103,7 @@ final class FinalNavigatorPanel: OverlayPanel {
     override func update(_ ctx: FrameContext?) {
         let m = FinalNavigatorModel.shared
         let lvl = m.level
-        let show = ctx != nil && m.active && lvl != .off && m.live != nil
+        let show = ctx != nil && m.active && lvl != .off && !m.userHidden && m.live != nil
         if !show { if isVisible { isVisible = false }; return }
         if m.version != shownVersion || lvl.rawValue != shownLevel {
             shownVersion = m.version; shownLevel = lvl.rawValue
@@ -122,6 +130,7 @@ final class FinalNavigatorPanel: OverlayPanel {
         var content: Content?
         override var isFlipped: Bool { true }
         static let cell: CGFloat = 12, pad: CGFloat = 10, width: CGFloat = 10 * cell + 2 * pad + 20
+        static func font(_ size: CGFloat) -> NSFont { OverlayStyle.font(size, size >= 14 ? .bold : .semibold) }
 
         override init(frame: NSRect) {
             super.init(frame: frame)
@@ -167,14 +176,20 @@ final class FinalNavigatorPanel: OverlayPanel {
         var contentSize: CGSize {
             let textH = lines.reduce(CGFloat(0)) { $0 + $1.2 + 5 }
             let mapH: CGFloat = (content?.level.rawValue ?? 0) >= 2 ? 12 * NavView.cell + 8 : 0
-            return CGSize(width: NavView.width, height: (NavView.pad * 2 + textH + mapH).rounded(.up))
+            // wide enough for the longest line (the texts vary with the level and the room) and the map
+            let textW = lines.reduce(CGFloat(0)) { w, l in
+                max(w, (l.0 as NSString).size(withAttributes: [.font: NavView.font(l.2)]).width)
+            }
+            let mapW: CGFloat = (content?.level.rawValue ?? 0) >= 2 ? 10 * NavView.cell : 0
+            let width = max(NavView.width, (max(textW, mapW) + 2 * NavView.pad + 2).rounded(.up))
+            return CGSize(width: width, height: (NavView.pad * 2 + textH + mapH).rounded(.up))
         }
 
         override func draw(_ dirty: NSRect) {
             guard let c = content else { return }
             var y = NavView.pad
             for (t, col, size) in lines {
-                let a: [NSAttributedString.Key: Any] = [.font: OverlayStyle.font(size, size >= 14 ? .bold : .semibold), .foregroundColor: col]
+                let a: [NSAttributedString.Key: Any] = [.font: NavView.font(size), .foregroundColor: col]
                 (t as NSString).draw(at: CGPoint(x: NavView.pad, y: y), withAttributes: a)
                 y += size + 5
             }

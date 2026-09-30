@@ -61,7 +61,7 @@ extension FeatureHooks {
             VideoRecorder.shared.isRecording ? "Stop Recording (\(VideoRecorder.shared.kind!.title))" : "Record Video"
         }, order: 250, isEnabled: { app.host != nil }, action: {
             VideoCommands.toggle(VideoRecorder.shared.kind ?? .movie)
-            return false
+            return true                                   // close the menu: recording starts with the game
         }))
     }
 }
@@ -87,15 +87,45 @@ enum VideoCommands {
         }
     }
 
-    /// The plain game picture (visible crop, lowres, PAL aspect not applied) to the clipboard and the recordings folder.
+    /// The plain game picture (visible crop, lowres, PAL aspect not applied) as PNG.
+    static func screenshotPNG(_ chip: Chipset, crop c: (x: Int, y: Int, w: Int, h: Int)) -> Data {
+        ImageIO.png(width: c.w / 2, height: c.h) { x, y in chip.canvas[(c.y + y) * Chipset.canvasWidth + c.x + x * 2] }
+    }
+
+    /// ⌥⌘C: the plain game picture to the clipboard.
     static func copyScreenshot() {
         guard let host = AppServices.shared.host, let renderer = AppServices.shared.app?.renderer else { return }
-        let c = renderer.crop, chip = host.machine.chip
-        let png = ImageIO.png(width: c.w / 2, height: c.h) { x, y in chip.canvas[(c.y + y) * Chipset.canvasWidth + c.x + x * 2] }
+        let png = screenshotPNG(host.machine.chip, crop: renderer.crop)
         let pb = NSPasteboard.general
         pb.clearContents()
         pb.setData(png, forType: .png)
         AppServices.shared.toast("Screenshot copied")
+    }
+
+    /// M24: where ⌘S screenshots go (pref presentation.screenshot.folder; default the Desktop, as before).
+    static var screenshotFolder: URL {
+        if let d = ProcessInfo.processInfo.environment["PLATOON_SCREENSHOT_DIR"] { return URL(fileURLWithPath: d, isDirectory: true) }
+        let fm = FileManager.default
+        switch Prefs.int(VideoKeys.screenshotFolder) {
+        case 1: return VideoRecorder.folder
+        case 2: return fm.urls(for: .picturesDirectory, in: .userDomainMask)[0].appendingPathComponent("Platoon", isDirectory: true)
+        default: return fm.urls(for: .desktopDirectory, in: .userDomainMask)[0]
+        }
+    }
+
+    /// M24 ⌘S (for the app's Save Screenshot command): the full canvas PNG exactly as before (ImageIO.canvasPNG),
+    /// saved to `screenshotFolder`, and also copied to the clipboard when presentation.screenshot.clipboard is on.
+    /// Returns the file written.
+    @discardableResult static func saveScreenshot(_ chip: Chipset) -> URL? {
+        let png = ImageIO.canvasPNG(chip)
+        let dir = screenshotFolder
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let url = dir.appendingPathComponent(VideoRecorder.fileName("png"))
+        do { try png.write(to: url) } catch { AppServices.shared.toast("Screenshot failed: \(error.localizedDescription)", seconds: 3); return nil }
+        if Prefs.bool(VideoKeys.screenshotClipboard) {
+            NSPasteboard.general.clearContents(); NSPasteboard.general.setData(png, forType: .png)
+        }
+        return url
     }
 
     static func revealFolder() {

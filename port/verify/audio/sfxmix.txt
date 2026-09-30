@@ -1,0 +1,18 @@
+# music-test: song 2 with sfx bursts (sample pairs + synth) to exercise sfx-owned channels
+100 sfx 82
+160 sfx 80
+220 sfx 3
+260 sfx 83
+300 sfx 0
+340 sfx 85
+400 sfx 81
+460 sfx 5
+520 sfx 84
+600 sfx 82
+610 sfx 82
+620 sfx 82
+700 sfx 1
+760 sfx 80
+800 fade
+801 fade
+802 fade

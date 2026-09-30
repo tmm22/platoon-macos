@@ -102,7 +102,7 @@ def scenarios():
     S.append(('s9j', [Run('s9j_orig', 'fox1.txt', 1400, tds=tds), Run('s9j_fix', 'fox1.txt', 1400, 's2.fixPhantomGrenades=1', tds=tds)],
               check_s9j))
     S.append(('m10_barnes', [Run('m10b_3', 'fox1.txt', 1400, 's2.diff.barnesHits=3', tds=[('17c0a',) + A6])], check_m10_barnes))
-    tds = [('17068',) + A6, ('1718a',) + A6]
+    tds = [('170f4',) + A6, ('1718a',) + A6]
     S.append(('m10_timer', [Run('m10t_orig', 'napalm.txt', 7300, tds=tds), Run('m10t_60', 'napalm.txt', 7300, 's2.diff.timer=60', tds=tds),
                             Run('m10t_recruit', 'napalm.txt', 10300, 'difficulty=recruit', tds=tds)], check_m10_timer))
     tds = [('17118', '57e22', '270')]
@@ -136,12 +136,25 @@ def check_nav(runs):
     drawn = [l for l in nav if ' drawn ' in l]
     if not rooms:
         return ['no room entries logged'], ''
-    routes = [re.search(r'route (\S+) dist (-?\d+)', l).groups() for l in rooms]
+    routes = [re.search(r'route (\S*) dist (-?\d+)', l).groups() for l in rooms]
     if routes[0][0] != 'LRLRLRLRRLRLRL':
         f.append(f'start route {routes[0][0]}')
+    # the exit taken follows from the heading change (left = turn anticlockwise); when it was the suggested one the
+    # remaining route must be the rest of the previous route, otherwise (a detour) at least as long as that
+    hd = [re.search(r'heading (\S)', l).group(1) for l in rooms]
+    follow = 0
     for i in range(1, len(routes)):
-        if routes[i][0] != routes[i - 1][0][1:] and not (routes[i][0] == 'none'):
-            f.append(f'room {i}: route {routes[i][0]} after {routes[i - 1][0]} (the honest route follows the shortest path)')
+        turn = ('NESW'.index(hd[i]) - 'NESW'.index(hd[i - 1])) % 4
+        exit_ = {3: 'L', 1: 'R'}.get(turn)
+        prev, cur = routes[i - 1][0], routes[i][0]
+        if exit_ is None or prev in ('', 'none'):
+            continue                                # restart at the start room / bunker
+        if prev[0] == exit_:
+            follow += 1
+            if cur != prev[1:]:
+                f.append(f'room {i}: took the suggested {exit_}, route {cur} after {prev}')
+        elif cur != 'none' and len(cur) < len(prev) - 1:
+            f.append(f'room {i}: detour {exit_} shortened the route {prev} -> {cur}')
     if routes[-1][1] != '0':
         f.append(f'last room not a bunker: {rooms[-1]}')
     bad = [l for l in dec if not l.endswith('OK')]
@@ -152,7 +165,7 @@ def check_nav(runs):
         f.append(f'drawn: {len(drawn)} checks for {len(rooms)} rooms, bad: {badd[:3]}')
     if r.hashes() != nolog.hashes() or not r.hashes():
         f.append('PLATOON_S2NAV changed the RAM hash')
-    return f, f'{len(rooms)} rooms, route {routes[0][0]}, {len(dec)} decodes OK, {len(drawn)} drawn OK, RAM hash identical'
+    return f, f'{len(rooms)} rooms ({follow} along the guide), route {routes[0][0]}, {len(dec)} decodes OK, {len(drawn)} drawn OK, RAM hash identical'
 
 
 def timer(b):
@@ -173,10 +186,13 @@ def check_s9a(runs):
             f.append(f'fix: timer ran during {len(a) - same} of {len(a)} transitions')
         if not fix and same == len(a):
             f.append('orig: timer never ran during a transition')
-    eo, ex = o.td('170f4', *A6), x.td('170f4', *A6)
-    if eo and ex and not timer(ex[-1][1]) > timer(eo[-1][1]):
-        f.append(f'bunker timer fix {timer(ex[-1][1]):04x} <= orig {timer(eo[-1][1]):04x}')
-    return f, f'bunker reached with {timer(eo[-1][1]):04x} (orig) / {timer(ex[-1][1]):04x} (fix) on the clock' if eo and ex else ''
+    # lowest timer at a room entry (the script ends with a restart at 2:00)
+    eo = min((timer(b) for _, b in o.td('170f4', *A6)), default=None)
+    ex = min((timer(b) for _, b in x.td('170f4', *A6)), default=None)
+    if eo is None or ex is None or not ex > eo:
+        f.append(f'last room entry: timer fix {ex} <= orig {eo}')
+        return f, ''
+    return f, f'last room entered with {eo:04x} (orig) / {ex:04x} (fix) on the clock'
 
 
 def check_s9h_napalm(runs):
@@ -236,7 +252,7 @@ def check_m10_barnes(runs):
 def check_m10_timer(runs):
     o, s, rec = runs
     f = []
-    st = [timer(b) for _, b in s.td('17068', *A6)]
+    st = [timer(b) for _, b in s.td('170f4', *A6)]   # first room entry (17068 is before the write)
     if not st or st[0] != 0x0100:
         f.append(f'60 s: start timer {st[:1]}')
     tu = [x.td('1718a', *A6)[0][0] if x.td('1718a', *A6) else None for x in (o, s, rec)]
@@ -246,7 +262,7 @@ def check_m10_timer(runs):
         f.append(f'60 s: time_up {tu[1]} vs {tu[0]}')
     if not (2900 <= tu[2] - tu[0] <= 3100):
         f.append(f'recruit: time_up {tu[2]} vs {tu[0]}')
-    rt = [timer(b) for _, b in rec.td('17068', *A6)]
+    rt = [timer(b) for _, b in rec.td('170f4', *A6)]
     if not rt or rt[0] != 0x0300:
         f.append(f'recruit: start timer {rt[:1]}')
     return f, f'napalm at frame {tu[1]} (60 s) / {tu[0]} (orig 120 s) / {tu[2]} (recruit 180 s)'
@@ -298,12 +314,12 @@ def check_m15_full(runs):
     # orig: re-initialised, man 0, all hits 0
     if w16(fo, 0x22) != 0 or w16(fo, 4) != 0 or w16(fo, 0xa) != 0:
         f.append('orig: men not re-initialised')
-    if w16(fx, 0x22) != 1 or struct.unpack('>I', fx[0x1e:0x22])[0] != 0x12dde + 6 or w16(fx, 4) != 4 or w16(fx, 0xa) != 2 or w16(fx, 0) != 3:
-        f.append(f'full: first tick man {w16(fx, 0x22)} hits {w16(fx, 4)}/{w16(fx, 0xa)} grenades man0 {w16(fx, 0)}')
+    if w16(fx, 0x22) != 1 or struct.unpack('>I', fx[0x1e:0x22])[0] != 0x12dde + 6 or w16(fx, 4) != 4 or w16(fx, 0xa) != 2 or w16(fx, 6) != 3:
+        f.append(f'full: first tick man {w16(fx, 0x22)} hits {w16(fx, 4)}/{w16(fx, 0xa)} grenades man1 {w16(fx, 6)}')
     sx = [w16(b, 0x22) for _, b in x.td('17068', *A6)]
     if sx[:2] != [1, 2]:
         f.append(f'full: men {sx}')
-    return f, f'full platoon: starts with man 1 (2 wounds carried), then men {sx}'
+    return f, f'full platoon: starts with man 1 (2 wounds, 3 grenades carried), then men {sx}'
 
 
 def check_m5_compass(runs):

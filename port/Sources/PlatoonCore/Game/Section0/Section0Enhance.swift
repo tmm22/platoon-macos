@@ -97,9 +97,13 @@ extension Platoon {
     // MARK: - S6 bridge failsafe
 
     /// S6: true if a step right must be refused because it would reach the doom column $4e of the unblown,
-    /// un-mined bridge (level 1). pworld is even and grows by 2 per 16 px; $270 is the last value of column $4d.
+    /// un-mined bridge (level 1). pworld ($60c30) grows by 2 per 4-px scroll step pair and changes in the MIDDLE of
+    /// an 8-px step (align 4), so the guard only refuses to START a step (align 0): standing aligned at pworld $270
+    /// (column $4d) is the last position; the next step would end at $272 = column $4e. Refusing a step that is
+    /// under way (align != 0) would leave the player stuck mid-step: pl_keep_walking ignores the stick until the
+    /// step is finished, so he could never walk back for the explosives.
     func s0BridgeFailsafeBlocks() -> Bool {
-        guard v0.level == 1, v0.bridge == 0, v0.pworld >= 0x270, v0.pcol < 0x4e else { return false }
+        guard v0.level == 1, v0.bridge == 0, v0.align == 0, v0.pworld >= 0x270, v0.pcol < 0x4e else { return false }
         if v0.msgCount == 0 { k_queue_text(0x11) }          // SET THE EXPLOSIVES ON THE BRIDGE
         v0.pframe = 8                                       // stand, as when a tree blocks
         return true

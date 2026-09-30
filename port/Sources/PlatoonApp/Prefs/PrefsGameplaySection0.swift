@@ -97,6 +97,10 @@ extension PrefsRegistry {
                     .enabled(if: { Prefs.bool(JungleWideController.kEnabled) }),
                 .toggle(JungleWideController.kFade, "Fade towards the edges", default: true)
                     .enabled(if: { Prefs.bool(JungleWideController.kEnabled) }),
+                .slider(JungleWideController.kReserve, "Make room in narrow windows", default: 0, range: 0...128, step: 16,
+                        format: { $0 == 0 ? "Off" : "\(Int($0)) px per side" },
+                        help: "Shrinks the picture so the side columns also show in a 4:3 window or on a 4:3 screen.")
+                    .enabled(if: { Prefs.bool(JungleWideController.kEnabled) }),
             ]),
         ]
     }

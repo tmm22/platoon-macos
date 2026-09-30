@@ -56,6 +56,8 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
     private var colourIndex = 0
     private var colourValid = false
     private let lutTex: MTLTexture
+    private let refTex: MTLTexture          // S17: canvas of the last frame before a flash
+    private var refValid = false
     private let mmpxTex: MTLTexture
     private var glowTex: [MTLTexture] = []
     private var glowIndex = 0
@@ -82,10 +84,11 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
               let c0 = tex(Chipset.canvasWidth, Chipset.canvasHeight, target: true),
               let c1 = tex(Chipset.canvasWidth, Chipset.canvasHeight, target: true),
               let lut = tex(64, 64, target: false),
+              let ref = tex(Chipset.canvasWidth, Chipset.canvasHeight, target: false),
               let mm = tex(Chipset.canvasWidth, Chipset.canvasHeight * 2, target: true),
               let g0 = tex(MetalRenderer.glowSize.w, MetalRenderer.glowSize.h, target: true),
               let g1 = tex(MetalRenderer.glowSize.w, MetalRenderer.glowSize.h, target: true) else { return nil }
-        texture = tx; colourTex = [c0, c1]; lutTex = lut; mmpxTex = mm; glowTex = [g0, g1]
+        texture = tx; colourTex = [c0, c1]; lutTex = lut; refTex = ref; mmpxTex = mm; glowTex = [g0, g1]
         let sd = MTLSamplerDescriptor(); sd.minFilter = .linear; sd.magFilter = .linear
         sd.sAddressMode = .clampToEdge; sd.tAddressMode = .clampToEdge
         sampler = dev.makeSamplerState(descriptor: sd)!
@@ -122,6 +125,11 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
     func upload(_ chip: Chipset) {
         texture.replace(region: MTLRegionMake2D(0, 0, Chipset.canvasWidth, Chipset.canvasHeight), mipmapLevel: 0,
                         withBytes: chip.canvas, bytesPerRow: Chipset.canvasWidth * 4)
+        if fx.refUpdate {
+            refTex.replace(region: MTLRegionMake2D(0, 0, Chipset.canvasWidth, Chipset.canvasHeight), mipmapLevel: 0,
+                           withBytes: chip.canvas, bytesPerRow: Chipset.canvasWidth * 4)
+            refValid = true
+        }
         pendingFrames += max(1, fx.framesSinceUpload)
         fx.framesSinceUpload = 0
     }
@@ -143,10 +151,13 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
     struct ColourUniforms {
         var useLut: Int32; var splitY: Int32; var night: Float; var cvd: Int32
         var cvdStrength: Float; var bleed: Float; var colour1084: Int32; var decay: Float
-        var hasPrev: Int32; var nightAll: Int32; var pad0: Float = 0; var pad1: Float = 0
+        var hasPrev: Int32; var nightAll: Int32; var usePal: Int32 = 0; var pad1: Float = 0
     }
     struct GlowUniforms { var srcOrigin: SIMD2<Float>; var srcSize: SIMD2<Float>; var texSize: SIMD2<Float>; var blend: Float; var hasPrev: Int32 }
-    struct BackdropUniforms { var gameOrigin: SIMD2<Float>; var gameSize: SIMD2<Float>; var viewSize: SIMD2<Float>; var brightness: Float; var zoom: Float }
+    struct BackdropUniforms { var gameOrigin: SIMD2<Float>; var gameSize: SIMD2<Float>; var viewSize: SIMD2<Float>; var brightness: Float; var zoom: Float
+        // border fill (mode 1): the game image rect (shaken) and its canvas source, the inner x range to leave alone
+        var imgOrigin = SIMD2<Float>(0, 0); var imgSize = SIMD2<Float>(0, 0); var srcOrigin = SIMD2<Float>(0, 0); var srcSize = SIMD2<Float>(0, 0)
+        var innerX = SIMD2<Float>(0, 0); var mode: Int32 = 0; var pad: Float = 0 }
     struct ColumnUniforms { var dstOrigin: SIMD2<Float>; var dstSize: SIMD2<Float>; var viewSize: SIMD2<Float>; var texSize: SIMD2<Float>
         var fog: Float; var side: Int32; var alpha: Float; var pad: Float = 0 }
     struct TintUniforms { var viewSize: SIMD2<Float>; var amount: Float; var pad: Float = 0 }
@@ -205,10 +216,72 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
         guard let rpd = view.currentRenderPassDescriptor, let drawable = view.currentDrawable,
               let cb = queue.makeCommandBuffer() else { return }
         let vs = view.drawableSize
+        // M20: optional colour management (untagged = the Amiga values go to the display as they are)
+        if let layer = view.layer as? CAMetalLayer, look.srgbTag != (layer.colorspace != nil) {
+            layer.colorspace = look.srgbTag ? CGColorSpace(name: CGColorSpace.sRGB) : nil
+        }
+        guard let lay = encode(cb, rpd, drawableSize: vs) else { return }
+        lastContentRect = lay.game
+        cb.present(drawable)
+        if capturePath != nil || captureHandler != nil {
+            let path = capturePath, handler = captureHandler
+            capturePath = nil; captureHandler = nil
+            let tex = drawable.texture
+            cb.addCompletedHandler { _ in
+                let w = tex.width, h = tex.height
+                var buf = [UInt32](repeating: 0, count: w * h)
+                tex.getBytes(&buf, bytesPerRow: w * 4, from: MTLRegionMake2D(0, 0, w, h), mipmapLevel: 0)
+                if let path {
+                    let png = ImageIO.png(width: w, height: h) { x, y in let p = buf[y * w + x]; return p } // BGRA little-endian -> 0xAARRGGBB
+                    try? png.write(to: URL(fileURLWithPath: path))
+                }
+                handler?(buf, w, h)
+            }
+        }
+        cb.commit()
+    }
+
+    /// Renders the current canvas / settings into an offscreen image of `width` x `height` drawable pixels and
+    /// returns its pixels (0xAARRGGBB, row-major). Synchronous; for tests (Video/VideoSelfTest.swift) and tools.
+    /// `frames` = emulated frames to account for since the previous render (persistence / glow history).
+    func renderOffscreen(width: Int, height: Int, frames: Int = 1) -> [UInt32]? {
+        let td = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .bgra8Unorm, width: width, height: height, mipmapped: false)
+        td.usage = [.renderTarget, .shaderRead]
+        td.storageMode = .managed
+        guard let target = device.makeTexture(descriptor: td), let cb = queue.makeCommandBuffer() else { return nil }
+        let rpd = MTLRenderPassDescriptor()
+        rpd.colorAttachments[0].texture = target
+        rpd.colorAttachments[0].loadAction = .clear
+        rpd.colorAttachments[0].clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 1)
+        rpd.colorAttachments[0].storeAction = .store
+        pendingFrames += max(0, frames - 1)
+        guard encode(cb, rpd, drawableSize: CGSize(width: width, height: height)) != nil else { return nil }
+        if let blit = cb.makeBlitCommandEncoder() { blit.synchronize(resource: target); blit.endEncoding() }
+        cb.commit()
+        cb.waitUntilCompleted()
+        var buf = [UInt32](repeating: 0, count: width * height)
+        target.getBytes(&buf, bytesPerRow: width * 4, from: MTLRegionMake2D(0, 0, width, height), mipmapLevel: 0)
+        return buf
+    }
+
+    /// Uploads a canvas-sized image (Chipset.canvasWidth x canvasHeight, 0xAARRGGBB) instead of the chipset's
+    /// canvas (tests / tools).
+    func upload(pixels: UnsafePointer<UInt32>) {
+        texture.replace(region: MTLRegionMake2D(0, 0, Chipset.canvasWidth, Chipset.canvasHeight), mipmapLevel: 0,
+                        withBytes: pixels, bytesPerRow: Chipset.canvasWidth * 4)
+        if fx.refUpdate {
+            refTex.replace(region: MTLRegionMake2D(0, 0, Chipset.canvasWidth, Chipset.canvasHeight), mipmapLevel: 0,
+                           withBytes: pixels, bytesPerRow: Chipset.canvasWidth * 4)
+            refValid = true
+        }
+        pendingFrames += 1
+    }
+
+    /// Encodes all passes of one displayed frame into `cb`; the final pass renders into `rpd`.
+    private func encode(_ cb: MTLCommandBuffer, _ rpd: MTLRenderPassDescriptor, drawableSize vs: CGSize) -> Layout? {
         let c = crop
         let lay = layout(drawableSize: vs)
         let r = lay.game
-        lastContentRect = r
 
         // settings changes invalidate the history textures
         let settingsChanged = look != lastLook || filter != lastFilter
@@ -232,12 +305,19 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
                                        bleed: crt ? look.crt.bleed : 0, colour1084: crt && look.crt.colour1084 ? 1 : 0,
                                        decay: persistence > 0 ? powf(persistence, Float(max(1, frames))) : 0,
                                        hasPrev: colourValid ? 1 : 0, nightAll: 0)
+                var pals = [UInt32](repeating: 0, count: 48)
+                if let p = fx.flashPalettes, p.count == 48, fx.flashLUT != nil, refValid {
+                    for i in 0..<48 { pals[i] = UInt32(p[i]) }
+                    u.usePal = 1
+                }
                 offscreen(cb, dst) { enc in
                     enc.setRenderPipelineState(colourPipeline)
                     enc.setFragmentBytes(&u, length: MemoryLayout<ColourUniforms>.stride, index: 0)
+                    pals.withUnsafeBytes { enc.setFragmentBytes($0.baseAddress!, length: $0.count, index: 1) }
                     enc.setFragmentTexture(texture, index: 0)
                     enc.setFragmentTexture(lutTex, index: 1)
                     enc.setFragmentTexture(prev, index: 2)
+                    enc.setFragmentTexture(refTex, index: 3)
                 }
                 colourValid = true
             }
@@ -249,7 +329,7 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
         // ---- MMPX
         var srcTex = source
         var srcOrigin = SIMD2(Float(c.x), Float(c.y)), srcSize = SIMD2(Float(c.w), Float(c.h))
-        let grid = SIMD2(Float(c.w) / 2, Float(c.h))
+        var grid = SIMD2(Float(c.w) / 2, Float(c.h))     // sampling grid: lowres pixels (2 x 1 canvas texels each)
         var mode = filter.rawValue
         if filter == .mmpx {
             if newFrame || colourPassNeeded {
@@ -262,6 +342,7 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
             }
             srcTex = mmpxTex
             srcOrigin = SIMD2(Float(c.x), Float(c.y * 2)); srcSize = SIMD2(Float(c.w), Float(c.h * 2))
+            grid = srcSize                                // MMPX output: sample its own (2x lowres) texels sharply
             mode = 3
         }
 
@@ -270,7 +351,10 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
         if backdrop && (newFrame || !glowValid) {
             let prev = glowTex[glowIndex]
             glowIndex ^= 1
-            var u = GlowUniforms(srcOrigin: SIMD2(Float(c.x), Float(c.y)), srcSize: SIMD2(Float(c.w), Float(c.h)),
+            // every game screen has a black 16-px border inside the $71 crop (the windows start at DIW h $81):
+            // the glow is taken from inside it, so the picture's edges extend into the bars
+            let bx = min(32, c.w / 4)
+            var u = GlowUniforms(srcOrigin: SIMD2(Float(c.x + bx), Float(c.y)), srcSize: SIMD2(Float(c.w - 2 * bx), Float(c.h)),
                                  texSize: SIMD2(Float(Chipset.canvasWidth), Float(Chipset.canvasHeight)),
                                  blend: glowValid ? 1 - powf(0.82, Float(max(1, frames))) : 1, hasPrev: glowValid ? 1 : 0)
             offscreen(cb, glowTex[glowIndex]) { enc in
@@ -284,11 +368,13 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
         } else if !backdrop { glowValid = false }
 
         // ---- the drawable
-        guard let enc = cb.makeRenderCommandEncoder(descriptor: rpd) else { return }
+        guard let enc = cb.makeRenderCommandEncoder(descriptor: rpd) else { return nil }
         let viewSize = SIMD2(Float(vs.width), Float(vs.height))
+        let inner = r.insetBy(dx: Double(min(32, c.w / 4)) / 2 * lay.scaleX, dy: 0)
+        var backdropU = BackdropUniforms(gameOrigin: SIMD2(Float(inner.minX), Float(inner.minY)), gameSize: SIMD2(Float(inner.width), Float(inner.height)),
+                                         viewSize: viewSize, brightness: look.backdropBrightness, zoom: 1.12)
         if backdrop {
-            var u = BackdropUniforms(gameOrigin: SIMD2(Float(r.minX), Float(r.minY)), gameSize: SIMD2(Float(r.width), Float(r.height)),
-                                     viewSize: viewSize, brightness: look.backdropBrightness, zoom: 1.12)
+            var u = backdropU
             enc.setRenderPipelineState(backdropPipeline)
             enc.setFragmentBytes(&u, length: MemoryLayout<BackdropUniforms>.stride, index: 0)
             enc.setFragmentTexture(glowTex[glowIndex], index: 0)
@@ -319,6 +405,21 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
         enc.setFragmentSamplerState(sampler, index: 0)
         enc.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
 
+        // S14: the glow also fills the black border columns inside the crop (every screen has 16 px of border
+        // colour beside its window), so it reaches the picture's edge; only where the border is black
+        if backdrop && filter != .crt {
+            let g = r.offsetBy(dx: sx, dy: sy)
+            backdropU.imgOrigin = SIMD2(Float(g.minX), Float(g.minY)); backdropU.imgSize = SIMD2(Float(g.width), Float(g.height))
+            backdropU.srcOrigin = SIMD2(Float(c.x), Float(c.y)); backdropU.srcSize = SIMD2(Float(c.w), Float(c.h))
+            backdropU.innerX = SIMD2(Float(inner.minX + sx), Float(inner.maxX + sx)); backdropU.mode = 1
+            enc.setRenderPipelineState(backdropPipeline)
+            enc.setFragmentBytes(&backdropU, length: MemoryLayout<BackdropUniforms>.stride, index: 0)
+            enc.setFragmentTexture(glowTex[glowIndex], index: 0)
+            enc.setFragmentTexture(source, index: 1)
+            enc.setFragmentSamplerState(sampler, index: 0)
+            enc.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
+        }
+
         // L4 side columns, blended over the crop's black border beside the game window and the area outside it
         drawColumns(enc, lay, viewSize, shake: CGPoint(x: sx, y: sy))
         enc.setRenderPipelineState(pipeline)
@@ -326,11 +427,11 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
         enc.setFragmentSamplerState(sampler, index: 0)
 
         // M21 HUD magnifier: the HUD lines again, magnified, below the game image
-        if let strip = lay.magnifier {
+        if let strip = lay.magnifier, fx.hudActive {
             let hudY = max(c.y, min(fx.splitCanvasY, c.y + c.h - MetalRenderer.hudLines))
             let yScale: Float = filter == .mmpx ? 2 : 1
             var m = mainUniforms(src: SIMD2(srcOrigin.x, Float(hudY) * yScale), size: SIMD2(srcSize.x, Float(MetalRenderer.hudLines) * yScale),
-                                 grid: SIMD2(grid.x, Float(MetalRenderer.hudLines)), dst: strip, flags: 0, curvature: false)
+                                 grid: SIMD2(grid.x, Float(MetalRenderer.hudLines) * yScale), dst: strip, flags: 0, curvature: false)
             enc.setVertexBytes(&m, length: MemoryLayout<Uniforms>.stride, index: 0)
             enc.setFragmentBytes(&m, length: MemoryLayout<Uniforms>.stride, index: 0)
             enc.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
@@ -344,23 +445,7 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
             enc.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
         }
         enc.endEncoding()
-        cb.present(drawable)
-        if capturePath != nil || captureHandler != nil {
-            let path = capturePath, handler = captureHandler
-            capturePath = nil; captureHandler = nil
-            let tex = drawable.texture
-            cb.addCompletedHandler { _ in
-                let w = tex.width, h = tex.height
-                var buf = [UInt32](repeating: 0, count: w * h)
-                tex.getBytes(&buf, bytesPerRow: w * 4, from: MTLRegionMake2D(0, 0, w, h), mipmapLevel: 0)
-                if let path {
-                    let png = ImageIO.png(width: w, height: h) { x, y in let p = buf[y * w + x]; return p } // BGRA little-endian -> 0xAARRGGBB
-                    try? png.write(to: URL(fileURLWithPath: path))
-                }
-                handler?(buf, w, h)
-            }
-        }
-        cb.commit()
+        return lay
     }
 
     /// Runs one full-target fragment pass into `target`.

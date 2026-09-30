@@ -1,0 +1,2 @@
+# music-test: no sound effects (music-only reference)
+900 quit

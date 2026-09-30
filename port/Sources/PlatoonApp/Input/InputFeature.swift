@@ -34,6 +34,7 @@ final class InputFeature {
         app.onDisplay { [weak self] ctx in self?.hints.refresh(ctx) }
         Prefs.observeAll { [weak self] k in if k.hasPrefix("input.") { self?.applyPrefs() } }
         app.overlay.add(hints)
+        hints.forceShow = ProcessInfo.processInfo.environment["PLATOON_INPUT_FORCE_HINTS"] != nil   // app tests without a pad
         app.addPauseMenuItem(PauseMenuItem(id: "input.controls", title: { "Controls & Bindings…" }, order: 405) {
             DispatchQueue.main.async { ControlsWindowController.shared.show() }
             return true
@@ -88,14 +89,17 @@ final class ControllerHintPanel: OverlayPanel {
         let box = OverlayStyle.box()
         super.init(id: "input.hints", view: box, anchor: .game(.bottom, inset: 6), zIndex: 120)
         label.font = OverlayStyle.font(13); label.textColor = OverlayStyle.text
+        label.lineBreakMode = .byClipping; label.maximumNumberOfLines = 1; label.cell?.wraps = false
         box.addSubview(label)
         box.isHidden = true
     }
 
     override func frame(in l: OverlayLayout) -> CGRect {
-        let s = label.attributedStringValue.size()
-        preferredSize = CGSize(width: ceil(s.width) + 20, height: ceil(s.height) + 10)
-        label.frame = CGRect(x: 10, y: 5, width: ceil(s.width) + 2, height: ceil(s.height))
+        // the label's own fitting size counts the symbol attachments (the attributed string's size() doesn't)
+        let a = label.attributedStringValue.size(), f = label.fittingSize
+        let w = ceil(max(a.width, f.width)) + 6, h = ceil(max(a.height, f.height))
+        preferredSize = CGSize(width: w + 20, height: h + 10)
+        label.frame = CGRect(x: 10, y: 5, width: w, height: h)
         return super.frame(in: l)
     }
 

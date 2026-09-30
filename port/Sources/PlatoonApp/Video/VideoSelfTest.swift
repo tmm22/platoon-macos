@@ -310,7 +310,10 @@ enum VideoSelfTest {
             let base = render(rd, pic, Config(name: "base", aspect: false, integer: true), 1280, 1024)
             let out = render(rd, pic, Config(name: "shake", fx: fx, aspect: false, integer: true), 1280, 1024)
             var bad = 0
-            for y in 8..<1000 { for x in 16..<1260 where out[y * 1280 + x] != base[(y + 4) * 1280 + x - 8] { bad += 1 } }
+            for y in 8..<1000 {
+                let row: Int = y * 1280, srcRow: Int = (y + 4) * 1280 - 8
+                for x in 16..<1260 where out[row + x] != base[srcRow + x] { bad += 1 }
+            }
             r.check("shake moves the picture (2, -1) lowres px", bad == 0, "\(bad) differing pixels")
         }
         // 9. HUD magnifier (M21)

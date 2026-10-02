@@ -1,6 +1,6 @@
 // Enhancement options of Tunnels & flare night (section 1).
 // OWNER: the section1 agent (wave 2). Only the owner edits this file. Registry rules: Enhance/Registry.swift.
-// Items (port/ENHANCEMENT_IDEAS.md): M3 variant B automap, M4 keep items / flare-night retry / checkpoint respawn,
+// Items (IDs: port/PORTING.md "Enhancement IDs"): M3 variant B automap, M4 keep items / flare-night retry / checkpoint respawn,
 // S9 tunnel+flare fixes, M15 section-1 men (flags in GameplayOptions), M10 section-1 knobs, L2 direct aiming,
 // L3 randomiser (tunnels part). The hooks are `// ENHANCEMENT <ID>` sites in Game/Section1/*.swift; the shared
 // helpers live in Game/Section1/Section1Enhance.swift.

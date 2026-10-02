@@ -1,6 +1,6 @@
 // Enhancement options of Jungle & village (section 0).
 // OWNER: the section0 agent (wave 2). Only the owner edits this file. Registry rules: Enhance/Registry.swift.
-// Items (port/ENHANCEMENT_IDEAS.md): S6 bridge failsafe, S7 forgiving booby traps, S9 jungle/village fixes (b f g k),
+// Items (IDs: port/PORTING.md "Enhancement IDs"): S6 bridge failsafe, S7 forgiving booby traps, S9 jungle/village fixes (b f g k),
 // M14 explicit jump/crouch, L3 village randomiser, M10 section-0 knobs. Hooks: Game/Section0/*.swift, marked
 // `// ENHANCEMENT <ID>`; helpers in Game/Section0/Section0Enhance.swift. The M6 mini-map and the L4 widescreen side
 // columns are host-only (app overlays Overlay/Jungle*.swift, read-only models Game/Section0/JungleMapModel.swift and

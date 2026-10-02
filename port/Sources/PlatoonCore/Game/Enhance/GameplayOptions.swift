@@ -1,6 +1,6 @@
 // Cross-section gameplay options (owner: core defines the flags; the section owners implement the section parts).
 //
-// M15 full platoon / extra lives (port/ENHANCEMENT_IDEAS.md M15):
+// M15 full platoon / extra lives (IDs: port/PORTING.md "Enhancement IDs"):
 //   game.lives        2 = original (sections 1 and 2 use men 0 and 1 only). 3..5: allow that many men in S1/S2 by
 //                     replacing the `$22(a6) == 1` / `a6+6` second-man logic with "next record with hits < 4".
 //                     Hooks: section1 (section1_start ~180, s1_killedInAction), section2 (s2_fj_entry, s2_second_chance).

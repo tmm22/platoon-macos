@@ -1,7 +1,7 @@
 // M10 difficulty presets: schema (owner: core). The per-section knob VALUES are filled in by the section owners in
 // their own groups (Section0Options.swift, ...); the kernel's own knobs are in KernelOptions.swift.
 //
-// Rules (port/ENHANCEMENT_IDEAS.md M10):
+// Rules (M10, IDs: port/PORTING.md "Enhancement IDs"):
 // - Every knob is an Optional; nil = the original literal. Hooks read `enhancements.sectionN.difficulty.x ?? <literal>`
 //   and must never add or remove a k_random() call (mask/clamp AFTER the call), so Original stays bit-exact.
 // - `Original` resolves to all-nil knobs. `Recruit` / `Veteran` fill knobs that were not set explicitly.

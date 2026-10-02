@@ -1,4 +1,4 @@
-# Assist feature tests (owner: assist)
+# Assist feature tests
 
 - Unit tests (headless models, game runs with --deterministic): `swift test --filter AssistTests`
   (speech text, message log folding, final-jungle run through timer / splits / LiveSplit / service record /

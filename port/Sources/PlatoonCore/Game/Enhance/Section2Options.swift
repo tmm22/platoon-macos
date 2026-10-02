@@ -1,6 +1,6 @@
 // Enhancement options of Final jungle & foxhole (section 2).
 // OWNER: the section2 agent (wave 2). Only the owner edits this file. Registry rules: Enhance/Registry.swift.
-// Items (port/ENHANCEMENT_IDEAS.md): S9 (a)(h)(j) fixes, M5 compass assist, M15 section-2 men (flags in
+// Items (IDs: port/PORTING.md "Enhancement IDs"): S9 (a)(h)(j) fixes, M5 compass assist, M15 section-2 men (flags in
 // GameplayOptions), M10 section-2 knobs. Hooks: Game/Section2/*.swift, marked `// ENHANCEMENT <ID>`; helpers in
 // Game/Section2/Section2Enhance.swift. The M5 navigator and the M25 room slide are host-only (app overlays
 // Overlay/Final*.swift, model Game/Section2/FinalNavigator.swift) and need no option here.

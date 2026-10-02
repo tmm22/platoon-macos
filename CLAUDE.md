@@ -50,5 +50,6 @@ tools/vamiga/build.sh && python3 tools/vamiga/timing_check.py   # real-A500 timi
 - Long-running commands (emulator runs, regression, full builds) should run in the background.
 
 ## Docs
-`README.md` (users), `port/ENHANCEMENTS_GUIDE.md` (all options), `port/ENHANCEMENT_IDEAS.md` (roadmap),
-`port/PORTING.md` (developer guide), `port/STATUS.md` (history log), `re/NOTES.md` (disk layout, memory map).
+`README.md` (users: setup, how to play, controls), `port/ENHANCEMENTS_GUIDE.md` (all options; bundled in the app's
+Help menu, so keep it player-facing), `port/PORTING.md` (developer guide, enhancement IDs, feature-area code and
+tests), `port/verify/README.md` (evidence index), `re/NOTES.md` (disk layout, memory map). History is in git log.

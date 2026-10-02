@@ -72,7 +72,7 @@ public struct EnhancementOption<G> {
     }
     public let key: String
     public let kind: Kind
-    /// Roadmap item (port/ENHANCEMENT_IDEAS.md), e.g. "S6".
+    /// Enhancement ID (port/PORTING.md "Enhancement IDs"), e.g. "S6".
     public let id: String
     /// Changes game behaviour -> the run is assisted (F4/S5) when the value differs from the default.
     public let gameplay: Bool

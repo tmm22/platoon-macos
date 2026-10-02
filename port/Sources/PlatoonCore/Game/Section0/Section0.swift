@@ -7,7 +7,9 @@
 //
 // Frame pacing: the original main loop is CPU-bound (no fixed-rate logic): from the return of k_wait_swap
 // (the level-6 IRQ latched the previous swap at line $cc) to the k_swap call the 68000 needs ~360-500
-// raster lines, so the swap lands in the next frame and the loop runs at one tick per 2 frames (25 Hz).
+// raster lines in tools/amiga/emu, so the swap lands in the next frame and the loop runs at one tick per 2 frames
+// (25 Hz). On a real A500 (blitter time, bus contention: the default real-A500 timing of KernelSupport) it is ~2.8
+// frames per tick, see port/verify/timing.md.
 // The port reproduces this with the kernel's CPU-time model (KernelSupport.swift): the translated routines
 // charge their 68000 cost with cpu(n) (costs below, fitted by least squares to 1882 ticks of emulator play in jungle and
 // village: std 1.9 lines), kernel/audio calls charge theirs, and s0Settle() pays the accumulated time as raster
@@ -69,7 +71,7 @@ extension Platoon {
     /// Debug trace (env S0DEBUG): original address + beam position, for timing comparisons with the emulator.
     /// (v = modeled beam line: current line + CPU time not yet paid; may exceed the frame.)
     func s0Dbg(_ what: String) {
-        if s0Debug { print("\(what) f\(m.frameCount) v\(m.beamLine + cpuCycles / Platoon.cyclesPerLine)") }
+        if s0Debug { print("\(what) f\(m.frameCount) v\(m.beamLine + cpuCycles / cpuLine)") }
     }
 
     /// Absolute beam position in lines since power-on (game-thread view).
@@ -78,8 +80,8 @@ extension Platoon {
     /// Pays the accumulated 68000 time (section + kernel costs, `cpuCycles`) as raster lines, adding the
     /// level-3 handler time for every vblank that falls inside the stretch, then continues at that line.
     func s0Settle() {
-        let lines = cpuCycles / Platoon.cyclesPerLine
-        cpuCycles -= lines * Platoon.cyclesPerLine
+        let lines = cpuCycles / cpuLine
+        cpuCycles -= lines * cpuLine
         guard lines > 0 else { return }
         let now = s0Now, lpf = Chipset.linesPerFrame
         var target = now + lines

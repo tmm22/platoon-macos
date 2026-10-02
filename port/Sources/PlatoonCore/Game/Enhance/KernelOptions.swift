@@ -9,6 +9,11 @@ public struct KernelOptions: EnhancementGroup {
 
     /// Credits page: the original Ocean lines instead of the Darc crack's (Resident.swift reloc_stub). Default on.
     public var originalCredits = true
+    /// Verification only (not in the Preferences): reproduce tools/amiga/emu instead of a real A500 - the
+    /// Musashi CPU timing with instant blits (KernelSupport CPU-time model) and the emulator's simplified Paula
+    /// (no audio DMA slot limit, no LED filter, 4.9 kHz fixed filter). The regression and audio gates run with
+    /// it, so they stay byte-identical to the pinned pre-enhancement baseline. Default off = real A500.
+    public var referenceEmulator = false
     /// S12: music/FX mode (the F10 state, $66(a6): bit0 music, bit1 fx) set at the first boot instead of 3 (both on).
     /// nil = original. The host persists the player's last F10 state from GameContext.soundFlags.
     public var soundFlagsAtBoot: Int? = nil
@@ -29,6 +34,8 @@ public struct KernelOptions: EnhancementGroup {
     public static let options: [EnhancementOption<KernelOptions>] = [
         .bool("originalCredits", \.originalCredits, id: "kernel", gameplay: false,
               help: "Credits page shows the original Ocean lines (default on)."),
+        .bool("referenceEmulator", \.referenceEmulator, id: "verify", gameplay: false,
+              help: "Verification: tools/amiga/emu timing (instant blits) and Paula instead of a real A500."),
         .optionalInt("soundFlagsAtBoot", \.soundFlagsAtBoot, range: 0...3, id: "S12", gameplay: false,
                      help: "F10 music/FX mode at power-on: 0 off, 1 music, 2 fx, 3 both (original: 3)."),
         .bool("steadyPauseColour", \.steadyPauseColour, id: "S17", gameplay: false,

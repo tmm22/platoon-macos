@@ -345,7 +345,7 @@ assisted. It never shows in ⌘S screenshots or in recordings unless stated. Set
   *Custom* (mask type and strength, bloom, persistence, colour bleed, sharpness, 1084 colour). The mask is sized
   to whole triads per Amiga pixel, so it never beats against the picture (no moiré at 1080p/1440p); below about
   2.5 screen pixels per triad it switches itself off. Persistence fades per emulated frame, so it looks the same
-  under fast-forward. It is a look only: it does not smooth the 25 Hz jungle movement.
+  under fast-forward. It is a look only: it does not smooth the jungle's ~18 Hz movement.
 - **Colour-managed output (sRGB)** (Video › Around the picture, off by default): wide-gamut (P3) displays show
   the Amiga colours as intended instead of over-saturated.
 
@@ -391,8 +391,12 @@ assisted. It never shows in ⌘S screenshots or in recordings unless stated. Set
 
 ## Sound: mixer, ghost voices, sound character, soundtrack, output timing
 None of these options changes the game: they only change how Paula's output is mixed and played on the Mac, so
-they never make a run *assisted* and they all apply immediately (no restart). With every setting at its default the
-sound is bit-identical to the original port (checked by rendering WAVs, see "For developers").
+they never make a run *assisted* and they all apply immediately (no restart). With every setting at its default you
+hear a real A500: Paula fetches one audio word per channel and raster line (so very short periods are capped in
+pitch, as on the hardware), the fixed 4.4 kHz output filter is on, and the 3.1 kHz "LED" filter is heard whenever the
+game has the power LED on (after each disk load until the next tune or sound effect, e.g. the title music after the
+high scores load). The A500 filter switch (Preferences › Audio) turns both filters off. With `referenceEmulator=1` the
+output is bit-identical to the original port (checked by rendering WAVs, see "For developers").
 App: **Preferences › Audio** (⌘,), a few toggles also in the **Sound** menu (Band-limited Synthesis, Ambience,
 Ghost Voices, Replacement Soundtrack, Choose Soundtrack Folder…, Audio Mixer…).
 
@@ -532,9 +536,14 @@ The port is deterministic: the joystick and keys of a game reproduce it exactly.
 - A plain `platoon-headless --script` file (joystick and key lines, no pokes) can be played with Play Replay… too;
   its keys are paced like the headless runner's, so a key press and release on the same frame still register.
 - A `.plreplay` is also a `platoon-headless --script`; its header lists the command line, e.g.
-  `platoon-headless --adf ADF --script game.plreplay --frames 51234 --start-section 1`. A carry block, if any, is
-  saved next to it as `.carry` (use `PLATOON_CARRY=file`). Replays made from headless `--deterministic` runs carry a
-  `# deterministic 1` header line; the app then plays them with the same random-number rule.
+  `platoon-headless --adf ADF --script game.plreplay --frames 51234 --start-section 1 --enh referenceEmulator=0`
+  (the headless runner defaults to the reference emulator's timing, so the command states the replay's). A carry
+  block, if any, is saved next to it as `.carry` (use `PLATOON_CARRY=file`). Replays made from headless
+  `--deterministic` runs carry a `# deterministic 1` header line; the app then plays them with the same random-number
+  rule.
+- Replays are recorded at real-A500 speed (`# PLATOON INPUT REPLAY 2`). Replays saved by earlier versions (format 1)
+  and plain headless scripts were made with the reference emulator's faster timing: they are played with
+  `referenceEmulator=1`, so they still reproduce their game.
 
 ### Practice (M11)
 **Assist › Practice** (or "Practice…" in the pause menu) starts a drill: The Jungle (from the start), The Bridge (with
@@ -850,6 +859,7 @@ Custom uses only the values you set yourself (keys ending in `.diff.<name>`). Th
 | `kernel.keyboardNameEntry=1` (Input ▸ High-score name) | Type your hiscore name on the keyboard: letters, digits, space; Backspace goes back one letter; Return finishes the name. The joystick still works as before. |
 | `kernel.timerStopsAtZero=1` (Gameplay ▸ Final jungle & foxhole: original bugs, "HUD timer never wraps") | The mission timer stops at 00:00 instead of jumping to 59:59 while the napalm strike plays (a cosmetic original bug). |
 | `kernel.separateCheatScores=1` (General ▸ Title screen and high scores) | Games in which the original cheat codes (HAMBURGER / MEGA CHEAT) were typed also go to the assisted hiscore table. |
+| `referenceEmulator=1` (command line / `PLATOON_ENH` only; verification) | The timing and Paula of the reference emulator `tools/amiga/emu` instead of a real A500: the CPU gets every bus cycle and blits take no time (the jungle then runs at 25 ticks per second instead of ~18, the final jungle at 50 instead of ~25), no audio DMA limit, no LED filter, a 4.9 kHz output filter. The regression and audio gates use it; see `port/verify/timing.md`. |
 
 ### Hiscores and assisted runs
 See [Assisted games and high scores](#assisted-games-and-high-scores). Name entry in a separate table works as
@@ -868,7 +878,11 @@ The regression gate, test harnesses and extension APIs of each area. Build with 
 ### Regression gate and builds
 - `tools/regress_all.sh --bin <platoon-headless>` (4-12 min): 62 default-settings scenarios (kernel, sections 0-2)
   compared byte for byte with a baseline built from the pinned pre-enhancement commit: tick dumps, the full-RAM hash
-  of every frame, screenshots, files. It must stay ALL PASS; `--only REGEX` runs a subset. See port/PORTING.md.
+  of every frame, screenshots, files. It must stay ALL PASS; `--only REGEX` runs a subset. See port/PORTING.md. It runs
+  with `referenceEmulator=1` (the emulator's timing, which the baseline and the lockstep scripts have).
+- Real-A500 timing: `tools/vamiga/build.sh && python3 tools/vamiga/timing_check.py --bin <platoon-headless>` (~5 min)
+  plays identical games (inputs fed per tick) in tools/amiga/emu, the cycle-exact vAmiga and the port, and compares the
+  frames per tick of the CPU/blitter-bound loops. Port vs vAmiga should stay within 1-2 %. See port/verify/timing.md.
 - `swift test` runs every unit test suite (registry, snapshot codec, audio, sections 0-2, assists).
 - Robustness (QA): `port/verify/qa/kitchen.py <platoon-headless> <outdir> [all|veteran|custom]` runs every gate
   scenario's script with many options on at once (all gameplay switches + randomisers + audio; Veteran with seeds and
@@ -956,8 +970,8 @@ checkpoint retry, and files saved in one process and loaded in another. Headless
 - M22 slow motion: a host that runs the game slower than real time sets `host.audio.stream.speedHint = speed`
   (nil at 100 %); without a hint the stream estimates the producer speed (2 s windows, stalls ignored, used below 90 %,
   or below 99 % once two underruns within 6 s show the host really is that slow).
-- Tests (run in the background): `port/verify/audio/wavcmp.sh BIN OUT` (default output byte-identical to the pinned
-  baseline, 9 scenarios: title, F10, section 1 combat + flare, section 2 combat, driver harness songs 0/2/4/6 with
+- Tests (run in the background): `port/verify/audio/wavcmp.sh BIN OUT` (output with `referenceEmulator=1`
+  byte-identical to the pinned baseline, 9 scenarios: title, F10, section 1 combat + flare, section 2 combat, driver harness songs 0/2/4/6 with
   sfx bursts, 44.1 kHz no-filter), `port/verify/audio/enhtests.sh BIN OUT` (RAM hash every frame and register log
   unchanged with every audio option on; ghost / BLEP / ambience / pan / volume behaviour as numbers),
   `swift test --filter AudioTests` (BLEP aliasing, mixer neutrality, gains/pan, ghosts, interrupt timing, stream rate

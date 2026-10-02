@@ -46,9 +46,10 @@ extension MusicDriverTestHarness {
         guard let e = ProcessInfo.processInfo.environment["PLATOON_ENH"] else { return }
         var enh = Enhancements()
         // only the audio keys matter here; other keys (originalCredits, ...) are accepted and ignored
-        for kv in e.split(separator: ",") where kv.hasPrefix("audio.") {
+        for kv in e.split(separator: ",") where kv.hasPrefix("audio.") || kv.hasPrefix("referenceEmulator") {
             do { try enh.apply(String(kv)) } catch { FileHandle.standardError.write("PLATOON_ENH: \(error)\n".data(using: .utf8)!) }
         }
         p.enhancements.audio = enh.audio
+        if e.contains("referenceEmulator") { p.chip.paula.accurate = !enh.kernel.referenceEmulator }
     }
 }

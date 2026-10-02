@@ -2,8 +2,11 @@
 import Foundation
 // Produces float stereo samples at `sampleRate`, delivered through `output`.
 //
+// Hardware model: `accurate` (default) = a real A500 (audio DMA slot limit, A500 + LED filters, port/verify/timing.md);
+// false = tools/amiga/emu's Paula, the original port's output (referenceEmulator=1).
+//
 // Enhancement mixer (OWNER: audio; roadmap S10, M12, M25). With every mixer setting at its default the line is
-// rendered by `runLineLegacy`, the unchanged original code (bit-identical output, see port/verify/audio). Any
+// rendered by `runLineLegacy`, the original code (bit-identical output with `accurate` off, see port/verify/audio). Any
 // non-default setting switches to `runLineMixer`, which steps the voices' DMA state machine in exactly the same
 // order and at the same sample points (block-end interrupts and DMA timing are unchanged, so the game cannot
 // notice) and only computes the output differently:
@@ -28,6 +31,9 @@ public final class Paula {
         var phase = 0.0
         var current: Float = 0, previous: Float = 0
         var pendingIRQ = false
+        /// A500 model: time (colour clocks from the start of the current line, usually negative) of the oldest DMA
+        /// request not yet served by the channel's slot (raised when Paula loaded its last word); -inf = none pending.
+        var reqTime = -Double.infinity
     }
     var ch = [Channel](repeating: Channel(), count: 4)
     var dmacon: UInt16 = 0
@@ -36,7 +42,15 @@ public final class Paula {
     // enhancement settings
     public var interpolate = false          // linear interpolation between samples (off = authentic)
     public var stereoSeparation: Float = 1  // 1 = hard Amiga panning, 0 = mono
-    public var filterEnabled = true         // A500 fixed low-pass (~4.9 kHz)
+    public var filterEnabled = true         // A500 output filters (fixed low-pass; + LED filter in the A500 model)
+    /// Real-A500 model (default): at most one audio DMA word per channel and raster line (periods below ~113 can't
+    /// be fed: the voice replays its word and the loop runs slower, capping the pitch, as on the hardware), the
+    /// A500's fixed 4.42 kHz RC low-pass, and the 3.09 kHz "LED" filter while CIA-A PRA bit 1 drives the power LED
+    /// on (`ledOn`, set by the chipset every line). false = tools/amiga/emu's simplified Paula (64-period clamp
+    /// only, 4.9 kHz low-pass, no LED filter) for the audio gate (port/verify/audio/wavcmp.sh).
+    public var accurate = true
+    /// CIA-A PRA bit 1 low (and driven): power LED on = LED filter in (A500 model only).
+    public var ledOn = false
     public var volume: Float = 1
     public var musicMuted = false           // (legacy switch: silences all four voices)
 
@@ -79,7 +93,41 @@ public final class Paula {
     var effectiveAmbience: PaulaAmbience { ambience == .auto ? ambienceArea : ambience }
 
     var lpL: Float = 0, lpR: Float = 0
+    var ledFilter = PaulaLEDFilter()
+    /// A500 audio DMA model: time of the output sample being computed (colour clocks from the start of its line).
+    var sampleTime = 0.0
+    static let lineClocks = 227.0
+
+    /// A500 model, called when voice `c` has played both bytes of its word: Agnus serves an audio DMA request in the
+    /// channel's slot (once per line, colour clock 13 + 2c), so the next word is there only if a slot passed since
+    /// the request (= the previous word load). Periods of 114 and more always get it; below, Paula replays the old
+    /// word and the loop advances at most one word per line (the pitch is capped, as on the hardware).
+    @inline(__always) func dmaWordReady(_ v: inout Channel, _ c: Int) -> Bool {
+        var per = Double(v.per); if per < 64 { per = 64 }
+        let t = sampleTime - v.phase * per                  // when the word ran out (phase = periods since then)
+        let slot = 13 + 2 * Double(c)
+        let served = (t - slot) / Paula.lineClocks
+        let requested = (v.reqTime - slot) / Paula.lineClocks
+        guard v.reqTime == -Double.infinity || served.rounded(.down) > requested.rounded(.down) else { return false }
+        v.reqTime = t                                       // this load raises the next request
+        return true
+    }
     var sampleAcc = 0.0
+
+    /// Coefficient of the fixed one-pole low-pass (1 = off). A500 model: the 360 ohm / 0.1 uF RC (4421 Hz), discretised
+    /// like vAmiga's OnePoleFilter; emulator model: the original port's 4.9 kHz.
+    var outputAlpha: Float {
+        guard filterEnabled else { return 1 }
+        if !accurate { return Float(1 - exp(-2 * Double.pi * 4900 / sampleRate)) }
+        if alphaRate != sampleRate {
+            let fc = 1 / (2 * Double.pi * 360 * 1e-7)
+            let a = 2 - cos(2 * Double.pi * fc / sampleRate)
+            alphaCache = Float(1 - (a - (a * a - 1).squareRoot()))
+            alphaRate = sampleRate
+        }
+        return alphaCache
+    }
+    private var alphaRate = 0.0, alphaCache: Float = 1
     /// Receives interleaved stereo samples for each rendered line.
     public var output: ((UnsafeBufferPointer<Float>) -> Void)?
     var lineBuf = [Float](repeating: 0, count: 64)
@@ -125,6 +173,7 @@ public final class Paula {
         ch[c].word = mem.r16(ch[c].ptr)
         ch[c].byteIndex = 0
         ch[c].phase = 0
+        ch[c].reqTime = -Double.infinity
         ch[c].pendingIRQ = true
         ch[c].current = Float(Int8(bitPattern: UInt8(ch[c].word >> 8)))
     }
@@ -132,6 +181,8 @@ public final class Paula {
     @inline(__always) func advance(_ c: Int) {
         if ch[c].byteIndex == 0 {
             ch[c].byteIndex = 1
+        } else if accurate && !dmaWordReady(&ch[c], c) {
+            ch[c].byteIndex = 0                 // the slot hasn't fetched the next word yet: Paula reloads the old one
         } else {
             ch[c].byteIndex = 0
             ch[c].wordsLeft -= 1
@@ -157,12 +208,17 @@ public final class Paula {
     /// The original port's line renderer (unchanged; all enhancement mixer settings at their defaults).
     func runLineLegacy() {
         settleDMA()
+        for c in 0..<4 { ch[c].reqTime -= Paula.lineClocks }             // A500 DMA model: times are line-relative
         for c in 0..<4 where ch[c].pendingIRQ { ch[c].pendingIRQ = false; raiseInterrupt?(0x80 << UInt16(c)) }
         sampleAcc += sampleRate / (50.0 * Double(Chipset.linesPerFrame))
         var n = 0
-        let alpha: Float = filterEnabled ? Float(1 - exp(-2 * Double.pi * 4900 / sampleRate)) : 1
+        let alpha: Float = outputAlpha
+        let led = accurate && filterEnabled
+        if led { ledFilter.prepare(rate: sampleRate) }
+        let spl = sampleRate / (50.0 * Double(Chipset.linesPerFrame))
         while sampleAcc >= 1 {
             sampleAcc -= 1
+            sampleTime = (1 - sampleAcc / spl) * Paula.lineClocks
             var l: Float = 0, r: Float = 0
             for c in 0..<4 where ch[c].active {
                 var per = Double(ch[c].per); if per < 64 { per = 64 }
@@ -178,7 +234,9 @@ public final class Paula {
             let ml = l * (0.5 + 0.5 * sep) + r * (0.5 - 0.5 * sep)
             let mr = r * (0.5 + 0.5 * sep) + l * (0.5 - 0.5 * sep)
             lpL += (ml - lpL) * alpha; lpR += (mr - lpR) * alpha
-            if n + 2 <= lineBuf.count { lineBuf[n] = lpL * 0.5 * volume; lineBuf[n + 1] = lpR * 0.5 * volume; n += 2 }
+            var oL = lpL, oR = lpR
+            if led { (oL, oR) = ledFilter.process(lpL, lpR, on: ledOn) }
+            if n + 2 <= lineBuf.count { lineBuf[n] = oL * 0.5 * volume; lineBuf[n + 1] = oR * 0.5 * volume; n += 2 }
         }
         if n > 0, let out = output { lineBuf.withUnsafeBufferPointer { out(UnsafeBufferPointer(rebasing: $0[0..<n])) } }
     }
@@ -255,6 +313,8 @@ public final class Paula {
     @inline(__always) private func advanceGhost(_ c: Int) {
         if ghost[c].byteIndex == 0 {
             ghost[c].byteIndex = 1
+        } else if accurate && !dmaWordReady(&ghost[c], c) {
+            ghost[c].byteIndex = 0
         } else {
             ghost[c].byteIndex = 0
             ghost[c].wordsLeft -= 1
@@ -294,6 +354,7 @@ public final class Paula {
     func runLineMixer() {
         if !mixerWasActive { resetMixerState(); mixerWasActive = true }
         settleDMA()
+        for c in 0..<4 { ch[c].reqTime -= Paula.lineClocks; ghost[c].reqTime -= Paula.lineClocks }
         for c in 0..<4 where ch[c].pendingIRQ { ch[c].pendingIRQ = false; raiseInterrupt?(0x80 << UInt16(c)) }
         let ghosts = ghostVoices
         if ghosts { settleGhosts() }
@@ -329,9 +390,13 @@ public final class Paula {
 
         sampleAcc += sampleRate / (50.0 * Double(Chipset.linesPerFrame))
         var n = 0
-        let alpha: Float = filterEnabled ? Float(1 - exp(-2 * Double.pi * 4900 / sampleRate)) : 1
+        let alpha: Float = outputAlpha
+        let led = accurate && filterEnabled
+        if led { ledFilter.prepare(rate: sampleRate) }
+        let spl = sampleRate / (50.0 * Double(Chipset.linesPerFrame))
         while sampleAcc >= 1 {
             sampleAcc -= 1
+            sampleTime = (1 - sampleAcc / spl) * Paula.lineClocks
             var mL: Float = 0, mR: Float = 0, sL: Float = 0, sR: Float = 0
             for c in 0..<4 {
                 if ch[c].active {
@@ -390,12 +455,48 @@ public final class Paula {
                 ol += wl; orr += wr
             }
             lpL += (ol - lpL) * alpha; lpR += (orr - lpR) * alpha
-            if n + 2 <= lineBuf.count { lineBuf[n] = lpL * 0.5 * volume; lineBuf[n + 1] = lpR * 0.5 * volume; n += 2 }
+            var oL = lpL, oR = lpR
+            if led { (oL, oR) = ledFilter.process(lpL, lpR, on: ledOn) }
+            if n + 2 <= lineBuf.count { lineBuf[n] = oL * 0.5 * volume; lineBuf[n + 1] = oR * 0.5 * volume; n += 2 }
         }
         if useReverb && amb == .off {
             reverbTail -= n / 2
             if reverbTail <= 0 { reverbTail = 0 }
         }
         if n > 0, let out = output { lineBuf.withUnsafeBufferPointer { out(UnsafeBufferPointer(rebasing: $0[0..<n])) } }
+    }
+}
+
+/// The A500's switchable "LED" filter: a 2-pole Sallen-Key low-pass (10k/10k, 6.8 nF/3.9 nF: 3090 Hz, Q 0.660),
+/// discretised like vAmiga's TwoPoleFilter. It always runs (no click when the LED changes) and is heard while on.
+struct PaulaLEDFilter {
+    private var rate = 0.0
+    private var a1 = 0.0, a2 = 0.0, b1 = 0.0, b2 = 0.0
+    private var xl = (0.0, 0.0), yl = (0.0, 0.0), xr = (0.0, 0.0), yr = (0.0, 0.0)
+
+    mutating func prepare(rate r: Double) {
+        guard r != rate else { return }
+        rate = r
+        let rc = 1e4 * (6.8e-9 * 3.9e-9).squareRoot()
+        let fc = 1 / (2 * Double.pi * rc), q = rc / (3.9e-9 * 2e4)
+        let a = 1 / tan(2 * Double.pi * min(fc, r / 2 - 1e-4) / r), b = 1 / q
+        a1 = 1 / (1 + b * a + a * a); a2 = 2 * a1
+        b1 = 2 * (1 - a * a) * a1; b2 = (1 - b * a + a * a) * a1
+    }
+
+    func encode(into w: inout SnapWriter) {
+        for v in [xl.0, xl.1, yl.0, yl.1, xr.0, xr.1, yr.0, yr.1] { w.f64(v) }
+    }
+    mutating func decode(_ r: inout SnapReader) throws {
+        xl = (try r.f64(), try r.f64()); yl = (try r.f64(), try r.f64())
+        xr = (try r.f64(), try r.f64()); yr = (try r.f64(), try r.f64())
+    }
+
+    mutating func process(_ l: Float, _ r: Float, on: Bool) -> (Float, Float) {
+        let il = Double(l), ir = Double(r)
+        let ol = a1 * il + a2 * xl.0 + a1 * xl.1 - b1 * yl.0 - b2 * yl.1
+        let or = a1 * ir + a2 * xr.0 + a1 * xr.1 - b1 * yr.0 - b2 * yr.1
+        xl = (il, xl.0); yl = (ol, yl.0); xr = (ir, xr.0); yr = (or, yr.0)
+        return on ? (Float(ol), Float(or)) : (l, r)
     }
 }

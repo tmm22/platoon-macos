@@ -19,7 +19,11 @@ import Foundation
 // player) or with the recording's own gap (>= 2, the headless default) they are delivered at the same line.
 
 public struct ReplayHeader: Equatable {
-    public static let magic = "# PLATOON INPUT REPLAY 1"
+    /// Version 2: recorded with the real-A500 timing (default since the vAmiga calibration, port/verify/timing.md).
+    /// Version 1 files and plain headless scripts were recorded with tools/amiga/emu's timing: `decode` plays them
+    /// with `referenceEmulator=1` so they still reproduce their run.
+    public static let magic = "# PLATOON INPUT REPLAY 2"
+    public static let magicPrefix = "# PLATOON INPUT REPLAY "
     public var buildTag = GameSnapshot.buildTag
     public var adfTag: UInt64 = 0
     public var startSection: Int?
@@ -164,7 +168,10 @@ public struct InputReplay: Equatable {
             r.events.append(Event(frame: f, kind: kind, on: on))
             sawAny = true
         }
-        guard sawAny || text.hasPrefix(ReplayHeader.magic) else { throw ParseError.notAReplay }
+        guard sawAny || text.hasPrefix(ReplayHeader.magicPrefix) else { throw ParseError.notAReplay }
+        if !text.hasPrefix(ReplayHeader.magic) && !r.header.enhancements.contains(where: { $0.hasPrefix("referenceEmulator") }) {
+            r.header.enhancements.append("referenceEmulator=1")
+        }
         r.events.sort { $0.frame < $1.frame }         // stable: keeps the recorded order within a frame
         if r.header.frames == 0 { r.header.frames = (r.events.last?.frame ?? 0) + 1 }
         return r
@@ -175,7 +182,10 @@ public struct InputReplay: Equatable {
         var c = "platoon-headless --adf \(adf) --script \(script) --frames \(header.frames)"
         if let s = header.startSection { c += " --start-section \(s)" }
         if header.deterministic { c += " --deterministic" }
-        if !header.enhancements.isEmpty { c += " --enh \(header.enhancements.joined(separator: ","))" }
+        // platoon-headless defaults to the reference emulator's timing: state the replay's timing explicitly
+        var enh = header.enhancements
+        if !enh.contains(where: { $0.hasPrefix("referenceEmulator") }) { enh.append("referenceEmulator=0") }
+        c += " --enh \(enh.joined(separator: ","))"
         if !header.trainer.isEmpty { c += " --trainer \(header.trainer.joined(separator: ","))" }
         if header.carry != nil { c = "PLATOON_CARRY=<carry file> " + c }
         if header.keyGap != 2 { c += "   (recorded with key gap \(header.keyGap); keys closer than 3 frames need the same gap)" }

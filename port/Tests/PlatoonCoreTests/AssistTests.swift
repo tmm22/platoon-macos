@@ -64,6 +64,7 @@ final class AssistTests: XCTestCase {
         let events = try script("port/verify/section2/honest1.txt")
         let m = Machine(disk: try disk())
         var cfg = GameConfig(); cfg.deterministicRNG = true; cfg.enhancements.kernel.originalCredits = false
+        cfg.enhancements.kernel.referenceEmulator = true     // the verification script is timed for tools/amiga/emu
         let probe = GameProbe(); cfg.probe = probe
         let log = MessageLog(), objectives = ObjectiveTracker(), timer = RunTimer(), record = ServiceRecorder()
         var sheets: [String: ObjectiveSheet] = [:]
@@ -130,6 +131,7 @@ final class AssistTests: XCTestCase {
         events.sort { $0.0 < $1.0 }
         let frames = 2400
         var cfg = GameConfig(); cfg.deterministicRNG = true; cfg.startSection = 2
+        cfg.enhancements.kernel.referenceEmulator = true     // the verification script is timed for tools/amiga/emu
 
         let a = Machine(disk: d)
         a.start { PlatoonGame.main($0, config: cfg) }

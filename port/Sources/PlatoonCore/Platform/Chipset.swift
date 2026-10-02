@@ -21,6 +21,9 @@ public final class Chipset {
     public var bzero = false
     public var blitCount: UInt64 = 0
     public var blitLog: ((Chipset, Int, Int) -> Void)?
+    /// Called for every blit with its DMA cycle count (Chipset.blitDMACycles); the game's CPU-time model uses it to
+    /// charge the blitter's time on a real A500 (blits themselves complete instantly here).
+    public var onBlitCycles: ((Int) -> Void)?
 
     public let ciaA = CIA(isB: false)
     public let ciaB = CIA(isB: true)
@@ -374,6 +377,7 @@ public final class Chipset {
         ciaTickAcc += 709379.0 / (50.0 * Double(Chipset.linesPerFrame))
         let t = Int(ciaTickAcc); ciaTickAcc -= Double(t)
         ciaA.tick(t); ciaB.tick(t)
+        paula.ledOn = ciaA.ddra & 2 != 0 && ciaA.pra & 2 == 0
         paula.runLine()
     }
     var ciaTickAcc = 0.0

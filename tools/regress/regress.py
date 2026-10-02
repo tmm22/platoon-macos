@@ -6,7 +6,8 @@ kernel scripts copied to tools/regress/kernel). Each one is run by
   emu   tools/amiga/emu --deterministic                        (reference; cached, the emulator never changes)
   base  platoon-headless built from the pinned pre-enhancement commit BASE_COMMIT (cached)
   cur   the platoon-headless under test (--bin)
-all with PLATOON_ENH=originalCredits=0 (crack credits text like the emulator) unless the scenario says otherwise,
+all with PLATOON_ENH=originalCredits=0,referenceEmulator=1 (crack credits text and the emulator's timing/Paula
+instead of the real-A500 defaults, see port/verify/timing.md) unless the scenario says otherwise,
 and with tick dumps at the original main-loop heads, screenshots and (port only) an FNV hash of ALL RAM after
 every frame.
 
@@ -41,7 +42,7 @@ class Sc:
         self.port_lines = port_lines if port_lines is not None else emu_lines
         self.port_frames = port_frames if port_frames is not None else frames
         self.port_args, self.tds, self.shot_every = list(port_args), list(tds), shot_every
-        self.env = env if env is not None else {'PLATOON_ENH': 'originalCredits=0'}
+        self.env = env if env is not None else {'PLATOON_ENH': 'originalCredits=0,referenceEmulator=1'}
         self.emu, self.frame_off, self.note = emu, frame_off, note
 
 def lines_of(path):
@@ -73,17 +74,18 @@ def kernel_scenarios():
                       ('go2t', 2900, 20), ('s0s1', 7000, 50)]:
         f = 'empty' if n == 'title' else n
         L.append(Sc(f'k_{n}', 'kernel', sanitize(lines_of(f'{RK}/{f}.txt')), fr, tds=tds, shot_every=se))
-    # true defaults (originalCredits on): golden only
-    L.append(Sc('k_title_defaults', 'kernel', lines_of(f'{RK}/empty.txt'), 1400, tds=tds, shot_every=20, env={}, emu=False,
-                note='all enhancement defaults (originalCredits on), golden only'))
+    # defaults (originalCredits on) except the emulator timing: golden only
+    L.append(Sc('k_title_defaults', 'kernel', lines_of(f'{RK}/empty.txt'), 1400, tds=tds, shot_every=20,
+                env={'PLATOON_ENH': 'referenceEmulator=1'}, emu=False,
+                note='enhancement defaults (originalCredits on) with referenceEmulator=1, golden only'))
     # hiscore persistence (PLATOON_HISCORES): the saved track file is compared too; golden only
     L.append(Sc('k_hs_persist', 'kernel', sanitize(lines_of(f'{RK}/hs.txt')), 4200, tds=tds, shot_every=100, emu=False,
-                env={'PLATOON_ENH': 'originalCredits=0', 'PLATOON_HISCORES': '{out}/hiscores.bin'},
+                env={'PLATOON_ENH': 'originalCredits=0,referenceEmulator=1', 'PLATOON_HISCORES': '{out}/hiscores.bin'},
                 note='PLATOON_HISCORES file written by the $424 save hook, golden only'))
     # continue from section 1 with a carried a6 block (PLATOON_CARRY) - golden only
     L.append(Sc('k_carry1', 'kernel', lines_of(f'{RK}/carry_port.txt'), 1700, port_args=['--start-section', '1'],
                 tds=[A6, ('171c6', '12dde', '78')], shot_every=50, emu=False,
-                env={'PLATOON_ENH': 'originalCredits=0', 'PLATOON_CARRY': f'{RK}/carry.bin'},
+                env={'PLATOON_ENH': 'originalCredits=0,referenceEmulator=1', 'PLATOON_CARRY': f'{RK}/carry.bin'},
                 note='--start-section 1 + PLATOON_CARRY, golden only'))
     return L
 

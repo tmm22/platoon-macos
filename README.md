@@ -55,8 +55,8 @@ Mac shortcuts: ⌘, Preferences · ⌘/ Controls & Bindings · ⌘P pause emulat
 button can be rebound in Controls & Bindings.
 
 ## Enhancements
-**All optional.** With every setting at its default you play the original 1988 game: the translated code runs
-byte-identically to the verified port (`tools/regress_all.sh`, 62 lockstep scenarios). Options that change the game
+**All optional.** With every setting at its default you play the original 1988 game at real-A500 speed: the
+translated code runs byte-identically to the verified port (`tools/regress_all.sh`, 62 lockstep scenarios). Options that change the game
 are marked *gameplay*; a game played with any of them (or with a cheat, a loaded save, rewind, practice, a
 section start…) is *assisted* and its score goes to a separate high-score table, never the original one.
 The full user guide is [port/ENHANCEMENTS_GUIDE.md](port/ENHANCEMENTS_GUIDE.md) (also in the app's Help menu).
@@ -97,6 +97,13 @@ game RAM compared tick by tick (with the RNG made deterministic in both), screen
 driver's register stream write by write, including complete honest play-throughs of every section and all hand-overs
 (jungle → village → tunnels → flare → final jungle → foxhole → ending → high-score entry). Evidence: `port/verify/`.
 
+Speed and sound are those of a real Amiga 500. The reference emulator gives the 68000 every bus cycle and finishes
+blits instantly, which made the CPU-bound parts run too fast there (the jungle and village, the flare night and the
+final jungle). The port's timing was therefore calibrated against the cycle-exact vAmiga, tick by tick on identical
+games: jungle ~18 ticks per second instead of 25, final jungle ~25 instead of 50. Paula follows the hardware too:
+one audio DMA word per line (caps very high notes), the A500's 4.4 kHz filter and its "LED" filter, which the game's
+loader switches on. Details: `port/verify/timing.md`.
+
 ## Original cheats
 Type `HAMBURGER` on a title screen ("CHEAT!!!" appears in the credits), then `KEYPAD-` `H I L L` for "MEGA CHEAT"
 (or switch on Preferences ▸ Cheats ▸ *Original developer cheats*, which does the same). Then: in the jungle & village
@@ -118,5 +125,7 @@ holder. The bundled Musashi 68000 core (`tools/Musashi`) is © Karl Stenerud, MI
 - `original/` — (not in the repository) put your own disk images here.
 - `re/` — reverse-engineering: per-module specs (`re/<module>/NOTES.md`), annotated listings, extraction scripts.
 - `tools/amiga/emu` — headless reference Amiga emulator used to verify the port (`make -C tools/amiga`).
+- `tools/vamiga/` — cycle-exact real-A500 reference (driver for the vAmiga core, fetched by `build.sh`) used to
+  calibrate the game speed (`timing_check.py`).
 - `port/` — the Swift package: `PlatoonCore` (platform + translated game), `PlatoonApp` (macOS app),
   `platoon-headless` (verification runner). See `port/PORTING.md`.

@@ -26,7 +26,7 @@ final class ReplayController {
     /// plain headless scripts (their key edges are paced by the queue like in platoon-headless: a press and its
     /// release on the same frame would otherwise reach the game within one frame and be missed).
     private var pendingKeyGap = 0
-    static func keyGap(forFile text: String) -> Int { text.hasPrefix(ReplayHeader.magic) ? 0 : 2 }
+    static func keyGap(forFile text: String) -> Int { text.hasPrefix(ReplayHeader.magicPrefix) ? 0 : 2 }
     private var startConfigKnown = false
     private var header = ReplayHeader()
     /// The cheats the recorded game runs with (read from the game once it started; nil before).

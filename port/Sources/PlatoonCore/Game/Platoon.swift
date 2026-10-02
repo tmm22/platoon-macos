@@ -18,6 +18,9 @@ public final class Platoon {
 
     /// Pending 68000 execution time in cycles (CPU-time model, see KernelSupport.swift).
     var cpuCycles = 0
+    /// Real-A500 timing (default) or the reference emulator's (enhancements.kernel.referenceEmulator), set at run
+    /// start by installTimingModel().
+    var a500Timing = true
     /// Stand-in for "d1 of the interrupted code" that the vblank handler adds to the RNG ($10ede).
     /// Translated code may set it where the original's d1 is known; 0 otherwise. Unused with deterministicRNG.
     var interruptedD1: UInt32 = 0

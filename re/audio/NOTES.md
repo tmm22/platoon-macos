@@ -70,7 +70,12 @@ python3 extract.py            # full renders (~5 min); --quick for 20 s per song
   music (4 channels) and then the sound-effect updater. It keeps running while the game is paused (TAB).
 * No audio interrupts are used (INTENA is $a020: master+EXTER+VERTB). No ADKCON modulation (always cleared to $00ff).
 * The driver writes the CIA-A PRA bit 1 (`bset #1,$bfe001`) at every song init and every sfx trigger: power LED off =
-  **Amiga audio low-pass filter OFF**. The Swift port should not apply the LED filter.
+  **Amiga audio low-pass filter OFF**. But the resident disk loader switches it ON again after every load
+  (`bclr #1,$bfe001` at $db4, also $7637c in the boot loader), so on an A500 the LED filter IS heard from the end of a
+  load to the next song init / sfx: e.g. the title tune after the hiscore load (~18 s up to the first sfx) and the
+  loading tune at each section load. The port models it (Paula `accurate`, port/verify/timing.md).
+* Periods below ~114 can't be fed by the one audio DMA slot per line: songs 1 and 6 use 86-113 about 11 % of the time;
+  on an A500 the loop then advances one word per line (pitch capped). tools/amiga/emu (and replayer.py) don't model it.
 * Music and sfx share the 4 Paula channels. A 12-byte **shadow register block per channel** ($4084) always receives the
   music's intended LC/LEN/PER/VOL; while a sound effect owns a channel (`shadow+$b != 0`) the music keeps running but
   its hardware writes to that channel are suppressed; when the sfx ends the shadow values are written back.

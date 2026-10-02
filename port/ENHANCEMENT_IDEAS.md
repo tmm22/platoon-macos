@@ -624,8 +624,9 @@ Hiscore integrity (S5) is not a headline feature, but it has to ship with the fi
   (the game-thread stack).
 - **Photosensitivity temporal-limiter shader.** It could hide enemy muzzle flashes, which are the threat cue, and the
   pause strobe is below flash thresholds. The one-line steady-pause hook (S17) is kept.
-- **Accurate A500 LED-filter model.** The driver switches the LED filter off at every song init and SFX trigger, so it
-  is never heard. BLEP resampling (M25) is kept.
+- ~~Accurate A500 LED-filter model.~~ Done (default): the premise was wrong, the resident loader switches the filter
+  on after every disk load, so it is heard until the next tune / SFX (port/verify/timing.md). BLEP resampling (M25) is
+  kept.
 - **DualSense adaptive-trigger ammo resistance and wound light bar.** Gimmicks. Basic rumble (S13) is kept.
 - **Tunnel forward-step zoom.** It fights the original walk-phase frames. Turn slide (M25) is kept as optional.
 - **Amiga '.' grenade key on LB.** Redundant: fire already throws grenades in the bunker.

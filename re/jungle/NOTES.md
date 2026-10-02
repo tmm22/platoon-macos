@@ -911,9 +911,10 @@ see d.1. Colour 6 of the playfield palette = $000d on levels 1-4, $0ca2 on level
   visible together at the next vertical blank.
 - Main loop: `f85c` (wait for swap) ... logic ... render into $62(a6) ... `f84c` (request swap).
   Rendering (full clear + 18 tile blits + bobs) takes more than one frame, so the loop runs at
-  **25 Hz: one tick every 2 frames** (measured: 234 of 249 intervals = 2 frames, a few 1 or 3 frames
-  from blit/CPU phase; 500 frames = 250 ticks). All speeds in this document are per tick.
-  A port should run exactly one tick per 2 vblanks.
+  **25 Hz: one tick every 2 frames in tools/amiga/emu** (measured: 234 of 249 intervals = 2 frames, a few 1 or 3
+  frames from blit/CPU phase; 500 frames = 250 ticks). All speeds in this document are per tick.
+  On a real A500 (cycle-exact vAmiga, port/verify/timing.md) it is ~2.8 frames per tick (mostly 3, ~18 Hz): the
+  emulator gives the CPU every bus cycle and does the blits in zero time.
 - Order inside a tick: input -> keys -> player state -> fire input -> enemy state -> priority line ->
   background -> spawners/triggers -> objects (trap, charge, crate) -> enemy (+contact) -> bullets ->
   explosion -> player -> swap -> morale-1.
@@ -1092,8 +1093,8 @@ see re/audio.
 
 ---------------------------------------------------------------------------------------------------
 ## (j) Open questions / uncertainties
-- Exact real-hardware tick rate: the emulator shows 2 frames/tick almost always; whether a real A500
-  sometimes manages 1 frame (e.g. when few bobs) is unverified. The code has no fixed-rate logic.
+- Exact real-hardware tick rate: RESOLVED with vAmiga (port/verify/timing.md): 2.77-2.79 frames/tick on identical
+  games (2:~25 %, 3:~75 %, a few 4), against 2.00 in tools/amiga/emu. The code has no fixed-rate logic.
 - Level 5 col 88 down-path (level 6 = pointer table overrun) — reachability not verified.
 - Attribute byte values other than the solid ones are unused here — maybe used by other sections.
 - The trap spawn x "tile value" offset (§b.8) looks like a bug (d0 high byte kept) but is the

@@ -9,14 +9,19 @@ func usage() -> Never {
     print("""
     platoon-headless [--adf FILE] [--frames N] [--script FILE] [--out DIR] [--shot-every N] [--wav FILE]
                      [--hash HEXLO HEXLEN] [--chipdump FILE] [--start-section N] [--deterministic]
-                     [--tickdump HEXPC HEXLO HEXLEN FILE]
+                     [--tickdump HEXPC HEXLO HEXLEN FILE] [--tickinput HEXPC FILE]
                      [--music-test SONG] [--sfx-test ID] [--audio-test] [--reglog FILE] [--wav-rate HZ] [--no-filter]
       --hash      print an FNV hash of a RAM region after every frame (lockstep comparison)
       --start-section N  skip the title and start a new game in load section N (0,1,2)
       --trainer LIST     ammo,morale,invulnerable (LEGACY host-side trainer, for old replays; use --enh cheat.*)
       --deterministic    no 'interrupted d1' term in the vblank RNG (pair with emu --deterministic)
-      --enh K=V[,K=V]    enhancement options (repeatable; same keys as PLATOON_ENH); --enh list prints them all
+      --enh K=V[,K=V]    enhancement options (repeatable; same keys as PLATOON_ENH); --enh list prints them all.
+                         Unlike the app, this runner defaults to referenceEmulator=1 (tools/amiga/emu timing and
+                         Paula); --enh referenceEmulator=0 plays at real-A500 speed (port/verify/timing.md)
       --tickdump  append [u32 frame][LEN bytes at LO] whenever translated code calls tickPoint(PC)
+      --tickinput per-tick inputs instead of per-frame ones (timing calibration against tools/vamiga): lines
+                  "TICK in HEXBITS" (bit0 down, 1 right, 2 up, 3 left, 7 fire) / "TICK poke HEXADDR HEXVAL SIZE",
+                  applied when tickPoint(PC) is reached for the TICK-th time (0-based)
       --music-test SONG  audio test mode: load the main program, run only the music driver (vblank md_play),
                          start song SONG (0..6) before frame 0. Script cmds: music N, musicoff, stop, fade, sfx ID (hex, kernel routing),
                          rawsfx D0 (hex, (channel<<8)|id straight to the driver $2838)
@@ -34,8 +39,12 @@ var args = Array(CommandLine.arguments.dropFirst())
 var adfPath = "../re/platoon_port.adf", frames = 500, scriptPath: String?, outDir = "out", shotEvery = 0
 var wavPath: String?, hashRange: (UInt32, Int)?, chipdump: String?
 var config = GameConfig()
+// This runner verifies the port against tools/amiga/emu: it defaults to the emulator's timing and Paula
+// (referenceEmulator=1); `--enh referenceEmulator=0` (or PLATOON_ENH) selects the app's real-A500 timing.
+config.enhancements.kernel.referenceEmulator = true
 var trainer = Trainer()
 var musicTest: Int?, sfxTest: Int?, audioTestMode = false, reglogPath: String?, wavRate = 48000, noFilter = false
+var tickInput: (pc: UInt32, path: String)?
 let snapshots = HeadlessSnapshots()   // savestate test modes (Snapshots.swift)
 while !args.isEmpty {
     let a = args.removeFirst()
@@ -60,6 +69,7 @@ while !args.isEmpty {
         let pc = UInt32(next(), radix: 16) ?? 0, lo = UInt32(next(), radix: 16) ?? 0, len = Int(next(), radix: 16) ?? 0, f = next()
         FileManager.default.createFile(atPath: f, contents: nil)
         if let h = FileHandle(forWritingAtPath: f) { config.tickDumps.append((pc, lo, len, h)) }
+    case "--tickinput": tickInput = (UInt32(next(), radix: 16) ?? 0, next())
     case "--music-test": musicTest = Int(next())
     case "--sfx-test": sfxTest = Int(next(), radix: 16)
     case "--audio-test": audioTestMode = true
@@ -115,6 +125,7 @@ if let cd = chipdump {
     m.chip.intena = intena & 0x3fff // no handlers in test mode
     m.start { mm in while true { mm.waitVBlank() } }
 } else if let at = audioTest {
+    m.chip.paula.accurate = !config.enhancements.kernel.referenceEmulator
     at.setup()
     m.start { mm in while true { mm.waitVBlank() } }
     if let n = musicTest { at.music(n) }
@@ -122,6 +133,32 @@ if let cd = chipdump {
 } else if let snap = snapshots.loaded {
     PlatoonGame.resume(m, from: snap, config: config, assisted: nil)   // verification: exact continuation
 } else {
+    if let ti = tickInput, let text = try? String(contentsOfFile: ti.path, encoding: .utf8) {
+        // per-tick inputs: [tick: [(cmd, args)]]
+        var byTick: [Int: [[String]]] = [:]
+        for l in text.split(separator: "\n") {
+            let p = l.split(separator: " ").map(String.init)
+            if p.count >= 3, let k = Int(p[0]) { byTick[k, default: []].append(Array(p[1...])) }
+        }
+        var count = 0
+        let machine = m
+        config.onTickPoint = { pc in
+            guard pc == ti.pc else { return }
+            for e in byTick[count] ?? [] {
+                if e[0] == "in", let b = UInt8(e[1], radix: 16) {
+                    machine.input.down = b & 1 != 0; machine.input.right = b & 2 != 0
+                    machine.input.up = b & 4 != 0; machine.input.left = b & 8 != 0; machine.input.fire = b & 0x80 != 0
+                } else if e[0] == "poke", e.count >= 3, let a = UInt32(e[1], radix: 16), let v = UInt32(e[2], radix: 16) {
+                    switch Int(e.count > 3 ? e[3] : "1") ?? 1 {
+                    case 1: machine.memory.w8(a, UInt8(truncatingIfNeeded: v))
+                    case 2: machine.memory.w16(a, UInt16(truncatingIfNeeded: v))
+                    default: machine.memory.w32(a, v)
+                    }
+                }
+            }
+            count += 1
+        }
+    }
     m.start { PlatoonGame.main($0, config: config) }
 }
 

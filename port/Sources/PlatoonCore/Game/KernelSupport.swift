@@ -169,6 +169,26 @@ extension Platoon {
 
     static let cyclesPerLine = 454
 
+    // Real-A500 timing (default; enhancements.kernel.referenceEmulator = the emulator's): tools/amiga/emu gives the
+    // 68000 every bus cycle and completes blits instantly, a real A500 does neither. Measured with the cycle-exact
+    // vAmiga (tools/vamiga, port/verify/timing.md) on identical ticks of the original game: CPU-only code runs 6.6%
+    // slower than its Musashi count (bus alignment), and the blitter's DMA time mostly adds to the CPU time
+    // (the program waits for each blit before it sets up the next, and the 4-plane display takes half the slots).
+    // So `cpuCycles` stays in Musashi cycles, a raster line holds `cpuLine` of them, and every blit adds its
+    // cycle-diagram time scaled by `a500BlitCost` (per mille, Musashi cycles per blitter DMA cycle).
+    static let a500CPULine = 426          // 454 / 1.066
+    static let a500BlitCost = 2_720
+
+    /// Musashi cycles of main-program work per raster line (CPU-time model).
+    var cpuLine: Int { a500Timing ? Platoon.a500CPULine : Platoon.cyclesPerLine }
+
+    /// Installs the blitter's share of the A500 timing (at run start, after the enhancements are resolved).
+    func installTimingModel() {
+        a500Timing = !enhancements.kernel.referenceEmulator
+        chip.paula.accurate = a500Timing
+        chip.onBlitCycles = a500Timing ? { [weak self] dma in self?.cpu(dma * Platoon.a500BlitCost / 1000) } : nil
+    }
+
     /// Adds `cycles` of 68000 execution time (paid at the next wait / settleCPU()).
     func cpu(_ cycles: Int) { cpuCycles += cycles }
 
@@ -178,7 +198,7 @@ extension Platoon {
         // Only the main program waits: inside an interrupt handler (which may run on the host thread, or on the
         // game thread when a register write dispatches it synchronously) the time is kept as debt for later.
         guard irqDepth == 0, Thread.current.name == "Platoon game" else { return }
-        let cpl = Platoon.cyclesPerLine
+        let cpl = cpuLine
         while cpuCycles >= cpl {
             let lines = cpuCycles / cpl
             let target = m.beamLine + lines
@@ -198,7 +218,7 @@ extension Platoon {
 
     /// Waits `lines` raster lines of CPU time from the current beam position (crossing vblanks if needed).
     func advanceBeam(_ lines: Int) {
-        cpu(lines * Platoon.cyclesPerLine)
+        cpu(lines * cpuLine)
         settleCPU()
     }
 
@@ -210,13 +230,13 @@ extension Platoon {
     /// raster line) only the part of the handler that extends past the wake-up delays it (irqCatchUp).
     func irqCharge(_ cycles: Int) {
         if cpuBusy { irqPreempted += cycles; return }
-        irqBusyUntil = max(irqBusyUntil, beamCycles) + cycles
+        irqBusyUntil = max(irqBusyUntil, beamCycles) + cycles * Platoon.cyclesPerLine / cpuLine
     }
 
     /// After a wait: the main program resumes only when the interrupt handlers running at that moment finished.
     func irqCatchUp() {
         let now = beamCycles
-        if irqBusyUntil > now { cpuCycles += irqBusyUntil - now }
+        if irqBusyUntil > now { cpuCycles += (irqBusyUntil - now) * cpuLine / Platoon.cyclesPerLine }
         irqBusyUntil = 0
     }
 

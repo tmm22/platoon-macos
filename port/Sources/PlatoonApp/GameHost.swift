@@ -51,6 +51,8 @@ final class GameHost {
 
     private var last: CFTimeInterval = 0
     private var acc: Double = 0
+    /// Smoothed display callback interval (seconds), to recognise a display that really runs at ~50 Hz.
+    private var avgDt: Double = 0
     static let frameTime = 1.0 / 50.0
 
     // MARK: game speed (accessibility slow motion, M22 audio side)
@@ -295,9 +297,12 @@ final class GameHost {
         let perTick = isFastForwarding ? fastForwardSpeed : 1
         audioGain = perTick > 1 ? Float(Prefs.double(BuiltinPrefs.ffVolume)) : 1
         let ft = GameHost.frameTime / speed
+        avgDt = avgDt == 0 ? dt : avgDt * 0.95 + dt * 0.05
         // Display running at ~50 Hz (e.g. a variable-refresh display): one Amiga frame per display frame,
-        // so every frame is shown exactly once and scrolling stays perfectly smooth.
-        if speed >= 1 && abs(dt - ft) < ft * 0.15 {
+        // so every frame is shown exactly once and scrolling stays perfectly smooth. Decided on the average
+        // callback interval: a single late callback of a 60/120 Hz display (16.7 ms + jitter) must not be taken
+        // for a 50 Hz frame, or the game runs slow and the audio underruns.
+        if speed >= 1 && abs(avgDt - ft) < ft * 0.03 && abs(dt - ft) < ft * 0.15 {
             runFrames(perTick)
             acc = 0
             return true

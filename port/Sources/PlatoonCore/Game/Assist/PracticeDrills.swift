@@ -103,6 +103,8 @@ public enum PracticeDrills {
         var cfg = GameConfig()
         cfg.deterministicRNG = true
         cfg.enhancements.kernel.originalCredits = false          // exactly the verification runs' configuration
+        cfg.enhancements.kernel.referenceEmulator = true         // (the routes are timed for tools/amiga/emu; the drill
+                                                                 // then resumes with the player's timing)
         var events: [(Int, [String])] = []
         let target: Int
         var loop: SnapshotLoop?

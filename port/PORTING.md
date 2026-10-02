@@ -82,6 +82,8 @@ Every module is an `extension Platoon { ... }` so all routines can call each oth
 From an interrupt handler running on the host thread use `m.requestJump { ... }`.
 
 ## Lockstep tools
+- `--tickinput HEXPC FILE` (platoon-headless; `TICKIN` for tools/vamiga/drv): per-tick inputs ("TICK in HEXBITS",
+  "TICK poke A V S") applied at the TICK-th tickPoint(PC), so machines running at different speeds play the same game.
 - `--deterministic` (emu and platoon-headless): removes BOTH per-vblank RNG terms (`add.l d1,$12d70` and
   `addi.l #1,$12d70`; emu NOPs $10ede-$10eed) and sets the seed `$12d70 := $31415926` when section code starts
   (emu: whenever PC hits $17000; port: at the start of `sectionN_start()` when `config.deterministicRNG`). The port's
@@ -93,8 +95,13 @@ From an interrupt handler running on the host thread use `m.requestJump { ... }`
   so differences in frame pacing do not matter.
 - `platoon-headless --start-section N` skips the title and starts a new game in load section N.
 - Frame pacing: several section loops are CPU-bound on the A500 (e.g. the jungle takes ~2-3 frames per tick with no
-  explicit pacing). Measure the emulator's typical frames-per-tick with --tickdump and reproduce it with explicit
-  `m.waitFrames`/`k_wait_vbl` so game speed matches. Document the choice.
+  explicit pacing). Their routines charge their Musashi cycle cost with `cpu(n)` (KernelSupport CPU-time model,
+  costs fitted against the emulator) and the model pays it as raster lines before the next wait.
+- Real-A500 timing (default) vs emulator timing (`referenceEmulator=1`): the emulator gives the 68000 every bus cycle
+  and blits instantly. By default a raster line holds `cpuLine` = 426 Musashi cycles instead of 454 and every blit
+  charges its DMA cycles x `a500BlitCost` (Chipset.onBlitCycles), calibrated tick-locked against the cycle-exact
+  vAmiga (`port/verify/timing.md`, `tools/vamiga/timing_check.py`). Keep new costs in Musashi cycles; lockstep work
+  against the emulator uses `--enh referenceEmulator=1` (the gate sets it). Paula has the same switch (`accurate`).
 
 ## Team rules (parallel translation)
 - Each agent owns its files (listed in its task). Do not edit other agents' files. `KernelAPI.swift` and
@@ -116,8 +123,9 @@ tools/regress_all.sh --only 's0_|k_hs' ...     # regex subset;  --skip REGEX;  -
   (`s0_*`, `port/verify/section0/harness/sc`, port started with `--start-section 0` and the harness's 114-frame
   offset / tick-aligned `.port.txt` inputs), section 1 (`s1_*`, `port/verify/section1/scripts`), section 2
   (`s2_*`, `port/verify/section2/*.txt`) - the harness scripts with the harnesses' tick-dump PCs and RAM regions.
-- Each scenario runs in three tools with `--deterministic` and `PLATOON_ENH=originalCredits=0` (three `k_*` scenarios
-  use true defaults / PLATOON_HISCORES / PLATOON_CARRY): `tools/amiga/emu`, the **baseline** port built from the
+- Each scenario runs in three tools with `--deterministic` and `PLATOON_ENH=originalCredits=0,referenceEmulator=1`
+  (the emulator's timing and Paula instead of the real-A500 defaults; three `k_*` scenarios use the defaults with
+  referenceEmulator=1 / PLATOON_HISCORES / PLATOON_CARRY): `tools/amiga/emu`, the **baseline** port built from the
   pinned pre-enhancement commit `716172f` (`git archive`, built once into `/tmp/regress-cache/baseline-716172f`), and the
   binary under test. Emulator and baseline outputs are cached in `/tmp/regress-cache` (keyed by script/args/binary).
 - **PASS** = the binary under test is byte-identical to the baseline: all tick dumps (RAM + frame numbers), the FNV

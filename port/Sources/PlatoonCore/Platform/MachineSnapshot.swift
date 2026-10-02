@@ -49,6 +49,8 @@ public struct PaulaState {
     var dmacon: UInt16
     var lpL: Float, lpR: Float
     var sampleAcc: Double
+    /// A500 LED filter history (in-memory snapshots only; a file restore starts it from silence, like vAmiga).
+    var led = PaulaLEDFilter()
 }
 
 public struct InputState {
@@ -103,8 +105,10 @@ extension CIA {
 }
 
 extension Paula {
-    func captureState() -> PaulaState { PaulaState(ch: ch, dmacon: dmacon, lpL: lpL, lpR: lpR, sampleAcc: sampleAcc) }
-    func restoreState(_ s: PaulaState) { ch = s.ch; dmacon = s.dmacon; lpL = s.lpL; lpR = s.lpR; sampleAcc = s.sampleAcc }
+    func captureState() -> PaulaState { PaulaState(ch: ch, dmacon: dmacon, lpL: lpL, lpR: lpR, sampleAcc: sampleAcc, led: ledFilter) }
+    func restoreState(_ s: PaulaState) {
+        ch = s.ch; dmacon = s.dmacon; lpL = s.lpL; lpR = s.lpR; sampleAcc = s.sampleAcc; ledFilter = s.led
+    }
 }
 
 extension Input {
@@ -248,6 +252,19 @@ extension CIAState {
 }
 
 extension PaulaState {
+    /// Real-A500 Paula state (pending audio DMA requests, LED filter history), written as a trailer after the game
+    /// snapshot payload so files stay readable both ways; files without it restore these at rest.
+    func encodeA500(into w: inout SnapWriter) {
+        w.string("paula-a500")
+        for c in ch { w.f64(c.reqTime) }
+        led.encode(into: &w)
+    }
+    mutating func decodeA500(_ r: inout SnapReader) throws {
+        guard try r.string() == "paula-a500" else { return }
+        for i in 0..<ch.count { ch[i].reqTime = try r.f64() }
+        try led.decode(&r)
+    }
+
     func encode(into w: inout SnapWriter) {
         w.u32(UInt32(ch.count))
         for c in ch {

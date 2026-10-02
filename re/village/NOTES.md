@@ -463,7 +463,7 @@ Player visible sprite spans world x = $60c30*8−11 .. $60c30*8+9.
 ---------------------------------------------------------------------------------------------------
 ## (e) Per-frame flow
 Same main loop as the jungle (`main_loop` $17186, see re/jungle §b.2): logic runs once per 2 frames
-(25 Hz) **[V]** (bp at $17186 hit every other frame; buffer swap $f84c at raster line ~$fd, then the loop
+(25 Hz) in tools/amiga/emu, ~2.8 frames on a real A500 (port/verify/timing.md) **[V]** (bp at $17186 hit every other frame; buffer swap $f84c at raster line ~$fd, then the loop
 waits in $f85c for the level-6 raster IRQ to switch copper lists). Order per tick: tick++ → read_input →
 spawn-chance decay → (keys) → $f85c → $60c44=0 → player state handler → player_fire_input → enemy
 state handler → priority line → draw_tiles → trap_spawn → explosives_pickup → bridge_logic → crate_open →

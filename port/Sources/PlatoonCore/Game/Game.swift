@@ -18,6 +18,9 @@ public struct GameConfig {
     public var hiscoreURL: URL?
     /// Tick dumps: when translated code passes `tickPoint(pc)`, append [u32 frame][len bytes at lo] to the file.
     public var tickDumps: [(pc: UInt32, lo: UInt32, len: Int, file: FileHandle)] = []
+    /// Verification tooling: called (game thread) at every `tickPoint(pc)` before the dumps, e.g. to feed
+    /// per-tick inputs (platoon-headless --tickinput). nil = none.
+    public var onTickPoint: ((UInt32) -> Void)?
     /// Enhancement switches for this run (copied into Platoon.enhancements at start, difficulty preset resolved).
     public var enhancements = Enhancements()
     /// F1/F2 probe (context + event observers + markAssisted); nil = none (zero cost).
@@ -48,6 +51,7 @@ public enum PlatoonGame {
             .union(p.config.assistedReasons)
         p.runAssist = p.enhancements.cheatAssistReasons
         p.enhancements = p.enhancements.resolved()
+        p.installTimingModel()
         attach(p, to: m)
         p.probeAttach()
         return p
@@ -130,8 +134,9 @@ extension Platoon {
     /// (typically the head of a main loop). Used for tick-by-tick lockstep comparison with the emulator.
     func tickPoint(_ pc: UInt32) {
         if Platoon.traceTicks {
-            print(String(format: "[f%d v%03d] BP %06x", m.frameCount, m.beamLine + cpuCycles / Platoon.cyclesPerLine, pc))
+            print(String(format: "[f%d v%03d] BP %06x", m.frameCount, m.beamLine + cpuCycles / cpuLine, pc))
         }
+        config.onTickPoint?(pc)
         for t in config.tickDumps where t.pc == pc {
             var d = Data(capacity: 4 + t.len)
             var fr = UInt32(truncatingIfNeeded: m.frameCount).littleEndian

@@ -13,7 +13,7 @@ extension PrefsRegistry {
             PrefSection(tab: .video, title: "CRT look",
                         footer: "Used when the filter is CRT (⌘3). Classic is the port's original CRT shader; the presets tie the "
                             + "phosphor mask to the output resolution, so it doesn't make moiré at 1080p/1440p. The scanline "
-                            + "slider above drives Classic and Custom. A look only: it doesn't change the 25 Hz jungle movement.",
+                            + "slider above drives Classic and Custom. A look only: it doesn't change the jungle's ~18 Hz movement.",
                         order: 5, items: [
                 .choice(VideoKeys.crtPreset, "Preset", default: 0, CRTPreset.allCases.map { ($0.rawValue, $0.title) }),
                 .choice(VideoKeys.crtMask, "Phosphor mask", default: 2, [(0, "None"), (1, "Aperture grille"), (2, "Slot mask")]).enabled(if: isCustomCRT),

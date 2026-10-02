@@ -295,7 +295,7 @@ extension Platoon {
             mem.w32(a0 &+ 0x2000, 0); mem.w32(a0 &+ 0x4000, 0); mem.w32(a0 &+ 0x6000, 0); mem.w32(a0, 0); a0 &+= 4
             mem.w32(a1 &+ 0x2000, 0); mem.w32(a1 &+ 0x4000, 0); mem.w32(a1 &+ 0x6000, 0); mem.w32(a1, 0); a1 &+= 4
             cpu(192)
-            if cpuCycles >= Platoon.cyclesPerLine { settleCPU() }
+            if cpuCycles >= cpuLine { settleCPU() }
         }
         cpu(4)
         k_set_top_pal(S2.palGame)

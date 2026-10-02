@@ -151,6 +151,7 @@ public struct GameSnapshot {
         var p = SnapWriter()
         machine.encode(into: &p)
         host.encode(into: &p)
+        machine.chip.paula.encodeA500(into: &p)          // optional trailer (older files end before it)
         let payload = (try? (p.data as NSData).compressed(using: .zlib) as Data) ?? Data()
         var out = Data(Self.magic)
         var v = SnapWriter(); v.u32(Self.formatVersion); v.u32(UInt32(h.data.count))
@@ -165,8 +166,9 @@ public struct GameSnapshot {
         }
         do {
             var r = SnapReader(raw)
-            let m = try MachineState.decode(&r)
+            var m = try MachineState.decode(&r)
             let h = try PlatoonHostState.decode(&r)
+            if !r.atEnd { try m.chip.paula.decodeA500(&r) }
             return GameSnapshot(info: info, machine: m, host: h)
         } catch { throw Failure.corrupt }
     }

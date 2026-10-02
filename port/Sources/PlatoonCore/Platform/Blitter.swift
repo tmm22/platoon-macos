@@ -63,10 +63,19 @@ extension Chipset {
         bzero = !any
     }
 
+    /// DMA cycles (colour clocks, 2 CPU cycles each) an OCS blit needs with the bus to itself: per word 2-4
+    /// cycles by the channels in use (the blitter cycle diagram, HRM / WinUAE), 4 per pixel in line mode.
+    static func blitDMACycles(con0: UInt16, con1: UInt16, width w: Int, height h: Int) -> Int {
+        if con1 & 1 != 0 { return h * 4 }
+        let perWord: [Int] = [2, 2, 2, 3, 3, 3, 3, 4, 2, 2, 2, 3, 3, 3, 3, 4]
+        return w * h * perWord[Int(con0 >> 8) & 15]
+    }
+
     func doBlit(width w: Int, height h: Int) {
         blitCount &+= 1
         let con0 = regs[0x40 >> 1], con1 = regs[0x42 >> 1]
         blitLog?(self, w, h)
+        onBlitCycles?(Chipset.blitDMACycles(con0: con0, con1: con1, width: w, height: h))
         if con1 & 1 != 0 { blitLine(height: h); raise(0x0040); return }
         let ash = UInt32(con0 >> 12), bsh = UInt32(con1 >> 12)
         let useA = con0 & 0x800 != 0, useB = con0 & 0x400 != 0, useC = con0 & 0x200 != 0, useD = con0 & 0x100 != 0

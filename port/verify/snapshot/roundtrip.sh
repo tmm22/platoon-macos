@@ -3,14 +3,15 @@
 # modes; the per-frame FNV hash of ALL chip RAM, the tick dumps at the four loop heads, the screenshots and the WAV
 # output must be byte-identical.
 #   roundtrip.sh [SCENARIO...]     scenarios: s0 s1t s1f s2 (default all)
-# env: BIN (headless binary), OUT (work dir), BASEBIN (binary for the base run, default BIN)
+# env: BIN (headless binary), OUT (work dir), BASEBIN (binary for the base run, default BIN),
+#      A500=1 (real-A500 timing and Paula, the app's default, instead of the headless runner's referenceEmulator=1)
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 BIN=${BIN:-/tmp/pbuild-snapshot/release/platoon-headless}
 BASEBIN=${BASEBIN:-$BIN}
 OUT=${OUT:-/tmp/enh-snapshot/rt}
 ADF=$ROOT/re/platoon_port.adf
 V=$ROOT/port/verify
-export PLATOON_ENH=originalCredits=0
+export PLATOON_ENH=originalCredits=0${A500:+,referenceEmulator=0}
 mkdir -p "$OUT"
 
 scen() {   # name -> "frames|script|extra args"

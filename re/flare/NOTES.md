@@ -351,8 +351,8 @@ section at `$170c4`, which resets flares (`$2c`) and compass (`$26`) to 0 and un
 
 - Main loop is not vblank locked: it waits only for the previous flip (`f85c`, flag $12d74 cleared when the level-6
   CIA-B TOD raster interrupt swaps COP1LC at line ≈204). The CPU background copy (~160k cycles) makes one iteration take
-  **2 frames** normally (measured distribution over 215 iterations: 174×2, 22×1, 18×3 frames). Port: run the logic at
-  25 Hz (one iteration per 2 vblanks). All durations above are in iterations.
+  **2 frames** normally in tools/amiga/emu (measured distribution over 215 iterations: 174×2, 22×1, 18×3 frames); ~2.5
+  on a real A500 (vAmiga, port/verify/timing.md). All durations above are in iterations.
 - Level-3 vblank (kernel `$10eac`): music driver `$280e`, RNG seed `$12d70 += d1(interrupted) + 1`, keyboard checks,
   sets `$56(a6)` for `f848`. Message/HUD animation happens in `f834`, called once per iteration.
 - Blocking waits inside the section: intro messages; `player_hit_flare` waits for the message queue (~46 frames freeze
@@ -426,8 +426,8 @@ section at `$170c4`, which resets flares (`$2c`) and compass (`$26`) to 0 and un
 
 ## (j) Open questions / uncertainties
 
-- Iteration length on real hardware (emulated 1–3 frames, mostly 2) depends on CPU vs. DMA timing; the Musashi-based
-  emulator ignores DMA contention. A fixed 25 Hz port is the recommended approximation.
+- Iteration length on real hardware: RESOLVED with vAmiga: ~2.5 frames (2:57 % 3:35 % 4:7 %) against ~2.0 in the
+  Musashi-based emulator, which ignores DMA contention and blitter time (port/verify/timing.md).
 - The exact message timing/HUD code (`f82c/f834/f818`) and the level-6 raster interrupt belong to the kernel module.
 - `$3b22e` is written but never read inside section 1 (maybe read by nothing).
 - The init bug at `$18b3a` writes zeros into the tunnel crosshair record via stale a3 (harmless).

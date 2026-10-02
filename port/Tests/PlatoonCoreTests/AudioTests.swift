@@ -294,6 +294,56 @@ final class AudioTests: XCTestCase {
         XCTAssertLessThan(jump, 0.01, "no discontinuities")   // 2nd difference of a 440 Hz sine at 0.5 is ~0.0021
         XCTAssertEqual(s.stats.underruns, 0)
     }
+
+    // MARK: real-A500 Paula model (default) vs the reference emulator's
+
+    /// Rising zero crossings per second of the left channel (after the first 0.1 s).
+    private func fundamental(_ stereo: [Float], rate: Double) -> Double {
+        let skip = Int(rate / 10)
+        var n = 0, prev: Float = 0
+        for i in skip..<(stereo.count / 2) {
+            let x = stereo[2 * i]
+            if prev < 0 && x >= 0 { n += 1 }
+            prev = x
+        }
+        return Double(n) / (Double(stereo.count / 2 - skip) / rate)
+    }
+
+    /// A period too short for the one audio DMA word per line: the loop advances one word per line on an A500
+    /// (16 words -> 15625 / 16 Hz), the emulator's Paula plays it at clock / period / 32.
+    func testShortPeriodIsCappedByAudioDMA() {
+        let lines = 15625 * 2
+        let a500 = fundamental(renderSquare(per: 94, lines: lines), rate: 48000)
+        let emu = fundamental(renderSquare(per: 94, lines: lines) { $0.accurate = false }, rate: 48000)
+        XCTAssertEqual(a500, 15625.0 / 16, accuracy: 5)
+        XCTAssertEqual(emu, Paula.clock / 94 / 32, accuracy: 5)
+    }
+
+    /// Periods the DMA can feed (>= 114) play exactly as in the emulator model (filters off).
+    func testNormalPeriodsUnchangedByAudioDMA() {
+        for per: UInt16 in [114, 124, 200, 428] {
+            let a500 = renderSquare(per: per, lines: 4000)
+            let emu = renderSquare(per: per, lines: 4000) { $0.accurate = false }
+            XCTAssertEqual(a500, emu, "period \(per)")
+        }
+    }
+
+    /// The LED filter (3.09 kHz, 2 poles): transparent at 500 Hz, strong cut at 10 kHz; only heard while on.
+    func testLEDFilterResponse() {
+        func gainDB(_ f: Double, on: Bool) -> Double {
+            var flt = PaulaLEDFilter(); flt.prepare(rate: 48000)
+            var inP = 0.0, outP = 0.0
+            for i in 0..<48000 {
+                let x = Float(sin(2 * Double.pi * f * Double(i) / 48000))
+                let y = flt.process(x, x, on: on).0
+                if i >= 4800 { inP += Double(x * x); outP += Double(y * y) }
+            }
+            return 10 * log10(outP / inP)
+        }
+        XCTAssertEqual(gainDB(500, on: true), 0, accuracy: 0.5)
+        XCTAssertLessThan(gainDB(10000, on: true), -10)
+        XCTAssertEqual(gainDB(10000, on: false), 0, accuracy: 0.01)
+    }
 }
 
 /// Small deterministic RNG for the audio stream simulations.
